@@ -1,6 +1,6 @@
 package main
 
-import "github.com/zmoog/mariquita/command"
+import "github.com/bcmi-labs/iot-cloud-cli/command"
 
 func main() {
 	command.Execute()
