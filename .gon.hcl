@@ -1,5 +1,5 @@
-source = ["./mariquita"]
-bundle_id = "dev.zmoog.mariquita"
+source = ["./iot-cloud-cli"]
+bundle_id = "dev.zmoog.iot-cloud-cli"
 
 apple_id {
   username = "maurizio.branca@gmail.com"
@@ -11,5 +11,5 @@ sign {
 }
 
 zip {
-  output_path = "./mariquita.zip"
+  output_path = "./iot-cloud-cli.zip"
 }

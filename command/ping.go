@@ -9,10 +9,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/bcmi-labs/iot-cloud-cli/adapters/mqtt"
+	"github.com/bcmi-labs/iot-cloud-cli/internal/properties"
 	paho "github.com/eclipse/paho.mqtt.golang"
 	"github.com/spf13/cobra"
-	"github.com/zmoog/mariquita/adapters/mqtt"
-	"github.com/zmoog/mariquita/internal/properties"
 )
 
 var (

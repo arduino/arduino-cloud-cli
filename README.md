@@ -1,9 +1,9 @@
-# Mariquita
+# iot-cloud-cli
 
-Mariquita is a virtual device for Arduino IoT Cloud for testing.
+The iot-cloud-cli is a virtual device for Arduino IoT Cloud for testing.
 
 ```
-$ mariquita ping -u "<deviceId>" -p "<secret>" -t <thing ID>>
+$ iot-cloud-cli ping -u "<deviceId>" -p "<secret>" -t <thing ID>>
   Connected to Arduino IoT Cloud
   Subscribed true
   Property value sent successfully 81
@@ -12,7 +12,7 @@ $ mariquita ping -u "<deviceId>" -p "<secret>" -t <thing ID>>
 
 ## Requirements
 
-This is all you need to use Mariquita:
+This is all you need to use iot-cloud-cli:
  * A "Generic ESP8266 Module" device in IoT Cloud (requires a Maker plan)
  * A thing with a `counter` property connected to the "Generic ESP8266 Module" device 
 
@@ -42,7 +42,7 @@ You should connect the new device to the new thing.
 ### Testing
 
 ```shell
-$ mariquita ping -u "<Device ID>" -p "<Secret Key>" -t <Thing ID>>
+$ iot-cloud-cli ping -u "<Device ID>" -p "<Secret Key>" -t <Thing ID>>
 ```
 
 If every works as expected you should see something similar to this output:
