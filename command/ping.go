@@ -2,22 +2,25 @@ package command
 
 import (
 	"fmt"
-	paho "github.com/eclipse/paho.mqtt.golang"
-	"github.com/spf13/cobra"
-	"github.com/zmoog/mariquita/adapters/mqtt"
-	"github.com/zmoog/mariquita/internal/properties"
+	"log"
 	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	paho "github.com/eclipse/paho.mqtt.golang"
+	"github.com/spf13/cobra"
+	"github.com/zmoog/mariquita/adapters/mqtt"
+	"github.com/zmoog/mariquita/internal/properties"
 )
 
 var (
-	host     string
-	username string
-	password string
-	thingID  string
+	host            string
+	username        string
+	password        string
+	thingID         string
+	troubleshooting bool
 )
 
 func init() {
@@ -25,6 +28,8 @@ func init() {
 	pingCommand.Flags().StringVarP(&username, "username", "u", "", "Username (required)")
 	pingCommand.Flags().StringVarP(&password, "password", "p", "", "Password (required)")
 	pingCommand.Flags().StringVarP(&thingID, "thing_id", "t", "", "Thing ID (required)")
+
+	pingCommand.Flags().BoolVar(&troubleshooting, "troubleshooting", false, "Enable troubleshooting mode (full logs from the MQTT client)")
 
 	pingCommand.MarkFlagRequired("username")
 	pingCommand.MarkFlagRequired("password")
@@ -38,6 +43,14 @@ var pingCommand = &cobra.Command{
 	Short: "Ping Arduino IoT Cloud",
 	Long:  "Ping Arduino IoT Cloud",
 	RunE: func(cmd *cobra.Command, args []string) error {
+
+		if troubleshooting {
+			paho.ERROR = log.New(os.Stdout, "[ERROR] ", 0)
+			paho.CRITICAL = log.New(os.Stdout, "[CRIT] ", 0)
+			paho.WARN = log.New(os.Stdout, "[WARN]  ", 0)
+			paho.DEBUG = log.New(os.Stdout, "[DEBUG] ", 0)
+		}
+
 		mqttAdapter := mqtt.NewAdapterWithAuth(
 			host,
 			username,
