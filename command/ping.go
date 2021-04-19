@@ -62,7 +62,7 @@ var pingCommand = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		fmt.Println("Connected to Arduino IoT Cloud")
+		fmt.Println(" * Connected to Arduino IoT Cloud")
 
 		inboundTopic := fmt.Sprintf("/a/t/%s/e/i", thingID)
 		outboundTopic := fmt.Sprintf("/a/t/%s/e/o", thingID)
@@ -70,9 +70,18 @@ var pingCommand = &cobra.Command{
 		// Subscribing to the thing inbound topic to received new properties
 		// values from the cloud.
 		ok, _ := mqttAdapter.On(inboundTopic, func(msg paho.Message) {
-			fmt.Println("received a message", msg)
+			propertyValue, err := properties.From(msg.Payload())
+			if err != nil {
+				fmt.Println(" ! failed to decode nessage from", inboundTopic)
+			}
+
+			fmt.Println(" < received property value", propertyValue.Values)
 		})
-		fmt.Println("Subscribed", ok)
+		if ok {
+			fmt.Println(" * Subscribed to topic", inboundTopic)
+		} else {
+			fmt.Println(" ! Failed to subscribe to topic", inboundTopic)
+		}
 
 		// Sending new random values (in the 0-100 range) to the thing specified
 		// using the flags
@@ -82,15 +91,15 @@ var pingCommand = &cobra.Command{
 
 				property, err := properties.NewInteger("counter", randomValue)
 				if err != nil {
-					fmt.Println("Failed to encode property value", err)
+					fmt.Println(" ! Failed to encode property value", err)
 				}
 
 				// Publishing a new random value to the outbound topic of the thing
 				err = mqttAdapter.Publish(outboundTopic, property)
 				if err != nil {
-					fmt.Println("Failed to send property to Arduino IoT Cloud", err)
+					fmt.Println(" ! Failed to send property to Arduino IoT Cloud", err)
 				}
-				fmt.Println("Property value sent successfully", randomValue)
+				fmt.Println(" > sent property value", randomValue)
 
 				wait := 3
 				time.Sleep(time.Duration(wait) * time.Second)
@@ -109,8 +118,8 @@ var pingCommand = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		fmt.Println("Disconnected from Arduino IoT Cloud.")
-		fmt.Println("Completed successfully.")
+		fmt.Println(" * Disconnected from Arduino IoT Cloud.")
+		fmt.Println(" * Completed successfully.")
 
 		return nil
 	},
