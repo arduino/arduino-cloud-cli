@@ -1,0 +1,6 @@
+# IDEs
+.idea
+
+# Binaries
+iot-cloud-cli
+iot-cloud-cli.exe
