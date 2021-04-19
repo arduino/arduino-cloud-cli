@@ -22,3 +22,8 @@ func NewInteger(name string, value int) ([]byte, error) {
 
 	return val, nil
 }
+
+// From decodes a new `codec.DevicePropertyValues` from a `[]byte` payload.
+func From(payload []byte) (codec.DevicePropertyValues, error) {
+	return senmlCodec.Decode(payload)
+}
