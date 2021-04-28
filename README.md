@@ -41,6 +41,8 @@ You should connect the new device to the new thing.
 
 ### Testing
 
+#### Connect to the PROD environment
+
 ```shell
 $ iot-cloud-cli ping -u "<Device ID>" -p "<Secret Key>" -t <Thing ID>>
 ```
@@ -54,3 +56,11 @@ Property value sent successfully 87
 ```
 
 If you visit https://create.arduino.cc/iot/devices the "Generic ESP8266 Module" device status should be "Online".
+
+#### Connect to the DEV environment
+
+The DEV environment is using a different broker, so you need to add the option `--host`:
+
+```shell
+$ iot-cloud-cli ping --host tcps://mqtts-sa.iot.oniudra.cc:8884 -u "<Device ID>" -p "<Secret Key>" -t "<thing-id>"
+```
