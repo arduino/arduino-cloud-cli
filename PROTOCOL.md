@@ -35,6 +35,7 @@ example of SenML coding of properties
         {"n":"fanstatus","vb":true}
       ]
   
+Note: use http://cbor.me/  to easily get a CBOR representation starting from JSON equivalent. also see http://cbor.io/
   
 Example
 ---------------
