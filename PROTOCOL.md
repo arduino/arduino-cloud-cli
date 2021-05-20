@@ -25,4 +25,19 @@ after initial connection
 Message format
 ---------------
   
-* Messages are in SENML encoded in CBOR according to standard https://datatracker.ietf.org/doc/html/rfc8428 
+* Messages are in SenML encoded in CBOR according to standard https://datatracker.ietf.org/doc/html/rfc8428 
+
+example of SenML coding of properties
+  
+      [
+        {"bn":"urn:dev:ow:10e2073a01080063:","n":"voltage","u":"V","v":120.1},
+        {"n":"current","u":"A","v":1.2}
+      ]
+  
+  
+Example
+---------------
+  
+
+  
+  
