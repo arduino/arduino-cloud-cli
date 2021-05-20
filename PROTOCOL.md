@@ -25,4 +25,4 @@ after initial connection
 Message format
 ---------------
   
-* Messages are in SENML encoded in CBOR
+* Messages are in SENML encoded in CBOR according to standard https://datatracker.ietf.org/doc/html/rfc8428 
