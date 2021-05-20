@@ -40,6 +40,11 @@ Note: use http://cbor.me/  to easily get a CBOR representation starting from JSO
 Example
 ---------------
   
+ - device writes following message to DEVICE_SHADOW_OUT
+  // [{0: "r:m", 3: "getLastValues"}] = 81 A2 00 63 72 3A 6D 03 6D 67 65 74 4C 61 73 74 56 61 6C 75 65 73
+  
+  - response from cloud on DEVICE_SHADOW_IN
+  
 
   
   
