@@ -26,16 +26,44 @@ Message format
 ---------------
   
 * Messages are in SenML encoded in CBOR according to standard https://datatracker.ietf.org/doc/html/rfc8428 and https://datatracker.ietf.org/doc/html/rfc7049
-
-example of SenML coding of properties
+  
+Example of SenML encoding of properties
   
       [
         {"n":"temperature","v":120.1},
         {"n":"humidity","v":1.2},
         {"n":"fanstatus","vb":true}
       ]
+
+Integers can be used for map keys as specified in RFC8428
+  
+                  +---------------+-------+------------+
+                  |          Name | Label | CBOR Label |
+                  +---------------+-------+------------+
+                  |  Base Version | bver  |         -1 |
+                  |     Base Name | bn    |         -2 |
+                  |     Base Time | bt    |         -3 |
+                  |     Base Unit | bu    |         -4 |
+                  |    Base Value | bv    |         -5 |
+                  |      Base Sum | bs    |         -6 |
+                  |          Name | n     |          0 |
+                  |          Unit | u     |          1 |
+                  |         Value | v     |          2 |
+                  |  String Value | vs    |          3 |
+                  | Boolean Value | vb    |          4 |
+                  |           Sum | s     |          5 |
+                  |          Time | t     |          6 |
+                  |   Update Time | ut    |          7 |
+                  |    Data Value | vd    |          8 |
+                  +---------------+-------+------------+
+  
   
 Note: use http://cbor.me/  to easily get a CBOR representation starting from JSON equivalent. also see http://cbor.io/
+
+  
+* *Methods* can be invoked to the cloud as in a form of RPC. To invoke a method, a special property name "r:m" is used, while the property value is the method name
+  
+  
   
 Example
 ---------------
