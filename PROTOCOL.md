@@ -70,10 +70,14 @@ Example
   
  - device writes following message to DEVICE_SHADOW_OUT
                      
-          [{0: "r:m", 3: "getLastValues"}] = 81 A2 00 63 72 3A 6D 03 6D 67 65 74 4C 61 73 74 56 61 6C 75 65 73
+          [{0: "r:m", 3: "getLastValues"}]   => in CBOR =>   81 A2 00 63 72 3A 6D 03 6D 67 65 74 4C 61 73 74 56 61 6C 75 65 73
   
-  - response from cloud on DEVICE_SHADOW_IN
+  - response from cloud on DEVICE_SHADOW_IN  ( device shall set its internal status to these values ) 
+          
+          [{0: "temperature", 2: 27.8}]
   
+  - device sends current value of properties on THING_OUT
 
+          [{0: "temperature", 2: 28.8}]
   
   
