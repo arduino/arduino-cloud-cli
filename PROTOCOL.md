@@ -28,8 +28,9 @@ Connection types
   
 * Third party boards and other devices can connect to MQTT with a lower security level by using:
   - username = device_id    
-  - password = device_secret
- both these information are provided during device configuration via API or on Cloud Web UI 
+  - password = device_secretkey
+  
+ Both these information are provided during device configuration via API or on Cloud Web UI 
  Cloud API documentation is available here https://www.arduino.cc/reference/en/iot/api/   and at the same location you can find reference clients for Javascript, Python and Golang. 
   
   
