@@ -11,14 +11,14 @@ it should align its internal status to the status last stored on cloud)
 
 2. Device must post to an outgoing topic DEVICE_SHADOW_OUT = /a/d/_deviceid_/shadow/o to send:
   - any information about the device itself, like serial numbers, firmwware version, battery status
-  - request to know the connected thing and status; when this request is received, cloud will reply on topic /a/d/<deviceid>/shadow/i as described above
+  - request to know the connected thing and status; when this request is received, cloud will reply on topic /a/d/_deviceid_/shadow/i as described above
 
 
 after initial connection
 
 * Device can publish variables to a topic THING_OUT = /a/t/_thingid_/e/o
     
-* Device can subscribe and receive variables from a topic THING_IN = /a/t/_thingid_/e/i
+* Device can subscribe and receive variables changes from a topic THING_IN = /a/t/_thingid_/e/i
 
   
 Connection types
@@ -30,8 +30,7 @@ Connection types
   - username = device_id    
   - password = device_secretkey
   
- Both these information are provided during device configuration via API or on Cloud Web UI 
- Cloud API documentation is available here https://www.arduino.cc/reference/en/iot/api/   and at the same location you can find reference clients for Javascript, Python and Golang. 
+Both these information are provided during device configuration via API or on Cloud Web UI. Cloud API documentation is available here https://www.arduino.cc/reference/en/iot/api/   and at the same location you can find reference clients for Javascript, Python and Golang. 
   
   
 Message format
