@@ -1,6 +1,30 @@
 Arduino IoTCloud - MQTT protocol description
 =======
 
+
+Core concepts
+--------------
+
+* Device is a physical IoT device identified by a deviceId
+* Thing is a logical representation of a device in Arduino Cloud, also known as "Digital Twin" for the Device
+* MQTT broker is the frontend communication server that communicates with the device
+
+
+ 
+                                                          °°°°°°°°°
+                                                  °°°°°°°°°°°°  °°°°°°
+                                              °°°  °°         °    °°° °°°
+      ┌─────────┐                            °°°                 ┌──────┐     °
+      │         │                         ┌─────────────┐        │      │     °
+      │ device  ├────────────────────────▲│MQTT broker  ├───────▲│thing │   °°
+      │         │▼────────────────────────┴─────────────┘▼───────┤      │   ° °°
+      └─────────┘                           °                    └──────┘      °
+                                            ° °           °         °          °
+                                               ° °°      °°°        °°°° ° ° °°
+                                                   ° °° °  °°° ° ° °
+  
+
+
 on connection:
 
 1. Device must subscribe to an incoming topic DEVICE_SHADOW_IN = /a/d/_deviceid_/shadow/i to receive:
