@@ -8,7 +8,7 @@ Core concepts
 * Device is a physical IoT device identified by a deviceid
 * Thing is a logical representation of a device in Arduino Cloud, also known as "Digital Twin" for the Device. A Thing has its own thingid. 
 * MQTT broker is the frontend communication server that communicates with the device. Coimmunication happens via messages on MQTT topics.
-* A Device has a 1-to-1 association with a Thing, but there is a phase of the lifecycle in which a device is connected but the corresponding thing might still not exist. Plus, a device can be detached from a Thing and associated to another Thing. In a similar way, for example when a device breaks, the corresponding Thing in Cloud still remains and can be associated to another Device. In this way, the historical status and information of this Thing are preserved even in case of hardware failures of the Device
+* A Device has a 1-to-1 association with a Thing. However, there is a phase of the lifecycle in which a device is connected but the corresponding thing might still not exist. Plus, a device can be detached from a Thing and associated to another Thing. In a similar way, for example when a device breaks, the corresponding Thing in Cloud still remains and can be associated to another Device. In this way, the historical status and information of this Thing are preserved even in case of hardware failures of the Device
 
 
  
@@ -23,41 +23,41 @@ Core concepts
                                             ° °           °         °          °
                                                ° °°      °°°        °°°° ° ° °°
                                                    ° °° °  °°° ° ° °
-  
 
 
-on connection:
+MQTT Topics
+---------------
 
-1. Device must subscribe to an incoming topic DEVICE_SHADOW_IN = /a/d/_deviceid_/shadow/i to receive:
+"IN" ("INPUT") topics are topics on which the device recives data. "OUT" ("OUTPUT") topics are topics on which the device publishes data
+
+* THING_OUT = /a/t/_thingid_/e/o
+* THING_IN = /a/t/_thingid_/e/i
+* DEVICE_OUT = /a/d/_deviceid_/e/o
+* DEVICE_SHADOW_IN = /a/d/_deviceid_/shadow/i
+* DEVICE_SHADOW_OUT = /a/d/_deviceid_/shadow/o
+
+
+Expected behavior on connection:
+
+1. Device MUST subscribe to DEVICE_SHADOW_IN  to receive:
   - thingID that represents the Thing that this device is currently connected to and to which it should populate data
   - last status of all variables associated to this Thing
 (which means: cloud is storing a Thing status reflecting values of certain variables; when device restarts,
 it should align its internal status to the status last stored on cloud)
 
-2. Device must post to an outgoing topic DEVICE_SHADOW_OUT = /a/d/_deviceid_/shadow/o to send:
+2. Device MUST publish to DEVICE_SHADOW_OUT to send:
   - RPC request (getLastValues) to know the connected thing and status; when this request is received, cloud will reply on topic DEVICE_SHADOW_IN as described above
 
-3. device can DEVICE_OUT = /a/d/_deviceid_/e/o
-  - any information about the device itself, like serial numbers, firmwware version, battery status
+3. device can publish on DEVICE_OUT (optional) to send: 
+  - any information about the device itself, like serial numbers, firmwware version, battery status. this will be stored as is by the cloud
 
 after initial connection
 
-* Device can publish variables to a topic THING_OUT = /a/t/_thingid_/e/o
-    
-* Device can subscribe and receive variables changes from a topic THING_IN = /a/t/_thingid_/e/i
+* Device can publish variable changes to the topic THING_OUT   
+* Device can subscribe and receive variable changes from a topic THING_IN  
+* At any point in time, cloud can send a last status on DEVICE_SHADOW_IN to force a sync with local variables and also to communicate a change in thingid connected.
+the change can also notify thingid = _UNASSOCIATED_ which means the device is not associated to a thing yet
 
-  
-Connection types
----------------
-
-* Arduino devices have a strong security level because at provisioning time the device certificate is written on a crypto-chip on the board itself. Hence, connection happens using that device certificate and thus confirming device identity
-  
-* Third party boards and other devices can connect to MQTT with a lower security level by using:
-  - username = device_id    
-  - password = device_secretkey
-  
-Both these information are provided during device configuration via API or on Cloud Web UI. Cloud API documentation is available here https://www.arduino.cc/reference/en/iot/api/   and at the same location you can find reference clients for Javascript, Python and Golang. 
-  
   
 Message format
 ---------------
@@ -117,4 +117,18 @@ Example
 
           [{0: "temperature", 2: 28.8}]
   
+  
+  
+  Connection types
+---------------
+
+* Arduino devices have a strong security level because at provisioning time the device certificate is written on a crypto-chip on the board itself. Hence, connection happens using that device certificate and thus confirming device identity
+  
+* Third party boards and other devices can connect to MQTT with a lower security level by using:
+  - username = device_id    
+  - password = device_secretkey
+  
+Both these information are provided during device configuration via API or on Cloud Web UI. Cloud API documentation is available here https://www.arduino.cc/reference/en/iot/api/   and at the same location you can find reference clients for Javascript, Python and Golang. 
+
+
   
