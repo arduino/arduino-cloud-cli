@@ -21,6 +21,17 @@ after initial connection
 * Device can subscribe and receive variables from a topic THING_IN = /a/t/_thingid_/e/i
 
   
+Connection types
+---------------
+
+* Arduino devices have a strong security level because at provisioning time the device certificate is written on a crypto-chip on the board itself. Hence, connection happens using that device certificate and thus confirming device identity
+  
+* Third party boards and other devices can connect to MQTT with a lower security level by using:
+  - username = device_id    
+  - password = device_secret
+ both these information are provided during device configuration via API or on Cloud Web UI 
+ Cloud API documentation is available here https://www.arduino.cc/reference/en/iot/api/   and at the same location you can find reference clients for Javascript, Python and Golang. 
+  
   
 Message format
 ---------------
