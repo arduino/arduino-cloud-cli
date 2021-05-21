@@ -10,9 +10,10 @@ on connection:
 it should align its internal status to the status last stored on cloud)
 
 2. Device must post to an outgoing topic DEVICE_SHADOW_OUT = /a/d/_deviceid_/shadow/o to send:
-  - any information about the device itself, like serial numbers, firmwware version, battery status
-  - request to know the connected thing and status; when this request is received, cloud will reply on topic /a/d/_deviceid_/shadow/i as described above
+  - RPC request (getLastValues) to know the connected thing and status; when this request is received, cloud will reply on topic DEVICE_SHADOW_IN as described above
 
+3. device can DEVICE_OUT = /a/d/_deviceid_/e/o
+  - any information about the device itself, like serial numbers, firmwware version, battery status
 
 after initial connection
 
