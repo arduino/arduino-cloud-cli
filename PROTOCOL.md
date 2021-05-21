@@ -7,8 +7,11 @@ Core concepts
 
 * Device is a physical IoT device identified by a deviceid
 * Thing is a logical representation of a device in Arduino Cloud, also known as "Digital Twin" for the Device. A Thing has its own thingid. 
-* MQTT broker is the frontend communication server that communicates with the device. Coimmunication happens via messages on MQTT topics.
 * A Device has a 1-to-1 association with a Thing. However, there is a phase of the lifecycle in which a device is connected but the corresponding thing might still not exist. Plus, a device can be detached from a Thing and associated to another Thing. In a similar way, for example when a device breaks, the corresponding Thing in Cloud still remains and can be associated to another Device. In this way, the historical status and information of this Thing are preserved even in case of hardware failures of the Device
+* MQTT broker is the frontend communication server that communicates with the device. Coimmunication happens via messages on MQTT topics.
+* a Thing has a status that is based on a set of variables that can change over time. For example, the status of a switch or a temperature
+* the Thing status is persisted on cloud and also historical changes are tracked
+* a Device has a local copy of the status of its associated Thing; however, this local copy can be lost due to a failure or reset of the device. For this reason, the cloud can use _SHADOW_ topics to restore the proper status of a device making it identical to the remote copy. Let's consider an example: a device has a variable to control an engine speed, with curent value 30 rpm. The device has a restart and the variable goes to a default value of 0 rpm. However, immediately after restart, the connected thing will send information to the device (using SHADOW topic) to restore the last value of 30 rpm in its local state. Hence, the control continues to work as expected.
 
 
  
@@ -37,16 +40,15 @@ MQTT Topics
 * DEVICE_SHADOW_OUT = /a/d/_deviceid_/shadow/o
 
 
-Expected behavior on connection:
+Expected behavior on reset/connection:
 
 1. Device MUST subscribe to DEVICE_SHADOW_IN  to receive:
-  - thingID that represents the Thing that this device is currently connected to and to which it should populate data
+  - thingID that represents the Thing that this device is currently associated to and to which it should populate data
   - last status of all variables associated to this Thing
-(which means: cloud is storing a Thing status reflecting values of certain variables; when device restarts,
-it should align its internal status to the status last stored on cloud)
+when receiving a message on DEVICE_SHADOW_IN, the device MUST restore its internal status to the value of variables received, and properly set associated thingid
 
 2. Device MUST publish to DEVICE_SHADOW_OUT to send:
-  - RPC request (getLastValues) to know the connected thing and status; when this request is received, cloud will reply on topic DEVICE_SHADOW_IN as described above
+  - RPC request of a method "getLastValues" to know the connected thing and status; when this request is received, cloud will reply on topic DEVICE_SHADOW_IN as described above
 
 3. device can publish on DEVICE_OUT (optional) to send: 
   - any information about the device itself, like serial numbers, firmwware version, battery status. this will be stored as is by the cloud
@@ -119,7 +121,7 @@ Example
   
   
   
-  Connection types
+Connection types
 ---------------
 
 * Arduino devices have a strong security level because at provisioning time the device certificate is written on a crypto-chip on the board itself. Hence, connection happens using that device certificate and thus confirming device identity
