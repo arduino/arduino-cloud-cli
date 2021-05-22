@@ -74,7 +74,7 @@ Example of SenML encoding of properties
         {"n":"fanstatus","vb":true}
       ]
 
-Integers can be used for map keys as specified in RFC8428
+Integers are used for map keys as specified in RFC8428
   
                   +---------------+-------+------------+
                   |          Name | Label | CBOR Label |
@@ -99,7 +99,10 @@ Integers can be used for map keys as specified in RFC8428
   
 Note: use http://cbor.me/  to easily get a CBOR representation starting from JSON equivalent. also see http://cbor.io/
 
-  
+* Arduino Cloud supports variable types that are in the form of a *Multi-Value map* with multiple sub-keys; those sub-keys are sent as separate variables in SenML, with the notation *variable:subkey*. For example, _DimmedLight_ is a variable type that has two sub-keys "swi" of type bool which represents the on/off status of the light, and "bri" of type integer which represents the light brightness from 0 to 100. Hence if you define a variable _dimlit_ of type _DimmedLight_, the SenML record will be
+
+       [{0: "dimlit:swi", 4: false}, {0: "dimlit:bri", 2: 59}]
+
 * *Methods* can be invoked to the cloud as in a form of RPC. To invoke a method, a special property name "r:m" is used, while the property value is the method name
   
   
