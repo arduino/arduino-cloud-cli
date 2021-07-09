@@ -27,7 +27,7 @@ type client struct {
 // programmatically call arduino-cli commands.
 // It exploits the grpc interface of the arduino-cli.
 // It returns: the client instance, a callback to close the client and an error
-func NewClient() (arduino.Client, func() error, error) {
+func NewClient() (arduino.Commander, func() error, error) {
 	// Establish a connection with the gRPC server, started with the command:
 	// arduino-cli daemon
 	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure(), grpc.WithBlock(), grpc.WithTimeout(time.Second))
