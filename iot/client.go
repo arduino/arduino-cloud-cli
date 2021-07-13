@@ -9,6 +9,7 @@ import (
 
 type Client interface {
 	AddDevice(fqbn, name, serial, devType string) (string, error)
+	AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
 }
 
 type client struct {
@@ -39,6 +40,22 @@ func (cl *client) AddDevice(fqbn, name, serial, dType string) (string, error) {
 		return "", err
 	}
 	return dev.Id, nil
+}
+
+func (cl *client) AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2, error) {
+	cert := iotclient.CreateDevicesV2CertsPayload{
+		Ca:      "Arduino",
+		Csr:     csr,
+		Enabled: true,
+	}
+
+	newCert, _, err := cl.api.DevicesV2CertsApi.DevicesV2CertsCreate(cl.ctx, id, cert)
+	if err != nil {
+		err = fmt.Errorf("creating certificate, %w", err)
+		return nil, err
+	}
+
+	return &newCert.Compressed, nil
 }
 
 func (cl *client) setup(client, secret string) error {
