@@ -7,6 +7,7 @@ import (
 	iotclient "github.com/arduino/iot-client-go"
 )
 
+// Client can be used to perform actions on the arduino iot cloud.
 type Client interface {
 	AddDevice(fqbn, name, serial, devType string) (string, error)
 	AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
@@ -17,6 +18,8 @@ type client struct {
 	api *iotclient.APIClient
 }
 
+// NewClient returns a new client implementing the Client interface.
+// It needs a ClientID and SecretID for cloud authentication.
 func NewClient(clientID, secretID string) (Client, error) {
 	cl := &client{}
 	err := cl.setup(clientID, secretID)
@@ -27,6 +30,8 @@ func NewClient(clientID, secretID string) (Client, error) {
 	return cl, nil
 }
 
+// AddDevice allows to create a new device on arduino iot cloud.
+// It returns the ID associated to the new device, and an error.
 func (cl *client) AddDevice(fqbn, name, serial, dType string) (string, error) {
 	payload := iotclient.CreateDevicesV2Payload{
 		Fqbn:   fqbn,
@@ -42,6 +47,8 @@ func (cl *client) AddDevice(fqbn, name, serial, dType string) (string, error) {
 	return dev.Id, nil
 }
 
+// AddCertifcate allows to upload a certificate on arduino iot cloud.
+// It returns the certificate parameters populated by the cloud.
 func (cl *client) AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2, error) {
 	cert := iotclient.CreateDevicesV2CertsPayload{
 		Ca:      "Arduino",
