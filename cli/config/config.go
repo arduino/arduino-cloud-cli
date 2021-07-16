@@ -6,6 +6,7 @@ import (
 
 	"github.com/arduino/arduino-cli/cli/feedback"
 	paths "github.com/arduino/go-paths-helper"
+	"github.com/bcmi-labs/iot-cloud-cli/command/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -34,10 +35,11 @@ func runConfigCommand(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("%s", "Provide either a yaml file or credentials\n")
 	}
 
+	conf := viper.New()
+
 	if configFlags.file != "" {
 		file := paths.New(configFlags.file)
 		filename := strings.TrimSuffix(file.String(), file.Ext())
-		conf := viper.New()
 		conf.SetConfigName(filename)
 		conf.SetConfigType(strings.Trim(file.Ext(), "."))
 		conf.AddConfigPath(".")
@@ -47,20 +49,15 @@ func runConfigCommand(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		if err := conf.WriteConfigAs("config.yaml"); err != nil {
-			feedback.Errorf("Cannot create config file: %v", err)
-			return err
-		}
-
 	} else {
-		conf := viper.New()
 		conf.BindPFlag("client", cmd.Flag("client"))
 		conf.BindPFlag("secret", cmd.Flag("secret"))
+	}
 
-		if err := conf.WriteConfigAs("config.yaml"); err != nil {
-			feedback.Errorf("Cannot create config file: %v", err)
-			return err
-		}
+	err := config.Config(conf)
+	if err != nil {
+		feedback.Errorf("Storing config file:  %v", err)
+		return err
 	}
 
 	fmt.Println("Configuration file updated")
