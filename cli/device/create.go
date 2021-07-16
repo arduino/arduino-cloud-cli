@@ -8,7 +8,7 @@ import (
 	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/bcmi-labs/iot-cloud-cli/arduino/grpc"
 	"github.com/bcmi-labs/iot-cloud-cli/command/config"
-	"github.com/bcmi-labs/iot-cloud-cli/iot"
+	"github.com/bcmi-labs/iot-cloud-cli/internal/iot"
 	"github.com/spf13/cobra"
 )
 
