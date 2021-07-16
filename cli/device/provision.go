@@ -11,7 +11,7 @@ import (
 
 	"github.com/bcmi-labs/iot-cloud-cli/arduino"
 	"github.com/bcmi-labs/iot-cloud-cli/internal/iot"
-	"github.com/bcmi-labs/iot-cloud-cli/serial"
+	"github.com/bcmi-labs/iot-cloud-cli/internal/serial"
 )
 
 type provision struct {
