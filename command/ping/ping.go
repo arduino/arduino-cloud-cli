@@ -14,7 +14,7 @@ import (
 	paho "github.com/eclipse/paho.mqtt.golang"
 )
 
-type PingParams struct {
+type Params struct {
 	Host            string
 	Username        string
 	Password        string
@@ -22,7 +22,7 @@ type PingParams struct {
 	Troubleshooting bool
 }
 
-func Ping(params *PingParams) error {
+func Ping(params *Params) error {
 	if params.Troubleshooting {
 		paho.ERROR = log.New(os.Stdout, "[ERROR] ", 0)
 		paho.CRITICAL = log.New(os.Stdout, "[CRIT] ", 0)

@@ -36,7 +36,7 @@ func NewCommand() *cobra.Command {
 }
 
 func runPingCommand(cmd *cobra.Command, args []string) error {
-	params := &ping.PingParams{
+	params := &ping.Params{
 		Host:            host,
 		Username:        username,
 		Password:        password,
