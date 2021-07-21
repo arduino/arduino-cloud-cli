@@ -7,9 +7,11 @@ require (
 	github.com/arduino/iot-client-go v1.3.3
 	github.com/bcmi-labs/oniudra-cli v0.15.8
 	github.com/eclipse/paho.mqtt.golang v1.3.2
+	github.com/howeyc/crc16 v0.0.0-20171223171357-2b2a61e366a6
 	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.1.3
+	go.bug.st/serial v1.3.0
 	golang.org/x/net v0.0.0-20210505024714-0287a6fb4125 // indirect
 	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
 	golang.org/x/sys v0.0.0-20210503173754-0981d6026fa6 // indirect
