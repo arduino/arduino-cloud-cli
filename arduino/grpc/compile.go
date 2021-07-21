@@ -39,15 +39,11 @@ func (c compileHandler) UploadBin(fqbn, bin, port string) error {
 
 	// Wait for the upload to complete
 	for {
-		resp, err := stream.Recv()
+		_, err := stream.Recv()
 		if err != nil {
 			if err == io.EOF {
 				break
 			}
-			err = fmt.Errorf("%s: %w", "errors during upload", err)
-			return err
-		}
-		if resp.ErrStream != nil {
 			err = fmt.Errorf("%s: %w", "errors during upload", err)
 			return err
 		}
