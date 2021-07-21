@@ -1,7 +1,7 @@
 package main
 
-import "github.com/bcmi-labs/iot-cloud-cli/command"
+import "github.com/bcmi-labs/iot-cloud-cli/cli"
 
 func main() {
-	command.Execute()
+	cli.Execute()
 }
