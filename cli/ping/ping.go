@@ -7,9 +7,9 @@ import (
 
 var (
 	host            string
-	username        string
-	password        string
-	thingID         string
+	device          string
+	secret          string
+	thing           string
 	troubleshooting bool
 )
 
@@ -21,16 +21,16 @@ func NewCommand() *cobra.Command {
 		RunE:  runPingCommand,
 	}
 
-	pingCommand.Flags().StringVarP(&host, "host", "b", "tcps://mqtts-up.iot.arduino.cc:8884", "Broker endpoint")
-	pingCommand.Flags().StringVarP(&username, "username", "u", "", "Username (required)")
-	pingCommand.Flags().StringVarP(&password, "password", "p", "", "Password (required)")
-	pingCommand.Flags().StringVarP(&thingID, "thing_id", "t", "", "Thing ID (required)")
+	pingCommand.Flags().StringVarP(&host, "host", "b", "tcps://mqtts-up.iot.arduino.cc:8884", "MQTT Broker URL")
+	pingCommand.Flags().StringVarP(&device, "device", "d", "", "Device ID")
+	pingCommand.Flags().StringVarP(&secret, "secret", "s", "", "Device Secret")
+	pingCommand.Flags().StringVarP(&thing, "thing", "t", "", "Thing ID")
 
 	pingCommand.Flags().BoolVar(&troubleshooting, "troubleshooting", false, "Enable troubleshooting mode (full logs from the MQTT client)")
 
-	pingCommand.MarkFlagRequired("username")
-	pingCommand.MarkFlagRequired("password")
-	pingCommand.MarkFlagRequired("thing_id")
+	pingCommand.MarkFlagRequired("device")
+	pingCommand.MarkFlagRequired("secret")
+	pingCommand.MarkFlagRequired("thing")
 
 	return pingCommand
 }
@@ -38,9 +38,9 @@ func NewCommand() *cobra.Command {
 func runPingCommand(cmd *cobra.Command, args []string) error {
 	params := &ping.Params{
 		Host:            host,
-		Username:        username,
-		Password:        password,
-		ThingID:         thingID,
+		Username:        device,
+		Password:        secret,
+		ThingID:         thing,
 		Troubleshooting: troubleshooting,
 	}
 
