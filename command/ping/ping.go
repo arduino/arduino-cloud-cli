@@ -15,11 +15,11 @@ import (
 )
 
 type Params struct {
-	Host            string
-	Username        string
-	Password        string
-	ThingID         string
-	Troubleshooting bool
+	Host            string // MQTT Broker URL
+	Username        string // Virtual device ID
+	Password        string // Virtual device secret
+	ThingID         string // ID of thing with `int` property named `counter` attached to the virtual device
+	Troubleshooting bool   // Enable/disable verbose logging of MQTT client
 }
 
 func Ping(params *Params) error {

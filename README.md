@@ -36,7 +36,7 @@ Use this command to provision a device:
 The iot-cloud-cli can be used as a virtual device for Arduino IoT Cloud for testing.
 
 ```
-$ iot-cloud-cli ping -u "<deviceId>" -p "<secret>" -t <thing ID>>
+$ iot-cloud-cli ping -d "<deviceId>" -s "<secret>" -t <thing ID>>
   Connected to Arduino IoT Cloud
   Subscribed true
   Property value sent successfully 81
@@ -71,7 +71,7 @@ You should connect the new device to the new thing.
 ##### Connect to the PROD environment
 
 ```shell
-$ iot-cloud-cli ping -u "<Device ID>" -p "<Secret Key>" -t <Thing ID>>
+$ iot-cloud-cli ping -d "<Device ID>" -s "<Secret Key>" -t <Thing ID>>
 ```
 
 If every works as expected you should see something similar to this output:
@@ -89,5 +89,5 @@ If you visit https://create.arduino.cc/iot/devices the "Generic ESP8266 Module" 
 The DEV environment is using a different broker, so you need to add the option `--host`:
 
 ```shell
-$ iot-cloud-cli ping --host tcps://mqtts-sa.iot.oniudra.cc:8884 -u "<Device ID>" -p "<Secret Key>" -t "<thing-id>"
+$ iot-cloud-cli ping --host tcps://mqtts-sa.iot.oniudra.cc:8884 -d "<Device ID>" -s "<Secret Key>" -t "<thing-id>"
 ```
