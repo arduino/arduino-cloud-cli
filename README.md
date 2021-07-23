@@ -1,12 +1,12 @@
 # iot-cloud-cli
 
-iot-cloud-cli is a command line interface that allows to exploit the features of Arduino IoT Cloud. As of now, it is possible to provision a device and to simulate a device to be connected to the cloud using MQTT for thoubleshooting purpose.
+iot-cloud-cli is a command line interface that allows to exploit the features of Arduino IoT Cloud. As of now, it is possible to provision a device and to simulate a device to be connected to the cloud using MQTT for troubleshooting purposes.
 
 ### Requirements
 
 This is all you need to use iot-cloud-cli for device **provisioning**:
  * A client ID and a secret ID, retrievable from the [cloud](https://create.arduino.cc/iot/integrations) by creating a new API key
- * arduino-cli in daemon mode, use the command 'arduino-cli daemon'
+ * arduino-cli in daemon mode, to start it use the command 'arduino-cli daemon'
 
 This is all you need to use iot-cloud-cli as a **virtual device**:
  * A "Generic ESP8266 Module" or "Generic ESP32 Module" device in IoT Cloud (requires a Maker plan)
@@ -15,7 +15,7 @@ This is all you need to use iot-cloud-cli as a **virtual device**:
 
 ## Set a configuration
 
-iot-cloud-cli should be configured before being used. In particular a client ID and the corresponding secret ID should be set.
+iot-cloud-cli needs to be configured before being used. In particular a client ID and the corresponding secret ID should be set.
 You can retrieve them from the [cloud](https://create.arduino.cc/iot/integrations) by creating a new API key.
 
 Once you have the IDs, call this command with your parameters:
@@ -24,7 +24,8 @@ Once you have the IDs, call this command with your parameters:
 
 ## Device provisioning
 
-When provisioning a device, you can optionally explicit the port which the device is connected to and its fqbn. If they are not given, then the first device found is provisioned.
+When provisioning a device, you can optionally specify the port to which the device is connected to and its fqbn. If they are not given, then the first device found will be provisioned.
+
 Use this command to provision a device:
 
 `$ iot-cloud-cli device create --name <deviceName> --port <port> --fqbn <deviceFqbn>`
@@ -51,7 +52,7 @@ $ iot-cloud-cli ping -u "<deviceId>" -p "<secret>" -t <thing ID>>
  * Select "ESP8266". 
  * From the drop down select "Generic ESP8266 Module", and click "Continue".
  * Pick a nice and friendly device name.
- * Save the "Device ID" and "Secret Key" is a safe place, because you will not be able to see them anymore.
+ * Save the "Device ID" and "Secret Key" in a safe place (1Password, KeepassXC, a piece of paper in your vault) , because you will not be able to see them anymore.
   
 #### Thing ID
 
