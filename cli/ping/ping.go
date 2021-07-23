@@ -21,7 +21,7 @@ func NewCommand() *cobra.Command {
 		RunE:  runPingCommand,
 	}
 
-	pingCommand.Flags().StringVarP(&host, "host", "b", "tcps://mqtts-up.iot.arduino.cc:8884", "Broker endpoint (required)")
+	pingCommand.Flags().StringVarP(&host, "host", "b", "tcps://mqtts-up.iot.arduino.cc:8884", "Broker endpoint")
 	pingCommand.Flags().StringVarP(&username, "username", "u", "", "Username (required)")
 	pingCommand.Flags().StringVarP(&password, "password", "p", "", "Password (required)")
 	pingCommand.Flags().StringVarP(&thingID, "thing_id", "t", "", "Thing ID (required)")
