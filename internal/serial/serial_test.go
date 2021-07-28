@@ -38,6 +38,23 @@ func TestSendReceive(t *testing.T) {
 	}
 }
 
+func TestSend(t *testing.T) {
+	mockPort := &mocks.Port{}
+	mockSerial := &Serial{mockPort}
+	mockPort.On("Write", mock.AnythingOfType("[]uint8")).Return(0, nil)
+
+	payload := []byte{1, 2}
+	cmd := SetDay
+	want := []byte{msgStart[0], msgStart[1], 1, 0, 5, 10, 1, 2, 143, 124, msgEnd[0], msgEnd[1]}
+
+	err := mockSerial.Send(cmd, payload)
+	if err != nil {
+		t.Error(err)
+	}
+
+	mockPort.AssertCalled(t, "Write", want)
+}
+
 func TestEncode(t *testing.T) {
 	tests := []struct {
 		name string
