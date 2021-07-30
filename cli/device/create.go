@@ -3,7 +3,7 @@ package device
 import (
 	"fmt"
 
-	"github.com/bcmi-labs/iot-cloud-cli/command/device"
+	"github.com/arduino/iot-cloud-cli/command/device"
 	"github.com/spf13/cobra"
 )
 

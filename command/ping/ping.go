@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bcmi-labs/iot-cloud-cli/internal/mqtt"
-	"github.com/bcmi-labs/iot-cloud-cli/internal/properties"
+	"github.com/arduino/iot-cloud-cli/internal/mqtt"
+	"github.com/arduino/iot-cloud-cli/internal/properties"
 	paho "github.com/eclipse/paho.mqtt.golang"
 )
 

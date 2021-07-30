@@ -1,7 +1,7 @@
 package ping
 
 import (
-	"github.com/bcmi-labs/iot-cloud-cli/command/ping"
+	"github.com/arduino/iot-cloud-cli/command/ping"
 	"github.com/spf13/cobra"
 )
 
