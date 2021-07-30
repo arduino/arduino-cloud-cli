@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bcmi-labs/iot-cloud-cli/arduino"
-	"github.com/bcmi-labs/iot-cloud-cli/internal/iot"
-	"github.com/bcmi-labs/iot-cloud-cli/internal/serial"
+	"github.com/arduino/iot-cloud-cli/arduino"
+	"github.com/arduino/iot-cloud-cli/internal/iot"
+	"github.com/arduino/iot-cloud-cli/internal/serial"
 )
 
 type provision struct {

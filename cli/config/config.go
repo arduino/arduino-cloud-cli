@@ -6,7 +6,7 @@ import (
 
 	"github.com/arduino/arduino-cli/cli/feedback"
 	paths "github.com/arduino/go-paths-helper"
-	"github.com/bcmi-labs/iot-cloud-cli/command/config"
+	"github.com/arduino/iot-cloud-cli/command/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
