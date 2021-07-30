@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bcmi-labs/iot-cloud-cli/cli/config"
-	"github.com/bcmi-labs/iot-cloud-cli/cli/device"
-	"github.com/bcmi-labs/iot-cloud-cli/cli/ping"
+	"github.com/arduino/iot-cloud-cli/cli/config"
+	"github.com/arduino/iot-cloud-cli/cli/device"
+	"github.com/arduino/iot-cloud-cli/cli/ping"
 	"github.com/spf13/cobra"
 )
 
