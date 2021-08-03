@@ -8,6 +8,6 @@ import (
 // the arduino-cli commands in a programmatic way
 type Commander interface {
 	BoardList() ([]*rpc.DetectedPort, error)
-	UploadBin(fqbn, path, port string) error
-	Compile() error
+	UploadBin(fqbn, bin, port string) error
+	//Compile() error
 }
