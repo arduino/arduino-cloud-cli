@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
-	"github.com/arduino/iot-cloud-cli/arduino/grpc"
+	"github.com/arduino/iot-cloud-cli/arduino/cli"
 	"github.com/arduino/iot-cloud-cli/internal/config"
 	"github.com/arduino/iot-cloud-cli/internal/iot"
 )
@@ -31,13 +31,12 @@ type device struct {
 // Create command is used to provision a new arduino device
 // and to add it to the arduino iot cloud.
 func Create(params *CreateParams) (string, error) {
-	rpcComm, rpcClose, err := grpc.NewClient()
+	comm, err := cli.NewCommander()
 	if err != nil {
 		return "", err
 	}
-	defer rpcClose()
 
-	ports, err := rpcComm.BoardList()
+	ports, err := comm.BoardList()
 	if err != nil {
 		return "", err
 	}
@@ -63,7 +62,7 @@ func Create(params *CreateParams) (string, error) {
 	}
 
 	prov := &provision{
-		Commander: rpcComm,
+		Commander: comm,
 		Client:    iotClient,
 		dev:       dev,
 		id:        devID}

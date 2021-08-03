@@ -6,7 +6,6 @@ iot-cloud-cli is a command line interface that allows to exploit the features of
 
 This is all you need to use iot-cloud-cli for device **provisioning**:
  * A client ID and a secret ID, retrievable from the [cloud](https://create.arduino.cc/iot/integrations) by creating a new API key
- * arduino-cli in daemon mode, to start it use the command 'arduino-cli daemon'
  * The folder containing the precompiled provisioning firmwares (`binaries`) needs to be in the same location you run the command from
 
 This is all you need to use iot-cloud-cli as a **virtual device**:
