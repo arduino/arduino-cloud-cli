@@ -5,6 +5,8 @@ import (
 	"github.com/arduino/iot-cloud-cli/internal/iot"
 )
 
+// DeviceInfo contains the most interesting
+// parameters of an Arduino IoT Cloud device.
 type DeviceInfo struct {
 	Name   string
 	ID     string
@@ -13,6 +15,8 @@ type DeviceInfo struct {
 	FQBN   string
 }
 
+// List command is used to list
+// the devices of Arduino IoT Cloud.
 func List() ([]DeviceInfo, error) {
 	conf, err := config.Retrieve()
 	if err != nil {
