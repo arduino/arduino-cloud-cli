@@ -32,3 +32,8 @@ When provisioning a device, you can optionally specify the port to which the dev
 Use this command to provision a device:
 
 `$ iot-cloud-cli device create --name <deviceName> --port <port> --fqbn <deviceFqbn>`
+
+## Device commands
+
+Devices currently present on Arduino IoT Cloud can be retrieved by using this command:
+`$ iot-cloud-cli device list`
