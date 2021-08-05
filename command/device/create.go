@@ -68,7 +68,9 @@ func Create(params *CreateParams) (string, error) {
 		id:        devID}
 	err = prov.run()
 	if err != nil {
-		// TODO: delete the device on iot cloud
+		// TODO: retry to delete the device if it returns an error.
+		// In alternative: encapsulate also this error.
+		iotClient.DeleteDevice(devID)
 		err = fmt.Errorf("%s: %w", "cannot provision device", err)
 		return "", err
 	}
