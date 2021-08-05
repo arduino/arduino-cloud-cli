@@ -35,5 +35,8 @@ Use this command to provision a device:
 
 ## Device commands
 
+Once a device has been created thorugh the provisioning procedure, it can be deleted by using the following command:
+`$ iot-cloud-cli device delete --id <deviceID>`
+
 Devices currently present on Arduino IoT Cloud can be retrieved by using this command:
 `$ iot-cloud-cli device list`

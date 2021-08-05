@@ -10,6 +10,7 @@ import (
 // Client can be used to perform actions on the arduino iot cloud.
 type Client interface {
 	AddDevice(fqbn, name, serial, devType string) (string, error)
+	DeleteDevice(id string) error
 	ListDevices() ([]iotclient.ArduinoDevicev2, error)
 	AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
 }
@@ -46,6 +47,17 @@ func (cl *client) AddDevice(fqbn, name, serial, dType string) (string, error) {
 		return "", err
 	}
 	return dev.Id, nil
+}
+
+// DeleteDevice deletes the device corresponding to the passed ID
+// from Arduino IoT Cloud.
+func (cl *client) DeleteDevice(id string) error {
+	_, err := cl.api.DevicesV2Api.DevicesV2Delete(cl.ctx, id)
+	if err != nil {
+		err = fmt.Errorf("deleting device: %w", err)
+		return err
+	}
+	return nil
 }
 
 // ListDevices retrieves and returns a list of all Arduino IoT Cloud devices
