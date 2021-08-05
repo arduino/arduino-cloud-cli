@@ -10,6 +10,7 @@ import (
 // Client can be used to perform actions on the arduino iot cloud.
 type Client interface {
 	AddDevice(fqbn, name, serial, devType string) (string, error)
+	ListDevices() ([]iotclient.ArduinoDevicev2, error)
 	AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
 }
 
@@ -45,6 +46,17 @@ func (cl *client) AddDevice(fqbn, name, serial, dType string) (string, error) {
 		return "", err
 	}
 	return dev.Id, nil
+}
+
+// ListDevices retrieves and returns a list of all Arduino IoT Cloud devices
+// belonging to the user performing the request.
+func (cl *client) ListDevices() ([]iotclient.ArduinoDevicev2, error) {
+	devices, _, err := cl.api.DevicesV2Api.DevicesV2List(cl.ctx, nil)
+	if err != nil {
+		err = fmt.Errorf("listing devices: %w", err)
+		return nil, err
+	}
+	return devices, nil
 }
 
 // AddCertifcate allows to upload a certificate on arduino iot cloud.
