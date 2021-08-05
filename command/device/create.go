@@ -11,7 +11,7 @@ import (
 	"github.com/arduino/iot-cloud-cli/internal/iot"
 )
 
-// CreateParams contains the paramters needed
+// CreateParams contains the parameters needed
 // to find the device to be provisioned.
 // If Port is an empty string, then each serial port is analyzed.
 // If Fqbn is an empty string, then the first device found gets selected.
@@ -29,7 +29,7 @@ type device struct {
 }
 
 // Create command is used to provision a new arduino device
-// and to add it to the arduino iot cloud.
+// and to add it to Arduino IoT Cloud.
 func Create(params *CreateParams) (string, error) {
 	comm, err := cli.NewCommander()
 	if err != nil {
