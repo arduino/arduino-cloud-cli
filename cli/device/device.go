@@ -13,6 +13,7 @@ func NewCommand() *cobra.Command {
 
 	deviceCommand.AddCommand(initCreateCommand())
 	deviceCommand.AddCommand(initListCommand())
+	deviceCommand.AddCommand(initDeleteCommand())
 
 	return deviceCommand
 }
