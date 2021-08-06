@@ -72,8 +72,12 @@ func cloneThing(client iot.Client, thingID string) (map[string]interface{}, erro
 	}
 
 	thing := make(map[string]interface{})
-	thing["device_id"] = clone.DeviceId
-	thing["properties"] = clone.Properties
+	if clone.DeviceId != "" {
+		thing["device_id"] = clone.DeviceId
+	}
+	if clone.Properties != nil {
+		thing["properties"] = clone.Properties
+	}
 
 	return thing, nil
 }
