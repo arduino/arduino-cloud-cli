@@ -32,5 +32,6 @@ func runDeleteCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	fmt.Println("Device successfully deleted")
 	return nil
 }
