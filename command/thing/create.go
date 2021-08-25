@@ -6,6 +6,9 @@ import (
 	"io/ioutil"
 	"os"
 
+	"errors"
+
+	iotclient "github.com/arduino/iot-client-go"
 	"github.com/arduino/iot-cloud-cli/internal/config"
 	"github.com/arduino/iot-cloud-cli/internal/iot"
 )
@@ -37,7 +40,7 @@ func Create(params *CreateParams) (string, error) {
 		return "", err
 	}
 
-	var thing map[string]interface{}
+	var thing *iotclient.Thing
 
 	if params.Clone != "" {
 		thing, err = cloneThing(iotClient, params.Clone)
@@ -50,12 +53,15 @@ func Create(params *CreateParams) (string, error) {
 		if err != nil {
 			return "", err
 		}
+
+	} else {
+		return "", errors.New("provide either a thing(ID) to clone (--clone) or a thing template file (--template)")
 	}
 
-	thing["name"] = params.Name
+	thing.Name = params.Name
 	force := true
 	if params.Device != "" {
-		thing["device_id"] = params.Device
+		thing.DeviceId = params.Device
 	}
 	thingID, err := iotClient.AddThing(thing, force)
 	if err != nil {
@@ -65,24 +71,39 @@ func Create(params *CreateParams) (string, error) {
 	return thingID, nil
 }
 
-func cloneThing(client iot.Client, thingID string) (map[string]interface{}, error) {
+func cloneThing(client iot.Client, thingID string) (*iotclient.Thing, error) {
 	clone, err := client.GetThing(thingID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "retrieving the thing to be cloned", err)
 	}
 
-	thing := make(map[string]interface{})
+	thing := &iotclient.Thing{}
+
+	// Copy device id
 	if clone.DeviceId != "" {
-		thing["device_id"] = clone.DeviceId
+		thing.DeviceId = clone.DeviceId
 	}
-	if clone.Properties != nil {
-		thing["properties"] = clone.Properties
+
+	// Copy properties
+	for _, p := range clone.Properties {
+		thing.Properties = append(thing.Properties, iotclient.Property{
+			Name:            p.Name,
+			MinValue:        p.MinValue,
+			MaxValue:        p.MaxValue,
+			Permission:      p.Permission,
+			UpdateParameter: p.UpdateParameter,
+			UpdateStrategy:  p.UpdateStrategy,
+			Type:            p.Type,
+			VariableName:    p.VariableName,
+			Persist:         p.Persist,
+			Tag:             p.Tag,
+		})
 	}
 
 	return thing, nil
 }
 
-func loadTemplate(file string) (map[string]interface{}, error) {
+func loadTemplate(file string) (*iotclient.Thing, error) {
 	templateFile, err := os.Open(file)
 	if err != nil {
 		return nil, err
@@ -94,11 +115,11 @@ func loadTemplate(file string) (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	var template map[string]interface{}
-	err = json.Unmarshal([]byte(templateBytes), &template)
+	thing := &iotclient.Thing{}
+	err = json.Unmarshal([]byte(templateBytes), thing)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "reading template file: template not valid: ", err)
 	}
 
-	return template, nil
+	return thing, nil
 }

@@ -1,13 +1,9 @@
 package iot
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"net/http"
-	"strconv"
 
 	iotclient "github.com/arduino/iot-client-go"
 )
@@ -18,7 +14,7 @@ type Client interface {
 	DeleteDevice(id string) error
 	ListDevices() ([]iotclient.ArduinoDevicev2, error)
 	AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
-	AddThing(thing interface{}, force bool) (string, error)
+	AddThing(thing *iotclient.Thing, force bool) (string, error)
 	GetThing(id string) (*iotclient.ArduinoThing, error)
 }
 
@@ -96,68 +92,21 @@ func (cl *client) AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2
 	return &newCert.Compressed, nil
 }
 
-func (cl *client) AddThing(thing interface{}, force bool) (string, error) {
-	// Request
-	url := "https://api2.arduino.cc/iot/v2/things"
-	bodyBuf := &bytes.Buffer{}
-	err := json.NewEncoder(bodyBuf).Encode(thing)
+// AddThing adds a new thing on Arduino IoT Cloud.
+func (cl *client) AddThing(thing *iotclient.Thing, force bool) (string, error) {
+	opt := &iotclient.ThingsV2CreateOpts{Force: optional.NewBool(force)}
+	newThing, resp, err := cl.api.ThingsV2Api.ThingsV2Create(cl.ctx, *thing, opt)
 	if err != nil {
-		return "", err
-	}
-	if bodyBuf.Len() == 0 {
-		err = errors.New("invalid body type")
-		return "", err
-	}
-
-	req, err := http.NewRequest(http.MethodPut, url, bodyBuf)
-	if err != nil {
-		return "", err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	var bearer = "Bearer " + cl.ctx.Value(iotclient.ContextAccessToken).(string)
-	req.Header.Add("Authorization", bearer)
-
-	q := req.URL.Query()
-	q.Add("force", strconv.FormatBool(force))
-	req.URL.RawQuery = q.Encode()
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		err = fmt.Errorf("%s: %w", "adding new thing", err)
-		return "", err
-	}
-
-	// Response
-	if resp.StatusCode != 201 {
-		// Get response error detail
 		var respObj map[string]interface{}
-		err = json.NewDecoder(resp.Body).Decode(&respObj)
-		if err != nil {
-			return "", fmt.Errorf("%s: %s: %s", "cannot get response body", err, resp.Status)
-		}
-		return "", fmt.Errorf("%s: %s", "adding new thing", respObj["detail"].(string))
+		json.NewDecoder(resp.Body).Decode(&respObj)
+		resp.Body.Close()
+		return "", fmt.Errorf("%s: %s: %v", "adding new thing", err, respObj)
 	}
-
-	if resp.Body == nil {
-		return "", errors.New("response body is empty")
-	}
-	defer resp.Body.Close()
-
-	var newThing map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&newThing)
-	if err != nil {
-		err = fmt.Errorf("%s: %w", "cannot parse body response", err)
-		return "", err
-	}
-	newID, ok := newThing["id"].(string)
-	if !ok {
-		return "", errors.New("adding new thing: new thing created: returned id is not available")
-	}
-	return newID, nil
+	return newThing.Id, nil
 }
 
+// GetThing allows to retrieve a specific thing, given its id,
+// from Arduino IoT Cloud.
 func (cl *client) GetThing(id string) (*iotclient.ArduinoThing, error) {
 	thing, _, err := cl.api.ThingsV2Api.ThingsV2Show(cl.ctx, id, nil)
 	if err != nil {
