@@ -32,7 +32,7 @@ func initListCommand() *cobra.Command {
 }
 
 func runListCommand(cmd *cobra.Command, args []string) error {
-	fmt.Println("Listing devices")
+	fmt.Println("Listing things")
 
 	params := &thing.ListParams{
 		IDs:        listFlags.ids,
