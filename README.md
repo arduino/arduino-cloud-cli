@@ -71,3 +71,7 @@ Print only the thing associated to the passed device:
 Delete a thing with the following command:
 
 `$ iot-cloud-cli thing delete --device-id <deviceID>`
+
+Extract a template from an existing thing:
+
+`$ iot-cloud-cli thing extract --id <thingID> --outfile <templateFile.json>`
