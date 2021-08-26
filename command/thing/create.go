@@ -18,16 +18,16 @@ type CreateParams struct {
 	// Mandatory - contains the name of the thing
 	Name string
 	// Optional - contains the ID of the device to be bound to the thing
-	Device string
+	DeviceID string
 	// Mandatory if device is empty - contains the path of the template file
 	Template string
 	// Mandatory if template is empty- name of things to be cloned
-	Clone string
+	CloneID string
 }
 
 // Create allows to create a new thing
 func Create(params *CreateParams) (string, error) {
-	if params.Template == "" && params.Clone == "" {
+	if params.Template == "" && params.CloneID == "" {
 		return "", fmt.Errorf("%s", "provide either a thing(ID) to clone (--clone) or a thing template file (--template)\n")
 	}
 
@@ -42,8 +42,8 @@ func Create(params *CreateParams) (string, error) {
 
 	var thing *iotclient.Thing
 
-	if params.Clone != "" {
-		thing, err = cloneThing(iotClient, params.Clone)
+	if params.CloneID != "" {
+		thing, err = clone(iotClient, params.CloneID)
 		if err != nil {
 			return "", err
 		}
@@ -60,8 +60,8 @@ func Create(params *CreateParams) (string, error) {
 
 	thing.Name = params.Name
 	force := true
-	if params.Device != "" {
-		thing.DeviceId = params.Device
+	if params.DeviceID != "" {
+		thing.DeviceId = params.DeviceID
 	}
 	thingID, err := iotClient.AddThing(thing, force)
 	if err != nil {
@@ -71,7 +71,7 @@ func Create(params *CreateParams) (string, error) {
 	return thingID, nil
 }
 
-func cloneThing(client iot.Client, thingID string) (*iotclient.Thing, error) {
+func clone(client iot.Client, thingID string) (*iotclient.Thing, error) {
 	clone, err := client.GetThing(thingID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "retrieving the thing to be cloned", err)

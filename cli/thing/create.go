@@ -9,9 +9,9 @@ import (
 
 var createFlags struct {
 	name     string
-	device   string
+	deviceID string
 	template string
-	clone    string
+	cloneID  string
 }
 
 func initCreateCommand() *cobra.Command {
@@ -22,8 +22,8 @@ func initCreateCommand() *cobra.Command {
 		RunE:  runCreateCommand,
 	}
 	createCommand.Flags().StringVarP(&createFlags.name, "name", "n", "", "Thing name")
-	createCommand.Flags().StringVarP(&createFlags.device, "device", "d", "", "ID of Device to bind to the new thing")
-	createCommand.Flags().StringVarP(&createFlags.clone, "clone", "c", "", "ID of Thing to be cloned")
+	createCommand.Flags().StringVarP(&createFlags.deviceID, "device-id", "d", "", "ID of Device to bind to the new thing")
+	createCommand.Flags().StringVarP(&createFlags.cloneID, "clone-id", "c", "", "ID of Thing to be cloned")
 	createCommand.Flags().StringVarP(&createFlags.template, "template", "t", "", "File containing a thing template")
 	createCommand.MarkFlagRequired("name")
 	return createCommand
@@ -34,9 +34,9 @@ func runCreateCommand(cmd *cobra.Command, args []string) error {
 
 	params := &thing.CreateParams{
 		Name:     createFlags.name,
-		Device:   createFlags.device,
+		DeviceID: createFlags.deviceID,
 		Template: createFlags.template,
-		Clone:    createFlags.clone,
+		CloneID:  createFlags.cloneID,
 	}
 
 	thingID, err := thing.Create(params)
