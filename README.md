@@ -67,3 +67,7 @@ Print a *filtered* list of available things, print only things belonging to the 
 Print only the thing associated to the passed device:
 
 `$ iot-cloud-cli thing list --device-id <deviceID>`
+
+Delete a thing with the following command:
+
+`$ iot-cloud-cli thing delete --device-id <deviceID>`
