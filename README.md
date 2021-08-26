@@ -40,3 +40,15 @@ Once a device has been created thorugh the provisioning procedure, it can be del
 
 Devices currently present on Arduino IoT Cloud can be retrieved by using this command:
 `$ iot-cloud-cli device list`
+
+## Thing commands
+
+Things can be created starting from a template or by cloning another thing. Additionally, a thing name should be specified.
+
+Create a thing from a template:
+
+`$ iot-cloud-cli thing create --name <thingName> --template <template.json>`
+
+Create a thing by cloning another thing:
+
+`$ iot-cloud-cli thing create --name <thingName> --clone-id <thingToCloneID>`
