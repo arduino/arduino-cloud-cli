@@ -17,6 +17,7 @@ type Client interface {
 	AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
 	AddThing(thing *iotclient.Thing, force bool) (string, error)
 	GetThing(id string) (*iotclient.ArduinoThing, error)
+	ListThings(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error)
 }
 
 type client struct {
@@ -115,6 +116,27 @@ func (cl *client) GetThing(id string) (*iotclient.ArduinoThing, error) {
 		return nil, err
 	}
 	return &thing, nil
+}
+
+// ListThings returns a list of things on Arduino IoT Cloud.
+func (cl *client) ListThings(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error) {
+	opts := &iotclient.ThingsV2ListOpts{}
+	opts.ShowProperties = optional.NewBool(props)
+
+	if ids != nil {
+		opts.Ids = optional.NewInterface(ids)
+	}
+
+	if device != nil {
+		opts.DeviceId = optional.NewString(*device)
+	}
+
+	things, _, err := cl.api.ThingsV2Api.ThingsV2List(cl.ctx, opts)
+	if err != nil {
+		err = fmt.Errorf("retrieving things, %w", err)
+		return nil, err
+	}
+	return things, nil
 }
 
 func (cl *client) setup(client, secret string) error {
