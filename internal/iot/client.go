@@ -16,6 +16,7 @@ type Client interface {
 	ListDevices() ([]iotclient.ArduinoDevicev2, error)
 	AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
 	AddThing(thing *iotclient.Thing, force bool) (string, error)
+	DeleteThing(id string) error
 	GetThing(id string) (*iotclient.ArduinoThing, error)
 	ListThings(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error)
 }
@@ -105,6 +106,16 @@ func (cl *client) AddThing(thing *iotclient.Thing, force bool) (string, error) {
 		return "", fmt.Errorf("%s: %s: %v", "adding new thing", err, respObj)
 	}
 	return newThing.Id, nil
+}
+
+// DeleteThing deletes a thing from Arduino IoT Cloud.
+func (cl *client) DeleteThing(id string) error {
+	_, err := cl.api.ThingsV2Api.ThingsV2Delete(cl.ctx, id, nil)
+	if err != nil {
+		err = fmt.Errorf("deleting thing: %w", err)
+		return err
+	}
+	return nil
 }
 
 // GetThing allows to retrieve a specific thing, given its id,
