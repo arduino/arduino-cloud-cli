@@ -52,3 +52,18 @@ Create a thing from a template:
 Create a thing by cloning another thing:
 
 `$ iot-cloud-cli thing create --name <thingName> --clone-id <thingToCloneID>`
+
+
+Things can be printed thanks to a list command. 
+
+Print a list of available things and their properties by using this command:
+
+`$ iot-cloud-cli thing list --properties`
+
+Print a *filtered* list of available things, print only things belonging to the ids list:
+
+`$ iot-cloud-cli thing list --ids <thingOneID>,<thingTwoID>`
+
+Print only the thing associated to the passed device:
+
+`$ iot-cloud-cli thing list --device-id <deviceID>`

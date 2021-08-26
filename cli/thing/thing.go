@@ -12,6 +12,7 @@ func NewCommand() *cobra.Command {
 	}
 
 	thingCommand.AddCommand(initCreateCommand())
+	thingCommand.AddCommand(initListCommand())
 
 	return thingCommand
 }
