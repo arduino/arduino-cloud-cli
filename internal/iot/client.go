@@ -2,8 +2,10 @@ package iot
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
+	"github.com/antihax/optional"
 	iotclient "github.com/arduino/iot-client-go"
 )
 
@@ -13,6 +15,8 @@ type Client interface {
 	DeleteDevice(id string) error
 	ListDevices() ([]iotclient.ArduinoDevicev2, error)
 	AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
+	AddThing(thing *iotclient.Thing, force bool) (string, error)
+	GetThing(id string) (*iotclient.ArduinoThing, error)
 }
 
 type client struct {
@@ -87,6 +91,30 @@ func (cl *client) AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2
 	}
 
 	return &newCert.Compressed, nil
+}
+
+// AddThing adds a new thing on Arduino IoT Cloud.
+func (cl *client) AddThing(thing *iotclient.Thing, force bool) (string, error) {
+	opt := &iotclient.ThingsV2CreateOpts{Force: optional.NewBool(force)}
+	newThing, resp, err := cl.api.ThingsV2Api.ThingsV2Create(cl.ctx, *thing, opt)
+	if err != nil {
+		var respObj map[string]interface{}
+		json.NewDecoder(resp.Body).Decode(&respObj)
+		resp.Body.Close()
+		return "", fmt.Errorf("%s: %s: %v", "adding new thing", err, respObj)
+	}
+	return newThing.Id, nil
+}
+
+// GetThing allows to retrieve a specific thing, given its id,
+// from Arduino IoT Cloud.
+func (cl *client) GetThing(id string) (*iotclient.ArduinoThing, error) {
+	thing, _, err := cl.api.ThingsV2Api.ThingsV2Show(cl.ctx, id, nil)
+	if err != nil {
+		err = fmt.Errorf("retrieving thing, %w", err)
+		return nil, err
+	}
+	return &thing, nil
 }
 
 func (cl *client) setup(client, secret string) error {
