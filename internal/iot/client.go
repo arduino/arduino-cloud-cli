@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/antihax/optional"
 	iotclient "github.com/arduino/iot-client-go"
 )
 
