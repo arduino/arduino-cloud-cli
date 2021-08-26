@@ -20,9 +20,9 @@ func initBindCommand() *cobra.Command {
 		RunE:  runBindCommand,
 	}
 	bindCommand.Flags().StringVarP(&bindFlags.id, "id", "i", "", "Thing ID")
-	bindCommand.Flags().StringVarP(&bindFlags.deviceID, "device", "d", "", "Device ID")
+	bindCommand.Flags().StringVarP(&bindFlags.deviceID, "device-id", "d", "", "Device ID")
 	bindCommand.MarkFlagRequired("id")
-	bindCommand.MarkFlagRequired("device")
+	bindCommand.MarkFlagRequired("device-id")
 	return bindCommand
 }
 
