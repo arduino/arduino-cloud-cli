@@ -25,8 +25,8 @@ func initListCommand() *cobra.Command {
 	}
 	// list only the things corresponding to the passed ids
 	listCommand.Flags().StringSliceVarP(&listFlags.ids, "ids", "i", []string{}, "List of thing IDs to be retrieved")
-	// list only the things associated to the passed device id
-	listCommand.Flags().StringVarP(&listFlags.deviceID, "device", "d", "", "ID of Device associated to the thing to be retrieved")
+	// list only the thing associated to the passed device id
+	listCommand.Flags().StringVarP(&listFlags.deviceID, "device-id", "d", "", "ID of Device associated to the thing to be retrieved")
 	listCommand.Flags().BoolVarP(&listFlags.properties, "properties", "p", false, "Show thing properties")
 	return listCommand
 }
