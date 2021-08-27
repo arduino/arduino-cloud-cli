@@ -15,8 +15,8 @@ var extractFlags struct {
 func initExtractCommand() *cobra.Command {
 	extractCommand := &cobra.Command{
 		Use:   "extract",
-		Short: "Extract and save a thing",
-		Long:  "Extract a thing from Arduino IoT Cloud and save it in a template file",
+		Short: "Extract a template from a thing",
+		Long:  "Extract a template from a Arduino IoT Cloud thing and save it in a file",
 		RunE:  runExtractCommand,
 	}
 	extractCommand.Flags().StringVarP(&extractFlags.id, "id", "i", "", "Thing ID")
@@ -26,7 +26,7 @@ func initExtractCommand() *cobra.Command {
 }
 
 func runExtractCommand(cmd *cobra.Command, args []string) error {
-	fmt.Printf("Extracting thing %s\n", extractFlags.id)
+	fmt.Printf("Extracting template from thing %s\n", extractFlags.id)
 
 	params := &thing.ExtractParams{ID: extractFlags.id}
 	if extractFlags.outfile != "" {
@@ -38,6 +38,6 @@ func runExtractCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println("Thing successfully extracted")
+	fmt.Println("Template successfully extracted")
 	return nil
 }
