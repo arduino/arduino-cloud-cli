@@ -50,7 +50,7 @@ func retrieve(client iot.Client, thingID string) (*iotclient.Thing, error) {
 
 	thing := &iotclient.Thing{}
 
-	// Copy properties
+	// Copy variables
 	for _, p := range clone.Properties {
 		thing.Properties = append(thing.Properties, iotclient.Property{
 			Name:            p.Name,
