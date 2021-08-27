@@ -70,7 +70,7 @@ func templateFromThing(thing *iotclient.ArduinoThing) ([]byte, error) {
 		prop["variable_name"] = p.VariableName
 		props = append(props, prop)
 	}
-	template["properties"] = props
+	template["variables"] = props
 
 	// Extract json template from thing structure
 	file, err := json.MarshalIndent(template, "", "    ")
