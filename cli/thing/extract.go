@@ -28,7 +28,9 @@ func initExtractCommand() *cobra.Command {
 func runExtractCommand(cmd *cobra.Command, args []string) error {
 	fmt.Printf("Extracting template from thing %s\n", extractFlags.id)
 
-	params := &thing.ExtractParams{ID: extractFlags.id}
+	params := &thing.ExtractParams{
+		ID: extractFlags.id,
+	}
 	if extractFlags.outfile != "" {
 		params.Outfile = &extractFlags.outfile
 	}

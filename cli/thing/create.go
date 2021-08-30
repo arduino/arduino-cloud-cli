@@ -29,8 +29,10 @@ func runCreateCommand(cmd *cobra.Command, args []string) error {
 	fmt.Printf("Creating thing from template %s\n", createFlags.template)
 
 	params := &thing.CreateParams{
-		Name:     createFlags.name,
 		Template: createFlags.template,
+	}
+	if createFlags.name != "" {
+		params.Name = &createFlags.name
 	}
 
 	thingID, err := thing.Create(params)
