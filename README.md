@@ -43,22 +43,22 @@ Devices currently present on Arduino IoT Cloud can be retrieved by using this co
 
 ## Thing commands
 
-Things can be created starting from a template or by cloning another thing. Additionally, a thing name should be specified.
+Things can be created starting from a template or by cloning another thing.
 
-Create a thing from a template:
+Create a thing from a thing template. The name parameter is optional. If it is provided then it overrides the name retrieved from the template:
 
 `$ iot-cloud-cli thing create --name <thingName> --template <template.json>`
 
-Create a thing by cloning another thing:
+Create a thing by cloning another thing, here the *name is mandatory*:
 
-`$ iot-cloud-cli thing create --name <thingName> --clone-id <thingToCloneID>`
+`$ iot-cloud-cli thing clone --name <thingName> --clone-id <thingToCloneID>`
 
 
 Things can be printed thanks to a list command. 
 
-Print a list of available things and their properties by using this command:
+Print a list of available things and their variables by using this command:
 
-`$ iot-cloud-cli thing list --properties`
+`$ iot-cloud-cli thing list --show-variables`
 
 Print a *filtered* list of available things, print only things belonging to the ids list:
 
