@@ -2,7 +2,6 @@ package iot
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/antihax/optional"
@@ -50,7 +49,7 @@ func (cl *client) AddDevice(fqbn, name, serial, dType string) (string, error) {
 	}
 	dev, _, err := cl.api.DevicesV2Api.DevicesV2Create(cl.ctx, payload)
 	if err != nil {
-		err = fmt.Errorf("creating device, %w", err)
+		err = fmt.Errorf("creating device, %w", errorDetail(err))
 		return "", err
 	}
 	return dev.Id, nil
@@ -61,7 +60,7 @@ func (cl *client) AddDevice(fqbn, name, serial, dType string) (string, error) {
 func (cl *client) DeleteDevice(id string) error {
 	_, err := cl.api.DevicesV2Api.DevicesV2Delete(cl.ctx, id)
 	if err != nil {
-		err = fmt.Errorf("deleting device: %w", err)
+		err = fmt.Errorf("deleting device: %w", errorDetail(err))
 		return err
 	}
 	return nil
@@ -72,7 +71,7 @@ func (cl *client) DeleteDevice(id string) error {
 func (cl *client) ListDevices() ([]iotclient.ArduinoDevicev2, error) {
 	devices, _, err := cl.api.DevicesV2Api.DevicesV2List(cl.ctx, nil)
 	if err != nil {
-		err = fmt.Errorf("listing devices: %w", err)
+		err = fmt.Errorf("listing devices: %w", errorDetail(err))
 		return nil, err
 	}
 	return devices, nil
@@ -89,7 +88,7 @@ func (cl *client) AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2
 
 	newCert, _, err := cl.api.DevicesV2CertsApi.DevicesV2CertsCreate(cl.ctx, id, cert)
 	if err != nil {
-		err = fmt.Errorf("creating certificate, %w", err)
+		err = fmt.Errorf("creating certificate, %w", errorDetail(err))
 		return nil, err
 	}
 
@@ -99,12 +98,9 @@ func (cl *client) AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2
 // AddThing adds a new thing on Arduino IoT Cloud.
 func (cl *client) AddThing(thing *iotclient.Thing, force bool) (string, error) {
 	opt := &iotclient.ThingsV2CreateOpts{Force: optional.NewBool(force)}
-	newThing, resp, err := cl.api.ThingsV2Api.ThingsV2Create(cl.ctx, *thing, opt)
+	newThing, _, err := cl.api.ThingsV2Api.ThingsV2Create(cl.ctx, *thing, opt)
 	if err != nil {
-		var respObj map[string]interface{}
-		json.NewDecoder(resp.Body).Decode(&respObj)
-		resp.Body.Close()
-		return "", fmt.Errorf("%s: %s: %v", "adding new thing", err, respObj)
+		return "", fmt.Errorf("%s: %w", "adding new thing", errorDetail(err))
 	}
 	return newThing.Id, nil
 }
@@ -114,7 +110,7 @@ func (cl *client) UpdateThing(id string, thing *iotclient.Thing, force bool) err
 	opt := &iotclient.ThingsV2UpdateOpts{Force: optional.NewBool(force)}
 	_, _, err := cl.api.ThingsV2Api.ThingsV2Update(cl.ctx, id, *thing, opt)
 	if err != nil {
-		return fmt.Errorf("%s: %v", "updating thing", err)
+		return fmt.Errorf("%s: %v", "updating thing", errorDetail(err))
 	}
 	return nil
 }
@@ -123,7 +119,7 @@ func (cl *client) UpdateThing(id string, thing *iotclient.Thing, force bool) err
 func (cl *client) DeleteThing(id string) error {
 	_, err := cl.api.ThingsV2Api.ThingsV2Delete(cl.ctx, id, nil)
 	if err != nil {
-		err = fmt.Errorf("deleting thing: %w", err)
+		err = fmt.Errorf("deleting thing: %w", errorDetail(err))
 		return err
 	}
 	return nil
@@ -134,7 +130,7 @@ func (cl *client) DeleteThing(id string) error {
 func (cl *client) GetThing(id string) (*iotclient.ArduinoThing, error) {
 	thing, _, err := cl.api.ThingsV2Api.ThingsV2Show(cl.ctx, id, nil)
 	if err != nil {
-		err = fmt.Errorf("retrieving thing, %w", err)
+		err = fmt.Errorf("retrieving thing, %w", errorDetail(err))
 		return nil, err
 	}
 	return &thing, nil
@@ -155,7 +151,7 @@ func (cl *client) ListThings(ids []string, device *string, props bool) ([]iotcli
 
 	things, _, err := cl.api.ThingsV2Api.ThingsV2List(cl.ctx, opts)
 	if err != nil {
-		err = fmt.Errorf("retrieving things, %w", err)
+		err = fmt.Errorf("retrieving things, %w", errorDetail(err))
 		return nil, err
 	}
 	return things, nil
