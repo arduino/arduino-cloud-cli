@@ -57,24 +57,20 @@ func Extract(params *ExtractParams) error {
 
 func templateFromThing(thing *iotclient.ArduinoThing) ([]byte, error) {
 	template := make(map[string]interface{})
-	template["properties_count"] = thing.PropertiesCount
+	template["name"] = thing.Name
 
 	var props []map[string]interface{}
 	for _, p := range thing.Properties {
 		prop := make(map[string]interface{})
-		prop["max_value"] = p.MaxValue
-		prop["min_value"] = p.MinValue
 		prop["name"] = p.Name
 		prop["permission"] = p.Permission
-		prop["persist"] = p.Persist
-		prop["tag"] = p.Tag
 		prop["type"] = p.Type
 		prop["update_parameter"] = p.UpdateParameter
 		prop["update_strategy"] = p.UpdateStrategy
 		prop["variable_name"] = p.VariableName
 		props = append(props, prop)
 	}
-	template["properties"] = props
+	template["variables"] = props
 
 	// Extract json template from thing structure
 	file, err := json.MarshalIndent(template, "", "    ")

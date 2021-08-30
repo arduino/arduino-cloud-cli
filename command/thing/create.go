@@ -2,11 +2,10 @@ package thing
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
-
-	"errors"
 
 	iotclient "github.com/arduino/iot-client-go"
 	"github.com/arduino/iot-cloud-cli/internal/config"
@@ -15,22 +14,14 @@ import (
 
 // CreateParams contains the parameters needed to create a new thing.
 type CreateParams struct {
-	// Mandatory - contains the name of the thing
+	// Optional - contains the name of the thing
 	Name string
-	// Optional - contains the ID of the device to be bound to the thing
-	DeviceID string
-	// Mandatory if device is empty - contains the path of the template file
+	// Mandatory - contains the path of the template file
 	Template string
-	// Mandatory if template is empty- name of things to be cloned
-	CloneID string
 }
 
 // Create allows to create a new thing
 func Create(params *CreateParams) (string, error) {
-	if params.Template == "" && params.CloneID == "" {
-		return "", fmt.Errorf("%s", "provide either a thing(ID) to clone (--clone) or a thing template file (--template)\n")
-	}
-
 	conf, err := config.Retrieve()
 	if err != nil {
 		return "", err
@@ -40,67 +31,27 @@ func Create(params *CreateParams) (string, error) {
 		return "", err
 	}
 
-	var thing *iotclient.Thing
-
-	if params.CloneID != "" {
-		thing, err = clone(iotClient, params.CloneID)
-		if err != nil {
-			return "", err
-		}
-
-	} else if params.Template != "" {
-		thing, err = loadTemplate(params.Template)
-		if err != nil {
-			return "", err
-		}
-
-	} else {
-		return "", errors.New("provide either a thing(ID) to clone (--clone) or a thing template file (--template)")
+	thing, err := loadTemplate(params.Template)
+	if err != nil {
+		return "", err
 	}
 
-	thing.Name = params.Name
+	// Name passed as parameter has priority over name from template
+	if params.Name != "" {
+		thing.Name = params.Name
+	}
+	// If name is not specified in the template, it should be passed as parameter
+	if thing.Name == "" {
+		return "", errors.New("thing name not specified")
+	}
+
 	force := true
-	if params.DeviceID != "" {
-		thing.DeviceId = params.DeviceID
-	}
 	thingID, err := iotClient.AddThing(thing, force)
 	if err != nil {
 		return "", err
 	}
 
 	return thingID, nil
-}
-
-func clone(client iot.Client, thingID string) (*iotclient.Thing, error) {
-	clone, err := client.GetThing(thingID)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "retrieving the thing to be cloned", err)
-	}
-
-	thing := &iotclient.Thing{}
-
-	// Copy device id
-	if clone.DeviceId != "" {
-		thing.DeviceId = clone.DeviceId
-	}
-
-	// Copy properties
-	for _, p := range clone.Properties {
-		thing.Properties = append(thing.Properties, iotclient.Property{
-			Name:            p.Name,
-			MinValue:        p.MinValue,
-			MaxValue:        p.MaxValue,
-			Permission:      p.Permission,
-			UpdateParameter: p.UpdateParameter,
-			UpdateStrategy:  p.UpdateStrategy,
-			Type:            p.Type,
-			VariableName:    p.VariableName,
-			Persist:         p.Persist,
-			Tag:             p.Tag,
-		})
-	}
-
-	return thing, nil
 }
 
 func loadTemplate(file string) (*iotclient.Thing, error) {
@@ -115,10 +66,28 @@ func loadTemplate(file string) (*iotclient.Thing, error) {
 		return nil, err
 	}
 
-	thing := &iotclient.Thing{}
-	err = json.Unmarshal([]byte(templateBytes), thing)
+	template := make(map[string]interface{})
+	err = json.Unmarshal([]byte(templateBytes), &template)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "reading template file: template not valid: ", err)
+	}
+
+	// Adapt thing template to thing structure
+	delete(template, "id")
+	template["properties"] = template["variables"]
+	delete(template, "variables")
+
+	// Convert template into thing structure exploiting json marshalling/unmarshalling
+	thing := &iotclient.Thing{}
+
+	t, err := json.Marshal(template)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", "extracting template", err)
+	}
+
+	err = json.Unmarshal(t, &thing)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", "creating thing structure from template", err)
 	}
 
 	return thing, nil
