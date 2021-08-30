@@ -57,7 +57,7 @@ func Create(params *CreateParams) (string, error) {
 	}
 
 	fmt.Println("Creating a new device on the cloud")
-	devID, err := iotClient.AddDevice(dev.fqbn, params.Name, dev.serial, dev.dType)
+	devID, err := iotClient.DeviceCreate(dev.fqbn, params.Name, dev.serial, dev.dType)
 	if err != nil {
 		return "", err
 	}
@@ -71,7 +71,7 @@ func Create(params *CreateParams) (string, error) {
 	if err != nil {
 		// TODO: retry to delete the device if it returns an error.
 		// In alternative: encapsulate also this error.
-		iotClient.DeleteDevice(devID)
+		iotClient.DeviceDelete(devID)
 		err = fmt.Errorf("%s: %w", "cannot provision device", err)
 		return "", err
 	}

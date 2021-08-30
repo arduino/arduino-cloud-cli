@@ -37,7 +37,7 @@ func List(params *ListParams) ([]ThingInfo, error) {
 		return nil, err
 	}
 
-	foundThings, err := iotClient.ListThings(params.IDs, params.DeviceID, params.Variables)
+	foundThings, err := iotClient.ThingList(params.IDs, params.DeviceID, params.Variables)
 	if err != nil {
 		return nil, err
 	}

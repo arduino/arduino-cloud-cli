@@ -27,7 +27,7 @@ func List() ([]DeviceInfo, error) {
 		return nil, err
 	}
 
-	foundDevices, err := iotClient.ListDevices()
+	foundDevices, err := iotClient.DeviceList()
 	if err != nil {
 		return nil, err
 	}
