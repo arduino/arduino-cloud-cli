@@ -31,9 +31,13 @@ func runCreateCommand(cmd *cobra.Command, args []string) error {
 	fmt.Printf("Creating device with name %s\n", createFlags.name)
 
 	params := &device.CreateParams{
-		Port: createFlags.port,
 		Name: createFlags.name,
-		Fqbn: createFlags.fqbn,
+	}
+	if createFlags.port != "" {
+		params.Port = &createFlags.port
+	}
+	if createFlags.fqbn != "" {
+		params.Fqbn = &createFlags.fqbn
 	}
 
 	devID, err := device.Create(params)

@@ -13,12 +13,13 @@ import (
 
 // CreateParams contains the parameters needed
 // to find the device to be provisioned.
-// If Port is an empty string, then each serial port is analyzed.
-// If Fqbn is an empty string, then the first device found gets selected.
+// Name - mandatory parameter.
+// Port - optional parameter. If omitted then each serial port is analyzed.
+// Fqbn - optional parameter. If omitted then the first device found gets selected.
 type CreateParams struct {
-	Port string
 	Name string
-	Fqbn string
+	Port *string
+	Fqbn *string
 }
 
 type device struct {
@@ -96,8 +97,9 @@ func deviceFromPorts(ports []*rpc.DetectedPort, params *CreateParams) *device {
 	return nil
 }
 
-// portFilter filters out the given port if the port parameter is not an empty string
-// and if they do not match.
+// portFilter filters out the given port in the following cases:
+// - if the port parameter does not match the actual port address.
+// - if the the detected port does not contain any board.
 // It returns:
 // true -> to skip the port
 // false -> to keep the port
@@ -105,22 +107,23 @@ func portFilter(port *rpc.DetectedPort, params *CreateParams) bool {
 	if len(port.Boards) == 0 {
 		return true
 	}
-	if params.Port != "" && params.Port != port.Address {
+	if params.Port != nil && *params.Port != port.Address {
 		return true
 	}
 	return false
 }
 
 // boardFilter looks for a board which has the same fqbn passed as parameter.
+// If fqbn parameter is nil, then the first board found is returned.
 // It returns:
 // - a board if it is found.
 // - nil if no board matching the fqbn parameter is found.
 func boardFilter(boards []*rpc.BoardListItem, params *CreateParams) (board *rpc.BoardListItem) {
-	if params.Fqbn == "" {
+	if params.Fqbn == nil {
 		return boards[0]
 	}
 	for _, b := range boards {
-		if b.Fqbn == params.Fqbn {
+		if b.Fqbn == *params.Fqbn {
 			return b
 		}
 	}
