@@ -23,5 +23,5 @@ func Delete(params *DeleteParams) error {
 		return err
 	}
 
-	return iotClient.DeleteDevice(params.ID)
+	return iotClient.DeviceDelete(params.ID)
 }

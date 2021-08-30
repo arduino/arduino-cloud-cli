@@ -46,7 +46,7 @@ func Create(params *CreateParams) (string, error) {
 	}
 
 	force := true
-	thingID, err := iotClient.AddThing(thing, force)
+	thingID, err := iotClient.ThingCreate(thing, force)
 	if err != nil {
 		return "", err
 	}

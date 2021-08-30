@@ -31,7 +31,7 @@ func Extract(params *ExtractParams) error {
 		return err
 	}
 
-	thing, err := iotClient.GetThing(params.ID)
+	thing, err := iotClient.ThingShow(params.ID)
 	if err != nil {
 		err = fmt.Errorf("%s: %w", "cannot extract thing: ", err)
 		return err

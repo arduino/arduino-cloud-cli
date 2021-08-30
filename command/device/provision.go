@@ -78,7 +78,7 @@ func (p provision) configDev() error {
 	if err != nil {
 		return err
 	}
-	cert, err := p.AddCertificate(p.id, string(csr))
+	cert, err := p.CertificateCreate(p.id, string(csr))
 	if err != nil {
 		return err
 	}

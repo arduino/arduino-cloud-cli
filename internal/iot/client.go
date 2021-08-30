@@ -10,15 +10,15 @@ import (
 
 // Client can be used to perform actions on Arduino IoT Cloud.
 type Client interface {
-	AddDevice(fqbn, name, serial, devType string) (string, error)
-	DeleteDevice(id string) error
-	ListDevices() ([]iotclient.ArduinoDevicev2, error)
-	AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
-	AddThing(thing *iotclient.Thing, force bool) (string, error)
-	UpdateThing(id string, thing *iotclient.Thing, force bool) error
-	DeleteThing(id string) error
-	GetThing(id string) (*iotclient.ArduinoThing, error)
-	ListThings(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error)
+	DeviceCreate(fqbn, name, serial, devType string) (string, error)
+	DeviceDelete(id string) error
+	DeviceList() ([]iotclient.ArduinoDevicev2, error)
+	CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
+	ThingCreate(thing *iotclient.Thing, force bool) (string, error)
+	ThingUpdate(id string, thing *iotclient.Thing, force bool) error
+	ThingDelete(id string) error
+	ThingShow(id string) (*iotclient.ArduinoThing, error)
+	ThingList(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error)
 }
 
 type client struct {
@@ -38,9 +38,9 @@ func NewClient(clientID, secretID string) (Client, error) {
 	return cl, nil
 }
 
-// AddDevice allows to create a new device on Arduino IoT Cloud.
+// DeviceCreate allows to create a new device on Arduino IoT Cloud.
 // It returns the ID associated to the new device, and an error.
-func (cl *client) AddDevice(fqbn, name, serial, dType string) (string, error) {
+func (cl *client) DeviceCreate(fqbn, name, serial, dType string) (string, error) {
 	payload := iotclient.CreateDevicesV2Payload{
 		Fqbn:   fqbn,
 		Name:   name,
@@ -55,9 +55,9 @@ func (cl *client) AddDevice(fqbn, name, serial, dType string) (string, error) {
 	return dev.Id, nil
 }
 
-// DeleteDevice deletes the device corresponding to the passed ID
+// DeviceDelete deletes the device corresponding to the passed ID
 // from Arduino IoT Cloud.
-func (cl *client) DeleteDevice(id string) error {
+func (cl *client) DeviceDelete(id string) error {
 	_, err := cl.api.DevicesV2Api.DevicesV2Delete(cl.ctx, id)
 	if err != nil {
 		err = fmt.Errorf("deleting device: %w", errorDetail(err))
@@ -66,9 +66,9 @@ func (cl *client) DeleteDevice(id string) error {
 	return nil
 }
 
-// ListDevices retrieves and returns a list of all Arduino IoT Cloud devices
+// DeviceList retrieves and returns a list of all Arduino IoT Cloud devices
 // belonging to the user performing the request.
-func (cl *client) ListDevices() ([]iotclient.ArduinoDevicev2, error) {
+func (cl *client) DeviceList() ([]iotclient.ArduinoDevicev2, error) {
 	devices, _, err := cl.api.DevicesV2Api.DevicesV2List(cl.ctx, nil)
 	if err != nil {
 		err = fmt.Errorf("listing devices: %w", errorDetail(err))
@@ -77,9 +77,9 @@ func (cl *client) ListDevices() ([]iotclient.ArduinoDevicev2, error) {
 	return devices, nil
 }
 
-// AddCertifcate allows to upload a certificate on Arduino IoT Cloud.
+// CertificateCreate allows to upload a certificate on Arduino IoT Cloud.
 // It returns the certificate parameters populated by the cloud.
-func (cl *client) AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2, error) {
+func (cl *client) CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error) {
 	cert := iotclient.CreateDevicesV2CertsPayload{
 		Ca:      "Arduino",
 		Csr:     csr,
@@ -95,8 +95,8 @@ func (cl *client) AddCertificate(id, csr string) (*iotclient.ArduinoCompressedv2
 	return &newCert.Compressed, nil
 }
 
-// AddThing adds a new thing on Arduino IoT Cloud.
-func (cl *client) AddThing(thing *iotclient.Thing, force bool) (string, error) {
+// ThingCreate adds a new thing on Arduino IoT Cloud.
+func (cl *client) ThingCreate(thing *iotclient.Thing, force bool) (string, error) {
 	opt := &iotclient.ThingsV2CreateOpts{Force: optional.NewBool(force)}
 	newThing, _, err := cl.api.ThingsV2Api.ThingsV2Create(cl.ctx, *thing, opt)
 	if err != nil {
@@ -105,8 +105,8 @@ func (cl *client) AddThing(thing *iotclient.Thing, force bool) (string, error) {
 	return newThing.Id, nil
 }
 
-// AddThing updates a thing on Arduino IoT Cloud.
-func (cl *client) UpdateThing(id string, thing *iotclient.Thing, force bool) error {
+// ThingUpdate updates a thing on Arduino IoT Cloud.
+func (cl *client) ThingUpdate(id string, thing *iotclient.Thing, force bool) error {
 	opt := &iotclient.ThingsV2UpdateOpts{Force: optional.NewBool(force)}
 	_, _, err := cl.api.ThingsV2Api.ThingsV2Update(cl.ctx, id, *thing, opt)
 	if err != nil {
@@ -115,8 +115,8 @@ func (cl *client) UpdateThing(id string, thing *iotclient.Thing, force bool) err
 	return nil
 }
 
-// DeleteThing deletes a thing from Arduino IoT Cloud.
-func (cl *client) DeleteThing(id string) error {
+// ThingDelete deletes a thing from Arduino IoT Cloud.
+func (cl *client) ThingDelete(id string) error {
 	_, err := cl.api.ThingsV2Api.ThingsV2Delete(cl.ctx, id, nil)
 	if err != nil {
 		err = fmt.Errorf("deleting thing: %w", errorDetail(err))
@@ -125,9 +125,9 @@ func (cl *client) DeleteThing(id string) error {
 	return nil
 }
 
-// GetThing allows to retrieve a specific thing, given its id,
+// ThingShow allows to retrieve a specific thing, given its id,
 // from Arduino IoT Cloud.
-func (cl *client) GetThing(id string) (*iotclient.ArduinoThing, error) {
+func (cl *client) ThingShow(id string) (*iotclient.ArduinoThing, error) {
 	thing, _, err := cl.api.ThingsV2Api.ThingsV2Show(cl.ctx, id, nil)
 	if err != nil {
 		err = fmt.Errorf("retrieving thing, %w", errorDetail(err))
@@ -136,8 +136,8 @@ func (cl *client) GetThing(id string) (*iotclient.ArduinoThing, error) {
 	return &thing, nil
 }
 
-// ListThings returns a list of things on Arduino IoT Cloud.
-func (cl *client) ListThings(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error) {
+// ThingList returns a list of things on Arduino IoT Cloud.
+func (cl *client) ThingList(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error) {
 	opts := &iotclient.ThingsV2ListOpts{}
 	opts.ShowProperties = optional.NewBool(props)
 

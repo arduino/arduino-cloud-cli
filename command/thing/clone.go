@@ -34,7 +34,7 @@ func Clone(params *CloneParams) (string, error) {
 
 	thing.Name = params.Name
 	force := true
-	thingID, err := iotClient.AddThing(thing, force)
+	thingID, err := iotClient.ThingCreate(thing, force)
 	if err != nil {
 		return "", err
 	}
@@ -43,7 +43,7 @@ func Clone(params *CloneParams) (string, error) {
 }
 
 func retrieve(client iot.Client, thingID string) (*iotclient.Thing, error) {
-	clone, err := client.GetThing(thingID)
+	clone, err := client.ThingShow(thingID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "retrieving the thing to be cloned", err)
 	}

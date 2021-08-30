@@ -31,7 +31,7 @@ func Bind(params *BindParams) error {
 		DeviceId: params.DeviceID,
 	}
 
-	err = iotClient.UpdateThing(params.ID, thing, true)
+	err = iotClient.ThingUpdate(params.ID, thing, true)
 	if err != nil {
 		return err
 	}
