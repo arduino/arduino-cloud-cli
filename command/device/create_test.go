@@ -35,6 +35,10 @@ var (
 	}
 )
 
+func stringPointer(s string) *string {
+	return &s
+}
+
 func TestDeviceFromPorts(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -45,28 +49,28 @@ func TestDeviceFromPorts(t *testing.T) {
 
 		{
 			name:   "port-filter",
-			filter: &CreateParams{Fqbn: "", Port: "ACM1"},
+			filter: &CreateParams{Fqbn: nil, Port: stringPointer("ACM1")},
 			ports:  portsTwoBoards,
 			want:   &device{fqbn: "arduino:avr:uno", port: "ACM1"},
 		},
 
 		{
 			name:   "fqbn-filter",
-			filter: &CreateParams{Fqbn: "arduino:avr:uno", Port: ""},
+			filter: &CreateParams{Fqbn: stringPointer("arduino:avr:uno"), Port: nil},
 			ports:  portsTwoBoards,
 			want:   &device{fqbn: "arduino:avr:uno", port: "ACM1"},
 		},
 
 		{
 			name:   "no-filter-noboards",
-			filter: &CreateParams{Fqbn: "", Port: ""},
+			filter: &CreateParams{Fqbn: nil, Port: nil},
 			ports:  portsNoBoards,
 			want:   nil,
 		},
 
 		{
 			name:   "no-filter",
-			filter: &CreateParams{Fqbn: "", Port: ""},
+			filter: &CreateParams{Fqbn: nil, Port: nil},
 			ports:  portsTwoBoards,
 			// first device found is selected
 			want: &device{fqbn: "arduino:samd:nano_33_iot", port: "ACM0"},
@@ -74,21 +78,21 @@ func TestDeviceFromPorts(t *testing.T) {
 
 		{
 			name:   "both-filter-noboards",
-			filter: &CreateParams{Fqbn: "arduino:avr:uno", Port: "ACM1"},
+			filter: &CreateParams{Fqbn: stringPointer("arduino:avr:uno"), Port: stringPointer("ACM1")},
 			ports:  portsNoBoards,
 			want:   nil,
 		},
 
 		{
 			name:   "both-filter-found",
-			filter: &CreateParams{Fqbn: "arduino:avr:uno", Port: "ACM1"},
+			filter: &CreateParams{Fqbn: stringPointer("arduino:avr:uno"), Port: stringPointer("ACM1")},
 			ports:  portsTwoBoards,
 			want:   &device{fqbn: "arduino:avr:uno", port: "ACM1"},
 		},
 
 		{
 			name:   "both-filter-notfound",
-			filter: &CreateParams{Fqbn: "arduino:avr:uno", Port: "ACM0"},
+			filter: &CreateParams{Fqbn: stringPointer("arduino:avr:uno"), Port: stringPointer("ACM0")},
 			ports:  portsTwoBoards,
 			want:   nil,
 		},

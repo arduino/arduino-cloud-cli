@@ -15,7 +15,7 @@ import (
 // CreateParams contains the parameters needed to create a new thing.
 type CreateParams struct {
 	// Optional - contains the name of the thing
-	Name string
+	Name *string
 	// Mandatory - contains the path of the template file
 	Template string
 }
@@ -37,8 +37,8 @@ func Create(params *CreateParams) (string, error) {
 	}
 
 	// Name passed as parameter has priority over name from template
-	if params.Name != "" {
-		thing.Name = params.Name
+	if params.Name != nil {
+		thing.Name = *params.Name
 	}
 	// If name is not specified in the template, it should be passed as parameter
 	if thing.Name == "" {
