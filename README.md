@@ -45,9 +45,9 @@ Devices currently present on Arduino IoT Cloud can be retrieved by using this co
 
 Things can be created starting from a template or by cloning another thing.
 
-Create a thing from a thing template. The name parameter is optional. If it is provided then it overrides the name retrieved from the template:
+Create a thing from a thing template. Supported template formats are JSON and YAML. The name parameter is optional. If it is provided then it overrides the name retrieved from the template:
 
-`$ iot-cloud-cli thing create --name <thingName> --template <template.json>`
+`$ iot-cloud-cli thing create --name <thingName> --template <template.(json|yaml)>`
 
 Create a thing by cloning another thing, here the *name is mandatory*:
 
