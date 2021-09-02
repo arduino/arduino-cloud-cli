@@ -3,10 +3,10 @@ module github.com/arduino/iot-cloud-cli
 go 1.15
 
 require (
-	github.com/antihax/optional v1.0.0 // indirect
+	github.com/antihax/optional v1.0.0
 	github.com/arduino/arduino-cli v0.0.0-20210607095659-16f41352eac3
 	github.com/arduino/go-paths-helper v1.6.0
-	github.com/arduino/iot-client-go v1.3.4-0.20210824101852-4a44149473c1
+	github.com/arduino/iot-client-go v1.3.4-0.20210902151346-1cd63fb0c784
 	github.com/howeyc/crc16 v0.0.0-20171223171357-2b2a61e366a6
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v1.1.3
