@@ -20,7 +20,13 @@ func initCreateCommand() *cobra.Command {
 		RunE:  runCreateCommand,
 	}
 	createCommand.Flags().StringVarP(&createFlags.name, "name", "n", "", "Thing name")
-	createCommand.Flags().StringVarP(&createFlags.template, "template", "t", "", "File containing a thing template")
+	createCommand.Flags().StringVarP(
+		&createFlags.template,
+		"template",
+		"t",
+		"",
+		"File containing a thing template, JSON and YAML format are supported",
+	)
 	createCommand.MarkFlagRequired("template")
 	return createCommand
 }

@@ -2,26 +2,36 @@ package thing
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	iotclient "github.com/arduino/iot-client-go"
 	"github.com/arduino/iot-cloud-cli/internal/config"
 	"github.com/arduino/iot-cloud-cli/internal/iot"
+	"gopkg.in/yaml.v3"
 )
 
 // ExtractParams contains the parameters needed to
 // extract a thing from Arduino IoT Cloud and save it on local storage.
+// Format determines the file format of the template ("json" or "yaml")
 // Output indicates the destination path of the extraction.
 type ExtractParams struct {
 	ID      string
+	Format  string
 	Outfile *string
 }
 
 // Extract command is used to extract a thing template
 // from a thing on Arduino IoT Cloud.
 func Extract(params *ExtractParams) error {
+	params.Format = strings.ToLower(params.Format)
+	if params.Format != "json" && params.Format != "yaml" {
+		return errors.New("format is not valid: only 'json' and 'yaml' are supported")
+	}
+
 	conf, err := config.Retrieve()
 	if err != nil {
 		return err
@@ -42,23 +52,19 @@ func Extract(params *ExtractParams) error {
 		return err
 	}
 
-	if params.Outfile == nil {
-		outfile := thing.Name + "-template.json"
-		params.Outfile = &outfile
-	}
-	err = ioutil.WriteFile(*params.Outfile, template, os.FileMode(0644))
+	err = templateToFile(template, params)
 	if err != nil {
-		err = fmt.Errorf("%s: %w", "cannot write outfile: ", err)
 		return err
 	}
 
 	return nil
 }
 
-func templateFromThing(thing *iotclient.ArduinoThing) ([]byte, error) {
+func templateFromThing(thing *iotclient.ArduinoThing) (map[string]interface{}, error) {
 	template := make(map[string]interface{})
 	template["name"] = thing.Name
 
+	// Extract template from thing structure
 	var props []map[string]interface{}
 	for _, p := range thing.Properties {
 		prop := make(map[string]interface{})
@@ -72,11 +78,42 @@ func templateFromThing(thing *iotclient.ArduinoThing) ([]byte, error) {
 	}
 	template["variables"] = props
 
-	// Extract json template from thing structure
-	file, err := json.MarshalIndent(template, "", "    ")
-	if err != nil {
-		err = fmt.Errorf("%s: %w", "thing marshal failure: ", err)
-		return nil, err
+	return template, nil
+}
+
+func templateToFile(template map[string]interface{}, params *ExtractParams) error {
+	var file []byte
+	var err error
+
+	if params.Format == "json" {
+		file, err = json.MarshalIndent(template, "", "    ")
+		if err != nil {
+			return fmt.Errorf("%s: %w", "thing marshal failure: ", err)
+		}
+
+	} else if params.Format == "yaml" {
+		file, err = yaml.Marshal(template)
+		if err != nil {
+			return fmt.Errorf("%s: %w", "thing marshal failure: ", err)
+		}
+
+	} else {
+		return errors.New("format is not valid: only 'json' and 'yaml' are supported")
 	}
-	return file, nil
+
+	if params.Outfile == nil {
+		name, ok := template["name"].(string)
+		if name == "" || !ok {
+			return errors.New("thing template does not have a valid name")
+		}
+		outfile := name + "." + params.Format
+		params.Outfile = &outfile
+	}
+
+	err = ioutil.WriteFile(*params.Outfile, file, os.FileMode(0644))
+	if err != nil {
+		return fmt.Errorf("%s: %w", "cannot write outfile: ", err)
+	}
+
+	return nil
 }
