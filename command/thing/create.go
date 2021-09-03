@@ -10,6 +10,7 @@ import (
 	iotclient "github.com/arduino/iot-client-go"
 	"github.com/arduino/iot-cloud-cli/internal/config"
 	"github.com/arduino/iot-cloud-cli/internal/iot"
+	"gopkg.in/yaml.v3"
 )
 
 // CreateParams contains the parameters needed to create a new thing.
@@ -67,9 +68,12 @@ func loadTemplate(file string) (*iotclient.Thing, error) {
 	}
 
 	template := make(map[string]interface{})
-	err = json.Unmarshal([]byte(templateBytes), &template)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "reading template file: template not valid: ", err)
+
+	// Extract template trying all the supported formats: json and yaml
+	if err = json.Unmarshal([]byte(templateBytes), &template); err != nil {
+		if err = yaml.Unmarshal([]byte(templateBytes), &template); err != nil {
+			return nil, errors.New("reading template file: template format is not valid")
+		}
 	}
 
 	// Adapt thing template to thing structure
