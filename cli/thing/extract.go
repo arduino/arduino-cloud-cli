@@ -22,9 +22,14 @@ func initExtractCommand() *cobra.Command {
 	}
 	extractCommand.Flags().StringVarP(&extractFlags.id, "id", "i", "", "Thing ID")
 	extractCommand.Flags().StringVarP(&extractFlags.outfile, "outfile", "o", "", "Template file destination path")
-	extractCommand.Flags().StringVar(&extractFlags.format, "format", "", "Format of template file, 'json' or 'yaml'")
+	extractCommand.Flags().StringVar(
+		&extractFlags.format,
+		"format",
+		"yaml",
+		"Format of template file, can be {json|yaml}. Default is 'yaml'",
+	)
+
 	extractCommand.MarkFlagRequired("id")
-	extractCommand.MarkFlagRequired("format")
 	return extractCommand
 }
 
