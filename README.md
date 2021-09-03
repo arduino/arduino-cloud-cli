@@ -72,9 +72,9 @@ Delete a thing with the following command:
 
 `$ iot-cloud-cli thing delete --device-id <deviceID>`
 
-Extract a template from an existing thing:
+Extract a template from an existing thing. The template can be saved in two formats: json or yaml. The default format is yaml:
 
-`$ iot-cloud-cli thing extract --id <thingID> --outfile <templateFile.json>`
+`$ iot-cloud-cli thing extract --id <thingID> --outfile <templateFile> --format <yaml|json>`
 
 Bind a thing to an existing device:
 
