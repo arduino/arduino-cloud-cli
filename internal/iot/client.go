@@ -13,6 +13,7 @@ type Client interface {
 	DeviceCreate(fqbn, name, serial, devType string) (string, error)
 	DeviceDelete(id string) error
 	DeviceList() ([]iotclient.ArduinoDevicev2, error)
+	DeviceShow(id string) (*iotclient.ArduinoDevicev2, error)
 	CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
 	ThingCreate(thing *iotclient.Thing, force bool) (string, error)
 	ThingUpdate(id string, thing *iotclient.Thing, force bool) error
@@ -75,6 +76,17 @@ func (cl *client) DeviceList() ([]iotclient.ArduinoDevicev2, error) {
 		return nil, err
 	}
 	return devices, nil
+}
+
+// DeviceShow allows to retrieve a specific device, given its id,
+// from Arduino IoT Cloud.
+func (cl *client) DeviceShow(id string) (*iotclient.ArduinoDevicev2, error) {
+	dev, _, err := cl.api.DevicesV2Api.DevicesV2Show(cl.ctx, id)
+	if err != nil {
+		err = fmt.Errorf("retrieving device, %w", errorDetail(err))
+		return nil, err
+	}
+	return &dev, nil
 }
 
 // CertificateCreate allows to upload a certificate on Arduino IoT Cloud.
