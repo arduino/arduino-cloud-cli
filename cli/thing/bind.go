@@ -1,9 +1,8 @@
 package thing
 
 import (
-	"fmt"
-
 	"github.com/arduino/iot-cloud-cli/command/thing"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +26,7 @@ func initBindCommand() *cobra.Command {
 }
 
 func runBindCommand(cmd *cobra.Command, args []string) error {
-	fmt.Printf("Binding thing %s to device%s\n", bindFlags.id, bindFlags.deviceID)
+	logrus.Infof("Binding thing %s to device %s\n", bindFlags.id, bindFlags.deviceID)
 
 	params := &thing.BindParams{
 		ID:       bindFlags.id,
@@ -38,6 +37,6 @@ func runBindCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println("Thing-Device bound successfully updated")
+	logrus.Info("Thing-Device bound successfully updated")
 	return nil
 }

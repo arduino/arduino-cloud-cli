@@ -1,9 +1,8 @@
 package thing
 
 import (
-	"fmt"
-
 	"github.com/arduino/iot-cloud-cli/command/thing"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -32,7 +31,7 @@ func initCreateCommand() *cobra.Command {
 }
 
 func runCreateCommand(cmd *cobra.Command, args []string) error {
-	fmt.Printf("Creating thing from template %s\n", createFlags.template)
+	logrus.Infof("Creating thing from template %s\n", createFlags.template)
 
 	params := &thing.CreateParams{
 		Template: createFlags.template,
@@ -46,6 +45,6 @@ func runCreateCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("IoT Cloud thing created with ID: %s\n", thingID)
+	logrus.Infof("IoT Cloud thing created with ID: %s\n", thingID)
 	return nil
 }

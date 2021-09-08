@@ -7,6 +7,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/feedback"
 	paths "github.com/arduino/go-paths-helper"
 	"github.com/arduino/iot-cloud-cli/command/config"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -60,6 +61,6 @@ func runConfigCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println("Configuration file updated")
+	logrus.Info("Configuration file updated")
 	return nil
 }

@@ -1,9 +1,8 @@
 package thing
 
 import (
-	"fmt"
-
 	"github.com/arduino/iot-cloud-cli/command/thing"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +26,7 @@ func initCloneCommand() *cobra.Command {
 }
 
 func runCloneCommand(cmd *cobra.Command, args []string) error {
-	fmt.Printf("Cloning thing %s into a new thing called %s\n", cloneFlags.cloneID, cloneFlags.name)
+	logrus.Infof("Cloning thing %s into a new thing called %s\n", cloneFlags.cloneID, cloneFlags.name)
 
 	params := &thing.CloneParams{
 		Name:    cloneFlags.name,
@@ -39,6 +38,6 @@ func runCloneCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("IoT Cloud thing created with ID: %s\n", thingID)
+	logrus.Infof("IoT Cloud thing created with ID: %s\n", thingID)
 	return nil
 }

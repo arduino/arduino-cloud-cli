@@ -1,9 +1,8 @@
 package device
 
 import (
-	"fmt"
-
 	"github.com/arduino/iot-cloud-cli/command/device"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +27,7 @@ func initCreateCommand() *cobra.Command {
 }
 
 func runCreateCommand(cmd *cobra.Command, args []string) error {
-	fmt.Printf("Creating device with name %s\n", createFlags.name)
+	logrus.Infof("Creating device with name %s\n", createFlags.name)
 
 	params := &device.CreateParams{
 		Name: createFlags.name,
@@ -45,6 +44,6 @@ func runCreateCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("IoT Cloud device created with ID: %s\n", devID)
+	logrus.Infof("IoT Cloud device created with ID: %s\n", devID)
 	return nil
 }

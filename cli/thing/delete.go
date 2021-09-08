@@ -1,9 +1,8 @@
 package thing
 
 import (
-	"fmt"
-
 	"github.com/arduino/iot-cloud-cli/command/thing"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +23,7 @@ func initDeleteCommand() *cobra.Command {
 }
 
 func runDeleteCommand(cmd *cobra.Command, args []string) error {
-	fmt.Printf("Deleting thing %s\n", deleteFlags.id)
+	logrus.Infof("Deleting thing %s\n", deleteFlags.id)
 
 	params := &thing.DeleteParams{ID: deleteFlags.id}
 	err := thing.Delete(params)
@@ -32,6 +31,6 @@ func runDeleteCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println("Thing successfully deleted")
+	logrus.Infof("Thing successfully deleted")
 	return nil
 }

@@ -1,12 +1,12 @@
 package thing
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cli/table"
 	"github.com/arduino/iot-cloud-cli/command/thing"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -32,7 +32,7 @@ func initListCommand() *cobra.Command {
 }
 
 func runListCommand(cmd *cobra.Command, args []string) error {
-	fmt.Println("Listing things")
+	logrus.Info("Listing things")
 
 	params := &thing.ListParams{
 		IDs:       listFlags.ids,

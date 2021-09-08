@@ -12,6 +12,7 @@ import (
 	"github.com/arduino/iot-cloud-cli/arduino"
 	"github.com/arduino/iot-cloud-cli/internal/iot"
 	"github.com/arduino/iot-cloud-cli/internal/serial"
+	"github.com/sirupsen/logrus"
 )
 
 type provision struct {
@@ -36,7 +37,7 @@ func (p provision) run() error {
 		return err
 	}
 
-	fmt.Printf("\n%s\n", "Uploading provisioning sketch on the device")
+	logrus.Infof("\n%s\n", "Uploading provisioning sketch on the device")
 	time.Sleep(500 * time.Millisecond)
 	// Try to upload the provisioning sketch
 	errMsg := "Error while uploading the provisioning sketch: "
@@ -48,7 +49,7 @@ func (p provision) run() error {
 		return err
 	}
 
-	fmt.Printf("\n%s\n", "Connecting to the device through serial port")
+	logrus.Infof("\n%s\n", "Connecting to the device through serial port")
 	// Try to connect to device through the serial port
 	time.Sleep(1500 * time.Millisecond)
 	p.ser = serial.NewSerial()
@@ -60,7 +61,7 @@ func (p provision) run() error {
 		return err
 	}
 	defer p.ser.Close()
-	fmt.Printf("%s\n\n", "Connected to device")
+	logrus.Infof("%s\n\n", "Connected to device")
 
 	// Send configuration commands to the device
 	err = p.configDev()
@@ -68,12 +69,12 @@ func (p provision) run() error {
 		return err
 	}
 
-	fmt.Printf("%s\n\n", "Device provisioning successful")
+	logrus.Infof("%s\n\n", "Device provisioning successful")
 	return nil
 }
 
 func (p provision) configDev() error {
-	fmt.Println("Receiving the certificate")
+	logrus.Infof("Receiving the certificate")
 	csr, err := p.ser.SendReceive(serial.CSR, []byte(p.id))
 	if err != nil {
 		return err
@@ -83,48 +84,48 @@ func (p provision) configDev() error {
 		return err
 	}
 
-	fmt.Println("Requesting begin storage")
+	logrus.Infof("Requesting begin storage")
 	err = p.ser.Send(serial.BeginStorage, nil)
 	if err != nil {
 		return err
 	}
 
 	s := strconv.Itoa(cert.NotBefore.Year())
-	fmt.Println("Sending year: ", s)
+	logrus.Infof("Sending year: ", s)
 	err = p.ser.Send(serial.SetYear, []byte(s))
 	if err != nil {
 		return err
 	}
 
 	s = fmt.Sprintf("%02d", int(cert.NotBefore.Month()))
-	fmt.Println("Sending month: ", s)
+	logrus.Infof("Sending month: ", s)
 	err = p.ser.Send(serial.SetMonth, []byte(s))
 	if err != nil {
 		return err
 	}
 
 	s = fmt.Sprintf("%02d", cert.NotBefore.Day())
-	fmt.Println("Sending day: ", s)
+	logrus.Infof("Sending day: ", s)
 	err = p.ser.Send(serial.SetDay, []byte(s))
 	if err != nil {
 		return err
 	}
 
 	s = fmt.Sprintf("%02d", cert.NotBefore.Hour())
-	fmt.Println("Sending hour: ", s)
+	logrus.Infof("Sending hour: ", s)
 	err = p.ser.Send(serial.SetHour, []byte(s))
 	if err != nil {
 		return err
 	}
 
 	s = strconv.Itoa(31)
-	fmt.Println("Sending validity: ", s)
+	logrus.Infof("Sending validity: ", s)
 	err = p.ser.Send(serial.SetValidity, []byte(s))
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("Sending certificate serial")
+	logrus.Infof("Sending certificate serial")
 	b, err := hex.DecodeString(cert.Serial)
 	if err != nil {
 		err = fmt.Errorf("%s: %w", "decoding certificate serial", err)
@@ -135,7 +136,7 @@ func (p provision) configDev() error {
 		return err
 	}
 
-	fmt.Println("Sending certificate authority key")
+	logrus.Infof("Sending certificate authority key")
 	b, err = hex.DecodeString(cert.AuthorityKeyIdentifier)
 	if err != nil {
 		err = fmt.Errorf("%s: %w", "decoding certificate authority key id", err)
@@ -146,7 +147,7 @@ func (p provision) configDev() error {
 		return err
 	}
 
-	fmt.Println("Sending certificate signature")
+	logrus.Infof("Sending certificate signature")
 	b, err = hex.DecodeString(cert.SignatureAsn1X + cert.SignatureAsn1Y)
 	if err != nil {
 		err = fmt.Errorf("%s: %w", "decoding certificate signature", err)
@@ -158,14 +159,14 @@ func (p provision) configDev() error {
 	}
 
 	time.Sleep(time.Second)
-	fmt.Println("Requesting end storage")
+	logrus.Infof("Requesting end storage")
 	err = p.ser.Send(serial.EndStorage, nil)
 	if err != nil {
 		return err
 	}
 
 	time.Sleep(2 * time.Second)
-	fmt.Println("Requesting certificate reconstruction")
+	logrus.Infof("Requesting certificate reconstruction")
 	err = p.ser.Send(serial.ReconstructCert, nil)
 	if err != nil {
 		return err
@@ -254,7 +255,7 @@ func retry(tries int, sleep time.Duration, errMsg string, fun func() error) erro
 		if err == nil {
 			break
 		}
-		fmt.Println(errMsg, err.Error(), "\nTrying again...")
+		logrus.Warningf(errMsg, err.Error(), "\nTrying again...")
 		time.Sleep(sleep)
 	}
 	return err

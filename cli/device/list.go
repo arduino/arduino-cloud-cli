@@ -1,11 +1,10 @@
 package device
 
 import (
-	"fmt"
-
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cli/table"
 	"github.com/arduino/iot-cloud-cli/command/device"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +19,7 @@ func initListCommand() *cobra.Command {
 }
 
 func runListCommand(cmd *cobra.Command, args []string) error {
-	fmt.Println("Listing devices")
+	logrus.Info("Listing devices")
 
 	devs, err := device.List()
 	if err != nil {

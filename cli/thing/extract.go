@@ -1,9 +1,8 @@
 package thing
 
 import (
-	"fmt"
-
 	"github.com/arduino/iot-cloud-cli/command/thing"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -34,7 +33,7 @@ func initExtractCommand() *cobra.Command {
 }
 
 func runExtractCommand(cmd *cobra.Command, args []string) error {
-	fmt.Printf("Extracting template from thing %s\n", extractFlags.id)
+	logrus.Infof("Extracting template from thing %s\n", extractFlags.id)
 
 	params := &thing.ExtractParams{
 		ID:     extractFlags.id,
@@ -49,6 +48,6 @@ func runExtractCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println("Template successfully extracted")
+	logrus.Infof("Template successfully extracted")
 	return nil
 }

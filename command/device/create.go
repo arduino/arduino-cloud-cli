@@ -9,6 +9,7 @@ import (
 	"github.com/arduino/iot-cloud-cli/arduino/cli"
 	"github.com/arduino/iot-cloud-cli/internal/config"
 	"github.com/arduino/iot-cloud-cli/internal/iot"
+	"github.com/sirupsen/logrus"
 )
 
 // CreateParams contains the parameters needed
@@ -56,7 +57,7 @@ func Create(params *CreateParams) (string, error) {
 		return "", err
 	}
 
-	fmt.Println("Creating a new device on the cloud")
+	logrus.Info("Creating a new device on the cloud")
 	devID, err := iotClient.DeviceCreate(dev.fqbn, params.Name, dev.serial, dev.dType)
 	if err != nil {
 		return "", err
