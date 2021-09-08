@@ -10,7 +10,7 @@ import (
 
 // Client can be used to perform actions on Arduino IoT Cloud.
 type Client interface {
-	DeviceCreate(fqbn, name, serial, devType string) (string, error)
+	DeviceCreate(fqbn, name, serial, devType string) (*iotclient.ArduinoDevicev2, error)
 	DeviceDelete(id string) error
 	DeviceList() ([]iotclient.ArduinoDevicev2, error)
 	DeviceShow(id string) (*iotclient.ArduinoDevicev2, error)
@@ -41,7 +41,7 @@ func NewClient(clientID, secretID string) (Client, error) {
 
 // DeviceCreate allows to create a new device on Arduino IoT Cloud.
 // It returns the ID associated to the new device, and an error.
-func (cl *client) DeviceCreate(fqbn, name, serial, dType string) (string, error) {
+func (cl *client) DeviceCreate(fqbn, name, serial, dType string) (*iotclient.ArduinoDevicev2, error) {
 	payload := iotclient.CreateDevicesV2Payload{
 		Fqbn:   fqbn,
 		Name:   name,
@@ -51,9 +51,9 @@ func (cl *client) DeviceCreate(fqbn, name, serial, dType string) (string, error)
 	dev, _, err := cl.api.DevicesV2Api.DevicesV2Create(cl.ctx, payload)
 	if err != nil {
 		err = fmt.Errorf("creating device, %w", errorDetail(err))
-		return "", err
+		return nil, err
 	}
-	return dev.Id, nil
+	return &dev, nil
 }
 
 // DeviceDelete deletes the device corresponding to the passed ID

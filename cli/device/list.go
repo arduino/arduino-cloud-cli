@@ -26,20 +26,20 @@ func runListCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	feedback.PrintResult(result{devs})
+	feedback.PrintResult(listResult{devs})
 
 	return nil
 }
 
-type result struct {
+type listResult struct {
 	devices []device.DeviceInfo
 }
 
-func (r result) Data() interface{} {
+func (r listResult) Data() interface{} {
 	return r.devices
 }
 
-func (r result) String() string {
+func (r listResult) String() string {
 	if len(r.devices) == 0 {
 		return "No devices found."
 	}

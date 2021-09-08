@@ -32,52 +32,59 @@ type board struct {
 
 // Create command is used to provision a new arduino device
 // and to add it to Arduino IoT Cloud.
-func Create(params *CreateParams) (string, error) {
+func Create(params *CreateParams) (*DeviceInfo, error) {
 	comm, err := cli.NewCommander()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	ports, err := comm.BoardList()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	board := boardFromPorts(ports, params)
 	if board == nil {
 		err = errors.New("no board found")
-		return "", err
+		return nil, err
 	}
 
 	conf, err := config.Retrieve()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	logrus.Info("Creating a new device on the cloud")
-	devID, err := iotClient.DeviceCreate(board.fqbn, params.Name, board.serial, board.dType)
+	dev, err := iotClient.DeviceCreate(board.fqbn, params.Name, board.serial, board.dType)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	prov := &provision{
 		Commander: comm,
 		Client:    iotClient,
 		board:     board,
-		id:        devID}
-	err = prov.run()
-	if err != nil {
+		id:        dev.Id,
+	}
+	if err = prov.run(); err != nil {
 		// TODO: retry to delete the device if it returns an error.
 		// In alternative: encapsulate also this error.
-		iotClient.DeviceDelete(devID)
+		iotClient.DeviceDelete(dev.Id)
 		err = fmt.Errorf("%s: %w", "cannot provision device", err)
-		return "", err
+		return nil, err
 	}
 
-	return devID, nil
+	devInfo := &DeviceInfo{
+		Name:   dev.Name,
+		ID:     dev.Id,
+		Board:  dev.Type,
+		Serial: dev.Serial,
+		FQBN:   dev.Fqbn,
+	}
+	return devInfo, nil
 }
 
 // boardFromPorts returns a board that matches all the criteria
