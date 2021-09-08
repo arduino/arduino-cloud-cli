@@ -23,7 +23,7 @@ type CreateParams struct {
 	Fqbn *string
 }
 
-type device struct {
+type board struct {
 	fqbn   string
 	serial string
 	dType  string
@@ -42,9 +42,9 @@ func Create(params *CreateParams) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	dev := deviceFromPorts(ports, params)
-	if dev == nil {
-		err = errors.New("no device found")
+	board := boardFromPorts(ports, params)
+	if board == nil {
+		err = errors.New("no board found")
 		return "", err
 	}
 
@@ -58,7 +58,7 @@ func Create(params *CreateParams) (string, error) {
 	}
 
 	logrus.Info("Creating a new device on the cloud")
-	devID, err := iotClient.DeviceCreate(dev.fqbn, params.Name, dev.serial, dev.dType)
+	devID, err := iotClient.DeviceCreate(board.fqbn, params.Name, board.serial, board.dType)
 	if err != nil {
 		return "", err
 	}
@@ -66,7 +66,7 @@ func Create(params *CreateParams) (string, error) {
 	prov := &provision{
 		Commander: comm,
 		Client:    iotClient,
-		dev:       dev,
+		board:     board,
 		id:        devID}
 	err = prov.run()
 	if err != nil {
@@ -80,18 +80,18 @@ func Create(params *CreateParams) (string, error) {
 	return devID, nil
 }
 
-// deviceFromPorts returns a board that matches all the criteria
-// passed in. If no criteria are passed, it returns the first device found.
-func deviceFromPorts(ports []*rpc.DetectedPort, params *CreateParams) *device {
+// boardFromPorts returns a board that matches all the criteria
+// passed in. If no criteria are passed, it returns the first board found.
+func boardFromPorts(ports []*rpc.DetectedPort, params *CreateParams) *board {
 	for _, port := range ports {
 		if portFilter(port, params) {
 			continue
 		}
-		board := boardFilter(port.Boards, params)
-		if board != nil {
-			t := strings.Split(board.Fqbn, ":")[2]
-			dev := &device{board.Fqbn, port.SerialNumber, t, port.Address}
-			return dev
+		boardFound := boardFilter(port.Boards, params)
+		if boardFound != nil {
+			t := strings.Split(boardFound.Fqbn, ":")[2]
+			b := &board{boardFound.Fqbn, port.SerialNumber, t, port.Address}
+			return b
 		}
 	}
 

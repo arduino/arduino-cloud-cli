@@ -18,9 +18,9 @@ import (
 type provision struct {
 	arduino.Commander
 	iot.Client
-	ser *serial.Serial
-	dev *device
-	id  string
+	ser   *serial.Serial
+	board *board
+	id    string
 }
 
 type binFile struct {
@@ -32,39 +32,39 @@ type binFile struct {
 }
 
 func (p provision) run() error {
-	bin, err := downloadProvisioningFile(p.dev.fqbn)
+	bin, err := downloadProvisioningFile(p.board.fqbn)
 	if err != nil {
 		return err
 	}
 
-	logrus.Infof("\n%s\n", "Uploading provisioning sketch on the device")
+	logrus.Infof("\n%s\n", "Uploading provisioning sketch on the board")
 	time.Sleep(500 * time.Millisecond)
 	// Try to upload the provisioning sketch
 	errMsg := "Error while uploading the provisioning sketch: "
 	err = retry(5, time.Millisecond*1000, errMsg, func() error {
 		//serialutils.Reset(dev.port, true, nil)
-		return p.UploadBin(p.dev.fqbn, bin, p.dev.port)
+		return p.UploadBin(p.board.fqbn, bin, p.board.port)
 	})
 	if err != nil {
 		return err
 	}
 
-	logrus.Infof("\n%s\n", "Connecting to the device through serial port")
-	// Try to connect to device through the serial port
+	logrus.Infof("\n%s\n", "Connecting to the board through serial port")
+	// Try to connect to board through the serial port
 	time.Sleep(1500 * time.Millisecond)
 	p.ser = serial.NewSerial()
-	errMsg = "Error while connecting to the device: "
+	errMsg = "Error while connecting to the board: "
 	err = retry(5, time.Millisecond*1000, errMsg, func() error {
-		return p.ser.Connect(p.dev.port)
+		return p.ser.Connect(p.board.port)
 	})
 	if err != nil {
 		return err
 	}
 	defer p.ser.Close()
-	logrus.Infof("%s\n\n", "Connected to device")
+	logrus.Infof("%s\n\n", "Connected to board")
 
-	// Send configuration commands to the device
-	err = p.configDev()
+	// Send configuration commands to the board
+	err = p.configBoard()
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (p provision) run() error {
 	return nil
 }
 
-func (p provision) configDev() error {
+func (p provision) configBoard() error {
 	logrus.Infof("Receiving the certificate")
 	csr, err := p.ser.SendReceive(serial.CSR, []byte(p.id))
 	if err != nil {
