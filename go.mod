@@ -8,7 +8,7 @@ require (
 	github.com/arduino/go-paths-helper v1.6.0
 	github.com/arduino/iot-client-go v1.3.4-0.20210902151346-1cd63fb0c784
 	github.com/howeyc/crc16 v0.0.0-20171223171357-2b2a61e366a6
-	github.com/sirupsen/logrus v1.4.2
+	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.6.1
