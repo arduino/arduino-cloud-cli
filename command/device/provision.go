@@ -74,7 +74,7 @@ func (p provision) run() error {
 }
 
 func (p provision) configBoard() error {
-	logrus.Infof("Receiving the certificate")
+	logrus.Info("Receiving the certificate")
 	csr, err := p.ser.SendReceive(serial.CSR, []byte(p.id))
 	if err != nil {
 		return err
@@ -84,48 +84,48 @@ func (p provision) configBoard() error {
 		return err
 	}
 
-	logrus.Infof("Requesting begin storage")
+	logrus.Info("Requesting begin storage")
 	err = p.ser.Send(serial.BeginStorage, nil)
 	if err != nil {
 		return err
 	}
 
 	s := strconv.Itoa(cert.NotBefore.Year())
-	logrus.Infof("Sending year: ", s)
+	logrus.Info("Sending year: ", s)
 	err = p.ser.Send(serial.SetYear, []byte(s))
 	if err != nil {
 		return err
 	}
 
 	s = fmt.Sprintf("%02d", int(cert.NotBefore.Month()))
-	logrus.Infof("Sending month: ", s)
+	logrus.Info("Sending month: ", s)
 	err = p.ser.Send(serial.SetMonth, []byte(s))
 	if err != nil {
 		return err
 	}
 
 	s = fmt.Sprintf("%02d", cert.NotBefore.Day())
-	logrus.Infof("Sending day: ", s)
+	logrus.Info("Sending day: ", s)
 	err = p.ser.Send(serial.SetDay, []byte(s))
 	if err != nil {
 		return err
 	}
 
 	s = fmt.Sprintf("%02d", cert.NotBefore.Hour())
-	logrus.Infof("Sending hour: ", s)
+	logrus.Info("Sending hour: ", s)
 	err = p.ser.Send(serial.SetHour, []byte(s))
 	if err != nil {
 		return err
 	}
 
 	s = strconv.Itoa(31)
-	logrus.Infof("Sending validity: ", s)
+	logrus.Info("Sending validity: ", s)
 	err = p.ser.Send(serial.SetValidity, []byte(s))
 	if err != nil {
 		return err
 	}
 
-	logrus.Infof("Sending certificate serial")
+	logrus.Info("Sending certificate serial")
 	b, err := hex.DecodeString(cert.Serial)
 	if err != nil {
 		err = fmt.Errorf("%s: %w", "decoding certificate serial", err)
@@ -136,7 +136,7 @@ func (p provision) configBoard() error {
 		return err
 	}
 
-	logrus.Infof("Sending certificate authority key")
+	logrus.Info("Sending certificate authority key")
 	b, err = hex.DecodeString(cert.AuthorityKeyIdentifier)
 	if err != nil {
 		err = fmt.Errorf("%s: %w", "decoding certificate authority key id", err)
@@ -147,7 +147,7 @@ func (p provision) configBoard() error {
 		return err
 	}
 
-	logrus.Infof("Sending certificate signature")
+	logrus.Info("Sending certificate signature")
 	b, err = hex.DecodeString(cert.SignatureAsn1X + cert.SignatureAsn1Y)
 	if err != nil {
 		err = fmt.Errorf("%s: %w", "decoding certificate signature", err)
@@ -159,14 +159,14 @@ func (p provision) configBoard() error {
 	}
 
 	time.Sleep(time.Second)
-	logrus.Infof("Requesting end storage")
+	logrus.Info("Requesting end storage")
 	err = p.ser.Send(serial.EndStorage, nil)
 	if err != nil {
 		return err
 	}
 
 	time.Sleep(2 * time.Second)
-	logrus.Infof("Requesting certificate reconstruction")
+	logrus.Info("Requesting certificate reconstruction")
 	err = p.ser.Send(serial.ReconstructCert, nil)
 	if err != nil {
 		return err

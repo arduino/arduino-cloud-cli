@@ -48,6 +48,6 @@ func runExtractCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	logrus.Infof("Template successfully extracted")
+	logrus.Info("Template successfully extracted")
 	return nil
 }

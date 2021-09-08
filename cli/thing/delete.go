@@ -31,6 +31,6 @@ func runDeleteCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	logrus.Infof("Thing successfully deleted")
+	logrus.Info("Thing successfully deleted")
 	return nil
 }
