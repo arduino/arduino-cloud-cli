@@ -37,10 +37,10 @@ func (p provision) run() error {
 		return err
 	}
 
-	logrus.Infof("\n%s\n", "Uploading provisioning sketch on the board")
+	logrus.Infof("%s\n", "Uploading provisioning sketch on the board")
 	time.Sleep(500 * time.Millisecond)
 	// Try to upload the provisioning sketch
-	errMsg := "Error while uploading the provisioning sketch: "
+	errMsg := "Error while uploading the provisioning sketch"
 	err = retry(5, time.Millisecond*1000, errMsg, func() error {
 		//serialutils.Reset(dev.port, true, nil)
 		return p.UploadBin(p.board.fqbn, bin, p.board.port)
@@ -49,11 +49,11 @@ func (p provision) run() error {
 		return err
 	}
 
-	logrus.Infof("\n%s\n", "Connecting to the board through serial port")
+	logrus.Infof("%s\n", "Connecting to the board through serial port")
 	// Try to connect to board through the serial port
 	time.Sleep(1500 * time.Millisecond)
 	p.ser = serial.NewSerial()
-	errMsg = "Error while connecting to the board: "
+	errMsg = "Error while connecting to the board"
 	err = retry(5, time.Millisecond*1000, errMsg, func() error {
 		return p.ser.Connect(p.board.port)
 	})
@@ -255,7 +255,7 @@ func retry(tries int, sleep time.Duration, errMsg string, fun func() error) erro
 		if err == nil {
 			break
 		}
-		logrus.Warningf(errMsg, err.Error(), "\nTrying again...")
+		logrus.Warningf("%s: %s: %s", errMsg, err.Error(), "\nTrying again...")
 		time.Sleep(sleep)
 	}
 	return err
