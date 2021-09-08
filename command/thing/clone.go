@@ -17,29 +17,35 @@ type CloneParams struct {
 }
 
 // Clone allows to create a new thing from an already existing one
-func Clone(params *CloneParams) (string, error) {
+func Clone(params *CloneParams) (*ThingInfo, error) {
 	conf, err := config.Retrieve()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	thing, err := retrieve(iotClient, params.CloneID)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	thing.Name = params.Name
 	force := true
 	thingID, err := iotClient.ThingCreate(thing, force)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return thingID, nil
+	thingInfo := &ThingInfo{
+		Name:      thing.Name,
+		ID:        thingID,
+		DeviceID:  thing.DeviceId,
+		Variables: nil,
+	}
+	return thingInfo, nil
 }
 
 func retrieve(client iot.Client, thingID string) (*iotclient.Thing, error) {

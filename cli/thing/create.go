@@ -1,6 +1,9 @@
 package thing
 
 import (
+	"fmt"
+
+	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/iot-cloud-cli/command/thing"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -40,11 +43,24 @@ func runCreateCommand(cmd *cobra.Command, args []string) error {
 		params.Name = &createFlags.name
 	}
 
-	thingID, err := thing.Create(params)
+	thing, err := thing.Create(params)
 	if err != nil {
 		return err
 	}
 
-	logrus.Infof("IoT Cloud thing created with ID: %s\n", thingID)
+	logrus.Infof("IoT Cloud thing created with ID: %s\n", thing.ID)
+	feedback.PrintResult(createResult{thing})
 	return nil
+}
+
+type createResult struct {
+	thing *thing.ThingInfo
+}
+
+func (r createResult) Data() interface{} {
+	return r.thing
+}
+
+func (r createResult) String() string {
+	return fmt.Sprintf("IoT Cloud thing created with ID: %s", r.thing.ID)
 }

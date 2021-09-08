@@ -22,19 +22,19 @@ type CreateParams struct {
 }
 
 // Create allows to create a new thing
-func Create(params *CreateParams) (string, error) {
+func Create(params *CreateParams) (*ThingInfo, error) {
 	conf, err := config.Retrieve()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	thing, err := loadTemplate(params.Template)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	// Name passed as parameter has priority over name from template
@@ -43,16 +43,22 @@ func Create(params *CreateParams) (string, error) {
 	}
 	// If name is not specified in the template, it should be passed as parameter
 	if thing.Name == "" {
-		return "", errors.New("thing name not specified")
+		return nil, errors.New("thing name not specified")
 	}
 
 	force := true
 	thingID, err := iotClient.ThingCreate(thing, force)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return thingID, nil
+	thingInfo := &ThingInfo{
+		Name:      thing.Name,
+		ID:        thingID,
+		DeviceID:  thing.DeviceId,
+		Variables: nil,
+	}
+	return thingInfo, nil
 }
 
 func loadTemplate(file string) (*iotclient.Thing, error) {
