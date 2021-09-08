@@ -40,7 +40,7 @@ func NewClient(clientID, secretID string) (Client, error) {
 }
 
 // DeviceCreate allows to create a new device on Arduino IoT Cloud.
-// It returns the ID associated to the new device, and an error.
+// It returns the newly created device, and an error.
 func (cl *client) DeviceCreate(fqbn, name, serial, dType string) (*iotclient.ArduinoDevicev2, error) {
 	payload := iotclient.CreateDevicesV2Payload{
 		Fqbn:   fqbn,
