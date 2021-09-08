@@ -11,7 +11,6 @@ import (
 	"github.com/arduino/iot-cloud-cli/cli/config"
 	"github.com/arduino/iot-cloud-cli/cli/device"
 	"github.com/arduino/iot-cloud-cli/cli/thing"
-	"github.com/mattn/go-colorable"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -51,16 +50,17 @@ func parseFormatString(arg string) (feedback.OutputFormat, bool) {
 }
 
 func preRun(cmd *cobra.Command, args []string) {
-	// decide whether we should log to stdout
+	// enable log if verbose flag is passed
 	if cliFlags.verbose {
-		// if we print on stdout, do it in full colors
-		logrus.SetOutput(colorable.NewColorableStdout())
+		logrus.SetLevel(logrus.InfoLevel)
+		logrus.SetOutput(os.Stdout)
 		logrus.SetFormatter(&logrus.TextFormatter{
-			ForceColors: true,
+			ForceColors: false,
 		})
 	} else {
 		logrus.SetOutput(ioutil.Discard)
 	}
+	// logrus.
 
 	// normalize the format strings
 	cliFlags.outputFormat = strings.ToLower(cliFlags.outputFormat)

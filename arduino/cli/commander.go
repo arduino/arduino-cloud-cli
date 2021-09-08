@@ -3,7 +3,6 @@ package cli
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -24,8 +23,8 @@ type commander struct {
 // programmatically call arduino-cli commands.
 // It directly imports the golang packages of the arduino-cli.
 func NewCommander() (arduino.Commander, error) {
-	// Discard arduino-cli log messages
-	logrus.SetOutput(ioutil.Discard)
+	// Discard arduino-cli log info messages
+	logrus.SetLevel(logrus.PanicLevel)
 	// Initialize arduino-cli configuration
 	configuration.Settings = configuration.Init(configuration.FindConfigFileInArgsOrWorkingDirectory(os.Args))
 	// Create arduino-cli instance, needed to execute arduino-cli commands
@@ -35,6 +34,8 @@ func NewCommander() (arduino.Commander, error) {
 		return nil, err
 	}
 
+	// Re-enable info level log
+	logrus.SetLevel(logrus.InfoLevel)
 	cmd := &commander{inst}
 	return cmd, nil
 }
@@ -62,10 +63,10 @@ func (c *commander) UploadBin(fqbn, bin, port string) error {
 		Verbose:    false,
 	}
 
-	if _, err := upload.Upload(context.Background(), req, os.Stdout, os.Stderr); err != nil {
+	l := logrus.StandardLogger().Writer()
+	if _, err := upload.Upload(context.Background(), req, l, l); err != nil {
 		err = fmt.Errorf("%s: %w", "uploading binary", err)
 		return err
 	}
-
 	return nil
 }
