@@ -22,8 +22,8 @@ var (
 	}
 )
 
-// Generate takes a .bin file and generate a .ota file.
-func Generate(binFile, outFile string, fqbn string) error {
+// Generate takes a .bin file and generates a .ota file.
+func Generate(binFile string, outFile string, fqbn string) error {
 	productID, ok := fqbnToPID[fqbn]
 	if !ok {
 		return errors.New("fqbn not valid")

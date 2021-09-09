@@ -99,7 +99,7 @@ func (cl *client) DeviceOTA(id string, file *os.File) error {
 	}
 	_, err := cl.api.DevicesV2OtaApi.DevicesV2OtaUpload(cl.ctx, id, file, opt)
 	if err != nil {
-		err = fmt.Errorf("listing devices: %w", errorDetail(err))
+		err = fmt.Errorf("uploading device ota: %w", errorDetail(err))
 		return err
 	}
 	return nil
