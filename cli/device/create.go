@@ -62,5 +62,12 @@ func (r createResult) Data() interface{} {
 }
 
 func (r createResult) String() string {
-	return fmt.Sprintf("IoT Cloud device created with ID: %s", r.device.ID)
+	return fmt.Sprintf(
+		"name: %s\nid: %s\nboard: %s\nserial-number: %s\nfqbn: %s",
+		r.device.Name,
+		r.device.ID,
+		r.device.Board,
+		r.device.Serial,
+		r.device.FQBN,
+	)
 }

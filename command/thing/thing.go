@@ -5,10 +5,10 @@ import iotclient "github.com/arduino/iot-client-go"
 // ThingInfo contains the main parameters of
 // an Arduino IoT Cloud thing.
 type ThingInfo struct {
-	Name      string
-	ID        string
-	DeviceID  string
-	Variables []string
+	Name      string   `json:"name"`
+	ID        string   `json:"id"`
+	DeviceID  string   `json:"device-id"`
+	Variables []string `json:"variables"`
 }
 
 func getThingInfo(thing *iotclient.ArduinoThing) *ThingInfo {

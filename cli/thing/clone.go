@@ -3,6 +3,7 @@ package thing
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
@@ -56,5 +57,11 @@ func (r cloneResult) Data() interface{} {
 }
 
 func (r cloneResult) String() string {
-	return fmt.Sprintf("IoT Cloud thing created with ID: %s", r.thing.ID)
+	return fmt.Sprintf(
+		"name: %s\nid: %s\ndevice-id: %s\nvariables: %s",
+		r.thing.Name,
+		r.thing.ID,
+		r.thing.DeviceID,
+		strings.Join(r.thing.Variables, ", "),
+	)
 }
