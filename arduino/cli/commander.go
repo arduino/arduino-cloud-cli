@@ -63,7 +63,7 @@ func (c *commander) UploadBin(fqbn, bin, port string) error {
 		Verbose:    false,
 	}
 
-	l := logrus.StandardLogger().Writer()
+	l := logrus.StandardLogger().WithField("source", "arduino-cli").Writer()
 	if _, err := upload.Upload(context.Background(), req, l, l); err != nil {
 		err = fmt.Errorf("%s: %w", "uploading binary", err)
 		return err
