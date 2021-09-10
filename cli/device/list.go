@@ -16,12 +16,12 @@ func initListCommand() *cobra.Command {
 		Use:   "list",
 		Short: "List devices",
 		Long:  "List devices on Arduino IoT Cloud",
-		RunE:  runListCommand,
+		Run:   runListCommand,
 	}
 	return listCommand
 }
 
-func runListCommand(cmd *cobra.Command, args []string) error {
+func runListCommand(cmd *cobra.Command, args []string) {
 	logrus.Info("Listing devices")
 
 	devs, err := device.List()
@@ -31,8 +31,6 @@ func runListCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	feedback.PrintResult(listResult{devs})
-
-	return nil
 }
 
 type listResult struct {

@@ -20,7 +20,7 @@ func initBindCommand() *cobra.Command {
 		Use:   "bind",
 		Short: "Bind a thing to a device",
 		Long:  "Bind a thing to a device on Arduino IoT Cloud",
-		RunE:  runBindCommand,
+		Run:   runBindCommand,
 	}
 	bindCommand.Flags().StringVarP(&bindFlags.id, "id", "i", "", "Thing ID")
 	bindCommand.Flags().StringVarP(&bindFlags.deviceID, "device-id", "d", "", "Device ID")
@@ -29,7 +29,7 @@ func initBindCommand() *cobra.Command {
 	return bindCommand
 }
 
-func runBindCommand(cmd *cobra.Command, args []string) error {
+func runBindCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Binding thing %s to device %s\n", bindFlags.id, bindFlags.deviceID)
 
 	params := &thing.BindParams{
@@ -43,5 +43,4 @@ func runBindCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	logrus.Info("Thing-Device bound successfully updated")
-	return nil
 }

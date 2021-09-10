@@ -24,7 +24,7 @@ func NewCommand() *cobra.Command {
 		Use:   "config",
 		Short: "Set the configuration file",
 		Long:  "Set the configuration file to access Arduino IoT Cloud",
-		RunE:  runConfigCommand,
+		Run:   runConfigCommand,
 	}
 	configCommand.Flags().StringVarP(&configFlags.file, "file", "f", "", "Existing configuration yaml file")
 	configCommand.Flags().StringVarP(&configFlags.client, "client", "c", "", "Client ID")
@@ -32,7 +32,7 @@ func NewCommand() *cobra.Command {
 	return configCommand
 }
 
-func runConfigCommand(cmd *cobra.Command, args []string) error {
+func runConfigCommand(cmd *cobra.Command, args []string) {
 	if configFlags.file == "" && (configFlags.client == "" || configFlags.secret == "") {
 		feedback.Error("Error during config: provide either a yaml file or credentials")
 		os.Exit(errorcodes.ErrGeneric)
@@ -64,5 +64,4 @@ func runConfigCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	logrus.Info("Configuration file updated")
-	return nil
 }

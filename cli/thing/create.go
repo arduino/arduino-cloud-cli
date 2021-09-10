@@ -21,7 +21,7 @@ func initCreateCommand() *cobra.Command {
 		Use:   "create",
 		Short: "Create a thing from a template",
 		Long:  "Create a thing from a template for Arduino IoT Cloud",
-		RunE:  runCreateCommand,
+		Run:   runCreateCommand,
 	}
 	createCommand.Flags().StringVarP(&createFlags.name, "name", "n", "", "Thing name")
 	createCommand.Flags().StringVarP(
@@ -35,7 +35,7 @@ func initCreateCommand() *cobra.Command {
 	return createCommand
 }
 
-func runCreateCommand(cmd *cobra.Command, args []string) error {
+func runCreateCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Creating thing from template %s\n", createFlags.template)
 
 	params := &thing.CreateParams{
@@ -53,7 +53,6 @@ func runCreateCommand(cmd *cobra.Command, args []string) error {
 
 	logrus.Infof("IoT Cloud thing created with ID: %s\n", thing.ID)
 	feedback.PrintResult(createResult{thing})
-	return nil
 }
 
 type createResult struct {

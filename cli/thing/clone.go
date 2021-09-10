@@ -21,7 +21,7 @@ func initCloneCommand() *cobra.Command {
 		Use:   "clone",
 		Short: "Clone a thing",
 		Long:  "Clone a thing for Arduino IoT Cloud",
-		RunE:  runCloneCommand,
+		Run:   runCloneCommand,
 	}
 	cloneCommand.Flags().StringVarP(&cloneFlags.name, "name", "n", "", "Thing name")
 	cloneCommand.Flags().StringVarP(&cloneFlags.cloneID, "clone-id", "c", "", "ID of Thing to be cloned")
@@ -30,7 +30,7 @@ func initCloneCommand() *cobra.Command {
 	return cloneCommand
 }
 
-func runCloneCommand(cmd *cobra.Command, args []string) error {
+func runCloneCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Cloning thing %s into a new thing called %s\n", cloneFlags.cloneID, cloneFlags.name)
 
 	params := &thing.CloneParams{
@@ -46,7 +46,6 @@ func runCloneCommand(cmd *cobra.Command, args []string) error {
 
 	logrus.Infof("IoT Cloud thing created with ID: %s", thing.ID)
 	feedback.PrintResult(cloneResult{thing})
-	return nil
 }
 
 type cloneResult struct {

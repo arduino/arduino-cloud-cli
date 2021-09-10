@@ -22,7 +22,7 @@ func initCreateCommand() *cobra.Command {
 		Use:   "create",
 		Short: "Create a device",
 		Long:  "Create a device for Arduino IoT Cloud",
-		RunE:  runCreateCommand,
+		Run:   runCreateCommand,
 	}
 	createCommand.Flags().StringVarP(&createFlags.port, "port", "p", "", "Device port")
 	createCommand.Flags().StringVarP(&createFlags.name, "name", "n", "", "Device name")
@@ -31,7 +31,7 @@ func initCreateCommand() *cobra.Command {
 	return createCommand
 }
 
-func runCreateCommand(cmd *cobra.Command, args []string) error {
+func runCreateCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Creating device with name %s\n", createFlags.name)
 
 	params := &device.CreateParams{
@@ -52,8 +52,6 @@ func runCreateCommand(cmd *cobra.Command, args []string) error {
 
 	logrus.Infof("IoT Cloud device created with ID: %s\n", dev.ID)
 	feedback.PrintResult(createResult{dev})
-
-	return nil
 }
 
 type createResult struct {

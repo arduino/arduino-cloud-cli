@@ -21,7 +21,7 @@ func initExtractCommand() *cobra.Command {
 		Use:   "extract",
 		Short: "Extract a template from a thing",
 		Long:  "Extract a template from a Arduino IoT Cloud thing and save it in a file",
-		RunE:  runExtractCommand,
+		Run:   runExtractCommand,
 	}
 	extractCommand.Flags().StringVarP(&extractFlags.id, "id", "i", "", "Thing ID")
 	extractCommand.Flags().StringVarP(&extractFlags.outfile, "outfile", "o", "", "Template file destination path")
@@ -36,7 +36,7 @@ func initExtractCommand() *cobra.Command {
 	return extractCommand
 }
 
-func runExtractCommand(cmd *cobra.Command, args []string) error {
+func runExtractCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Extracting template from thing %s\n", extractFlags.id)
 
 	params := &thing.ExtractParams{
@@ -54,5 +54,4 @@ func runExtractCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	logrus.Info("Template successfully extracted")
-	return nil
 }

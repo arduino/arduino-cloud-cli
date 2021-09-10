@@ -23,7 +23,7 @@ func initListCommand() *cobra.Command {
 		Use:   "list",
 		Short: "List things",
 		Long:  "List things on Arduino IoT Cloud",
-		RunE:  runListCommand,
+		Run:   runListCommand,
 	}
 	// list only the things corresponding to the passed ids
 	listCommand.Flags().StringSliceVarP(&listFlags.ids, "ids", "i", []string{}, "List of thing IDs to be retrieved")
@@ -33,7 +33,7 @@ func initListCommand() *cobra.Command {
 	return listCommand
 }
 
-func runListCommand(cmd *cobra.Command, args []string) error {
+func runListCommand(cmd *cobra.Command, args []string) {
 	logrus.Info("Listing things")
 
 	params := &thing.ListParams{
@@ -51,7 +51,6 @@ func runListCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	feedback.PrintResult(result{things})
-	return nil
 }
 
 type result struct {

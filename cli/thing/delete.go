@@ -19,14 +19,14 @@ func initDeleteCommand() *cobra.Command {
 		Use:   "delete",
 		Short: "Delete a thing",
 		Long:  "Delete a thing from Arduino IoT Cloud",
-		RunE:  runDeleteCommand,
+		Run:   runDeleteCommand,
 	}
 	deleteCommand.Flags().StringVarP(&deleteFlags.id, "id", "i", "", "Thing ID")
 	deleteCommand.MarkFlagRequired("id")
 	return deleteCommand
 }
 
-func runDeleteCommand(cmd *cobra.Command, args []string) error {
+func runDeleteCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Deleting thing %s\n", deleteFlags.id)
 
 	params := &thing.DeleteParams{ID: deleteFlags.id}
@@ -37,5 +37,4 @@ func runDeleteCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	logrus.Info("Thing successfully deleted")
-	return nil
 }
