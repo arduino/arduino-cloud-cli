@@ -50,7 +50,6 @@ func runCreateCommand(cmd *cobra.Command, args []string) {
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	logrus.Infof("IoT Cloud device created with ID: %s\n", dev.ID)
 	feedback.PrintResult(createResult{dev})
 }
 
@@ -63,5 +62,5 @@ func (r createResult) Data() interface{} {
 }
 
 func (r createResult) String() string {
-	return fmt.Sprintf("IoT Cloud device created with ID: %s\n", r.device.ID)
+	return fmt.Sprintf("IoT Cloud device created with ID: %s", r.device.ID)
 }

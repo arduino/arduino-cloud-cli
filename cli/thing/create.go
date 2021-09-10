@@ -51,7 +51,6 @@ func runCreateCommand(cmd *cobra.Command, args []string) {
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	logrus.Infof("IoT Cloud thing created with ID: %s\n", thing.ID)
 	feedback.PrintResult(createResult{thing})
 }
 
