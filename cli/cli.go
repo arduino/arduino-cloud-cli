@@ -72,12 +72,4 @@ func preRun(cmd *cobra.Command, args []string) {
 	}
 	// use the output format to configure the Feedback
 	feedback.SetFormat(format)
-
-	if cliFlags.outputFormat != "text" {
-		cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
-			logrus.Warn("Calling help on JSON format")
-			feedback.Error("Invalid Call : should show Help, but it is available only in TEXT mode.")
-			os.Exit(errorcodes.ErrBadCall)
-		})
-	}
 }
