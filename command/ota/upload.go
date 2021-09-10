@@ -10,11 +10,17 @@ import (
 	"github.com/arduino/iot-cloud-cli/internal/iot"
 )
 
+const (
+	otaExpirationMins         = 10
+	otaDeferredExpirationMins = 10000
+)
+
 // UploadParams contains the parameters needed to
 // perform an OTA upload.
 type UploadParams struct {
 	DeviceID string
 	File     string
+	Deferred bool
 }
 
 // Upload command is used to upload a firmware OTA,
@@ -51,7 +57,12 @@ func Upload(params *UploadParams) error {
 		return fmt.Errorf("%s: %w", "cannot open ota file", err)
 	}
 
-	err = iotClient.DeviceOTA(params.DeviceID, file)
+	expiration := otaExpirationMins
+	if params.Deferred {
+		expiration = otaDeferredExpirationMins
+	}
+
+	err = iotClient.DeviceOTA(params.DeviceID, file, expiration)
 	if err != nil {
 		return err
 	}

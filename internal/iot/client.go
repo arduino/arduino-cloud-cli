@@ -15,7 +15,7 @@ type Client interface {
 	DeviceDelete(id string) error
 	DeviceList() ([]iotclient.ArduinoDevicev2, error)
 	DeviceShow(id string) (*iotclient.ArduinoDevicev2, error)
-	DeviceOTA(id string, file *os.File) error
+	DeviceOTA(id string, file *os.File, expireMins int) error
 	CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
 	ThingCreate(thing *iotclient.Thing, force bool) (*iotclient.ArduinoThing, error)
 	ThingUpdate(id string, thing *iotclient.Thing, force bool) error
@@ -93,9 +93,9 @@ func (cl *client) DeviceShow(id string) (*iotclient.ArduinoDevicev2, error) {
 
 // DeviceOTA performs an OTA upload request to Arduino IoT Cloud, passing
 // the ID of the device to be updated and the actual file containing the OTA firmware.
-func (cl *client) DeviceOTA(id string, file *os.File) error {
+func (cl *client) DeviceOTA(id string, file *os.File, expireMins int) error {
 	opt := &iotclient.DevicesV2OtaUploadOpts{
-		ExpireInMins: optional.NewInt32(5),
+		ExpireInMins: optional.NewInt32(int32(expireMins)),
 	}
 	_, err := cl.api.DevicesV2OtaApi.DevicesV2OtaUpload(cl.ctx, id, file, opt)
 	if err != nil {
