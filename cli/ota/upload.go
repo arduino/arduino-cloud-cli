@@ -24,7 +24,7 @@ func initUploadCommand() *cobra.Command {
 	}
 
 	uploadCommand.Flags().StringVarP(&uploadFlags.deviceID, "device-id", "d", "", "Device ID")
-	uploadCommand.Flags().StringVarP(&uploadFlags.file, "file", "", "", "OTA file")
+	uploadCommand.Flags().StringVarP(&uploadFlags.file, "file", "", "", "Binary file (.bin) to be uploaded")
 
 	uploadCommand.MarkFlagRequired("device-id")
 	uploadCommand.MarkFlagRequired("file")
