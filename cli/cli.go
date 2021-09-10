@@ -50,17 +50,12 @@ func parseFormatString(arg string) (feedback.OutputFormat, bool) {
 }
 
 func preRun(cmd *cobra.Command, args []string) {
-	// enable log if verbose flag is passed
+	logrus.SetOutput(ioutil.Discard)
+	// enable log only if verbose flag is passed
 	if cliFlags.verbose {
 		logrus.SetLevel(logrus.InfoLevel)
 		logrus.SetOutput(os.Stdout)
-		logrus.SetFormatter(&logrus.TextFormatter{
-			ForceColors: false,
-		})
-	} else {
-		logrus.SetOutput(ioutil.Discard)
 	}
-	// logrus.
 
 	// normalize the format strings
 	cliFlags.outputFormat = strings.ToLower(cliFlags.outputFormat)
