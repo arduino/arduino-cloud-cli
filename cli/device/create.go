@@ -2,7 +2,9 @@ package device
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/iot-cloud-cli/command/device"
 	"github.com/sirupsen/logrus"
@@ -44,7 +46,8 @@ func runCreateCommand(cmd *cobra.Command, args []string) error {
 
 	dev, err := device.Create(params)
 	if err != nil {
-		return err
+		feedback.Errorf("Error during device create: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
 	logrus.Infof("IoT Cloud device created with ID: %s\n", dev.ID)

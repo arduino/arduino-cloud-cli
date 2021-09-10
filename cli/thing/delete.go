@@ -1,6 +1,10 @@
 package thing
 
 import (
+	"os"
+
+	"github.com/arduino/arduino-cli/cli/errorcodes"
+	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/iot-cloud-cli/command/thing"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -28,7 +32,8 @@ func runDeleteCommand(cmd *cobra.Command, args []string) error {
 	params := &thing.DeleteParams{ID: deleteFlags.id}
 	err := thing.Delete(params)
 	if err != nil {
-		return err
+		feedback.Errorf("Error during thing delete: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
 	logrus.Info("Thing successfully deleted")

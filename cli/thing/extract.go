@@ -1,6 +1,10 @@
 package thing
 
 import (
+	"os"
+
+	"github.com/arduino/arduino-cli/cli/errorcodes"
+	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/iot-cloud-cli/command/thing"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -45,7 +49,8 @@ func runExtractCommand(cmd *cobra.Command, args []string) error {
 
 	err := thing.Extract(params)
 	if err != nil {
-		return err
+		feedback.Errorf("Error during template extraction: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
 	logrus.Info("Template successfully extracted")

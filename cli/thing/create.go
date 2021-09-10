@@ -2,7 +2,9 @@ package thing
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/iot-cloud-cli/command/thing"
 	"github.com/sirupsen/logrus"
@@ -45,7 +47,8 @@ func runCreateCommand(cmd *cobra.Command, args []string) error {
 
 	thing, err := thing.Create(params)
 	if err != nil {
-		return err
+		feedback.Errorf("Error during thing create: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
 	logrus.Infof("IoT Cloud thing created with ID: %s\n", thing.ID)

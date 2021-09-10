@@ -1,6 +1,9 @@
 package device
 
 import (
+	"os"
+
+	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cli/table"
 	"github.com/arduino/iot-cloud-cli/command/device"
@@ -23,7 +26,8 @@ func runListCommand(cmd *cobra.Command, args []string) error {
 
 	devs, err := device.List()
 	if err != nil {
-		return err
+		feedback.Errorf("Error during device list: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
 	feedback.PrintResult(listResult{devs})

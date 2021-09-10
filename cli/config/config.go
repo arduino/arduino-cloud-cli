@@ -1,9 +1,10 @@
 package config
 
 import (
-	"fmt"
+	"os"
 	"strings"
 
+	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	paths "github.com/arduino/go-paths-helper"
 	"github.com/arduino/iot-cloud-cli/command/config"
@@ -33,7 +34,8 @@ func NewCommand() *cobra.Command {
 
 func runConfigCommand(cmd *cobra.Command, args []string) error {
 	if configFlags.file == "" && (configFlags.client == "" || configFlags.secret == "") {
-		return fmt.Errorf("%s", "Provide either a yaml file or credentials\n")
+		feedback.Error("Error during config: provide either a yaml file or credentials")
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
 	conf := viper.New()
@@ -46,8 +48,8 @@ func runConfigCommand(cmd *cobra.Command, args []string) error {
 		conf.AddConfigPath(".")
 		err := conf.ReadInConfig()
 		if err != nil {
-			feedback.Errorf("Fatal error config file:  %v", err)
-			return err
+			feedback.Errorf("Error during config: fatal error config file: %v", err)
+			os.Exit(errorcodes.ErrGeneric)
 		}
 
 	} else {
@@ -57,8 +59,8 @@ func runConfigCommand(cmd *cobra.Command, args []string) error {
 
 	err := config.Config(conf)
 	if err != nil {
-		feedback.Errorf("Storing config file:  %v", err)
-		return err
+		feedback.Errorf("Error during config: storing config file: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
 	logrus.Info("Configuration file updated")

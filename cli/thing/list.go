@@ -1,8 +1,10 @@
 package thing
 
 import (
+	"os"
 	"strings"
 
+	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cli/table"
 	"github.com/arduino/iot-cloud-cli/command/thing"
@@ -44,7 +46,8 @@ func runListCommand(cmd *cobra.Command, args []string) error {
 
 	things, err := thing.List(params)
 	if err != nil {
-		return err
+		feedback.Errorf("Error during thing list: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
 	feedback.PrintResult(result{things})

@@ -2,7 +2,9 @@ package thing
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/iot-cloud-cli/command/thing"
 	"github.com/sirupsen/logrus"
@@ -38,7 +40,8 @@ func runCloneCommand(cmd *cobra.Command, args []string) error {
 
 	thing, err := thing.Clone(params)
 	if err != nil {
-		return err
+		feedback.Errorf("Error during thing clone: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
 	logrus.Infof("IoT Cloud thing created with ID: %s", thing.ID)
