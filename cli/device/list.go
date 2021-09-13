@@ -1,11 +1,13 @@
 package device
 
 import (
-	"fmt"
+	"os"
 
+	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cli/table"
 	"github.com/arduino/iot-cloud-cli/command/device"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -14,33 +16,32 @@ func initListCommand() *cobra.Command {
 		Use:   "list",
 		Short: "List devices",
 		Long:  "List devices on Arduino IoT Cloud",
-		RunE:  runListCommand,
+		Run:   runListCommand,
 	}
 	return listCommand
 }
 
-func runListCommand(cmd *cobra.Command, args []string) error {
-	fmt.Println("Listing devices")
+func runListCommand(cmd *cobra.Command, args []string) {
+	logrus.Info("Listing devices")
 
 	devs, err := device.List()
 	if err != nil {
-		return err
+		feedback.Errorf("Error during device list: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	feedback.PrintResult(result{devs})
-
-	return nil
+	feedback.PrintResult(listResult{devs})
 }
 
-type result struct {
+type listResult struct {
 	devices []device.DeviceInfo
 }
 
-func (r result) Data() interface{} {
+func (r listResult) Data() interface{} {
 	return r.devices
 }
 
-func (r result) String() string {
+func (r listResult) String() string {
 	if len(r.devices) == 0 {
 		return "No devices found."
 	}

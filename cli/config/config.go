@@ -1,12 +1,14 @@
 package config
 
 import (
-	"fmt"
+	"os"
 	"strings"
 
+	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	paths "github.com/arduino/go-paths-helper"
 	"github.com/arduino/iot-cloud-cli/command/config"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -22,7 +24,7 @@ func NewCommand() *cobra.Command {
 		Use:   "config",
 		Short: "Set the configuration file",
 		Long:  "Set the configuration file to access Arduino IoT Cloud",
-		RunE:  runConfigCommand,
+		Run:   runConfigCommand,
 	}
 	configCommand.Flags().StringVarP(&configFlags.file, "file", "f", "", "Existing configuration yaml file")
 	configCommand.Flags().StringVarP(&configFlags.client, "client", "c", "", "Client ID")
@@ -30,9 +32,10 @@ func NewCommand() *cobra.Command {
 	return configCommand
 }
 
-func runConfigCommand(cmd *cobra.Command, args []string) error {
+func runConfigCommand(cmd *cobra.Command, args []string) {
 	if configFlags.file == "" && (configFlags.client == "" || configFlags.secret == "") {
-		return fmt.Errorf("%s", "Provide either a yaml file or credentials\n")
+		feedback.Error("Error during config: provide either a yaml file or credentials")
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
 	conf := viper.New()
@@ -45,8 +48,8 @@ func runConfigCommand(cmd *cobra.Command, args []string) error {
 		conf.AddConfigPath(".")
 		err := conf.ReadInConfig()
 		if err != nil {
-			feedback.Errorf("Fatal error config file:  %v", err)
-			return err
+			feedback.Errorf("Error during config: fatal error config file: %v", err)
+			os.Exit(errorcodes.ErrGeneric)
 		}
 
 	} else {
@@ -56,10 +59,9 @@ func runConfigCommand(cmd *cobra.Command, args []string) error {
 
 	err := config.Config(conf)
 	if err != nil {
-		feedback.Errorf("Storing config file:  %v", err)
-		return err
+		feedback.Errorf("Error during config: storing config file: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	fmt.Println("Configuration file updated")
-	return nil
+	logrus.Info("Configuration file updated")
 }

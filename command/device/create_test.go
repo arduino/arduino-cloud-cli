@@ -39,26 +39,26 @@ func stringPointer(s string) *string {
 	return &s
 }
 
-func TestDeviceFromPorts(t *testing.T) {
+func TestBoardFromPorts(t *testing.T) {
 	tests := []struct {
 		name   string
 		filter *CreateParams
 		ports  []*rpc.DetectedPort
-		want   *device
+		want   *board
 	}{
 
 		{
 			name:   "port-filter",
 			filter: &CreateParams{Fqbn: nil, Port: stringPointer("ACM1")},
 			ports:  portsTwoBoards,
-			want:   &device{fqbn: "arduino:avr:uno", port: "ACM1"},
+			want:   &board{fqbn: "arduino:avr:uno", port: "ACM1"},
 		},
 
 		{
 			name:   "fqbn-filter",
 			filter: &CreateParams{Fqbn: stringPointer("arduino:avr:uno"), Port: nil},
 			ports:  portsTwoBoards,
-			want:   &device{fqbn: "arduino:avr:uno", port: "ACM1"},
+			want:   &board{fqbn: "arduino:avr:uno", port: "ACM1"},
 		},
 
 		{
@@ -72,8 +72,8 @@ func TestDeviceFromPorts(t *testing.T) {
 			name:   "no-filter",
 			filter: &CreateParams{Fqbn: nil, Port: nil},
 			ports:  portsTwoBoards,
-			// first device found is selected
-			want: &device{fqbn: "arduino:samd:nano_33_iot", port: "ACM0"},
+			// first board found is selected
+			want: &board{fqbn: "arduino:samd:nano_33_iot", port: "ACM0"},
 		},
 
 		{
@@ -87,7 +87,7 @@ func TestDeviceFromPorts(t *testing.T) {
 			name:   "both-filter-found",
 			filter: &CreateParams{Fqbn: stringPointer("arduino:avr:uno"), Port: stringPointer("ACM1")},
 			ports:  portsTwoBoards,
-			want:   &device{fqbn: "arduino:avr:uno", port: "ACM1"},
+			want:   &board{fqbn: "arduino:avr:uno", port: "ACM1"},
 		},
 
 		{
@@ -100,19 +100,19 @@ func TestDeviceFromPorts(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := deviceFromPorts(tt.ports, tt.filter)
+			got := boardFromPorts(tt.ports, tt.filter)
 
 			if got == nil && tt.want == nil {
 				return
 
 			} else if got != nil && tt.want == nil {
-				t.Errorf("Expected nil device, received not nil device with port %s and fqbn %s", got.port, got.fqbn)
+				t.Errorf("Expected nil board, received not nil board with port %s and fqbn %s", got.port, got.fqbn)
 
 			} else if got == nil && tt.want != nil {
-				t.Errorf("Expected not nil device with port %s and fqbn %s, received a nil device", tt.want.port, tt.want.fqbn)
+				t.Errorf("Expected not nil board with port %s and fqbn %s, received a nil board", tt.want.port, tt.want.fqbn)
 
 			} else if got.port != tt.want.port || got.fqbn != tt.want.fqbn {
-				t.Errorf("Expected device with port %s and fqbn %s, received device with port %s and fqbn %s",
+				t.Errorf("Expected board with port %s and fqbn %s, received board with port %s and fqbn %s",
 					tt.want.port, tt.want.fqbn, got.port, got.fqbn)
 			}
 		})
