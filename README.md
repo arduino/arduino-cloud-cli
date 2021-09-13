@@ -79,3 +79,12 @@ Extract a template from an existing thing. The template can be saved in two form
 Bind a thing to an existing device:
 
 `$ iot-cloud-cli thing bind --id <thingID> --device-id <deviceID>`
+
+## Ota commands
+
+Perform an OTA firmware update. Note that the binary file (`.bin`) should be compiled using an arduino core that supports the specified device.
+The default OTA upload should complete in 10 minutes. Use `--deferred` flag to extend this time to one week.
+
+`$ iot-cloud-cli ota upload --device-id <deviceID> --file <sketch-file.ino.bin>`
+
+`$ iot-cloud-cli ota upload --device-id <deviceID> --file <sketch-file.ino.bin> --deferred`
