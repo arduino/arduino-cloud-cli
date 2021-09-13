@@ -9,6 +9,7 @@ import (
 	"github.com/arduino/iot-cloud-cli/arduino/cli"
 	"github.com/arduino/iot-cloud-cli/internal/config"
 	"github.com/arduino/iot-cloud-cli/internal/iot"
+	"github.com/sirupsen/logrus"
 )
 
 // CreateParams contains the parameters needed
@@ -22,7 +23,7 @@ type CreateParams struct {
 	Fqbn *string
 }
 
-type device struct {
+type board struct {
 	fqbn   string
 	serial string
 	dType  string
@@ -31,66 +32,73 @@ type device struct {
 
 // Create command is used to provision a new arduino device
 // and to add it to Arduino IoT Cloud.
-func Create(params *CreateParams) (string, error) {
+func Create(params *CreateParams) (*DeviceInfo, error) {
 	comm, err := cli.NewCommander()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	ports, err := comm.BoardList()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	dev := deviceFromPorts(ports, params)
-	if dev == nil {
-		err = errors.New("no device found")
-		return "", err
+	board := boardFromPorts(ports, params)
+	if board == nil {
+		err = errors.New("no board found")
+		return nil, err
 	}
 
 	conf, err := config.Retrieve()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	fmt.Println("Creating a new device on the cloud")
-	devID, err := iotClient.DeviceCreate(dev.fqbn, params.Name, dev.serial, dev.dType)
+	logrus.Info("Creating a new device on the cloud")
+	dev, err := iotClient.DeviceCreate(board.fqbn, params.Name, board.serial, board.dType)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	prov := &provision{
 		Commander: comm,
 		Client:    iotClient,
-		dev:       dev,
-		id:        devID}
-	err = prov.run()
-	if err != nil {
+		board:     board,
+		id:        dev.Id,
+	}
+	if err = prov.run(); err != nil {
 		// TODO: retry to delete the device if it returns an error.
 		// In alternative: encapsulate also this error.
-		iotClient.DeviceDelete(devID)
+		iotClient.DeviceDelete(dev.Id)
 		err = fmt.Errorf("%s: %w", "cannot provision device", err)
-		return "", err
+		return nil, err
 	}
 
-	return devID, nil
+	devInfo := &DeviceInfo{
+		Name:   dev.Name,
+		ID:     dev.Id,
+		Board:  dev.Type,
+		Serial: dev.Serial,
+		FQBN:   dev.Fqbn,
+	}
+	return devInfo, nil
 }
 
-// deviceFromPorts returns a board that matches all the criteria
-// passed in. If no criteria are passed, it returns the first device found.
-func deviceFromPorts(ports []*rpc.DetectedPort, params *CreateParams) *device {
+// boardFromPorts returns a board that matches all the criteria
+// passed in. If no criteria are passed, it returns the first board found.
+func boardFromPorts(ports []*rpc.DetectedPort, params *CreateParams) *board {
 	for _, port := range ports {
 		if portFilter(port, params) {
 			continue
 		}
-		board := boardFilter(port.Boards, params)
-		if board != nil {
-			t := strings.Split(board.Fqbn, ":")[2]
-			dev := &device{board.Fqbn, port.SerialNumber, t, port.Address}
-			return dev
+		boardFound := boardFilter(port.Boards, params)
+		if boardFound != nil {
+			t := strings.Split(boardFound.Fqbn, ":")[2]
+			b := &board{boardFound.Fqbn, port.SerialNumber, t, port.Address}
+			return b
 		}
 	}
 

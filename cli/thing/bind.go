@@ -1,9 +1,12 @@
 package thing
 
 import (
-	"fmt"
+	"os"
 
+	"github.com/arduino/arduino-cli/cli/errorcodes"
+	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/iot-cloud-cli/command/thing"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +20,7 @@ func initBindCommand() *cobra.Command {
 		Use:   "bind",
 		Short: "Bind a thing to a device",
 		Long:  "Bind a thing to a device on Arduino IoT Cloud",
-		RunE:  runBindCommand,
+		Run:   runBindCommand,
 	}
 	bindCommand.Flags().StringVarP(&bindFlags.id, "id", "i", "", "Thing ID")
 	bindCommand.Flags().StringVarP(&bindFlags.deviceID, "device-id", "d", "", "Device ID")
@@ -26,8 +29,8 @@ func initBindCommand() *cobra.Command {
 	return bindCommand
 }
 
-func runBindCommand(cmd *cobra.Command, args []string) error {
-	fmt.Printf("Binding thing %s to device%s\n", bindFlags.id, bindFlags.deviceID)
+func runBindCommand(cmd *cobra.Command, args []string) {
+	logrus.Infof("Binding thing %s to device %s\n", bindFlags.id, bindFlags.deviceID)
 
 	params := &thing.BindParams{
 		ID:       bindFlags.id,
@@ -35,9 +38,9 @@ func runBindCommand(cmd *cobra.Command, args []string) error {
 	}
 	err := thing.Bind(params)
 	if err != nil {
-		return err
+		feedback.Errorf("Error during thing bind: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	fmt.Println("Thing-Device bound successfully updated")
-	return nil
+	logrus.Info("Thing-Device bound successfully updated")
 }

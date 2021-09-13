@@ -1,12 +1,14 @@
 package thing
 
 import (
-	"fmt"
+	"os"
 	"strings"
 
+	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cli/table"
 	"github.com/arduino/iot-cloud-cli/command/thing"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +23,7 @@ func initListCommand() *cobra.Command {
 		Use:   "list",
 		Short: "List things",
 		Long:  "List things on Arduino IoT Cloud",
-		RunE:  runListCommand,
+		Run:   runListCommand,
 	}
 	// list only the things corresponding to the passed ids
 	listCommand.Flags().StringSliceVarP(&listFlags.ids, "ids", "i", []string{}, "List of thing IDs to be retrieved")
@@ -31,8 +33,8 @@ func initListCommand() *cobra.Command {
 	return listCommand
 }
 
-func runListCommand(cmd *cobra.Command, args []string) error {
-	fmt.Println("Listing things")
+func runListCommand(cmd *cobra.Command, args []string) {
+	logrus.Info("Listing things")
 
 	params := &thing.ListParams{
 		IDs:       listFlags.ids,
@@ -44,11 +46,11 @@ func runListCommand(cmd *cobra.Command, args []string) error {
 
 	things, err := thing.List(params)
 	if err != nil {
-		return err
+		feedback.Errorf("Error during thing list: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
 	feedback.PrintResult(result{things})
-	return nil
 }
 
 type result struct {

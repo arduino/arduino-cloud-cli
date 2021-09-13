@@ -8,11 +8,11 @@ import (
 // DeviceInfo contains the most interesting
 // parameters of an Arduino IoT Cloud device.
 type DeviceInfo struct {
-	Name   string
-	ID     string
-	Board  string
-	Serial string
-	FQBN   string
+	Name   string `json:"name"`
+	ID     string `json:"id"`
+	Board  string `json:"board"`
+	Serial string `json:"serial-number"`
+	FQBN   string `json:"fqbn"`
 }
 
 // List command is used to list

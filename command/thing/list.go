@@ -5,15 +5,6 @@ import (
 	"github.com/arduino/iot-cloud-cli/internal/iot"
 )
 
-// ThingInfo contains the main parameters of
-// an Arduino IoT Cloud thing.
-type ThingInfo struct {
-	Name      string
-	ID        string
-	DeviceID  string
-	Variables []string
-}
-
 // ListParams contains the optional parameters needed
 // to filter the things to be listed.
 // If IDs is valid, only things belonging to that list are listed.
@@ -44,17 +35,8 @@ func List(params *ListParams) ([]ThingInfo, error) {
 
 	var things []ThingInfo
 	for _, foundThing := range foundThings {
-		var vars []string
-		for _, p := range foundThing.Properties {
-			vars = append(vars, p.Name)
-		}
-		th := ThingInfo{
-			Name:      foundThing.Name,
-			ID:        foundThing.Id,
-			DeviceID:  foundThing.DeviceId,
-			Variables: vars,
-		}
-		things = append(things, th)
+		info := getThingInfo(&foundThing)
+		things = append(things, *info)
 	}
 
 	return things, nil

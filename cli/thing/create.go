@@ -2,8 +2,13 @@ package thing
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
+	"github.com/arduino/arduino-cli/cli/errorcodes"
+	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/iot-cloud-cli/command/thing"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +22,7 @@ func initCreateCommand() *cobra.Command {
 		Use:   "create",
 		Short: "Create a thing from a template",
 		Long:  "Create a thing from a template for Arduino IoT Cloud",
-		RunE:  runCreateCommand,
+		Run:   runCreateCommand,
 	}
 	createCommand.Flags().StringVarP(&createFlags.name, "name", "n", "", "Thing name")
 	createCommand.Flags().StringVarP(
@@ -31,8 +36,8 @@ func initCreateCommand() *cobra.Command {
 	return createCommand
 }
 
-func runCreateCommand(cmd *cobra.Command, args []string) error {
-	fmt.Printf("Creating thing from template %s\n", createFlags.template)
+func runCreateCommand(cmd *cobra.Command, args []string) {
+	logrus.Infof("Creating thing from template %s\n", createFlags.template)
 
 	params := &thing.CreateParams{
 		Template: createFlags.template,
@@ -41,11 +46,29 @@ func runCreateCommand(cmd *cobra.Command, args []string) error {
 		params.Name = &createFlags.name
 	}
 
-	thingID, err := thing.Create(params)
+	thing, err := thing.Create(params)
 	if err != nil {
-		return err
+		feedback.Errorf("Error during thing create: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	fmt.Printf("IoT Cloud thing created with ID: %s\n", thingID)
-	return nil
+	feedback.PrintResult(createResult{thing})
+}
+
+type createResult struct {
+	thing *thing.ThingInfo
+}
+
+func (r createResult) Data() interface{} {
+	return r.thing
+}
+
+func (r createResult) String() string {
+	return fmt.Sprintf(
+		"name: %s\nid: %s\ndevice-id: %s\nvariables: %s",
+		r.thing.Name,
+		r.thing.ID,
+		r.thing.DeviceID,
+		strings.Join(r.thing.Variables, ", "),
+	)
 }

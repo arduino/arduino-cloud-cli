@@ -1,9 +1,12 @@
 package thing
 
 import (
-	"fmt"
+	"os"
 
+	"github.com/arduino/arduino-cli/cli/errorcodes"
+	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/iot-cloud-cli/command/thing"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +21,7 @@ func initExtractCommand() *cobra.Command {
 		Use:   "extract",
 		Short: "Extract a template from a thing",
 		Long:  "Extract a template from a Arduino IoT Cloud thing and save it in a file",
-		RunE:  runExtractCommand,
+		Run:   runExtractCommand,
 	}
 	extractCommand.Flags().StringVarP(&extractFlags.id, "id", "i", "", "Thing ID")
 	extractCommand.Flags().StringVarP(&extractFlags.outfile, "outfile", "o", "", "Template file destination path")
@@ -33,8 +36,8 @@ func initExtractCommand() *cobra.Command {
 	return extractCommand
 }
 
-func runExtractCommand(cmd *cobra.Command, args []string) error {
-	fmt.Printf("Extracting template from thing %s\n", extractFlags.id)
+func runExtractCommand(cmd *cobra.Command, args []string) {
+	logrus.Infof("Extracting template from thing %s\n", extractFlags.id)
 
 	params := &thing.ExtractParams{
 		ID:     extractFlags.id,
@@ -46,9 +49,9 @@ func runExtractCommand(cmd *cobra.Command, args []string) error {
 
 	err := thing.Extract(params)
 	if err != nil {
-		return err
+		feedback.Errorf("Error during template extraction: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	fmt.Println("Template successfully extracted")
-	return nil
+	logrus.Info("Template successfully extracted")
 }

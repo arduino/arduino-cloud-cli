@@ -10,12 +10,12 @@ import (
 
 // Client can be used to perform actions on Arduino IoT Cloud.
 type Client interface {
-	DeviceCreate(fqbn, name, serial, devType string) (string, error)
+	DeviceCreate(fqbn, name, serial, devType string) (*iotclient.ArduinoDevicev2, error)
 	DeviceDelete(id string) error
 	DeviceList() ([]iotclient.ArduinoDevicev2, error)
 	DeviceShow(id string) (*iotclient.ArduinoDevicev2, error)
 	CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
-	ThingCreate(thing *iotclient.Thing, force bool) (string, error)
+	ThingCreate(thing *iotclient.Thing, force bool) (*iotclient.ArduinoThing, error)
 	ThingUpdate(id string, thing *iotclient.Thing, force bool) error
 	ThingDelete(id string) error
 	ThingShow(id string) (*iotclient.ArduinoThing, error)
@@ -40,8 +40,8 @@ func NewClient(clientID, secretID string) (Client, error) {
 }
 
 // DeviceCreate allows to create a new device on Arduino IoT Cloud.
-// It returns the ID associated to the new device, and an error.
-func (cl *client) DeviceCreate(fqbn, name, serial, dType string) (string, error) {
+// It returns the newly created device, and an error.
+func (cl *client) DeviceCreate(fqbn, name, serial, dType string) (*iotclient.ArduinoDevicev2, error) {
 	payload := iotclient.CreateDevicesV2Payload{
 		Fqbn:   fqbn,
 		Name:   name,
@@ -51,9 +51,9 @@ func (cl *client) DeviceCreate(fqbn, name, serial, dType string) (string, error)
 	dev, _, err := cl.api.DevicesV2Api.DevicesV2Create(cl.ctx, payload)
 	if err != nil {
 		err = fmt.Errorf("creating device, %w", errorDetail(err))
-		return "", err
+		return nil, err
 	}
-	return dev.Id, nil
+	return &dev, nil
 }
 
 // DeviceDelete deletes the device corresponding to the passed ID
@@ -108,13 +108,13 @@ func (cl *client) CertificateCreate(id, csr string) (*iotclient.ArduinoCompresse
 }
 
 // ThingCreate adds a new thing on Arduino IoT Cloud.
-func (cl *client) ThingCreate(thing *iotclient.Thing, force bool) (string, error) {
+func (cl *client) ThingCreate(thing *iotclient.Thing, force bool) (*iotclient.ArduinoThing, error) {
 	opt := &iotclient.ThingsV2CreateOpts{Force: optional.NewBool(force)}
 	newThing, _, err := cl.api.ThingsV2Api.ThingsV2Create(cl.ctx, *thing, opt)
 	if err != nil {
-		return "", fmt.Errorf("%s: %w", "adding new thing", errorDetail(err))
+		return nil, fmt.Errorf("%s: %w", "adding new thing", errorDetail(err))
 	}
-	return newThing.Id, nil
+	return &newThing, nil
 }
 
 // ThingUpdate updates a thing on Arduino IoT Cloud.

@@ -2,8 +2,12 @@ package device
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/arduino/arduino-cli/cli/errorcodes"
+	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/iot-cloud-cli/command/device"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +22,7 @@ func initCreateCommand() *cobra.Command {
 		Use:   "create",
 		Short: "Create a device",
 		Long:  "Create a device for Arduino IoT Cloud",
-		RunE:  runCreateCommand,
+		Run:   runCreateCommand,
 	}
 	createCommand.Flags().StringVarP(&createFlags.port, "port", "p", "", "Device port")
 	createCommand.Flags().StringVarP(&createFlags.name, "name", "n", "", "Device name")
@@ -27,8 +31,8 @@ func initCreateCommand() *cobra.Command {
 	return createCommand
 }
 
-func runCreateCommand(cmd *cobra.Command, args []string) error {
-	fmt.Printf("Creating device with name %s\n", createFlags.name)
+func runCreateCommand(cmd *cobra.Command, args []string) {
+	logrus.Infof("Creating device with name %s\n", createFlags.name)
 
 	params := &device.CreateParams{
 		Name: createFlags.name,
@@ -40,11 +44,30 @@ func runCreateCommand(cmd *cobra.Command, args []string) error {
 		params.Fqbn = &createFlags.fqbn
 	}
 
-	devID, err := device.Create(params)
+	dev, err := device.Create(params)
 	if err != nil {
-		return err
+		feedback.Errorf("Error during device create: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	fmt.Printf("IoT Cloud device created with ID: %s\n", devID)
-	return nil
+	feedback.PrintResult(createResult{dev})
+}
+
+type createResult struct {
+	device *device.DeviceInfo
+}
+
+func (r createResult) Data() interface{} {
+	return r.device
+}
+
+func (r createResult) String() string {
+	return fmt.Sprintf(
+		"name: %s\nid: %s\nboard: %s\nserial-number: %s\nfqbn: %s",
+		r.device.Name,
+		r.device.ID,
+		r.device.Board,
+		r.device.Serial,
+		r.device.FQBN,
+	)
 }
