@@ -11,8 +11,10 @@ import (
 )
 
 const (
-	otaExpirationMins         = 10
-	otaDeferredExpirationMins = 10000
+	// default ota should complete in 10 mins
+	otaExpirationMins = 10
+	// deferred ota can take up to 1 week (equal to 10080 minutes)
+	otaDeferredExpirationMins = 10080
 )
 
 // UploadParams contains the parameters needed to
