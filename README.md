@@ -21,6 +21,19 @@ Once you have the IDs, call this command to init a new configuration file:
 A file named `arduino-cloud.yaml` will be created in the current working directory. 
 Then you should open such file and replace the client and secret placeholders with the value you previously retrieved.
 
+
+To create a configuration file in a different folder, use this command:
+
+`$ iot-cloud-cli config init --dest-dir <destinationFolder>`
+
+To reset an old configuration file, just overwrite it using this command:
+
+`$ iot-cloud-cli config init --overwrite`
+
+Configuration file is supported in two different format: json and yaml. Use the `--config-format` to choose it. Default is yaml.
+
+`$ iot-cloud-cli config init --config-format json`
+
 ## Device provisioning
 
 When provisioning a device, you can optionally specify the port to which the device is connected to and its fqbn. If they are not given, then the first device found will be provisioned.
