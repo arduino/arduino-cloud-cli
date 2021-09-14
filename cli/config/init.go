@@ -26,7 +26,7 @@ func initInitCommand() *cobra.Command {
 
 	initCommand.Flags().StringVar(&initFlags.destDir, "dest-dir", ".", "Sets where to save the configuration file.")
 	initCommand.Flags().BoolVar(&initFlags.overwrite, "overwrite", false, "Overwrite existing config file.")
-	initCommand.Flags().StringVar(&initFlags.format, "ext", "yaml", "Extension of the configuration file, can be {yaml|json}")
+	initCommand.Flags().StringVar(&initFlags.format, "config-format", "yaml", "Format of the configuration file, can be {yaml|json}")
 
 	return initCommand
 }
