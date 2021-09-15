@@ -10,20 +10,29 @@ This is all you need to use iot-cloud-cli for device **provisioning**:
 
 ## Set a configuration
 
-iot-cloud-cli needs to be configured before being used. In particular a client ID and the corresponding secret ID should be set.
+iot-cloud-cli needs a configuration file to be used. At the moment, the configuration file should be contained in the same directory where the cli commands are executed.
+The configuration file contains the Arduino IoT Cloud client ID and its corresponding secret.
 You can retrieve them from the [cloud](https://create.arduino.cc/iot/integrations) by creating a new API key.
 
-Once you have the IDs, call this command with your parameters:
+Once you have the IDs, call this command to init a new configuration file:
 
-`$ iot-cloud-cli config -c <clientID> -s <secretID>`
+`$ iot-cloud-cli config init`
 
-A file named `config.yaml` will be created in the Current Working Directory containing the login credentials.
-Example
+A file named `arduino-cloud.yaml` will be created in the current working directory. 
+Then you should open such file and replace the client and secret placeholders with the value you previously retrieved.
 
-```yaml
-client: 00112233445566778899aabbccddeeff
-secret: 00112233445566778899aabbccddeeffffeeddccbbaa99887766554433221100
-```
+
+To create a configuration file in a different folder, use this command:
+
+`$ iot-cloud-cli config init --dest-dir <destinationFolder>`
+
+To reset an old configuration file, just overwrite it using this command:
+
+`$ iot-cloud-cli config init --overwrite`
+
+Configuration file is supported in two different format: json and yaml. Use the `--config-format` to choose it. Default is yaml.
+
+`$ iot-cloud-cli config init --config-format json`
 
 ## Device provisioning
 
