@@ -8,6 +8,24 @@ This is all you need to use iot-cloud-cli for device **provisioning**:
  * A client ID and a secret ID, retrievable from the [cloud](https://create.arduino.cc/iot/integrations) by creating a new API key
  * The folder containing the precompiled provisioning firmwares (`binaries`) needs to be in the same location you run the command from
 
+### Additional info
+
+This tool follows a "quiet on success/verbose on error" behaviour. This means that when the execution of a command results in an error, such error is printed. On the other hand, when the command is successfully executed, there is no 'success' feedback on the output: the results of the command, if any, are directly printed without any other feedback informations. This strategy allows users to save the output of the command in a file. 
+
+However, if the verbose flag `-v` is used, then the behaviour will change: the logs will always be printed out providing users with feedbacks on the execution of the command. 
+
+As an example, let's take the `device create`command. We want to save the information of the newly created device in a file.
+So we simply lunch the command:
+
+`$ iot-cloud-cli device create --name mydevice --format json > mydevice.json`
+
+The resulting mydevice.json will only contain device information in a json format.
+
+Another example: let's say that the execution of the previous command results in an error. In that case the json file will be empty and the terminal will print out the error. Now we want to execute again the command with the logs enabled, in order to understand the issue. So we execute the following:
+
+`$ iot-cloud-cli device create --name mydevice -v`
+
+
 ## Set a configuration
 
 iot-cloud-cli needs a configuration file to be used. At the moment, the configuration file should be contained in the same directory where the cli commands are executed.
