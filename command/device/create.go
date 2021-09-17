@@ -14,13 +14,10 @@ import (
 
 // CreateParams contains the parameters needed
 // to find the device to be provisioned.
-// Name - mandatory parameter.
-// Port - optional parameter. If omitted then each serial port is analyzed.
-// Fqbn - optional parameter. If omitted then the first device found gets selected.
 type CreateParams struct {
-	Name string
-	Port *string
-	Fqbn *string
+	Name string  // Device name
+	Port *string // Serial port - Optional - If omitted then each serial port is analyzed
+	Fqbn *string // Board FQBN - Optional - If omitted then the first device found gets selected
 }
 
 type board struct {

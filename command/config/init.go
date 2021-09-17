@@ -11,13 +11,10 @@ import (
 )
 
 // InitParams contains the parameters needed to initialize a configuration file.
-// DestDir - destination directory in which the configuration file will be saved.
-// Overwrite - specify if existing config file should be overwritten.
-// Format - the config file format, can be 'json' or 'yaml'.
 type InitParams struct {
-	DestDir   string
-	Overwrite bool
-	Format    string
+	DestDir   string // Destination directory in which the configuration file will be saved
+	Overwrite bool   // Overwrite specifies if existing config file should be overwritten
+	Format    string // Config file format, can be 'json' or 'yaml'
 }
 
 func validateFormatString(arg string) error {

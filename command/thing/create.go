@@ -15,10 +15,8 @@ import (
 
 // CreateParams contains the parameters needed to create a new thing.
 type CreateParams struct {
-	// Optional - contains the name of the thing
-	Name *string
-	// Mandatory - contains the path of the template file
-	Template string
+	Name     *string // Name of the new thing
+	Template string  // Path of the template file
 }
 
 // Create allows to create a new thing

@@ -15,13 +15,11 @@ import (
 )
 
 // ExtractParams contains the parameters needed to
-// extract a thing from Arduino IoT Cloud and save it on local storage.
-// Format determines the file format of the template ("json" or "yaml")
-// Output indicates the destination path of the extraction.
+// extract a template thing from Arduino IoT Cloud and save it on local storage.
 type ExtractParams struct {
 	ID      string
-	Format  string
-	Outfile *string
+	Format  string  // Format determines the file format of the template ("json" or "yaml")
+	Outfile *string // Destination path of the extracted template
 }
 
 // Extract command is used to extract a thing template

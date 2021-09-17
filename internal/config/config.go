@@ -9,10 +9,8 @@ import (
 // Config contains all the configuration parameters
 // known by iot-cloud-cli
 type Config struct {
-	// Client ID of the user
-	Client string `map-structure:"client"`
-	// Secret ID of the user, unique for each Client ID
-	Secret string `map-structure:"secret"`
+	Client string `map-structure:"client"` // Client ID of the user
+	Secret string `map-structure:"secret"` // Secret ID of the user, unique for each Client ID
 }
 
 // Retrieve returns the actual parameters contained in the
