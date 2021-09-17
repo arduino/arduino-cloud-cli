@@ -10,10 +10,8 @@ import (
 
 // CloneParams contains the parameters needed to clone a thing.
 type CloneParams struct {
-	// Mandatory - contains the name of the thing
-	Name string
-	// Mandatory - specifies ID of thing to be cloned
-	CloneID string
+	Name    string // Name of the new thing
+	CloneID string // ID of thing to be cloned
 }
 
 // Clone allows to create a new thing from an already existing one
