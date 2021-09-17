@@ -11,30 +11,30 @@ import (
 )
 
 var deleteFlags struct {
-	id string
+	ids []string
 }
 
 func initDeleteCommand() *cobra.Command {
 	deleteCommand := &cobra.Command{
 		Use:   "delete",
-		Short: "Delete a device",
-		Long:  "Delete a device from Arduino IoT Cloud",
+		Short: "Delete devices",
+		Long:  "Delete a list of devices from Arduino IoT Cloud",
 		Run:   runDeleteCommand,
 	}
-	deleteCommand.Flags().StringVarP(&deleteFlags.id, "id", "i", "", "Device ID")
-	deleteCommand.MarkFlagRequired("id")
+	deleteCommand.Flags().StringSliceVarP(&deleteFlags.ids, "ids", "i", []string{}, "List of comma-separated device IDs to be deleted")
+	deleteCommand.MarkFlagRequired("ids")
 	return deleteCommand
 }
 
 func runDeleteCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Deleting device %s\n", deleteFlags.id)
+	logrus.Infof("Deleting devices %v\n", deleteFlags.ids)
 
-	params := &device.DeleteParams{ID: deleteFlags.id}
+	params := &device.DeleteParams{IDs: deleteFlags.ids}
 	err := device.Delete(params)
 	if err != nil {
-		feedback.Errorf("Error during device delete: %v", err)
+		feedback.Errorf("Error during device delete: %s", err)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	logrus.Info("Device successfully deleted")
+	logrus.Info("Devices successfully deleted")
 }
