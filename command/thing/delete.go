@@ -1,17 +1,20 @@
 package thing
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/arduino/iot-cloud-cli/internal/config"
 	"github.com/arduino/iot-cloud-cli/internal/iot"
 )
 
 // DeleteParams contains the parameters needed to
-// delete a thing from Arduino IoT Cloud.
+// delete a list of things from Arduino IoT Cloud.
 type DeleteParams struct {
-	ID string
+	IDs []string
 }
 
-// Delete command is used to delete a thing
+// Delete command is used to delete things
 // from Arduino IoT Cloud.
 func Delete(params *DeleteParams) error {
 	conf, err := config.Retrieve()
@@ -23,5 +26,16 @@ func Delete(params *DeleteParams) error {
 		return err
 	}
 
-	return iotClient.ThingDelete(params.ID)
+	result := ""
+	for _, id := range params.IDs {
+		err = iotClient.ThingDelete(id)
+		if err != nil {
+			result = fmt.Sprintf("%s\nthing id %s: %s", result, id, err)
+		}
+	}
+
+	if result != "" {
+		return errors.New(result)
+	}
+	return nil
 }
