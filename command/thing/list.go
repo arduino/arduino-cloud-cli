@@ -7,13 +7,10 @@ import (
 
 // ListParams contains the optional parameters needed
 // to filter the things to be listed.
-// If IDs is valid, only things belonging to that list are listed.
-// If DeviceID is provided, only things associated to that device are listed.
-// If Variables is true, variables names are retrieved.
 type ListParams struct {
-	IDs       []string
-	DeviceID  *string
-	Variables bool
+	IDs       []string // If IDs is not nil, only things belonging to that list are returned
+	DeviceID  *string  // If DeviceID is provided, only the thing associated to that device is listed.
+	Variables bool     // If Variables is true, variable names are retrieved.
 }
 
 // List command is used to list

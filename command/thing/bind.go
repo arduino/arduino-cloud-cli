@@ -8,11 +8,9 @@ import (
 
 // BindParams contains the parameters needed to
 // bind a thing to a device.
-// ID indicates the thing to bind.
-// deviceID indicates the device bind.
 type BindParams struct {
-	ID       string
-	DeviceID string
+	ID       string // ID of the thing to be bound
+	DeviceID string // ID of the device to be bound
 }
 
 // Bind command is used to bind a thing to a device
