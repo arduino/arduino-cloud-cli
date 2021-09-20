@@ -1,8 +1,8 @@
 package thing
 
 import (
-	"github.com/arduino/iot-cloud-cli/internal/config"
-	"github.com/arduino/iot-cloud-cli/internal/iot"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
+	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
 
 // ListParams contains the optional parameters needed

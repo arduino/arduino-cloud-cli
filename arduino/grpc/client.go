@@ -8,7 +8,7 @@ import (
 
 	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/arduino/arduino-cli/rpc/cc/arduino/cli/settings/v1"
-	"github.com/arduino/iot-cloud-cli/arduino"
+	"github.com/arduino/arduino-cloud-cli/arduino"
 	"google.golang.org/grpc"
 )
 

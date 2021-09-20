@@ -7,7 +7,7 @@ import (
 )
 
 // Config contains all the configuration parameters
-// known by iot-cloud-cli
+// known by arduino-cloud-cli
 type Config struct {
 	Client string `map-structure:"client"` // Client ID of the user
 	Secret string `map-structure:"secret"` // Secret ID of the user, unique for each Client ID

@@ -11,7 +11,7 @@ import (
 	"github.com/arduino/arduino-cli/commands/upload"
 	"github.com/arduino/arduino-cli/configuration"
 	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
-	"github.com/arduino/iot-cloud-cli/arduino"
+	"github.com/arduino/arduino-cloud-cli/arduino"
 	"github.com/sirupsen/logrus"
 )
 

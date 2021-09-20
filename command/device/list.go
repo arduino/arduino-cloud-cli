@@ -1,8 +1,8 @@
 package device
 
 import (
-	"github.com/arduino/iot-cloud-cli/internal/config"
-	"github.com/arduino/iot-cloud-cli/internal/iot"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
+	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
 
 // DeviceInfo contains the most interesting

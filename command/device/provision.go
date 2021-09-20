@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/arduino/iot-cloud-cli/arduino"
-	"github.com/arduino/iot-cloud-cli/internal/iot"
-	"github.com/arduino/iot-cloud-cli/internal/serial"
+	"github.com/arduino/arduino-cloud-cli/arduino"
+	"github.com/arduino/arduino-cloud-cli/internal/iot"
+	"github.com/arduino/arduino-cloud-cli/internal/serial"
 	"github.com/sirupsen/logrus"
 )
 
