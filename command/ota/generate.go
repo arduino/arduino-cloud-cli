@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	inota "github.com/arduino/iot-cloud-cli/internal/ota"
+	inota "github.com/arduino/arduino-cloud-cli/internal/ota"
 )
 
 var (

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/arduino/iot-cloud-cli/internal/serial/mocks"
+	"github.com/arduino/arduino-cloud-cli/internal/serial/mocks"
 	"github.com/stretchr/testify/mock"
 )
 

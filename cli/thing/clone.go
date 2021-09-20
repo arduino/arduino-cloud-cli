@@ -7,7 +7,7 @@ import (
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
-	"github.com/arduino/iot-cloud-cli/command/thing"
+	"github.com/arduino/arduino-cloud-cli/command/thing"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

@@ -1,9 +1,9 @@
 package thing
 
 import (
+	"github.com/arduino/arduino-cloud-cli/internal/config"
+	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	iotclient "github.com/arduino/iot-client-go"
-	"github.com/arduino/iot-cloud-cli/internal/config"
-	"github.com/arduino/iot-cloud-cli/internal/iot"
 )
 
 // BindParams contains the parameters needed to

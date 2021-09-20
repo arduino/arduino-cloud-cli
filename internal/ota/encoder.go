@@ -10,7 +10,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/arduino/iot-cloud-cli/internal/lzss"
+	"github.com/arduino/arduino-cloud-cli/internal/lzss"
 	"github.com/juju/errors"
 )
 

@@ -3,9 +3,9 @@ package thing
 import (
 	"fmt"
 
+	"github.com/arduino/arduino-cloud-cli/internal/config"
+	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	iotclient "github.com/arduino/iot-client-go"
-	"github.com/arduino/iot-cloud-cli/internal/config"
-	"github.com/arduino/iot-cloud-cli/internal/iot"
 )
 
 // CloneParams contains the parameters needed to clone a thing.

@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
-	"github.com/arduino/iot-cloud-cli/arduino/cli"
-	"github.com/arduino/iot-cloud-cli/internal/config"
-	"github.com/arduino/iot-cloud-cli/internal/iot"
+	"github.com/arduino/arduino-cloud-cli/arduino/cli"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
+	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	"github.com/sirupsen/logrus"
 )
 

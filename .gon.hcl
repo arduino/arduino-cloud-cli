@@ -1,5 +1,5 @@
-source = ["./iot-cloud-cli"]
-bundle_id = "dev.zmoog.iot-cloud-cli"
+source = ["./arduino-cloud-cli"]
+bundle_id = "dev.zmoog.arduino-cloud-cli"
 
 apple_id {
   username = "maurizio.branca@gmail.com"
@@ -11,5 +11,5 @@ sign {
 }
 
 zip {
-  output_path = "./iot-cloud-cli.zip"
+  output_path = "./arduino-cloud-cli.zip"
 }

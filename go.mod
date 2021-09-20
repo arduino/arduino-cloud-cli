@@ -1,4 +1,4 @@
-module github.com/arduino/iot-cloud-cli
+module github.com/arduino/arduino-cloud-cli
 
 go 1.15
 

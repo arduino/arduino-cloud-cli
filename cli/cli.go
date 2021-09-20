@@ -8,10 +8,10 @@ import (
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
-	"github.com/arduino/iot-cloud-cli/cli/config"
-	"github.com/arduino/iot-cloud-cli/cli/device"
-	"github.com/arduino/iot-cloud-cli/cli/ota"
-	"github.com/arduino/iot-cloud-cli/cli/thing"
+	"github.com/arduino/arduino-cloud-cli/cli/config"
+	"github.com/arduino/arduino-cloud-cli/cli/device"
+	"github.com/arduino/arduino-cloud-cli/cli/ota"
+	"github.com/arduino/arduino-cloud-cli/cli/thing"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

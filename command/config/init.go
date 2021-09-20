@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/arduino/go-paths-helper"
-	"github.com/arduino/iot-cloud-cli/internal/config"
 	"github.com/spf13/viper"
 )
 
