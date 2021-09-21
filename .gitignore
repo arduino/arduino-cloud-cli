@@ -1,5 +1,6 @@
 # Compilation artifacts
 arduino-cloud-cli
+arduino-cloud-cli.exe
 
 # Configuration file
 config.yaml
