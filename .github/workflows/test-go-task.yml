@@ -93,10 +93,10 @@ jobs:
           GO_MODULE_PATH: ${{ matrix.module.path }}
         run: task go:test
 
-      - name: Send unit tests coverage to Codecov
-        if: runner.os == 'Linux'
-        uses: codecov/codecov-action@v2
-        with:
-          file: ${{ matrix.module.path }}coverage_unit.txt
-          flags: ${{ matrix.module.codecov-flags }}
-          fail_ci_if_error: ${{ github.repository == 'arduino/arduino-cloud-cli' }}
+      # - name: Send unit tests coverage to Codecov
+      #   if: runner.os == 'Linux'
+      #   uses: codecov/codecov-action@v2
+      #   with:
+      #     file: ${{ matrix.module.path }}coverage_unit.txt
+      #     flags: ${{ matrix.module.codecov-flags }}
+      #     fail_ci_if_error: ${{ github.repository == 'arduino/arduino-cloud-cli' }}
