@@ -12,6 +12,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/cli/device"
 	"github.com/arduino/arduino-cloud-cli/cli/ota"
 	"github.com/arduino/arduino-cloud-cli/cli/thing"
+	"github.com/arduino/arduino-cloud-cli/cli/version"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -29,6 +30,7 @@ func Execute() {
 		PersistentPreRun: preRun,
 	}
 
+	cli.AddCommand(version.NewCommand())
 	cli.AddCommand(config.NewCommand())
 	cli.AddCommand(device.NewCommand())
 	cli.AddCommand(thing.NewCommand())
