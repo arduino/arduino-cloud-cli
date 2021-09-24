@@ -14,6 +14,7 @@ version: "3"
 # * PROJECT_NAME: the name of the project, used in package name
 # * VERSION: the version of the project, used in package name and checksum file
 # * LD_FLAGS: flags used at build time
+# * PROVISIONING_BINARIES_FOLDER: provisioning binaries folder. Remember to REMOVE binaries folder as soon as it is removed from the project  
 #
 # The project MUST contain a LICENSE.txt file in the root folder or packaging will fail.
 
@@ -38,6 +39,8 @@ tasks:
   Windows_32bit:
     desc: Builds Windows 32 bit binaries
     dir: "{{.DIST_DIR}}"
+    # TODO: Add LICENSE.txt to the archive when we have it
+    # TODO: Remember to REMOVE binaries folder as soon as it is removed from the project 
     cmds:
       - |
         docker run -v `pwd`/..:/home/build -w /home/build \
@@ -46,7 +49,10 @@ tasks:
         --build-cmd "{{.BUILD_COMMAND}}" \
         -p "{{.BUILD_PLATFORM}}"
 
-        zip {{.PACKAGE_NAME}} {{.PLATFORM_DIR}}/{{.PROJECT_NAME}}.exe ../LICENSE.txt -j
+        cp {{.PLATFORM_DIR}}/{{.PROJECT_NAME}}.exe ../
+        cd ..
+        zip -r {{.DIST_DIR}}/{{.PACKAGE_NAME}} {{.PROJECT_NAME}}.exe {{.PROVISIONING_BINARIES_FOLDER}}
+        cd {{.DIST_DIR}}
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
     vars:
@@ -68,7 +74,10 @@ tasks:
         --build-cmd "{{.BUILD_COMMAND}}" \
         -p "{{.BUILD_PLATFORM}}"
 
-        zip {{.PACKAGE_NAME}} {{.PLATFORM_DIR}}/{{.PROJECT_NAME}}.exe ../LICENSE.txt -j
+        cp {{.PLATFORM_DIR}}/{{.PROJECT_NAME}}.exe ../
+        cd ..
+        zip -r {{.DIST_DIR}}/{{.PACKAGE_NAME}} {{.PROJECT_NAME}}.exe {{.PROVISIONING_BINARIES_FOLDER}}
+        cd {{.DIST_DIR}}
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
     vars:
@@ -90,7 +99,7 @@ tasks:
         --build-cmd "{{.BUILD_COMMAND}}" \
         -p "{{.BUILD_PLATFORM}}"
 
-        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. LICENSE.txt  -f {{.PACKAGE_NAME}}
+        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}}  -f {{.PACKAGE_NAME}}
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
     vars:
@@ -112,7 +121,7 @@ tasks:
         --build-cmd "{{.BUILD_COMMAND}}" \
         -p "{{.BUILD_PLATFORM}}"
 
-        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. LICENSE.txt  -f {{.PACKAGE_NAME}}
+        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}}  -f {{.PACKAGE_NAME}}
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
     vars:
@@ -134,7 +143,7 @@ tasks:
         --build-cmd "{{.BUILD_COMMAND}}" \
         -p "{{.BUILD_PLATFORM}}"
 
-        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. LICENSE.txt  -f {{.PACKAGE_NAME}}
+        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}}  -f {{.PACKAGE_NAME}}
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
     vars:
@@ -156,7 +165,7 @@ tasks:
         --build-cmd "{{.BUILD_COMMAND}}" \
         -p "{{.BUILD_PLATFORM}}"
 
-        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. LICENSE.txt  -f {{.PACKAGE_NAME}}
+        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}}  -f {{.PACKAGE_NAME}}
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
     vars:
@@ -206,7 +215,7 @@ tasks:
         --build-cmd "{{.BUILD_COMMAND}}" \
         -p "{{.BUILD_PLATFORM}}"
 
-        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. LICENSE.txt  -f {{.PACKAGE_NAME}}
+        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}}  -f {{.PACKAGE_NAME}}
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
     vars:
@@ -228,7 +237,7 @@ tasks:
         --build-cmd "{{.BUILD_COMMAND}}" \
         -p "{{.BUILD_PLATFORM}}"
 
-        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. LICENSE.txt  -f {{.PACKAGE_NAME}}
+        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}}  -f {{.PACKAGE_NAME}}
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
     vars:
