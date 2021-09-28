@@ -39,11 +39,15 @@ widgets:
 ```
 In this example, the dashboard uses a single thing. So the command could easily be something like: 
 
-`arduino-cloud-cli dashboard create --name <dashname> --template <yamldashtemplfile> --thing-id <mythingid>`
+```sh
+arduino-cloud-cli dashboard create --name <dashname> --template <yamldashtemplfile> --thing-id <mythingid>
+```
 
 or even:
 
-`arduino-cloud-cli dashboard create --name <dashname> --template <yamldashtemplfile> --thing-override <home-security-alarm>=<mythingid>`
+```sh
+arduino-cloud-cli dashboard create --name <dashname> --template <yamldashtemplfile> --thing-override <home-security-alarm>=<mythingid>
+```
 
 ### Multiple things support
 
@@ -65,7 +69,9 @@ widgets:
 ```
 Here the mapping could be:
 
-`arduino-cloud-cli dashboard create --name <dashname> --template <yamldashtemplfile> --thing-override home-security-alarm=<mythingid1>,home-security-messenger=<mythingid2>`
+```sh
+arduino-cloud-cli dashboard create --name <dashname> --template <yamldashtemplfile> --thing-override home-security-alarm=<mythingid1>,home-security-messenger=<mythingid2>
+```
 
 ## Open Questions
 
