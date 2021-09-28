@@ -1,18 +1,39 @@
 # See: https://taskfile.dev/#/usage
 version: "3"
 
+includes:
+  dist: ./DistTasks.yml
+
 vars:
   # Path of the project's primary Go module:
   DEFAULT_GO_MODULE_PATH: ./
   DEFAULT_GO_PACKAGES:
     sh: |
       echo $(cd {{default .DEFAULT_GO_MODULE_PATH .GO_MODULE_PATH}} && go list ./... | tr '\n' ' ' || echo '"ERROR: Unable to discover Go packages"')
-  # `-ldflags` flag to use for `go build` command
-  # TODO: define flag if required by the project, or leave empty if not needed.
-  LDFLAGS:
   # `-ldflags` flag to use for `go test` command
   # TODO: define flag if required by the project, or leave empty if not needed.
   TEST_LDFLAGS:
+  # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/release-go-task/Taskfile.yml
+  PROJECT_NAME: "arduino-cloud-cli"
+  DIST_DIR: "dist"
+  # build vars
+  COMMIT:
+    sh: echo "$(git log --no-show-signature -n 1 --format=%h)"
+  TIMESTAMP:
+    sh: echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+  TIMESTAMP_SHORT:
+    sh: echo "{{now | date "20060102"}}"
+  TAG:
+    sh: echo "$(git tag --points-at=HEAD 2> /dev/null | head -n1)"
+  VERSION: "{{if .NIGHTLY}}nightly-{{.TIMESTAMP_SHORT}}{{else if .TAG}}{{.TAG}}{{else}}{{.PACKAGE_NAME_PREFIX}}git-snapshot{{end}}"
+  CONFIGURATION_PACKAGE: github.com/arduino/arduino-cloud-cli/version
+  LDFLAGS: >-
+    -ldflags
+    '
+    -X {{.CONFIGURATION_PACKAGE}}.versionString={{.VERSION}}
+    -X {{.CONFIGURATION_PACKAGE}}.commit={{ .COMMIT }}
+    -X {{.CONFIGURATION_PACKAGE}}.date={{.TIMESTAMP}}
+    '
 
 tasks:
   # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/go-task/Taskfile.yml

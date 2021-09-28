@@ -93,6 +93,7 @@ jobs:
           GO_MODULE_PATH: ${{ matrix.module.path }}
         run: task go:test
 
+      # TODO
       # - name: Send unit tests coverage to Codecov
       #   if: runner.os == 'Linux'
       #   uses: codecov/codecov-action@v2
