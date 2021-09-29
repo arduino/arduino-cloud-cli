@@ -57,3 +57,22 @@ tasks:
           -coverprofile=coverage_unit.txt \
           {{.TEST_LDFLAGS}} \
           {{default .DEFAULT_GO_PACKAGES .GO_PACKAGES}}
+
+  # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/check-dependencies-task/Taskfile.yml
+  general:cache-dep-licenses:
+    desc: Cache dependency license metadata
+    cmds:
+      - |
+        if ! which licensed &>/dev/null; then
+          echo "licensed not found or not in PATH. Please install: https://github.com/github/licensed#as-an-executable"
+          exit 1
+        fi
+      - licensed cache
+
+  # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/check-dependencies-task/Taskfile.yml
+  general:check-dep-licenses:
+    desc: Check for unapproved dependency licenses
+    deps:
+      - task: general:cache-dep-licenses
+    cmds:
+      - licensed status
