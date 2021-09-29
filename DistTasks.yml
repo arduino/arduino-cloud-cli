@@ -51,7 +51,7 @@ tasks:
 
         cp {{.PLATFORM_DIR}}/{{.PROJECT_NAME}}.exe ../
         cd ..
-        zip -r {{.DIST_DIR}}/{{.PACKAGE_NAME}} {{.PROJECT_NAME}}.exe {{.PROVISIONING_BINARIES_FOLDER}}
+        zip -r {{.DIST_DIR}}/{{.PACKAGE_NAME}} {{.PROJECT_NAME}}.exe {{.PROVISIONING_BINARIES_FOLDER}} LICENSE.txt
         cd {{.DIST_DIR}}
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
@@ -76,7 +76,7 @@ tasks:
 
         cp {{.PLATFORM_DIR}}/{{.PROJECT_NAME}}.exe ../
         cd ..
-        zip -r {{.DIST_DIR}}/{{.PACKAGE_NAME}} {{.PROJECT_NAME}}.exe {{.PROVISIONING_BINARIES_FOLDER}}
+        zip -r {{.DIST_DIR}}/{{.PACKAGE_NAME}} {{.PROJECT_NAME}}.exe {{.PROVISIONING_BINARIES_FOLDER}} LICENSE.txt
         cd {{.DIST_DIR}}
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
@@ -99,7 +99,7 @@ tasks:
         --build-cmd "{{.BUILD_COMMAND}}" \
         -p "{{.BUILD_PLATFORM}}"
 
-        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}}  -f {{.PACKAGE_NAME}}
+        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}} LICENSE.txt -f {{.PACKAGE_NAME}} 
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
     vars:
@@ -121,7 +121,7 @@ tasks:
         --build-cmd "{{.BUILD_COMMAND}}" \
         -p "{{.BUILD_PLATFORM}}"
 
-        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}}  -f {{.PACKAGE_NAME}}
+        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}} LICENSE.txt -f {{.PACKAGE_NAME}}
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
     vars:
@@ -143,7 +143,7 @@ tasks:
         --build-cmd "{{.BUILD_COMMAND}}" \
         -p "{{.BUILD_PLATFORM}}"
 
-        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}}  -f {{.PACKAGE_NAME}}
+        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}} LICENSE.txt -f {{.PACKAGE_NAME}}
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
     vars:
@@ -165,7 +165,7 @@ tasks:
         --build-cmd "{{.BUILD_COMMAND}}" \
         -p "{{.BUILD_PLATFORM}}"
 
-        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}}  -f {{.PACKAGE_NAME}}
+        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}} LICENSE.txt -f {{.PACKAGE_NAME}}
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
     vars:
@@ -215,7 +215,7 @@ tasks:
         --build-cmd "{{.BUILD_COMMAND}}" \
         -p "{{.BUILD_PLATFORM}}"
 
-        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}}  -f {{.PACKAGE_NAME}}
+        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}} LICENSE.txt -f {{.PACKAGE_NAME}} 
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
     vars:
@@ -237,7 +237,7 @@ tasks:
         --build-cmd "{{.BUILD_COMMAND}}" \
         -p "{{.BUILD_PLATFORM}}"
 
-        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}}  -f {{.PACKAGE_NAME}}
+        tar cz -C {{.PLATFORM_DIR}} {{.PROJECT_NAME}} -C ../.. {{.PROVISIONING_BINARIES_FOLDER}} LICENSE.txt -f {{.PACKAGE_NAME}} 
         sha256sum {{.PACKAGE_NAME}} >> {{.CHECKSUM_FILE}}
 
     vars:
