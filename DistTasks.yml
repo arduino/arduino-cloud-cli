@@ -39,7 +39,6 @@ tasks:
   Windows_32bit:
     desc: Builds Windows 32 bit binaries
     dir: "{{.DIST_DIR}}"
-    # TODO: Add LICENSE.txt to the archive when we have it
     # TODO: Remember to REMOVE binaries folder as soon as it is removed from the project 
     cmds:
       - |
