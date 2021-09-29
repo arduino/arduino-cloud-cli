@@ -2,6 +2,9 @@
 
 arduino-cloud-cli is a command line tool that empowers users to access the major features of Arduino IoT Cloud from a terminal. 
 
+### License
+This code is licensed under the terms of the GNU Affero General Public License v3.0. If you have questions about licensing or need a commercial license please contact us at [license@arduino.cc](mailto:license@arduino.cc).
+
 ### Requirements
 
 This is all you need to use arduino-cloud-cli for device **provisioning**:
