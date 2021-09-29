@@ -1,6 +1,6 @@
 # arduino-cloud-cli
 
-arduino-cloud-cli is a command line interface that allows to exploit the features of Arduino IoT Cloud. As of now, it is possible to provision a device.
+arduino-cloud-cli is a command line tool that empowers users to access the major features of Arduino IoT Cloud from a terminal. 
 
 ### Requirements
 
