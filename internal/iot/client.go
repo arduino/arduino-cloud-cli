@@ -39,6 +39,7 @@ type Client interface {
 	ThingDelete(id string) error
 	ThingShow(id string) (*iotclient.ArduinoThing, error)
 	ThingList(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error)
+	DashboardDelete(id string) error
 	DashboardList() ([]iotclient.ArduinoDashboardv2, error)
 }
 
@@ -211,6 +212,16 @@ func (cl *client) DashboardList() ([]iotclient.ArduinoDashboardv2, error) {
 		return nil, err
 	}
 	return dashboards, nil
+}
+
+// DashboardDelete deletes a dashboard from Arduino IoT Cloud.
+func (cl *client) DashboardDelete(id string) error {
+	_, err := cl.api.DashboardsV2Api.DashboardsV2Delete(cl.ctx, id)
+	if err != nil {
+		err = fmt.Errorf("deleting dashboard: %w", errorDetail(err))
+		return err
+	}
+	return nil
 }
 
 func (cl *client) setup(client, secret string) error {
