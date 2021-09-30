@@ -1,5 +1,9 @@
 # Dashboard create command
 
+## Review Period
+
+Best before October, 5, 2021.
+
 ## Overview
 Arduino Cloud CLI should allow users to create a dashboard starting from a cloud template.
 
@@ -9,20 +13,14 @@ The following User story has been taken from the [RFC](https://arduino.atlassian
   * the newly created Dashboard is displaying variables coming from a Thing specified during creation
 
 ## Problem
-An implementation for this command should be chosen.
+**An implementation for this command should be chosen.**
 
-The RFC specifies that this command is going to work only for dashboards with a single thing. However, dashboards with multiple things are common and it would be better to introduce this feature from the beginning.
+The RFC specifies that this command is going to work only for dashboards with a single thing. However, dashboards with multiple things are common and **it would be better to introduce this feature from the beginning.**
 
 The problem in supporting multiple things for a single dashboard lays in mapping the things described in the dashboard template to the actual things.
 Indeed, if a single thing is used, it can be passed as a simple flag into the command.
 
-## Constraints
-
-## Recommended Solution
-
-<!-- Title of the solution from the "Solutions" section you are recommending. -->
-
-## Solutions
+## Implementation alternatives
 
 ### Single thing support
 
@@ -72,9 +70,3 @@ Here the mapping could be:
 ```sh
 arduino-cloud-cli dashboard create --name <dashname> --template <yamldashtemplfile> --thing-override home-security-alarm=<mythingid1>,home-security-messenger=<mythingid2>
 ```
-
-## Open Questions
-
-## Appendix
-
-<!-- Provide links to any relevant information. -->
