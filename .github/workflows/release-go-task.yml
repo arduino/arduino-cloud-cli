@@ -104,7 +104,6 @@ jobs:
         # This step performs the following:
         # 1. Repackage the signed binary replaced in place by Gon (ignoring the output zip file)
         # 2. Recalculate package checksum and replace it in the nnnnnn-checksums.txt file
-        # TODO: Add again the LICENSE.txt as soon as we have it
         # TODO: Remember to REMOVE binaries folder as soon as it is removed from the project ({{.PROVISIONING_BINARIES_FOLDER}})
         run: |
           # GitHub's upload/download-artifact@v2 actions don't preserve file permissions,
@@ -113,7 +112,7 @@ jobs:
           TAG="${GITHUB_REF/refs\/tags\//}"
           tar -czvf "${{ env.DIST_DIR }}/${{ env.PROJECT_NAME }}_${TAG}_macOS_64bit.tar.gz" \
             -C ${{ env.DIST_DIR }}/${{ env.PROJECT_NAME }}_osx_darwin_amd64/ ${{ env.PROJECT_NAME }} \
-            -C ../../ ${{ env.PROVISIONING_BINARIES_FOLDER }}
+            -C ../../ ${{ env.PROVISIONING_BINARIES_FOLDER }} LICENSE.txt
           CHECKSUM="$(shasum -a 256 ${{ env.DIST_DIR }}/${{ env.PROJECT_NAME }}_${TAG}_macOS_64bit.tar.gz | cut -d " " -f 1)"
           perl \
             -pi \
