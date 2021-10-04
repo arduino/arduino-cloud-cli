@@ -18,16 +18,11 @@
 package thing
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io/ioutil"
-	"os"
 
 	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
-	iotclient "github.com/arduino/iot-client-go"
-	"gopkg.in/yaml.v3"
+	"github.com/arduino/arduino-cloud-cli/internal/template"
 )
 
 // CreateParams contains the parameters needed to create a new thing.
@@ -47,7 +42,7 @@ func Create(params *CreateParams) (*ThingInfo, error) {
 		return nil, err
 	}
 
-	thing, err := loadTemplate(params.Template)
+	thing, err := template.LoadThing(params.Template)
 	if err != nil {
 		return nil, err
 	}
@@ -68,46 +63,4 @@ func Create(params *CreateParams) (*ThingInfo, error) {
 	}
 
 	return getThingInfo(newThing), nil
-}
-
-func loadTemplate(file string) (*iotclient.Thing, error) {
-	templateFile, err := os.Open(file)
-	if err != nil {
-		return nil, err
-	}
-	defer templateFile.Close()
-
-	templateBytes, err := ioutil.ReadAll(templateFile)
-	if err != nil {
-		return nil, err
-	}
-
-	template := make(map[string]interface{})
-
-	// Extract template trying all the supported formats: json and yaml
-	if err = json.Unmarshal([]byte(templateBytes), &template); err != nil {
-		if err = yaml.Unmarshal([]byte(templateBytes), &template); err != nil {
-			return nil, errors.New("reading template file: template format is not valid")
-		}
-	}
-
-	// Adapt thing template to thing structure
-	delete(template, "id")
-	template["properties"] = template["variables"]
-	delete(template, "variables")
-
-	// Convert template into thing structure exploiting json marshalling/unmarshalling
-	thing := &iotclient.Thing{}
-
-	t, err := json.Marshal(template)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "extracting template", err)
-	}
-
-	err = json.Unmarshal(t, &thing)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "creating thing structure from template", err)
-	}
-
-	return thing, nil
 }
