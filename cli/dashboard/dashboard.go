@@ -30,6 +30,7 @@ func NewCommand() *cobra.Command {
 
 	dashboardCommand.AddCommand(initListCommand())
 	dashboardCommand.AddCommand(initDeleteCommand())
+	dashboardCommand.AddCommand(initExtractCommand())
 
 	return dashboardCommand
 }
