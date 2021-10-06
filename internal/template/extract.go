@@ -80,7 +80,9 @@ func FromDashboard(dashboard *iotclient.ArduinoDashboardv2) (map[string]interfac
 			variable["variable_id"] = v.VariableName
 			vars = append(vars, variable)
 		}
-		widget["variables"] = vars
+		if len(vars) > 0 {
+			widget["variables"] = vars
+		}
 
 		if validateWidgetOptions(w.Options) {
 			widget["options"] = w.Options
