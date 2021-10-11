@@ -118,3 +118,9 @@ The default OTA upload should complete in 10 minutes. Use `--deferred` flag to e
 `$ arduino-cloud-cli ota upload --device-id <deviceID> --file <sketch-file.ino.bin>`
 
 `$ arduino-cloud-cli ota upload --device-id <deviceID> --file <sketch-file.ino.bin> --deferred`
+
+## Dashboard commands
+
+Print a list of available dashboards and their share information by using this command:
+
+`$ arduino-cloud-cli dashboard list --show-sharing`
