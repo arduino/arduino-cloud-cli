@@ -18,6 +18,7 @@
 package dashboard
 
 import (
+	"math"
 	"os"
 	"strings"
 
@@ -27,6 +28,10 @@ import (
 	"github.com/arduino/arduino-cloud-cli/command/dashboard"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+)
+
+const (
+	widgetsPerRow = 3
 )
 
 var listFlags struct {
@@ -72,20 +77,31 @@ func (r listResult) String() string {
 	t := table.New()
 
 	head := []interface{}{"Name", "ID", "Widgets", "UpdatedAt"}
-	if listFlags.showSharing {
-		head = append(head, "SharedBy", "SharedWith")
-	}
 	t.SetHeader(head...)
 
 	for _, dash := range r.dashboards {
 		row := []interface{}{dash.Name, dash.ID}
-		row = append(row, strings.Join(dash.Widgets, ", "))
-		row = append(row, dash.UpdatedAt)
-		if listFlags.showSharing {
-			row = append(row, dash.SharedBy)
-			row = append(row, strings.Join(dash.SharedWith, ", "))
+
+		// Limit number of widgets per row.
+		if len(dash.Widgets) > widgetsPerRow {
+			row = append(row, strings.Join(dash.Widgets[:widgetsPerRow], ", "))
+			dash.Widgets = dash.Widgets[widgetsPerRow:]
+		} else {
+			row = append(row, strings.Join(dash.Widgets, ", "))
+			dash.Widgets = nil
 		}
+		row = append(row, dash.UpdatedAt)
 		t.AddRow(row...)
+
+		// Print remaining widgets in new rows
+		for len(dash.Widgets) > 0 {
+			row := []interface{}{"", ""}
+			l := int(math.Min(float64(len(dash.Widgets)), widgetsPerRow))
+			row = append(row, strings.Join(dash.Widgets[:l], ", "))
+			dash.Widgets = dash.Widgets[l:]
+			row = append(row, "")
+			t.AddRow(row...)
+		}
 	}
 	return t.Render()
 }
