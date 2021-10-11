@@ -35,7 +35,7 @@ const (
 )
 
 var listFlags struct {
-	showSharing bool
+	showWidgets bool
 }
 
 func initListCommand() *cobra.Command {
@@ -46,7 +46,7 @@ func initListCommand() *cobra.Command {
 		Run:   runListCommand,
 	}
 
-	listCommand.Flags().BoolVarP(&listFlags.showSharing, "show-sharing", "s", false, "Show dashboard sharing information")
+	listCommand.Flags().BoolVarP(&listFlags.showWidgets, "show-widgets", "s", false, "Show names of dashboard widgets")
 	return listCommand
 }
 
@@ -76,31 +76,36 @@ func (r listResult) String() string {
 	}
 	t := table.New()
 
-	head := []interface{}{"Name", "ID", "Widgets", "UpdatedAt"}
+	head := []interface{}{"Name", "ID", "UpdatedAt"}
+	if listFlags.showWidgets {
+		head = append(head, "Widgets")
+	}
 	t.SetHeader(head...)
 
 	for _, dash := range r.dashboards {
-		row := []interface{}{dash.Name, dash.ID}
+		row := []interface{}{dash.Name, dash.ID, dash.UpdatedAt}
 
-		// Limit number of widgets per row.
-		if len(dash.Widgets) > widgetsPerRow {
-			row = append(row, strings.Join(dash.Widgets[:widgetsPerRow], ", "))
-			dash.Widgets = dash.Widgets[widgetsPerRow:]
-		} else {
-			row = append(row, strings.Join(dash.Widgets, ", "))
-			dash.Widgets = nil
+		if listFlags.showWidgets {
+			// Limit number of widgets per row.
+			if len(dash.Widgets) > widgetsPerRow {
+				row = append(row, strings.Join(dash.Widgets[:widgetsPerRow], ", "))
+				dash.Widgets = dash.Widgets[widgetsPerRow:]
+			} else {
+				row = append(row, strings.Join(dash.Widgets, ", "))
+				dash.Widgets = nil
+			}
 		}
-		row = append(row, dash.UpdatedAt)
 		t.AddRow(row...)
 
 		// Print remaining widgets in new rows
-		for len(dash.Widgets) > 0 {
-			row := []interface{}{"", ""}
-			l := int(math.Min(float64(len(dash.Widgets)), widgetsPerRow))
-			row = append(row, strings.Join(dash.Widgets[:l], ", "))
-			dash.Widgets = dash.Widgets[l:]
-			row = append(row, "")
-			t.AddRow(row...)
+		if listFlags.showWidgets {
+			for len(dash.Widgets) > 0 {
+				row := []interface{}{"", "", ""}
+				l := int(math.Min(float64(len(dash.Widgets)), widgetsPerRow))
+				row = append(row, strings.Join(dash.Widgets[:l], ", "))
+				dash.Widgets = dash.Widgets[l:]
+				t.AddRow(row...)
+			}
 		}
 	}
 	return t.Render()
