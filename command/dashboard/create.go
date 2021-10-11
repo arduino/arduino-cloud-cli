@@ -43,7 +43,7 @@ func Create(params *CreateParams) (*DashboardInfo, error) {
 		return nil, err
 	}
 
-	dashboard, err := template.LoadDashboard(params.Template, params.Override)
+	dashboard, err := template.LoadDashboard(params.Template, params.Override, iotClient)
 	if err != nil {
 		return nil, err
 	}

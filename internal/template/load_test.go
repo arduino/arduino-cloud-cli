@@ -20,8 +20,10 @@ package template
 import (
 	"testing"
 
+	"github.com/arduino/arduino-cloud-cli/internal/template/mocks"
 	iotclient "github.com/arduino/iot-client-go"
 	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/mock"
 )
 
 const (
@@ -69,10 +71,9 @@ var (
 		Name: "dashboard-with-variable",
 		Widgets: []iotclient.Widget{
 			{Name: "Switch-name", Height: 1, HeightMobile: 2, Width: 3, WidthMobile: 4,
-				X: 5, XMobile: 6, Y: 7, YMobile: 8, Options: map[string]interface{}{"showLabels": true},
-				// in this test, the variable id is a concatenation of thing_id and variable_id
-				// this depends on the mocked function getVariableID
-				Type: "Switch", Variables: []string{"thing-variable"},
+				X: 5, XMobile: 6, Y: 7, YMobile: 8, Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
+				// variable id is set equal to the thing id by mockThingShow, in order to verify the thing override
+				Variables: []string{"thing"},
 			},
 		},
 	}
@@ -81,24 +82,27 @@ var (
 		Name: "dashboard-with-variable",
 		Widgets: []iotclient.Widget{
 			{Name: "Switch-name", Height: 1, HeightMobile: 2, Width: 3, WidthMobile: 4,
-				X: 5, XMobile: 6, Y: 7, YMobile: 8, Options: map[string]interface{}{"showLabels": true},
-				// in this test, the variable id is a concatenation of thing_id and variable_id
-				// this depends on the mocked function getVariableID
-				Type: "Switch", Variables: []string{"overridden-variable"},
+				X: 5, XMobile: 6, Y: 7, YMobile: 8, Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
+				// variable id is set equal to the thing id by mockThingShow, in order to verify the thing override
+				Variables: []string{"overridden"},
 			},
 		},
 	}
 
 	dashboardTwoWidgets = &iotclient.Dashboardv2{
 		Name: "dashboard-two-widgets",
+		// in this test, the variable id is a concatenation of thing_id and variable_id
+		// this depends on the mocked function getVariableID
 		Widgets: []iotclient.Widget{
 			{Name: "blink_speed", Height: 7, Width: 8,
-				X: 7, Y: 5, Options: map[string]interface{}{"min": float64(0), "max": float64(5000)},
-				Type: "Slider", Variables: []string{"remote-controlled-lights-blink_speed"},
+				X: 7, Y: 5, Options: map[string]interface{}{"min": float64(0), "max": float64(5000)}, Type: "Slider",
+				// variable id is set equal to the thing id by mockThingShow, in order to verify the thing override
+				Variables: []string{"remote-controlled-lights"},
 			},
 			{Name: "relay_2", Height: 5, Width: 5,
-				X: 5, Y: 0, Options: map[string]interface{}{"showLabels": true},
-				Type: "Switch", Variables: []string{"remote-controlled-lights-relay_2"},
+				X: 5, Y: 0, Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
+				// variable id is set equal to the thing id by mockThingShow, in order to verify the thing override
+				Variables: []string{"remote-controlled-lights"},
 			},
 		},
 	}
@@ -140,6 +144,23 @@ func TestLoadTemplate(t *testing.T) {
 }
 
 func TestLoadDashboard(t *testing.T) {
+
+	mockClient := &mocks.Client{}
+	mockThingShow := func(thingID string) *iotclient.ArduinoThing {
+		thing := &iotclient.ArduinoThing{
+			Properties: []iotclient.ArduinoProperty{
+				// variable id is set equal to the thing id in order to verify the thing override
+				// dashboard-with-variable variable
+				{Id: thingID, Name: "variable"},
+				// dashboard-two-widgets variables
+				{Id: thingID, Name: "relay_2"},
+				{Id: thingID, Name: "blink_speed"},
+			},
+		}
+		return thing
+	}
+	mockClient.On("ThingShow", mock.AnythingOfType("string")).Return(mockThingShow, nil)
+
 	tests := []struct {
 		name     string
 		file     string
@@ -189,11 +210,9 @@ func TestLoadDashboard(t *testing.T) {
 		},
 	}
 
-	vargetter.getVariableID = mockGetVariableID
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := LoadDashboard(tt.file, tt.override)
+			got, err := LoadDashboard(tt.file, tt.override, mockClient)
 			if err != nil {
 				t.Errorf("%v", err)
 			}
@@ -212,8 +231,4 @@ func TestLoadDashboard(t *testing.T) {
 			}
 		})
 	}
-}
-
-func mockGetVariableID(thingID string, variableName string) (string, error) {
-	return thingID + "-" + variableName, nil
 }

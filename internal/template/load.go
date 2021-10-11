@@ -24,6 +24,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	iotclient "github.com/arduino/iot-client-go"
 	"github.com/gofrs/uuid"
 	"gopkg.in/yaml.v3"
@@ -93,7 +94,8 @@ func LoadThing(file string) (*iotclient.Thing, error) {
 
 // LoadDashboard loads a dashboard from a dashboard template file.
 // It applies the thing overrides specified by the override parameter.
-func LoadDashboard(file string, override map[string]string) (*iotclient.Dashboardv2, error) {
+// It requires an iot.Client parameter to retrieve the actual variable id.
+func LoadDashboard(file string, override map[string]string, iotClient iot.Client) (*iotclient.Dashboardv2, error) {
 	template := dashboardHelp{}
 	err := loadTemplate(file, &template)
 	if err != nil {
@@ -119,7 +121,7 @@ func LoadDashboard(file string, override map[string]string) (*iotclient.Dashboar
 			if id, ok := override[variable.ThingID]; ok {
 				variable.ThingID = id
 			}
-			variable.VariableID, err = vargetter.getVariableID(variable.ThingID, variable.VariableName)
+			variable.VariableID, err = getVariableID(variable.ThingID, variable.VariableName, iotClient)
 			if err != nil {
 				return nil, fmt.Errorf("thing with id %s doesn't have variable with name %s : %w", variable.ThingID, variable.VariableName, err)
 			}
@@ -148,4 +150,21 @@ func filterWidgetOptions(opts map[string]interface{}) {
 			delete(opts, opt)
 		}
 	}
+}
+
+// getVariableID returns the id of a variable, given its thing id and its variable name.
+// If the variable is not found, an error is returned.
+func getVariableID(thingID string, variableName string, iotClient iot.Client) (string, error) {
+	thing, err := iotClient.ThingShow(thingID)
+	if err != nil {
+		return "", err
+	}
+
+	for _, v := range thing.Properties {
+		if v.Name == variableName {
+			return v.Id, nil
+		}
+	}
+
+	return "", errors.New("not found")
 }
