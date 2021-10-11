@@ -5,10 +5,9 @@ widgets:
     name: Switch-name
     options:
         showLabels: true
-        mode: false
-        percentage: 100
-        step: true
-        interpolation: true
+        name: name-wrong
+        icon: wrong
+        section: section-wrong
     type: Switch
     width: 3
     width_mobile: 4
