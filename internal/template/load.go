@@ -32,9 +32,16 @@ import (
 
 var (
 	widgetOptWhitelist = map[string]struct{}{
-		"showLabels": {},
-		"min":        {},
-		"max":        {},
+		"showThing":     {},
+		"frameless":     {},
+		"interpolation": {},
+		"max":           {},
+		"min":           {},
+		"mode":          {},
+		"percentage":    {},
+		"showLabels":    {},
+		"step":          {},
+		"vertical":      {},
 	}
 )
 
