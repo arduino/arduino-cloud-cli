@@ -80,6 +80,7 @@ func (r listResult) String() string {
 	for _, dash := range r.dashboards {
 		row := []interface{}{dash.Name, dash.ID}
 		row = append(row, strings.Join(dash.Widgets, ", "))
+		row = append(row, dash.UpdatedAt)
 		if listFlags.showSharing {
 			row = append(row, dash.SharedBy)
 			row = append(row, strings.Join(dash.SharedWith, ", "))
