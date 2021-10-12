@@ -26,6 +26,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/cli/config"
+	"github.com/arduino/arduino-cloud-cli/cli/dashboard"
 	"github.com/arduino/arduino-cloud-cli/cli/device"
 	"github.com/arduino/arduino-cloud-cli/cli/ota"
 	"github.com/arduino/arduino-cloud-cli/cli/thing"
@@ -51,6 +52,7 @@ func Execute() {
 	cli.AddCommand(config.NewCommand())
 	cli.AddCommand(device.NewCommand())
 	cli.AddCommand(thing.NewCommand())
+	cli.AddCommand(dashboard.NewCommand())
 	cli.AddCommand(ota.NewCommand())
 
 	cli.PersistentFlags().BoolVarP(&cliFlags.verbose, "verbose", "v", false, "Print the logs on the standard output.")
