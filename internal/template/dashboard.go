@@ -24,19 +24,19 @@ import (
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
 
-type dashboardHelp struct {
-	Name    string       `json:"name,omitempty" yaml:"name,omitempty"`
-	Widgets []widgetHelp `json:"widgets,omitempty" yaml:"widgets,omitempty"`
+type dashboardTemplate struct {
+	Name    string           `json:"name,omitempty" yaml:"name,omitempty"`
+	Widgets []widgetTemplate `json:"widgets,omitempty" yaml:"widgets,omitempty"`
 }
 
-type widgetHelp struct {
+type widgetTemplate struct {
 	Height       int64                  `json:"height" yaml:"height"`
 	HeightMobile int64                  `json:"height_mobile,omitempty" yaml:"height_mobile,omitempty"`
 	Id           string                 `json:"id" yaml:"id"`
 	Name         string                 `json:"name,omitempty" yaml:"name,omitempty"`
 	Options      map[string]interface{} `json:"options" yaml:"options"`
 	WidgetType   string                 `json:"type" yaml:"type"`
-	Variables    []variableHelp         `json:"variables,omitempty" yaml:"variables,omitempty"`
+	Variables    []variableTemplate     `json:"variables,omitempty" yaml:"variables,omitempty"`
 	Width        int64                  `json:"width" yaml:"width"`
 	WidthMobile  int64                  `json:"width_mobile,omitempty" yaml:"width_mobile,omitempty"`
 	X            int64                  `json:"x" yaml:"x"`
@@ -45,13 +45,13 @@ type widgetHelp struct {
 	YMobile      int64                  `json:"y_mobile,omitempty" yaml:"y_mobile,omitempty"`
 }
 
-type variableHelp struct {
+type variableTemplate struct {
 	ThingID      string `json:"thing_id" yaml:"thing_id"`
 	VariableName string `json:"variable_id" yaml:"variable_id"`
 	VariableID   string
 }
 
-func (v *variableHelp) MarshalJSON() ([]byte, error) {
+func (v *variableTemplate) MarshalJSON() ([]byte, error) {
 	// Jsonize as a list of strings (variable uuids)
 	// in order to uniform to the other dashboard declaration (of iotclient)
 	return json.Marshal(v.VariableID)

@@ -31,7 +31,7 @@ const (
 )
 
 var (
-	dashboardTemplate = map[string]interface{}{
+	dashboardTemplateTest = map[string]interface{}{
 		"id":   "home-security-alarm-dashboard",
 		"name": "Home Security Alarm",
 		"widgets": []interface{}{
@@ -119,13 +119,13 @@ func TestLoadTemplate(t *testing.T) {
 		{
 			name: "yaml dashboard template",
 			file: "testdata/home-security-dashboard.yaml",
-			want: dashboardTemplate,
+			want: dashboardTemplateTest,
 		},
 
 		{
 			name: "json dashboard template",
 			file: "testdata/home-security-dashboard.json",
-			want: dashboardTemplate,
+			want: dashboardTemplateTest,
 		},
 	}
 
