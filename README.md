@@ -121,6 +121,6 @@ The default OTA upload should complete in 10 minutes. Use `--deferred` flag to e
 
 ## Dashboard commands
 
-Print a list of available dashboards and their share information by using this command:
+Print a list of available dashboards and their widgets by using this command:
 
-`$ arduino-cloud-cli dashboard list --show-sharing`
+`$ arduino-cloud-cli dashboard list --show-widgets`
