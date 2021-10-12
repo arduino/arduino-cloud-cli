@@ -100,7 +100,7 @@ Print only the thing associated to the passed device:
 
 Delete a thing with the following command:
 
-`$ arduino-cloud-cli thing delete --device-id <deviceID>`
+`$ arduino-cloud-cli thing delete --id <thingID>`
 
 Extract a template from an existing thing. The template can be saved in two formats: json or yaml. The default format is yaml:
 
