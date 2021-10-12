@@ -132,3 +132,7 @@ Delete a dashboard with the following command:
 Extract a template from an existing dashboard. The template can be saved in two formats: json or yaml. The default format is yaml:
 
 `$ arduino-cloud-cli dashboard extract --id <dashboardID> --outfile <templateFile> --format <yaml|json>`
+
+Create a dashboard: dashboards can be created only starting from a template. Supported dashboard template formats are JSON and YAML. The name parameter is optional. If it is provided then it overrides the name retrieved from the template. The `override` flag can be used to override the template `thing_id` placeholder with the actual ID of the thing to be used.
+
+`$ arduino-cloud-cli dashboard create --name <dashboardName> --template <template.(json|yaml)> --override <thing-0>=<actualThingID>,<thing-1>=<otherActualThingID>`
