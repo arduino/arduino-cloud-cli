@@ -58,10 +58,7 @@ func Extract(params *ExtractParams) error {
 		return err
 	}
 
-	templ, err := template.FromThing(thing)
-	if err != nil {
-		return err
-	}
+	templ := template.FromThing(thing)
 
 	if params.Outfile == nil {
 		name, ok := templ["name"].(string)
