@@ -30,21 +30,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var (
-	widgetOptWhitelist = map[string]struct{}{
-		"showThing":     {},
-		"frameless":     {},
-		"interpolation": {},
-		"max":           {},
-		"min":           {},
-		"mode":          {},
-		"percentage":    {},
-		"showLabels":    {},
-		"step":          {},
-		"vertical":      {},
-	}
-)
-
 // loadTemplate loads a template file and unmarshals it into whatever
 // is pointed to by the template parameter. Note that template parameter should be a pointer.
 // The input template file should be in json or yaml format.
@@ -149,14 +134,6 @@ func LoadDashboard(file string, override map[string]string, iotClient iot.Client
 	}
 
 	return dashboard, nil
-}
-
-func filterWidgetOptions(opts map[string]interface{}) {
-	for opt := range opts {
-		if _, ok := widgetOptWhitelist[opt]; !ok {
-			delete(opts, opt)
-		}
-	}
 }
 
 // getVariableID returns the id of a variable, given its thing id and its variable name.
