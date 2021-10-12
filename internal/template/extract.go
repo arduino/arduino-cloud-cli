@@ -91,7 +91,9 @@ func FromDashboard(dashboard *iotclient.ArduinoDashboardv2) (map[string]interfac
 
 		widgets = append(widgets, widget)
 	}
-	template["widgets"] = widgets
+	if len(widgets) > 0 {
+		template["widgets"] = widgets
+	}
 	return template, nil
 }
 
