@@ -15,22 +15,27 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package dashboard
+package template
 
-import (
-	"github.com/spf13/cobra"
+var (
+	widgetOptWhitelist = map[string]struct{}{
+		"showThing":     {},
+		"frameless":     {},
+		"interpolation": {},
+		"max":           {},
+		"min":           {},
+		"mode":          {},
+		"percentage":    {},
+		"showLabels":    {},
+		"step":          {},
+		"vertical":      {},
+	}
 )
 
-func NewCommand() *cobra.Command {
-	dashboardCommand := &cobra.Command{
-		Use:   "dashboard",
-		Short: "Dashboard commands.",
-		Long:  "Dashboard commands.",
+func filterWidgetOptions(opts map[string]interface{}) {
+	for opt := range opts {
+		if _, ok := widgetOptWhitelist[opt]; !ok {
+			delete(opts, opt)
+		}
 	}
-
-	dashboardCommand.AddCommand(initListCommand())
-	dashboardCommand.AddCommand(initDeleteCommand())
-	dashboardCommand.AddCommand(initExtractCommand())
-
-	return dashboardCommand
 }

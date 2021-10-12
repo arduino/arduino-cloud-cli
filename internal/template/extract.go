@@ -50,6 +50,53 @@ func FromThing(thing *iotclient.ArduinoThing) (map[string]interface{}, error) {
 	return template, nil
 }
 
+// FromDashboard extracts a template of type map[string]interface{} from a dashboard.
+func FromDashboard(dashboard *iotclient.ArduinoDashboardv2) (map[string]interface{}, error) {
+	template := make(map[string]interface{})
+	template["name"] = dashboard.Name
+
+	// Extract template from dashboard structure
+	var widgets []map[string]interface{}
+	for _, w := range dashboard.Widgets {
+		widget := make(map[string]interface{})
+		widget["type"] = w.Type
+		widget["name"] = w.Name
+		widget["width"] = w.Width
+		widget["height"] = w.Height
+		widget["x"] = w.X
+		widget["y"] = w.Y
+
+		if w.WidthMobile != 0 && w.HeightMobile != 0 {
+			widget["width_mobile"] = w.WidthMobile
+			widget["height_mobile"] = w.HeightMobile
+			widget["x_mobile"] = w.XMobile
+			widget["y_mobile"] = w.YMobile
+		}
+
+		var vars []map[string]interface{}
+		for _, v := range w.Variables {
+			variable := make(map[string]interface{})
+			variable["thing_id"] = v.ThingName
+			variable["variable_id"] = v.VariableName
+			vars = append(vars, variable)
+		}
+		if len(vars) > 0 {
+			widget["variables"] = vars
+		}
+
+		filterWidgetOptions(w.Options)
+		if len(w.Options) > 0 {
+			widget["options"] = w.Options
+		}
+
+		widgets = append(widgets, widget)
+	}
+	if len(widgets) > 0 {
+		template["widgets"] = widgets
+	}
+	return template, nil
+}
+
 // ToFile takes a generic template and saves it into a file,
 // in the specified format (yaml or json).
 func ToFile(template map[string]interface{}, outfile string, format string) error {

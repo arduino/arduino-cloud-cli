@@ -39,6 +39,7 @@ type Client interface {
 	ThingDelete(id string) error
 	ThingShow(id string) (*iotclient.ArduinoThing, error)
 	ThingList(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error)
+	DashboardShow(id string) (*iotclient.ArduinoDashboardv2, error)
 	DashboardDelete(id string) error
 	DashboardList() ([]iotclient.ArduinoDashboardv2, error)
 }
@@ -202,6 +203,17 @@ func (cl *client) ThingList(ids []string, device *string, props bool) ([]iotclie
 		return nil, err
 	}
 	return things, nil
+}
+
+// DashboardShow allows to retrieve a specific dashboard, given its id,
+// from Arduino IoT Cloud.
+func (cl *client) DashboardShow(id string) (*iotclient.ArduinoDashboardv2, error) {
+	dashboard, _, err := cl.api.DashboardsV2Api.DashboardsV2Show(cl.ctx, id)
+	if err != nil {
+		err = fmt.Errorf("retrieving dashboard, %w", errorDetail(err))
+		return nil, err
+	}
+	return &dashboard, nil
 }
 
 // DashboardList returns a list of dashboards on Arduino IoT Cloud.

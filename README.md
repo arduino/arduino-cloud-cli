@@ -128,3 +128,7 @@ Print a list of available dashboards and their widgets by using this command:
 Delete a dashboard with the following command:
 
 `$ arduino-cloud-cli dashboard delete --id <dashboardID>`
+
+Extract a template from an existing dashboard. The template can be saved in two formats: json or yaml. The default format is yaml:
+
+`$ arduino-cloud-cli dashboard extract --id <dashboardID> --outfile <templateFile> --format <yaml|json>`
