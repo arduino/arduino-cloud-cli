@@ -39,6 +39,7 @@ type Client interface {
 	ThingDelete(id string) error
 	ThingShow(id string) (*iotclient.ArduinoThing, error)
 	ThingList(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error)
+	DashboardList() ([]iotclient.ArduinoDashboardv2, error)
 }
 
 type client struct {
@@ -200,6 +201,16 @@ func (cl *client) ThingList(ids []string, device *string, props bool) ([]iotclie
 		return nil, err
 	}
 	return things, nil
+}
+
+// DashboardList returns a list of dashboards on Arduino IoT Cloud.
+func (cl *client) DashboardList() ([]iotclient.ArduinoDashboardv2, error) {
+	dashboards, _, err := cl.api.DashboardsV2Api.DashboardsV2List(cl.ctx, nil)
+	if err != nil {
+		err = fmt.Errorf("listing dashboards: %w", errorDetail(err))
+		return nil, err
+	}
+	return dashboards, nil
 }
 
 func (cl *client) setup(client, secret string) error {
