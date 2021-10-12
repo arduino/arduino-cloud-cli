@@ -17,35 +17,29 @@
 
 package dashboard
 
-import iotclient "github.com/arduino/iot-client-go"
+import (
+	iotclient "github.com/arduino/iot-client-go"
+)
 
 // DashboardInfo contains the most interesting
 // information, in string format, of an Arduino IoT Cloud dashboard.
 type DashboardInfo struct {
-	Name       string   `json:"name"`
-	ID         string   `json:"id"`
-	SharedBy   string   `json:"shared_by"`
-	SharedWith []string `json:"shared_with"`
-	UpdatedAt  string   `json:"updated_at"`
-	Widgets    []string `json:"widgets"`
+	Name      string   `json:"name"`
+	ID        string   `json:"id"`
+	UpdatedAt string   `json:"updated_at"`
+	Widgets   []string `json:"widgets"`
 }
 
 func getDashboardInfo(dashboard *iotclient.ArduinoDashboardv2) *DashboardInfo {
-	var shares []string
-	for _, s := range dashboard.SharedWith {
-		shares = append(shares, s.Username)
-	}
 	var widgets []string
 	for _, w := range dashboard.Widgets {
 		widgets = append(widgets, w.Name)
 	}
 	info := &DashboardInfo{
-		Name:       dashboard.Name,
-		ID:         dashboard.Id,
-		SharedBy:   dashboard.SharedBy.Username,
-		SharedWith: shares,
-		UpdatedAt:  dashboard.UpdatedAt.String(),
-		Widgets:    widgets,
+		Name:      dashboard.Name,
+		ID:        dashboard.Id,
+		UpdatedAt: dashboard.UpdatedAt.String(),
+		Widgets:   widgets,
 	}
 	return info
 }
