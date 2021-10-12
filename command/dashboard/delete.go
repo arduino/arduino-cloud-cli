@@ -18,18 +18,27 @@
 package dashboard
 
 import (
-	"github.com/spf13/cobra"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
+	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
 
-func NewCommand() *cobra.Command {
-	dashboardCommand := &cobra.Command{
-		Use:   "dashboard",
-		Short: "Dashboard commands.",
-		Long:  "Dashboard commands.",
+// DeleteParams contains the parameters needed to
+// delete a dashboard from Arduino IoT Cloud.
+type DeleteParams struct {
+	ID string
+}
+
+// Delete command is used to delete a dashboard
+// from Arduino IoT Cloud.
+func Delete(params *DeleteParams) error {
+	conf, err := config.Retrieve()
+	if err != nil {
+		return err
+	}
+	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+	if err != nil {
+		return err
 	}
 
-	dashboardCommand.AddCommand(initListCommand())
-	dashboardCommand.AddCommand(initDeleteCommand())
-
-	return dashboardCommand
+	return iotClient.DashboardDelete(params.ID)
 }

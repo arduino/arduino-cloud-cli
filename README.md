@@ -124,3 +124,7 @@ The default OTA upload should complete in 10 minutes. Use `--deferred` flag to e
 Print a list of available dashboards and their widgets by using this command:
 
 `$ arduino-cloud-cli dashboard list --show-widgets`
+
+Delete a dashboard with the following command:
+
+`$ arduino-cloud-cli dashboard delete --id <dashboardID>`
