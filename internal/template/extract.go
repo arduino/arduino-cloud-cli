@@ -84,7 +84,8 @@ func FromDashboard(dashboard *iotclient.ArduinoDashboardv2) (map[string]interfac
 			widget["variables"] = vars
 		}
 
-		if validateWidgetOptions(w.Options) {
+		filterWidgetOptions(w.Options)
+		if len(w.Options) > 0 {
 			widget["options"] = w.Options
 		}
 
@@ -122,9 +123,4 @@ func ToFile(template map[string]interface{}, outfile string, format string) erro
 	}
 
 	return nil
-}
-
-// A whitelist is needed to validate widget options
-func validateWidgetOptions(opts map[string]interface{}) bool {
-	return opts != nil
 }
