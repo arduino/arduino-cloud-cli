@@ -25,6 +25,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	"github.com/arduino/arduino-cloud-cli/internal/template"
+	"github.com/sirupsen/logrus"
 )
 
 // ExtractParams contains the parameters needed to
@@ -58,20 +59,19 @@ func Extract(params *ExtractParams) error {
 		return err
 	}
 
-	templ, err := template.FromDashboard(dashboard)
-	if err != nil {
-		return err
-	}
+	templ := template.FromDashboard(dashboard)
 
 	if params.Outfile == nil {
 		name, ok := templ["name"].(string)
 		if name == "" || !ok {
 			return errors.New("dashboard template does not have a valid name")
 		}
-		outfile := name + "-dashboard" + "." + params.Format
+		name = strings.Join(strings.Fields(name), "")
+		outfile := name + "-dashboard." + params.Format
 		params.Outfile = &outfile
 	}
 
+	logrus.Infof("Extracting template in file: %s", *params.Outfile)
 	err = template.ToFile(templ, *params.Outfile, params.Format)
 	if err != nil {
 		return fmt.Errorf("saving template: %w", err)

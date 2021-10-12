@@ -29,7 +29,7 @@ import (
 )
 
 // FromThing extracts a template of type map[string]interface{} from a thing.
-func FromThing(thing *iotclient.ArduinoThing) (map[string]interface{}, error) {
+func FromThing(thing *iotclient.ArduinoThing) map[string]interface{} {
 	template := make(map[string]interface{})
 	template["name"] = thing.Name
 
@@ -47,11 +47,11 @@ func FromThing(thing *iotclient.ArduinoThing) (map[string]interface{}, error) {
 	}
 	template["variables"] = props
 
-	return template, nil
+	return template
 }
 
 // FromDashboard extracts a template of type map[string]interface{} from a dashboard.
-func FromDashboard(dashboard *iotclient.ArduinoDashboardv2) (map[string]interface{}, error) {
+func FromDashboard(dashboard *iotclient.ArduinoDashboardv2) map[string]interface{} {
 	template := make(map[string]interface{})
 	template["name"] = dashboard.Name
 
@@ -94,7 +94,7 @@ func FromDashboard(dashboard *iotclient.ArduinoDashboardv2) (map[string]interfac
 	if len(widgets) > 0 {
 		template["widgets"] = widgets
 	}
-	return template, nil
+	return template
 }
 
 // ToFile takes a generic template and saves it into a file,
