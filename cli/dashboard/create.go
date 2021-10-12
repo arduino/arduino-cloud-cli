@@ -83,11 +83,9 @@ func (r createResult) Data() interface{} {
 
 func (r createResult) String() string {
 	return fmt.Sprintf(
-		"name: %s\nid: %s\nshared_by: %s\nshared_with: %s\nupdated_at: %s\nwidgets: %s",
+		"name: %s\nid: %s\nupdated_at: %s\nwidgets: %s",
 		r.dashboard.Name,
 		r.dashboard.ID,
-		r.dashboard.SharedBy,
-		strings.Join(r.dashboard.SharedWith, ", "),
 		r.dashboard.UpdatedAt,
 		strings.Join(r.dashboard.Widgets, ", "),
 	)
