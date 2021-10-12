@@ -25,6 +25,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	"github.com/arduino/arduino-cloud-cli/internal/template"
+	"github.com/sirupsen/logrus"
 )
 
 // ExtractParams contains the parameters needed to
@@ -70,6 +71,7 @@ func Extract(params *ExtractParams) error {
 		params.Outfile = &outfile
 	}
 
+	logrus.Infof("Extracting template in file: %s", *params.Outfile)
 	err = template.ToFile(templ, *params.Outfile, params.Format)
 	if err != nil {
 		return fmt.Errorf("saving template: %w", err)
