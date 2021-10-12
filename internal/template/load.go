@@ -135,20 +135,3 @@ func LoadDashboard(file string, override map[string]string, iotClient iot.Client
 
 	return dashboard, nil
 }
-
-// getVariableID returns the id of a variable, given its thing id and its variable name.
-// If the variable is not found, an error is returned.
-func getVariableID(thingID string, variableName string, iotClient iot.Client) (string, error) {
-	thing, err := iotClient.ThingShow(thingID)
-	if err != nil {
-		return "", err
-	}
-
-	for _, v := range thing.Properties {
-		if v.Name == variableName {
-			return v.Id, nil
-		}
-	}
-
-	return "", errors.New("not found")
-}

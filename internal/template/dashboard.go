@@ -17,7 +17,12 @@
 
 package template
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"errors"
+
+	"github.com/arduino/arduino-cloud-cli/internal/iot"
+)
 
 type dashboardHelp struct {
 	Name    string       `json:"name,omitempty" yaml:"name,omitempty"`
@@ -50,4 +55,21 @@ func (v *variableHelp) MarshalJSON() ([]byte, error) {
 	// Jsonize as a list of strings (variable uuids)
 	// in order to uniform to the other dashboard declaration (of iotclient)
 	return json.Marshal(v.VariableID)
+}
+
+// getVariableID returns the id of a variable, given its thing id and its variable name.
+// If the variable is not found, an error is returned.
+func getVariableID(thingID string, variableName string, iotClient iot.Client) (string, error) {
+	thing, err := iotClient.ThingShow(thingID)
+	if err != nil {
+		return "", err
+	}
+
+	for _, v := range thing.Properties {
+		if v.Name == variableName {
+			return v.Id, nil
+		}
+	}
+
+	return "", errors.New("not found")
 }
