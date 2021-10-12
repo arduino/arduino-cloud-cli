@@ -65,7 +65,8 @@ func Extract(params *ExtractParams) error {
 		if name == "" || !ok {
 			return errors.New("thing template does not have a valid name")
 		}
-		outfile := name + "." + params.Format
+		name = strings.Join(strings.Fields(name), "")
+		outfile := name + "-thing." + params.Format
 		params.Outfile = &outfile
 	}
 

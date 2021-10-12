@@ -65,7 +65,8 @@ func Extract(params *ExtractParams) error {
 		if name == "" || !ok {
 			return errors.New("dashboard template does not have a valid name")
 		}
-		outfile := name + "-dashboard" + "." + params.Format
+		name = strings.Join(strings.Fields(name), "")
+		outfile := name + "-dashboard." + params.Format
 		params.Outfile = &outfile
 	}
 
