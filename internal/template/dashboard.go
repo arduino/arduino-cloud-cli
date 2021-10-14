@@ -19,7 +19,7 @@ package template
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
@@ -62,7 +62,7 @@ func (v *variableTemplate) MarshalJSON() ([]byte, error) {
 func getVariableID(thingID string, variableName string, iotClient iot.Client) (string, error) {
 	thing, err := iotClient.ThingShow(thingID)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("getting variables of thing %s: %w", thingID, err)
 	}
 
 	for _, v := range thing.Properties {
@@ -71,5 +71,5 @@ func getVariableID(thingID string, variableName string, iotClient iot.Client) (s
 		}
 	}
 
-	return "", errors.New("not found")
+	return "", fmt.Errorf("thing with id %s doesn't have variable with name %s : %w", thingID, variableName, err)
 }

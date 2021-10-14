@@ -116,7 +116,7 @@ func LoadDashboard(file string, override map[string]string, iotClient iot.Client
 			}
 			variable.VariableID, err = getVariableID(variable.ThingID, variable.VariableName, iotClient)
 			if err != nil {
-				return nil, fmt.Errorf("thing with id %s doesn't have variable with name %s : %w", variable.ThingID, variable.VariableName, err)
+				return nil, err
 			}
 			widget.Variables[j] = variable
 		}
