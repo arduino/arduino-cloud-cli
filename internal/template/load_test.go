@@ -134,7 +134,7 @@ func TestLoadTemplate(t *testing.T) {
 				t.Errorf("%v", err)
 			}
 			if !cmp.Equal(got, tt.want) {
-				t.Errorf("Wrong template received, got=\n%s", cmp.Diff(tt.want, got))
+				t.Errorf("Wrong template received, diff:\n%s", cmp.Diff(tt.want, got))
 			}
 		})
 	}
@@ -225,7 +225,7 @@ func TestLoadDashboard(t *testing.T) {
 			}
 
 			if !cmp.Equal(got, tt.want) {
-				t.Errorf("Wrong template received, got=\n%s", cmp.Diff(tt.want, got))
+				t.Errorf("Wrong template received, diff:\n%s", cmp.Diff(tt.want, got))
 			}
 		})
 	}
