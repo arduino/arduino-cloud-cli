@@ -35,7 +35,7 @@ type widgetTemplate struct {
 	Id           string                 `json:"id" yaml:"id"`
 	Name         string                 `json:"name,omitempty" yaml:"name,omitempty"`
 	Options      map[string]interface{} `json:"options" yaml:"options"`
-	WidgetType   string                 `json:"type" yaml:"type"`
+	Type         string                 `json:"type" yaml:"type"`
 	Variables    []variableTemplate     `json:"variables,omitempty" yaml:"variables,omitempty"`
 	Width        int64                  `json:"width" yaml:"width"`
 	WidthMobile  int64                  `json:"width_mobile,omitempty" yaml:"width_mobile,omitempty"`
