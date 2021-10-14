@@ -51,9 +51,13 @@ type variableTemplate struct {
 	VariableID   string
 }
 
+// MarshalJSON satisfies the Marshaler interface from json package.
+// With this, when a variableTemplate is marshaled, it only marshals
+// its VariableID. In this way, a widgetTemplate can be
+// marshaled and then unmarshaled into a iot.Widget struct.
+// In the same way, a dashboardTemplate can now be converted
+// into a iot.DashboardV2 leveraging the JSON marshal/unmarshal.
 func (v *variableTemplate) MarshalJSON() ([]byte, error) {
-	// Jsonize as a list of strings (variable uuids)
-	// in order to uniform to the other dashboard declaration (of iotclient)
 	return json.Marshal(v.VariableID)
 }
 
