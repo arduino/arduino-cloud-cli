@@ -22,12 +22,9 @@ import (
 
 	"github.com/arduino/arduino-cloud-cli/internal/template/mocks"
 	iotclient "github.com/arduino/iot-client-go"
+	"github.com/gofrs/uuid"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/mock"
-)
-
-const (
-	uuidv4Length = 36
 )
 
 var (
@@ -144,7 +141,6 @@ func TestLoadTemplate(t *testing.T) {
 }
 
 func TestLoadDashboard(t *testing.T) {
-
 	mockClient := &mocks.Client{}
 	mockThingShow := func(thingID string) *iotclient.ArduinoThing {
 		thing := &iotclient.ArduinoThing{
@@ -220,9 +216,11 @@ func TestLoadDashboard(t *testing.T) {
 			for i := range got.Widgets {
 				// check widget id generation
 				id := got.Widgets[i].Id
-				if len(id) != uuidv4Length {
-					t.Errorf("Widget ID is wrong: = %s", id)
+				_, err := uuid.FromString(id)
+				if err != nil {
+					t.Errorf("Widget ID is not a valid UUID: %s", id)
 				}
+				// Remove generated id to be able to compare the widget with the expected one
 				got.Widgets[i].Id = ""
 			}
 
