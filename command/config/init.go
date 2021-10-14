@@ -20,6 +20,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/arduino/arduino-cloud-cli/internal/config"
@@ -65,6 +66,7 @@ func Init(params *InitParams) error {
 	}
 
 	newSettings := viper.New()
+	newSettings.SetConfigPermissions(os.FileMode(0600))
 	config.SetDefaults(newSettings)
 	if err := newSettings.WriteConfigAs(configFile.String()); err != nil {
 		return fmt.Errorf("cannot create config file: %v", err)
