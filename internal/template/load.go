@@ -31,8 +31,9 @@ import (
 )
 
 // loadTemplate loads a template file and unmarshals it into whatever
-// is pointed to by the template parameter. Note that template parameter should be a pointer.
-// The input template file should be in json or yaml format.
+// is pointed to by the template parameter. If template is nil or
+// not a pointer, loadTemplate returns an error.
+// file: path of a template file in json or yaml format.
 func loadTemplate(file string, template interface{}) error {
 	templateFile, err := os.Open(file)
 	if err != nil {
@@ -103,7 +104,7 @@ func LoadDashboard(file string, override map[string]string, iotClient iot.Client
 		}
 		widget.Id = id.String()
 		filterWidgetOptions(widget.Options)
-		// Even if widget has no options, options field should exist
+		// Even if the widget has no options, its field should exist
 		if widget.Options == nil {
 			widget.Options = make(map[string]interface{})
 		}

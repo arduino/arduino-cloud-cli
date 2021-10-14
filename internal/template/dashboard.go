@@ -57,7 +57,7 @@ func (v *variableTemplate) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.VariableID)
 }
 
-// getVariableID returns the id of a variable, given its thing id and its variable name.
+// getVariableID returns the id of a variable, given its name and its thing id.
 // If the variable is not found, an error is returned.
 func getVariableID(thingID string, variableName string, iotClient iot.Client) (string, error) {
 	thing, err := iotClient.ThingShow(thingID)
