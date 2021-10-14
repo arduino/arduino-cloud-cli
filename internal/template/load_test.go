@@ -27,6 +27,17 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+const (
+	// Real IDs will be UUIDs v4 like this: 9231a50b-8680-4489-a465-2b769fc310cb
+	// Here we use these text strings to improve test errors readability
+	switchyID    = "switchy-id"
+	relayID      = "relay-id"
+	blinkSpeedID = "blink_speed-id"
+
+	thingOverriddenID   = "thing-overridden-id"
+	switchyOverriddenID = "switchy-overridden-id"
+)
+
 var (
 	dashboardTemplateTest = map[string]interface{}{
 		"id":   "home-security-alarm-dashboard",
@@ -69,8 +80,7 @@ var (
 		Widgets: []iotclient.Widget{
 			{Name: "Switch-name", Height: 1, HeightMobile: 2, Width: 3, WidthMobile: 4,
 				X: 5, XMobile: 6, Y: 7, YMobile: 8, Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
-				// variable id is set equal to the thing id by mockThingShow, in order to verify the thing override
-				Variables: []string{"thing"},
+				Variables: []string{switchyID},
 			},
 		},
 	}
@@ -80,26 +90,21 @@ var (
 		Widgets: []iotclient.Widget{
 			{Name: "Switch-name", Height: 1, HeightMobile: 2, Width: 3, WidthMobile: 4,
 				X: 5, XMobile: 6, Y: 7, YMobile: 8, Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
-				// variable id is set equal to the thing id by mockThingShow, in order to verify the thing override
-				Variables: []string{"overridden"},
+				Variables: []string{switchyOverriddenID},
 			},
 		},
 	}
 
 	dashboardTwoWidgets = &iotclient.Dashboardv2{
 		Name: "dashboard-two-widgets",
-		// in this test, the variable id is a concatenation of thing_id and variable_id
-		// this depends on the mocked function getVariableID
 		Widgets: []iotclient.Widget{
 			{Name: "blink_speed", Height: 7, Width: 8,
 				X: 7, Y: 5, Options: map[string]interface{}{"min": float64(0), "max": float64(5000)}, Type: "Slider",
-				// variable id is set equal to the thing id by mockThingShow, in order to verify the thing override
-				Variables: []string{"remote-controlled-lights"},
+				Variables: []string{blinkSpeedID},
 			},
 			{Name: "relay_2", Height: 5, Width: 5,
 				X: 5, Y: 0, Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
-				// variable id is set equal to the thing id by mockThingShow, in order to verify the thing override
-				Variables: []string{"remote-controlled-lights"},
+				Variables: []string{relayID},
 			},
 		},
 	}
@@ -143,17 +148,20 @@ func TestLoadTemplate(t *testing.T) {
 func TestLoadDashboard(t *testing.T) {
 	mockClient := &mocks.Client{}
 	mockThingShow := func(thingID string) *iotclient.ArduinoThing {
-		thing := &iotclient.ArduinoThing{
+		if thingID == thingOverriddenID {
+			return &iotclient.ArduinoThing{
+				Properties: []iotclient.ArduinoProperty{
+					{Id: switchyOverriddenID, Name: "switchy"},
+				},
+			}
+		}
+		return &iotclient.ArduinoThing{
 			Properties: []iotclient.ArduinoProperty{
-				// variable id is set equal to the thing id in order to verify the thing override
-				// dashboard-with-variable variable
-				{Id: thingID, Name: "variable"},
-				// dashboard-two-widgets variables
-				{Id: thingID, Name: "relay_2"},
-				{Id: thingID, Name: "blink_speed"},
+				{Id: switchyID, Name: "switchy"},
+				{Id: relayID, Name: "relay_2"},
+				{Id: blinkSpeedID, Name: "blink_speed"},
 			},
 		}
-		return thing
 	}
 	mockClient.On("ThingShow", mock.AnythingOfType("string")).Return(mockThingShow, nil)
 
@@ -194,7 +202,7 @@ func TestLoadDashboard(t *testing.T) {
 		{
 			name:     "dashboard with variable, thing is overridden",
 			file:     "testdata/dashboard-with-variable.yaml",
-			override: map[string]string{"thing": "overridden"},
+			override: map[string]string{"thing": thingOverriddenID},
 			want:     dashboardVariableOverride,
 		},
 
