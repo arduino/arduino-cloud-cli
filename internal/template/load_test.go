@@ -20,7 +20,7 @@ package template
 import (
 	"testing"
 
-	"github.com/arduino/arduino-cloud-cli/internal/template/mocks"
+	"github.com/arduino/arduino-cloud-cli/internal/iot/mocks"
 	iotclient "github.com/arduino/iot-client-go"
 	"github.com/gofrs/uuid"
 	"github.com/google/go-cmp/cmp"
