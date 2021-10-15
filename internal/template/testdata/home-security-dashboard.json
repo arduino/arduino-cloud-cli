@@ -1,0 +1,29 @@
+{
+  "id": "home-security-alarm-dashboard",
+  "name": "Home Security Alarm",
+  "widgets": [
+    {
+      "type": "Messenger",
+      "name": "message_update",
+      "variables": [
+        {
+          "thing_id": "home-security-alarm",
+          "variable_id": "message_update"
+        }
+      ]
+    },
+    {
+      "type": "Switch",
+      "name": "light_alarm",
+      "variables": [
+        {
+          "thing_id": "home-security-alarm",
+          "variable_id": "light_alarm"
+        }
+      ],
+      "options": {
+        "showLabels": true
+      }
+    }
+  ]
+}

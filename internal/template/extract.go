@@ -88,7 +88,6 @@ func FromDashboard(dashboard *iotclient.ArduinoDashboardv2) map[string]interface
 		if len(w.Options) > 0 {
 			widget["options"] = w.Options
 		}
-
 		widgets = append(widgets, widget)
 	}
 	if len(widgets) > 0 {

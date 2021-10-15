@@ -7,6 +7,8 @@ require (
 	github.com/arduino/arduino-cli v0.0.0-20210607095659-16f41352eac3
 	github.com/arduino/go-paths-helper v1.6.1
 	github.com/arduino/iot-client-go v1.3.4-0.20210930122852-04551f4cb061
+	github.com/gofrs/uuid v4.0.0+incompatible
+	github.com/google/go-cmp v0.5.6
 	github.com/howeyc/crc16 v0.0.0-20171223171357-2b2a61e366a6
 	github.com/juju/errors v0.0.0-20181118221551-089d3ea4e4d5
 	github.com/sirupsen/logrus v1.8.1
