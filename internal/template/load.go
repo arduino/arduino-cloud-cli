@@ -24,40 +24,42 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	iotclient "github.com/arduino/iot-client-go"
+	"github.com/gofrs/uuid"
 	"gopkg.in/yaml.v3"
 )
 
-// loadTemplate loads a template file and puts it into a generic template
-// of type map[string]interface{}.
-// The input template should be in json or yaml format.
-func loadTemplate(file string) (map[string]interface{}, error) {
+// loadTemplate loads a template file and unmarshals it into whatever
+// is pointed to by the template parameter. If template is nil or
+// not a pointer, loadTemplate returns an error.
+// file: path of a template file in json or yaml format.
+func loadTemplate(file string, template interface{}) error {
 	templateFile, err := os.Open(file)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer templateFile.Close()
 
 	templateBytes, err := ioutil.ReadAll(templateFile)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	template := make(map[string]interface{})
-
 	// Extract template trying all the supported formats: json and yaml
-	if err = json.Unmarshal([]byte(templateBytes), &template); err != nil {
-		if err = yaml.Unmarshal([]byte(templateBytes), &template); err != nil {
-			return nil, errors.New("reading template file: template format is not valid")
+	if err = json.Unmarshal([]byte(templateBytes), template); err != nil {
+		if err = yaml.Unmarshal([]byte(templateBytes), template); err != nil {
+			return errors.New("reading template file: template format is not valid")
 		}
 	}
 
-	return template, nil
+	return nil
 }
 
 // LoadThing loads a thing from a thing template file.
 func LoadThing(file string) (*iotclient.Thing, error) {
-	template, err := loadTemplate(file)
+	var template map[string]interface{}
+	err := loadTemplate(file, &template)
 	if err != nil {
 		return nil, err
 	}
@@ -81,4 +83,56 @@ func LoadThing(file string) (*iotclient.Thing, error) {
 	}
 
 	return thing, nil
+}
+
+// LoadDashboard loads a dashboard from a dashboard template file.
+// It applies the thing overrides specified by the override parameter.
+// It requires an iot.Client parameter to retrieve the actual variable id.
+func LoadDashboard(file string, override map[string]string, iotClient iot.Client) (*iotclient.Dashboardv2, error) {
+	template := dashboardTemplate{}
+	err := loadTemplate(file, &template)
+	if err != nil {
+		return nil, err
+	}
+
+	// Adapt the template to the dashboard struct
+	for i, widget := range template.Widgets {
+		// Generate and set a uuid for each widget
+		id, err := uuid.NewV4()
+		if err != nil {
+			return nil, fmt.Errorf("cannot create a uuid for new widget: %w", err)
+		}
+		widget.Id = id.String()
+		filterWidgetOptions(widget.Options)
+		// Even if the widget has no options, its field should exist
+		if widget.Options == nil {
+			widget.Options = make(map[string]interface{})
+		}
+		// Set the correct variable id, given the thing id and the variable name
+		for j, variable := range widget.Variables {
+			// Check if thing name should be overridden
+			if id, ok := override[variable.ThingID]; ok {
+				variable.ThingID = id
+			}
+			variable.VariableID, err = getVariableID(variable.ThingID, variable.VariableName, iotClient)
+			if err != nil {
+				return nil, err
+			}
+			widget.Variables[j] = variable
+		}
+		template.Widgets[i] = widget
+	}
+
+	// Convert template into dashboard structure exploiting json marshalling/unmarshalling
+	dashboard := &iotclient.Dashboardv2{}
+	t, err := json.Marshal(template)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", "extracting template", err)
+	}
+	err = json.Unmarshal(t, &dashboard)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", "creating dashboard structure from template", err)
+	}
+
+	return dashboard, nil
 }

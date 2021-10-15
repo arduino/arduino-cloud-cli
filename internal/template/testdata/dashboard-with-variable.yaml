@@ -1,0 +1,17 @@
+name: dashboard-with-variable
+widgets:
+  - height: 1
+    height_mobile: 2
+    name: Switch-name
+    options:
+        showLabels: true
+    variables:
+      - thing_id: thing
+        variable_id: switchy
+    type: Switch
+    width: 3
+    width_mobile: 4
+    x: 5
+    x_mobile: 6
+    "y": 7
+    y_mobile: 8

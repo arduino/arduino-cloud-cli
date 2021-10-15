@@ -1,0 +1,12 @@
+name: dashboard-no-options
+widgets:
+  - height: 1
+    height_mobile: 2
+    name: Switch-name
+    type: Switch
+    width: 3
+    width_mobile: 4
+    x: 5
+    x_mobile: 6
+    "y": 7
+    y_mobile: 8

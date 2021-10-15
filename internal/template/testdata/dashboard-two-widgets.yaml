@@ -1,0 +1,26 @@
+id: dashboard-two-widgets
+name: dashboard-two-widgets
+widgets:
+  - type: Slider
+    name: blink_speed
+    width: 8
+    height: 7
+    x: 7
+    y: 5
+    variables:
+      - thing_id: remote-controlled-lights
+        variable_id: blink_speed
+    options:
+      min: 0
+      max: 5000                
+  - type: Switch
+    name: relay_2
+    width: 5
+    height: 5
+    x: 5
+    y: 0
+    variables:
+      - thing_id: remote-controlled-lights
+        variable_id: relay_2
+    options:
+      showLabels: true

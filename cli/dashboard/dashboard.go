@@ -28,6 +28,7 @@ func NewCommand() *cobra.Command {
 		Long:  "Dashboard commands.",
 	}
 
+	dashboardCommand.AddCommand(initCreateCommand())
 	dashboardCommand.AddCommand(initListCommand())
 	dashboardCommand.AddCommand(initDeleteCommand())
 	dashboardCommand.AddCommand(initExtractCommand())
