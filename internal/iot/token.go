@@ -33,7 +33,7 @@ func token(client, secret string) (*oauth2.Token, error) {
 	config := cc.Config{
 		ClientID:       client,
 		ClientSecret:   secret,
-		TokenURL:       "https://api2.arduino.cc/iot/v1/clients/token",
+		TokenURL:       "https://api-dev.arduino.cc/iot/v1/clients/token",
 		EndpointParams: additionalValues,
 	}
 	// Get the access token in exchange of client_id and client_secret

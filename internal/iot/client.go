@@ -59,6 +59,7 @@ func NewClient(clientID, secretID string) (Client, error) {
 		err = fmt.Errorf("instantiate new iot client: %w", err)
 		return nil, err
 	}
+	cl.api.ChangeBasePath("https://api-dev.arduino.cc/iot")
 	return cl, nil
 }
 
