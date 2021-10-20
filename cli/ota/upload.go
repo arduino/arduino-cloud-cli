@@ -56,6 +56,7 @@ func runUploadCommand(cmd *cobra.Command, args []string) {
 	params := &ota.UploadParams{
 		DeviceID: uploadFlags.deviceID,
 		File:     uploadFlags.file,
+		Deferred: uploadFlags.deferred,
 	}
 	err := ota.Upload(params)
 	if err != nil {
