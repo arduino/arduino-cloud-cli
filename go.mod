@@ -6,7 +6,7 @@ require (
 	github.com/antihax/optional v1.0.0
 	github.com/arduino/arduino-cli v0.0.0-20210607095659-16f41352eac3
 	github.com/arduino/go-paths-helper v1.6.1
-	github.com/arduino/iot-client-go v1.3.4-0.20210930122852-04551f4cb061
+	github.com/arduino/iot-client-go v1.3.4-0.20211103115604-d4d372164262
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/google/go-cmp v0.5.6
 	github.com/howeyc/crc16 v0.0.0-20171223171357-2b2a61e366a6
@@ -16,8 +16,8 @@ require (
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.6.1
 	go.bug.st/serial v1.3.0
-	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d // indirect
-	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
+	golang.org/x/net v0.0.0-20211101193420-4a448f8816b3 // indirect
+	golang.org/x/oauth2 v0.0.0-20211028175245-ba495a64dcb5
 	golang.org/x/sys v0.0.0-20210503173754-0981d6026fa6 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20210504143626-3b2ad6ccc450 // indirect
