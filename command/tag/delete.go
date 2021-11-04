@@ -46,7 +46,7 @@ func DeleteTags(params *DeleteTagsParams) error {
 
 	switch params.Resource {
 	case Thing:
-		// err = iotClient.ThingTagsDelete(params.ID, params.Keys)
+		err = iotClient.ThingTagsDelete(params.ID, params.Keys)
 	case Device:
 		err = iotClient.DeviceTagsDelete(params.ID, params.Keys)
 	default:

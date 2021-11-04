@@ -42,6 +42,7 @@ type Client interface {
 	ThingShow(id string) (*iotclient.ArduinoThing, error)
 	ThingList(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error)
 	ThingTagsCreate(id string, tags map[string]string) error
+	ThingTagsDelete(id string, keys []string) error
 	DashboardCreate(dashboard *iotclient.Dashboardv2) (*iotclient.ArduinoDashboardv2, error)
 	DashboardShow(id string) (*iotclient.ArduinoDashboardv2, error)
 	DashboardDelete(id string) error
@@ -242,6 +243,19 @@ func (cl *client) ThingTagsCreate(id string, tags map[string]string) error {
 		_, err := cl.api.ThingsV2TagsApi.ThingsV2TagsUpsert(cl.ctx, id, t)
 		if err != nil {
 			err = fmt.Errorf("cannot create tag %s: %w", key, errorDetail(err))
+			return err
+		}
+	}
+	return nil
+}
+
+// ThingTagsDelete deletes the tags of a thing of Arduino IoT Cloud,
+// given the thing id and the keys of the tags.
+func (cl *client) ThingTagsDelete(id string, keys []string) error {
+	for _, key := range keys {
+		_, err := cl.api.ThingsV2TagsApi.ThingsV2TagsDelete(cl.ctx, id, key)
+		if err != nil {
+			err = fmt.Errorf("cannot delete tag %s: %w", key, errorDetail(err))
 			return err
 		}
 	}
