@@ -34,6 +34,7 @@ type Client interface {
 	DeviceShow(id string) (*iotclient.ArduinoDevicev2, error)
 	DeviceOTA(id string, file *os.File, expireMins int) error
 	DeviceTagsCreate(id string, tags map[string]string) error
+	DeviceTagsDelete(id string, keys []string) error
 	CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
 	ThingCreate(thing *iotclient.Thing, force bool) (*iotclient.ArduinoThing, error)
 	ThingUpdate(id string, thing *iotclient.Thing, force bool) error
@@ -134,6 +135,19 @@ func (cl *client) DeviceTagsCreate(id string, tags map[string]string) error {
 		_, err := cl.api.DevicesV2TagsApi.DevicesV2TagsUpsert(cl.ctx, id, t)
 		if err != nil {
 			err = fmt.Errorf("cannot create tag %s: %w", key, errorDetail(err))
+			return err
+		}
+	}
+	return nil
+}
+
+// DeviceTagsDelete deletes the tags of a device of Arduino IoT Cloud,
+// given the device id and the keys of the tags.
+func (cl *client) DeviceTagsDelete(id string, keys []string) error {
+	for _, key := range keys {
+		_, err := cl.api.DevicesV2TagsApi.DevicesV2TagsDelete(cl.ctx, id, key)
+		if err != nil {
+			err = fmt.Errorf("cannot delete tag %s: %w", key, errorDetail(err))
 			return err
 		}
 	}

@@ -15,25 +15,31 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package device
+package tag
 
 import (
-	"github.com/arduino/arduino-cloud-cli/cli/device/tag"
-	"github.com/spf13/cobra"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
+	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
 
-func NewCommand() *cobra.Command {
-	deviceCommand := &cobra.Command{
-		Use:   "device",
-		Short: "Device commands.",
-		Long:  "Device commands.",
+// DeleteTagsParams contains the parameters needed to
+// delete tags of a device from Arduino IoT Cloud.
+type DeleteTagsParams struct {
+	ID   string
+	Keys []string // Keys of tags to delete
+}
+
+// DeleteTags command is used to delete tags of a device
+// from Arduino IoT Cloud.
+func DeleteTags(params *DeleteTagsParams) error {
+	conf, err := config.Retrieve()
+	if err != nil {
+		return err
+	}
+	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+	if err != nil {
+		return err
 	}
 
-	deviceCommand.AddCommand(initCreateCommand())
-	deviceCommand.AddCommand(initListCommand())
-	deviceCommand.AddCommand(initDeleteCommand())
-	deviceCommand.AddCommand(tag.InitCreateTagsCommand())
-	deviceCommand.AddCommand(tag.InitDeleteTagsCommand())
-
-	return deviceCommand
+	return iotClient.DeviceTagsDelete(params.ID, params.Keys)
 }
