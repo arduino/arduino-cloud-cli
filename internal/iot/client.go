@@ -30,7 +30,7 @@ import (
 type Client interface {
 	DeviceCreate(fqbn, name, serial, devType string) (*iotclient.ArduinoDevicev2, error)
 	DeviceDelete(id string) error
-	DeviceList() ([]iotclient.ArduinoDevicev2, error)
+	DeviceList(tags map[string]string) ([]iotclient.ArduinoDevicev2, error)
 	DeviceShow(id string) (*iotclient.ArduinoDevicev2, error)
 	DeviceOTA(id string, file *os.File, expireMins int) error
 	DeviceTagsCreate(id string, tags map[string]string) error
@@ -96,8 +96,18 @@ func (cl *client) DeviceDelete(id string) error {
 
 // DeviceList retrieves and returns a list of all Arduino IoT Cloud devices
 // belonging to the user performing the request.
-func (cl *client) DeviceList() ([]iotclient.ArduinoDevicev2, error) {
-	devices, _, err := cl.api.DevicesV2Api.DevicesV2List(cl.ctx, nil)
+func (cl *client) DeviceList(tags map[string]string) ([]iotclient.ArduinoDevicev2, error) {
+	opts := &iotclient.DevicesV2ListOpts{}
+	if tags != nil {
+		t := make([]string, 0, len(tags))
+		for key, val := range tags {
+			// Use the 'key:value' format required from the backend
+			t = append(t, key+":"+val)
+		}
+		opts.Tags = optional.NewInterface(t)
+	}
+
+	devices, _, err := cl.api.DevicesV2Api.DevicesV2List(cl.ctx, opts)
 	if err != nil {
 		err = fmt.Errorf("listing devices: %w", errorDetail(err))
 		return nil, err
