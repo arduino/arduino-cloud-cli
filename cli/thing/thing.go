@@ -18,6 +18,7 @@
 package thing
 
 import (
+	"github.com/arduino/arduino-cloud-cli/cli/thing/tag"
 	"github.com/spf13/cobra"
 )
 
@@ -34,6 +35,7 @@ func NewCommand() *cobra.Command {
 	thingCommand.AddCommand(initDeleteCommand())
 	thingCommand.AddCommand(initExtractCommand())
 	thingCommand.AddCommand(initBindCommand())
+	thingCommand.AddCommand(tag.InitCreateTagsCommand())
 
 	return thingCommand
 }

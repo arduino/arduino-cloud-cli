@@ -41,6 +41,7 @@ type Client interface {
 	ThingDelete(id string) error
 	ThingShow(id string) (*iotclient.ArduinoThing, error)
 	ThingList(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error)
+	ThingTagsCreate(id string, tags map[string]string) error
 	DashboardCreate(dashboard *iotclient.Dashboardv2) (*iotclient.ArduinoDashboardv2, error)
 	DashboardShow(id string) (*iotclient.ArduinoDashboardv2, error)
 	DashboardDelete(id string) error
@@ -232,6 +233,19 @@ func (cl *client) ThingList(ids []string, device *string, props bool) ([]iotclie
 		return nil, err
 	}
 	return things, nil
+}
+
+// ThingTagsCreate allows to create or overwrite tags on a thing of Arduino IoT Cloud.
+func (cl *client) ThingTagsCreate(id string, tags map[string]string) error {
+	for key, val := range tags {
+		t := iotclient.Tag{Key: key, Value: val}
+		_, err := cl.api.ThingsV2TagsApi.ThingsV2TagsUpsert(cl.ctx, id, t)
+		if err != nil {
+			err = fmt.Errorf("cannot create tag %s: %w", key, errorDetail(err))
+			return err
+		}
+	}
+	return nil
 }
 
 // DashboardCreate adds a new dashboard on Arduino IoT Cloud.

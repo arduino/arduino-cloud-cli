@@ -46,7 +46,7 @@ func CreateTags(params *CreateTagsParams) error {
 
 	switch params.Resource {
 	case Thing:
-		// err = iotClient.ThingTagsCreate(params.ID, params.Tags)
+		err = iotClient.ThingTagsCreate(params.ID, params.Tags)
 	case Device:
 		err = iotClient.DeviceTagsCreate(params.ID, params.Tags)
 	default:
