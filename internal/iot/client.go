@@ -40,7 +40,7 @@ type Client interface {
 	ThingUpdate(id string, thing *iotclient.Thing, force bool) error
 	ThingDelete(id string) error
 	ThingShow(id string) (*iotclient.ArduinoThing, error)
-	ThingList(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error)
+	ThingList(ids []string, device *string, props bool, tags map[string]string) ([]iotclient.ArduinoThing, error)
 	ThingTagsCreate(id string, tags map[string]string) error
 	ThingTagsDelete(id string, keys []string) error
 	DashboardCreate(dashboard *iotclient.Dashboardv2) (*iotclient.ArduinoDashboardv2, error)
@@ -216,7 +216,7 @@ func (cl *client) ThingShow(id string) (*iotclient.ArduinoThing, error) {
 }
 
 // ThingList returns a list of things on Arduino IoT Cloud.
-func (cl *client) ThingList(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error) {
+func (cl *client) ThingList(ids []string, device *string, props bool, tags map[string]string) ([]iotclient.ArduinoThing, error) {
 	opts := &iotclient.ThingsV2ListOpts{}
 	opts.ShowProperties = optional.NewBool(props)
 
@@ -226,6 +226,15 @@ func (cl *client) ThingList(ids []string, device *string, props bool) ([]iotclie
 
 	if device != nil {
 		opts.DeviceId = optional.NewString(*device)
+	}
+
+	if tags != nil {
+		t := make([]string, 0, len(tags))
+		for key, val := range tags {
+			// Use the 'key:value' format required from the backend
+			t = append(t, key+":"+val)
+		}
+		opts.Tags = optional.NewInterface(t)
 	}
 
 	things, _, err := cl.api.ThingsV2Api.ThingsV2List(cl.ctx, opts)
