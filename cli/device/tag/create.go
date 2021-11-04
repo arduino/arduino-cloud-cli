@@ -22,7 +22,7 @@ import (
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
-	"github.com/arduino/arduino-cloud-cli/command/device/tag"
+	"github.com/arduino/arduino-cloud-cli/command/tag"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -55,8 +55,9 @@ func runCreateTagsCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Creating tags on device %s\n", createTagsFlags.id)
 
 	params := &tag.CreateTagsParams{
-		ID:   createTagsFlags.id,
-		Tags: createTagsFlags.tags,
+		ID:       createTagsFlags.id,
+		Tags:     createTagsFlags.tags,
+		Resource: tag.Device,
 	}
 
 	err := tag.CreateTags(params)

@@ -18,18 +18,23 @@
 package tag
 
 import (
+	"errors"
+
 	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
 
-// CreateTagsParams contains the parameters needed to create or overwrite tags on a device.
-type CreateTagsParams struct {
-	ID   string            // Device ID
-	Tags map[string]string // Map of tags to create
+// DeleteTagsParams contains the parameters needed to
+// delete tags of a device from Arduino IoT Cloud.
+type DeleteTagsParams struct {
+	ID       string
+	Keys     []string // Keys of tags to delete
+	Resource ResourceType
 }
 
-// CreateTags allows to create or overwrite tags on a device
-func CreateTags(params *CreateTagsParams) error {
+// DeleteTags command is used to delete tags of a device
+// from Arduino IoT Cloud.
+func DeleteTags(params *DeleteTagsParams) error {
 	conf, err := config.Retrieve()
 	if err != nil {
 		return err
@@ -39,9 +44,13 @@ func CreateTags(params *CreateTagsParams) error {
 		return err
 	}
 
-	err = iotClient.DeviceTagsCreate(params.ID, params.Tags)
-	if err != nil {
-		return err
+	switch params.Resource {
+	case Thing:
+		// err = iotClient.ThingTagsDelete(params.ID, params.Keys)
+	case Device:
+		err = iotClient.DeviceTagsDelete(params.ID, params.Keys)
+	default:
+		err = errors.New("passed Resource parameter is not valid")
 	}
-	return nil
+	return err
 }

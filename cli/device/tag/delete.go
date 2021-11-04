@@ -22,7 +22,7 @@ import (
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
-	"github.com/arduino/arduino-cloud-cli/command/device/tag"
+	"github.com/arduino/arduino-cloud-cli/command/tag"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -52,8 +52,9 @@ func runDeleteTagsCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Deleting tags %s\n", deleteTagsFlags.keys)
 
 	params := &tag.DeleteTagsParams{
-		ID:   deleteTagsFlags.id,
-		Keys: deleteTagsFlags.keys,
+		ID:       deleteTagsFlags.id,
+		Keys:     deleteTagsFlags.keys,
+		Resource: tag.Device,
 	}
 
 	err := tag.DeleteTags(params)
