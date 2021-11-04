@@ -33,6 +33,7 @@ type Client interface {
 	DeviceList() ([]iotclient.ArduinoDevicev2, error)
 	DeviceShow(id string) (*iotclient.ArduinoDevicev2, error)
 	DeviceOTA(id string, file *os.File, expireMins int) error
+	DeviceTagsCreate(id string, tags map[string]string) error
 	CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
 	ThingCreate(thing *iotclient.Thing, force bool) (*iotclient.ArduinoThing, error)
 	ThingUpdate(id string, thing *iotclient.Thing, force bool) error
@@ -122,6 +123,19 @@ func (cl *client) DeviceOTA(id string, file *os.File, expireMins int) error {
 	if err != nil {
 		err = fmt.Errorf("uploading device ota: %w", errorDetail(err))
 		return err
+	}
+	return nil
+}
+
+// DeviceTagsCreate allows to create or overwrite tags on a device of Arduino IoT Cloud.
+func (cl *client) DeviceTagsCreate(id string, tags map[string]string) error {
+	for key, val := range tags {
+		t := iotclient.Tag{Key: key, Value: val}
+		_, err := cl.api.DevicesV2TagsApi.DevicesV2TagsUpsert(cl.ctx, id, t)
+		if err != nil {
+			err = fmt.Errorf("cannot create tag %s: %w", key, errorDetail(err))
+			return err
+		}
 	}
 	return nil
 }

@@ -15,24 +15,33 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package device
+package tag
 
 import (
-	"github.com/arduino/arduino-cloud-cli/cli/device/tag"
-	"github.com/spf13/cobra"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
+	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
 
-func NewCommand() *cobra.Command {
-	deviceCommand := &cobra.Command{
-		Use:   "device",
-		Short: "Device commands.",
-		Long:  "Device commands.",
+// CreateTagsParams contains the parameters needed to create or overwrite tags on a device.
+type CreateTagsParams struct {
+	ID   string            // Device ID
+	Tags map[string]string // Map of tags to create
+}
+
+// CreateTags allows to create or overwrite tags on a device
+func CreateTags(params *CreateTagsParams) error {
+	conf, err := config.Retrieve()
+	if err != nil {
+		return err
+	}
+	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+	if err != nil {
+		return err
 	}
 
-	deviceCommand.AddCommand(initCreateCommand())
-	deviceCommand.AddCommand(initListCommand())
-	deviceCommand.AddCommand(initDeleteCommand())
-	deviceCommand.AddCommand(tag.InitCreateTagsCommand())
-
-	return deviceCommand
+	err = iotClient.DeviceTagsCreate(params.ID, params.Tags)
+	if err != nil {
+		return err
+	}
+	return nil
 }
