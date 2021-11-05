@@ -28,7 +28,8 @@ import (
 )
 
 var deleteFlags struct {
-	id string
+	id   string
+	tags map[string]string
 }
 
 func initDeleteCommand() *cobra.Command {
@@ -39,14 +40,24 @@ func initDeleteCommand() *cobra.Command {
 		Run:   runDeleteCommand,
 	}
 	deleteCommand.Flags().StringVarP(&deleteFlags.id, "id", "i", "", "Device ID")
-	deleteCommand.MarkFlagRequired("id")
+	// delete only the devices that have all the passed tags
+	deleteCommand.Flags().StringToStringVar(
+		&deleteFlags.tags,
+		"tags",
+		nil,
+		"List of comma-separated tags. A tag has this format: <key>=<value>",
+	)
 	return deleteCommand
 }
 
 func runDeleteCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Deleting device %s\n", deleteFlags.id)
 
-	params := &device.DeleteParams{ID: deleteFlags.id}
+	params := &device.DeleteParams{Tags: deleteFlags.tags}
+	if deleteFlags.id != "" {
+		params.ID = &deleteFlags.id
+	}
+
 	err := device.Delete(params)
 	if err != nil {
 		feedback.Errorf("Error during device delete: %v", err)
