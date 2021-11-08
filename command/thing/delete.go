@@ -18,19 +18,31 @@
 package thing
 
 import (
+	"errors"
+
 	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
 
 // DeleteParams contains the parameters needed to
 // delete a thing from Arduino IoT Cloud.
+// ID and Tags parameters are mutually exclusive
+// and one among them is required:  An error is returned
+// if they are both nil or if they are both not nil.
 type DeleteParams struct {
-	ID string
+	ID   *string
+	Tags map[string]string
 }
 
 // Delete command is used to delete a thing
 // from Arduino IoT Cloud.
 func Delete(params *DeleteParams) error {
+	if params.ID == nil && params.Tags == nil {
+		return errors.New("provide either ID or Tags")
+	} else if params.ID != nil && params.Tags != nil {
+		return errors.New("cannot use both ID and Tags. only one of them should be not nil")
+	}
+
 	conf, err := config.Retrieve()
 	if err != nil {
 		return err
@@ -40,5 +52,26 @@ func Delete(params *DeleteParams) error {
 		return err
 	}
 
-	return iotClient.ThingDelete(params.ID)
+	if params.ID != nil {
+		// Delete by ID
+		return iotClient.ThingDelete(*params.ID)
+
+	} else if params.Tags != nil {
+		things, err := iotClient.ThingList(nil, nil, false, params.Tags)
+		if err != nil {
+			return err
+		}
+		for _, t := range things {
+			err = iotClient.ThingDelete(t.Id)
+			if err != nil {
+				return err
+			}
+		}
+
+	} else {
+		// should not be reachable
+		return errors.New("provide either '--id' or '--tags' flag")
+	}
+
+	return nil
 }
