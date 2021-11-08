@@ -65,11 +65,11 @@ Use this command to provision a device:
 
 ## Device commands
 
-Once a device has been created thorugh the provisioning procedure, it can be deleted by using the following command:
-`$ arduino-cloud-cli device delete --id <deviceID>`
-
-Devices currently present on Arduino IoT Cloud can be retrieved by using this command:
+Devices currently present on Arduino IoT Cloud can be retrieved with:
 `$ arduino-cloud-cli device list`
+
+It has an optional `--tags` flag that allows to list only the devices having all the provided tags:
+`$ arduino-cloud-cli device list --tags <key0>=<value0>,<key1>=<value1>`
 
 Add tags to a device. Tags should be passed as a comma-separated list of `<key>=<value>` items:
 
@@ -105,6 +105,12 @@ Print a *filtered* list of available things, print only things belonging to the 
 Print only the thing associated to the passed device:
 
 `$ arduino-cloud-cli thing list --device-id <deviceID>`
+
+Print only the things that have all the passed tags:
+
+`$ arduino-cloud-cli thing list --tags <key0>=<value0>,<key1>=<value1>`
+
+Things can be deleted using the thing delete command. This command accepts two mutually exclusive flags: `--id` and `--tags`. Only one of them must be passed. When the `--id` is passed, the thing having such ID gets deleted:
 
 Delete a thing with the following command:
 
