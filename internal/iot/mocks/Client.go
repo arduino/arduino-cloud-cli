@@ -157,13 +157,13 @@ func (_m *Client) DeviceDelete(id string) error {
 	return r0
 }
 
-// DeviceList provides a mock function with given fields:
-func (_m *Client) DeviceList() ([]iot.ArduinoDevicev2, error) {
-	ret := _m.Called()
+// DeviceList provides a mock function with given fields: tags
+func (_m *Client) DeviceList(tags map[string]string) ([]iot.ArduinoDevicev2, error) {
+	ret := _m.Called(tags)
 
 	var r0 []iot.ArduinoDevicev2
-	if rf, ok := ret.Get(0).(func() []iot.ArduinoDevicev2); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(map[string]string) []iot.ArduinoDevicev2); ok {
+		r0 = rf(tags)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]iot.ArduinoDevicev2)
@@ -171,8 +171,8 @@ func (_m *Client) DeviceList() ([]iot.ArduinoDevicev2, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(map[string]string) error); ok {
+		r1 = rf(tags)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -282,13 +282,13 @@ func (_m *Client) ThingDelete(id string) error {
 	return r0
 }
 
-// ThingList provides a mock function with given fields: ids, device, props
-func (_m *Client) ThingList(ids []string, device *string, props bool) ([]iot.ArduinoThing, error) {
-	ret := _m.Called(ids, device, props)
+// ThingList provides a mock function with given fields: ids, device, props, tags
+func (_m *Client) ThingList(ids []string, device *string, props bool, tags map[string]string) ([]iot.ArduinoThing, error) {
+	ret := _m.Called(ids, device, props, tags)
 
 	var r0 []iot.ArduinoThing
-	if rf, ok := ret.Get(0).(func([]string, *string, bool) []iot.ArduinoThing); ok {
-		r0 = rf(ids, device, props)
+	if rf, ok := ret.Get(0).(func([]string, *string, bool, map[string]string) []iot.ArduinoThing); ok {
+		r0 = rf(ids, device, props, tags)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]iot.ArduinoThing)
@@ -296,8 +296,8 @@ func (_m *Client) ThingList(ids []string, device *string, props bool) ([]iot.Ard
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]string, *string, bool) error); ok {
-		r1 = rf(ids, device, props)
+	if rf, ok := ret.Get(1).(func([]string, *string, bool, map[string]string) error); ok {
+		r1 = rf(ids, device, props, tags)
 	} else {
 		r1 = ret.Error(1)
 	}
