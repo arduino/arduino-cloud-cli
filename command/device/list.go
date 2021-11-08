@@ -32,9 +32,15 @@ type DeviceInfo struct {
 	FQBN   string `json:"fqbn"`
 }
 
+// ListParams contains the optional parameters needed
+// to filter the devices to be listed.
+type ListParams struct {
+	Tags map[string]string // If tags are provided, only devices that have all these tags are listed.
+}
+
 // List command is used to list
 // the devices of Arduino IoT Cloud.
-func List() ([]DeviceInfo, error) {
+func List(params *ListParams) ([]DeviceInfo, error) {
 	conf, err := config.Retrieve()
 	if err != nil {
 		return nil, err
@@ -44,7 +50,7 @@ func List() ([]DeviceInfo, error) {
 		return nil, err
 	}
 
-	foundDevices, err := iotClient.DeviceList()
+	foundDevices, err := iotClient.DeviceList(params.Tags)
 	if err != nil {
 		return nil, err
 	}

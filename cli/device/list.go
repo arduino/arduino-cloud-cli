@@ -28,6 +28,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var listFlags struct {
+	tags map[string]string
+}
+
 func initListCommand() *cobra.Command {
 	listCommand := &cobra.Command{
 		Use:   "list",
@@ -35,13 +39,21 @@ func initListCommand() *cobra.Command {
 		Long:  "List devices on Arduino IoT Cloud",
 		Run:   runListCommand,
 	}
+	listCommand.Flags().StringToStringVar(
+		&listFlags.tags,
+		"tags",
+		nil,
+		"Comma-separated list of tags with format <key>=<value>.\n"+
+			"List only devices that match the provided tags.",
+	)
 	return listCommand
 }
 
 func runListCommand(cmd *cobra.Command, args []string) {
 	logrus.Info("Listing devices")
 
-	devs, err := device.List()
+	params := &device.ListParams{Tags: listFlags.tags}
+	devs, err := device.List(params)
 	if err != nil {
 		feedback.Errorf("Error during device list: %v", err)
 		os.Exit(errorcodes.ErrGeneric)

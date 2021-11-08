@@ -30,7 +30,7 @@ import (
 type Client interface {
 	DeviceCreate(fqbn, name, serial, devType string) (*iotclient.ArduinoDevicev2, error)
 	DeviceDelete(id string) error
-	DeviceList() ([]iotclient.ArduinoDevicev2, error)
+	DeviceList(tags map[string]string) ([]iotclient.ArduinoDevicev2, error)
 	DeviceShow(id string) (*iotclient.ArduinoDevicev2, error)
 	DeviceOTA(id string, file *os.File, expireMins int) error
 	DeviceTagsCreate(id string, tags map[string]string) error
@@ -40,7 +40,7 @@ type Client interface {
 	ThingUpdate(id string, thing *iotclient.Thing, force bool) error
 	ThingDelete(id string) error
 	ThingShow(id string) (*iotclient.ArduinoThing, error)
-	ThingList(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error)
+	ThingList(ids []string, device *string, props bool, tags map[string]string) ([]iotclient.ArduinoThing, error)
 	ThingTagsCreate(id string, tags map[string]string) error
 	ThingTagsDelete(id string, keys []string) error
 	DashboardCreate(dashboard *iotclient.Dashboardv2) (*iotclient.ArduinoDashboardv2, error)
@@ -96,8 +96,18 @@ func (cl *client) DeviceDelete(id string) error {
 
 // DeviceList retrieves and returns a list of all Arduino IoT Cloud devices
 // belonging to the user performing the request.
-func (cl *client) DeviceList() ([]iotclient.ArduinoDevicev2, error) {
-	devices, _, err := cl.api.DevicesV2Api.DevicesV2List(cl.ctx, nil)
+func (cl *client) DeviceList(tags map[string]string) ([]iotclient.ArduinoDevicev2, error) {
+	opts := &iotclient.DevicesV2ListOpts{}
+	if tags != nil {
+		t := make([]string, 0, len(tags))
+		for key, val := range tags {
+			// Use the 'key:value' format required from the backend
+			t = append(t, key+":"+val)
+		}
+		opts.Tags = optional.NewInterface(t)
+	}
+
+	devices, _, err := cl.api.DevicesV2Api.DevicesV2List(cl.ctx, opts)
 	if err != nil {
 		err = fmt.Errorf("listing devices: %w", errorDetail(err))
 		return nil, err
@@ -216,7 +226,7 @@ func (cl *client) ThingShow(id string) (*iotclient.ArduinoThing, error) {
 }
 
 // ThingList returns a list of things on Arduino IoT Cloud.
-func (cl *client) ThingList(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error) {
+func (cl *client) ThingList(ids []string, device *string, props bool, tags map[string]string) ([]iotclient.ArduinoThing, error) {
 	opts := &iotclient.ThingsV2ListOpts{}
 	opts.ShowProperties = optional.NewBool(props)
 
@@ -226,6 +236,15 @@ func (cl *client) ThingList(ids []string, device *string, props bool) ([]iotclie
 
 	if device != nil {
 		opts.DeviceId = optional.NewString(*device)
+	}
+
+	if tags != nil {
+		t := make([]string, 0, len(tags))
+		for key, val := range tags {
+			// Use the 'key:value' format required from the backend
+			t = append(t, key+":"+val)
+		}
+		opts.Tags = optional.NewInterface(t)
 	}
 
 	things, _, err := cl.api.ThingsV2Api.ThingsV2List(cl.ctx, opts)

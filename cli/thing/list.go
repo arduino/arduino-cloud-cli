@@ -33,6 +33,7 @@ var listFlags struct {
 	ids       []string
 	deviceID  string
 	variables bool
+	tags      map[string]string
 }
 
 func initListCommand() *cobra.Command {
@@ -47,6 +48,13 @@ func initListCommand() *cobra.Command {
 	// list only the thing associated to the passed device id
 	listCommand.Flags().StringVarP(&listFlags.deviceID, "device-id", "d", "", "ID of Device associated to the thing to be retrieved")
 	listCommand.Flags().BoolVarP(&listFlags.variables, "show-variables", "s", false, "Show thing variables")
+	listCommand.Flags().StringToStringVar(
+		&listFlags.tags,
+		"tags",
+		nil,
+		"Comma-separated list of tags with format <key>=<value>.\n"+
+			"List only things that match the provided tags.",
+	)
 	return listCommand
 }
 
@@ -56,6 +64,7 @@ func runListCommand(cmd *cobra.Command, args []string) {
 	params := &thing.ListParams{
 		IDs:       listFlags.ids,
 		Variables: listFlags.variables,
+		Tags:      listFlags.tags,
 	}
 	if listFlags.deviceID != "" {
 		params.DeviceID = &listFlags.deviceID

@@ -25,9 +25,10 @@ import (
 // ListParams contains the optional parameters needed
 // to filter the things to be listed.
 type ListParams struct {
-	IDs       []string // If IDs is not nil, only things belonging to that list are returned
-	DeviceID  *string  // If DeviceID is provided, only the thing associated to that device is listed.
-	Variables bool     // If Variables is true, variable names are retrieved.
+	IDs       []string          // If IDs is not nil, only things belonging to that list are returned
+	DeviceID  *string           // If DeviceID is provided, only the thing associated to that device is listed.
+	Variables bool              // If Variables is true, variable names are retrieved.
+	Tags      map[string]string // If tags are provided, only things that have all these tags are listed.
 }
 
 // List command is used to list
@@ -42,7 +43,7 @@ func List(params *ListParams) ([]ThingInfo, error) {
 		return nil, err
 	}
 
-	foundThings, err := iotClient.ThingList(params.IDs, params.DeviceID, params.Variables)
+	foundThings, err := iotClient.ThingList(params.IDs, params.DeviceID, params.Variables, params.Tags)
 	if err != nil {
 		return nil, err
 	}
