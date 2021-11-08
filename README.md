@@ -71,6 +71,14 @@ Once a device has been created thorugh the provisioning procedure, it can be del
 Devices currently present on Arduino IoT Cloud can be retrieved by using this command:
 `$ arduino-cloud-cli device list`
 
+Add tags to a device. Tags should be passed as a comma-separated list of `<key>=<value>` items:
+
+`$ arduino-cloud-cli device create-tags --id <deviceID> --tags <key0>=<value0>,<key1>=<value1>`
+
+Delete specific tags of a device. The keys of the tags to delete should be passed in a comma-separated list of strings:
+
+`$ arduino-cloud-cli device delete-tags --id <deviceID> --keys <key0>,<key1>`
+
 ## Thing commands
 
 Things can be created starting from a template or by cloning another thing.
@@ -109,6 +117,15 @@ Extract a template from an existing thing. The template can be saved in two form
 Bind a thing to an existing device:
 
 `$ arduino-cloud-cli thing bind --id <thingID> --device-id <deviceID>`
+
+Add tags to a thing. Tags should be passed as a comma-separated list of `<key>=<value>` items:
+
+`$ arduino-cloud-cli thing create-tags --id <thingID> --tags <key0>=<value0>,<key1>=<value1>`
+
+Delete specific tags of a thing. The keys of the tags to delete should be passed in a comma-separated list of strings:
+
+`$ arduino-cloud-cli thing delete-tags --id <thingID> --keys <key0>,<key1>`
+
 
 ## Ota commands
 

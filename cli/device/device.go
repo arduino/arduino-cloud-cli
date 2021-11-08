@@ -18,6 +18,7 @@
 package device
 
 import (
+	"github.com/arduino/arduino-cloud-cli/cli/device/tag"
 	"github.com/spf13/cobra"
 )
 
@@ -31,6 +32,8 @@ func NewCommand() *cobra.Command {
 	deviceCommand.AddCommand(initCreateCommand())
 	deviceCommand.AddCommand(initListCommand())
 	deviceCommand.AddCommand(initDeleteCommand())
+	deviceCommand.AddCommand(tag.InitCreateTagsCommand())
+	deviceCommand.AddCommand(tag.InitDeleteTagsCommand())
 
 	return deviceCommand
 }
