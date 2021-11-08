@@ -49,7 +49,7 @@ func InitDeleteTagsCommand() *cobra.Command {
 }
 
 func runDeleteTagsCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Deleting tags with keys %s\n", deleteTagsFlags.keys)
+	logrus.Infof("Deleting tags with keys %s", deleteTagsFlags.keys)
 
 	params := &tag.DeleteTagsParams{
 		ID:       deleteTagsFlags.id,

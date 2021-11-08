@@ -47,7 +47,7 @@ func initBindCommand() *cobra.Command {
 }
 
 func runBindCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Binding thing %s to device %s\n", bindFlags.id, bindFlags.deviceID)
+	logrus.Infof("Binding thing %s to device %s", bindFlags.id, bindFlags.deviceID)
 
 	params := &thing.BindParams{
 		ID:       bindFlags.id,

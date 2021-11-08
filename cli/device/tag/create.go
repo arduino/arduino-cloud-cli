@@ -52,7 +52,7 @@ func InitCreateTagsCommand() *cobra.Command {
 }
 
 func runCreateTagsCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Creating tags on device %s\n", createTagsFlags.id)
+	logrus.Infof("Creating tags on device %s", createTagsFlags.id)
 
 	params := &tag.CreateTagsParams{
 		ID:       createTagsFlags.id,

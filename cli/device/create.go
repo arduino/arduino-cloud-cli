@@ -49,7 +49,7 @@ func initCreateCommand() *cobra.Command {
 }
 
 func runCreateCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Creating device with name %s\n", createFlags.name)
+	logrus.Infof("Creating device with name %s", createFlags.name)
 
 	params := &device.CreateParams{
 		Name: createFlags.name,

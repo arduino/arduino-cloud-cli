@@ -49,7 +49,7 @@ func initCloneCommand() *cobra.Command {
 }
 
 func runCloneCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Cloning thing %s into a new thing called %s\n", cloneFlags.cloneID, cloneFlags.name)
+	logrus.Infof("Cloning thing %s into a new thing called %s", cloneFlags.cloneID, cloneFlags.name)
 
 	params := &thing.CloneParams{
 		Name:    cloneFlags.name,

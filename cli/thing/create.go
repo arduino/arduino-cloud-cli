@@ -54,7 +54,7 @@ func initCreateCommand() *cobra.Command {
 }
 
 func runCreateCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Creating thing from template %s\n", createFlags.template)
+	logrus.Infof("Creating thing from template %s", createFlags.template)
 
 	params := &thing.CreateParams{
 		Template: createFlags.template,

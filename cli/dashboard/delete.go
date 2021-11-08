@@ -44,7 +44,7 @@ func initDeleteCommand() *cobra.Command {
 }
 
 func runDeleteCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Deleting dashboard %s\n", deleteFlags.id)
+	logrus.Infof("Deleting dashboard %s", deleteFlags.id)
 
 	params := &dashboard.DeleteParams{ID: deleteFlags.id}
 	err := dashboard.Delete(params)

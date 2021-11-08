@@ -54,7 +54,7 @@ func initExtractCommand() *cobra.Command {
 }
 
 func runExtractCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Extracting template from dashboard %s\n", extractFlags.id)
+	logrus.Infof("Extracting template from dashboard %s", extractFlags.id)
 
 	params := &dashboard.ExtractParams{
 		ID:     extractFlags.id,
