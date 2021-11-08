@@ -52,7 +52,7 @@ func initDeleteCommand() *cobra.Command {
 }
 
 func runDeleteCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Deleting device %s\n", deleteFlags.id)
+	logrus.Infof("Deleting device %s", deleteFlags.id)
 
 	params := &device.DeleteParams{Tags: deleteFlags.tags}
 	if deleteFlags.id != "" {
