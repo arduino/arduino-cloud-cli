@@ -30,8 +30,8 @@ import (
 // and one among them is required:  An error is returned
 // if they are both nil or if they are both not nil.
 type DeleteParams struct {
-	ID   *string           // Should be nil if Tags is not nil
-	Tags map[string]string // Should be nil if ID is not nil
+	ID   *string
+	Tags map[string]string
 }
 
 // Delete command is used to delete a device
