@@ -75,7 +75,7 @@ Add tags to a device. Tags should be passed as a comma-separated list of `<key>=
 
 `$ arduino-cloud-cli device create-tags --id <deviceID> --tags <key0>=<value0>,<key1>=<value1>`
 
-Delete specific tags of a device. The keys of the tags to delete should be passed in a comma-separated list of string:
+Delete specific tags of a device. The keys of the tags to delete should be passed in a comma-separated list of strings:
 
 `$ arduino-cloud-cli device delete-tags --id <deviceID> --keys <key0>,<key1>`
 
@@ -122,7 +122,7 @@ Add tags to a thing. Tags should be passed as a comma-separated list of `<key>=<
 
 `$ arduino-cloud-cli thing create-tags --id <thingID> --tags <key0>=<value0>,<key1>=<value1>`
 
-Delete specific tags of a thing. The keys of the tags to delete should be passed in a comma-separated list of string:
+Delete specific tags of a thing. The keys of the tags to delete should be passed in a comma-separated list of strings:
 
 `$ arduino-cloud-cli thing delete-tags --id <thingID> --keys <key0>,<key1>`
 

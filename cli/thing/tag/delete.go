@@ -41,7 +41,7 @@ func InitDeleteTagsCommand() *cobra.Command {
 	}
 
 	deleteTagsCommand.Flags().StringVarP(&deleteTagsFlags.id, "id", "i", "", "Thing ID")
-	deleteTagsCommand.Flags().StringSliceVarP(&deleteTagsFlags.keys, "keys", "k", nil, "List of comma-separated tag keys to delete")
+	deleteTagsCommand.Flags().StringSliceVarP(&deleteTagsFlags.keys, "keys", "k", nil, "Comma-separated list of keys of tags to delete")
 
 	deleteTagsCommand.MarkFlagRequired("id")
 	deleteTagsCommand.MarkFlagRequired("keys")
@@ -49,7 +49,7 @@ func InitDeleteTagsCommand() *cobra.Command {
 }
 
 func runDeleteTagsCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Deleting tags %s\n", deleteTagsFlags.keys)
+	logrus.Infof("Deleting tags with keys %s\n", deleteTagsFlags.keys)
 
 	params := &tag.DeleteTagsParams{
 		ID:       deleteTagsFlags.id,
