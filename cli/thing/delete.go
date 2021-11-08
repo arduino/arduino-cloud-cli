@@ -40,12 +40,13 @@ func initDeleteCommand() *cobra.Command {
 		Run:   runDeleteCommand,
 	}
 	deleteCommand.Flags().StringVarP(&deleteFlags.id, "id", "i", "", "Thing ID")
-	// delete only the things that have all the passed tags
 	deleteCommand.Flags().StringToStringVar(
 		&deleteFlags.tags,
 		"tags",
 		nil,
-		"List of comma-separated tags. A tag has this format: <key>=<value>",
+		"Comma-separated list of tags with format <key>=<value>.\n"+
+			"Delete all things that match the provided tags.\n"+
+			"Mutually exclusive with `--id`.",
 	)
 	return deleteCommand
 }
