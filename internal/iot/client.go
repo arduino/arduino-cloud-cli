@@ -33,12 +33,16 @@ type Client interface {
 	DeviceList() ([]iotclient.ArduinoDevicev2, error)
 	DeviceShow(id string) (*iotclient.ArduinoDevicev2, error)
 	DeviceOTA(id string, file *os.File, expireMins int) error
+	DeviceTagsCreate(id string, tags map[string]string) error
+	DeviceTagsDelete(id string, keys []string) error
 	CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
 	ThingCreate(thing *iotclient.Thing, force bool) (*iotclient.ArduinoThing, error)
 	ThingUpdate(id string, thing *iotclient.Thing, force bool) error
 	ThingDelete(id string) error
 	ThingShow(id string) (*iotclient.ArduinoThing, error)
 	ThingList(ids []string, device *string, props bool) ([]iotclient.ArduinoThing, error)
+	ThingTagsCreate(id string, tags map[string]string) error
+	ThingTagsDelete(id string, keys []string) error
 	DashboardCreate(dashboard *iotclient.Dashboardv2) (*iotclient.ArduinoDashboardv2, error)
 	DashboardShow(id string) (*iotclient.ArduinoDashboardv2, error)
 	DashboardDelete(id string) error
@@ -126,6 +130,32 @@ func (cl *client) DeviceOTA(id string, file *os.File, expireMins int) error {
 	return nil
 }
 
+// DeviceTagsCreate allows to create or overwrite tags on a device of Arduino IoT Cloud.
+func (cl *client) DeviceTagsCreate(id string, tags map[string]string) error {
+	for key, val := range tags {
+		t := iotclient.Tag{Key: key, Value: val}
+		_, err := cl.api.DevicesV2TagsApi.DevicesV2TagsUpsert(cl.ctx, id, t)
+		if err != nil {
+			err = fmt.Errorf("cannot create tag %s: %w", key, errorDetail(err))
+			return err
+		}
+	}
+	return nil
+}
+
+// DeviceTagsDelete deletes the tags of a device of Arduino IoT Cloud,
+// given the device id and the keys of the tags.
+func (cl *client) DeviceTagsDelete(id string, keys []string) error {
+	for _, key := range keys {
+		_, err := cl.api.DevicesV2TagsApi.DevicesV2TagsDelete(cl.ctx, id, key)
+		if err != nil {
+			err = fmt.Errorf("cannot delete tag %s: %w", key, errorDetail(err))
+			return err
+		}
+	}
+	return nil
+}
+
 // CertificateCreate allows to upload a certificate on Arduino IoT Cloud.
 // It returns the certificate parameters populated by the cloud.
 func (cl *client) CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error) {
@@ -204,6 +234,32 @@ func (cl *client) ThingList(ids []string, device *string, props bool) ([]iotclie
 		return nil, err
 	}
 	return things, nil
+}
+
+// ThingTagsCreate allows to create or overwrite tags on a thing of Arduino IoT Cloud.
+func (cl *client) ThingTagsCreate(id string, tags map[string]string) error {
+	for key, val := range tags {
+		t := iotclient.Tag{Key: key, Value: val}
+		_, err := cl.api.ThingsV2TagsApi.ThingsV2TagsUpsert(cl.ctx, id, t)
+		if err != nil {
+			err = fmt.Errorf("cannot create tag %s: %w", key, errorDetail(err))
+			return err
+		}
+	}
+	return nil
+}
+
+// ThingTagsDelete deletes the tags of a thing of Arduino IoT Cloud,
+// given the thing id and the keys of the tags.
+func (cl *client) ThingTagsDelete(id string, keys []string) error {
+	for _, key := range keys {
+		_, err := cl.api.ThingsV2TagsApi.ThingsV2TagsDelete(cl.ctx, id, key)
+		if err != nil {
+			err = fmt.Errorf("cannot delete tag %s: %w", key, errorDetail(err))
+			return err
+		}
+	}
+	return nil
 }
 
 // DashboardCreate adds a new dashboard on Arduino IoT Cloud.
