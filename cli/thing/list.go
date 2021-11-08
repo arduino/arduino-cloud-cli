@@ -48,12 +48,12 @@ func initListCommand() *cobra.Command {
 	// list only the thing associated to the passed device id
 	listCommand.Flags().StringVarP(&listFlags.deviceID, "device-id", "d", "", "ID of Device associated to the thing to be retrieved")
 	listCommand.Flags().BoolVarP(&listFlags.variables, "show-variables", "s", false, "Show thing variables")
-	// list only the things that have all the passed tags
 	listCommand.Flags().StringToStringVar(
 		&listFlags.tags,
 		"tags",
 		nil,
-		"List of comma-separated tags. A tag has this format: <key>=<value>",
+		"Comma-separated list of tags with format <key>=<value>.\n"+
+			"List only things that match the provided tags.",
 	)
 	return listCommand
 }

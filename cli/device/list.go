@@ -39,12 +39,12 @@ func initListCommand() *cobra.Command {
 		Long:  "List devices on Arduino IoT Cloud",
 		Run:   runListCommand,
 	}
-	// list only the devices that have all the passed tags
 	listCommand.Flags().StringToStringVar(
 		&listFlags.tags,
 		"tags",
 		nil,
-		"List of comma-separated tags. A tag has this format: <key>=<value>",
+		"Comma-separated list of tags with format <key>=<value>.\n"+
+			"List only devices that match the provided tags.",
 	)
 	return listCommand
 }
