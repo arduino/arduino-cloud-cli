@@ -18,19 +18,11 @@
 package device
 
 import (
+	"fmt"
+
 	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
-
-// DeviceInfo contains the most interesting
-// parameters of an Arduino IoT Cloud device.
-type DeviceInfo struct {
-	Name   string `json:"name"`
-	ID     string `json:"id"`
-	Board  string `json:"board"`
-	Serial string `json:"serial-number"`
-	FQBN   string `json:"fqbn"`
-}
 
 // ListParams contains the optional parameters needed
 // to filter the devices to be listed.
@@ -57,14 +49,11 @@ func List(params *ListParams) ([]DeviceInfo, error) {
 
 	var devices []DeviceInfo
 	for _, foundDev := range foundDevices {
-		dev := DeviceInfo{
-			Name:   foundDev.Name,
-			ID:     foundDev.Id,
-			Board:  foundDev.Type,
-			Serial: foundDev.Serial,
-			FQBN:   foundDev.Fqbn,
+		dev, err := getDeviceInfo(&foundDev)
+		if err != nil {
+			return nil, fmt.Errorf("getting device %s from cloud: %w", foundDev.Id, err)
 		}
-		devices = append(devices, dev)
+		devices = append(devices, *dev)
 	}
 
 	return devices, nil
