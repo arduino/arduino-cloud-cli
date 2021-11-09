@@ -17,7 +17,11 @@
 
 package thing
 
-import iotclient "github.com/arduino/iot-client-go"
+import (
+	"fmt"
+
+	iotclient "github.com/arduino/iot-client-go"
+)
 
 // ThingInfo contains the main parameters of
 // an Arduino IoT Cloud thing.
@@ -26,18 +30,31 @@ type ThingInfo struct {
 	ID        string   `json:"id"`
 	DeviceID  string   `json:"device-id"`
 	Variables []string `json:"variables"`
+	Tags      []string `json:"tags,omitempty"`
 }
 
-func getThingInfo(thing *iotclient.ArduinoThing) *ThingInfo {
+func getThingInfo(thing *iotclient.ArduinoThing) (*ThingInfo, error) {
+	// Retrieve thing variables
 	var vars []string
 	for _, p := range thing.Properties {
 		vars = append(vars, p.Name)
 	}
+	// Retrieve thing tags
+	var tags []string
+	for key, value := range thing.Tags {
+		if valStr, ok := value.(string); ok {
+			tags = append(tags, key+": "+valStr)
+		} else {
+			return nil, fmt.Errorf("value of tag `%s` should be of type `string` but is of type `%T`", key, value)
+		}
+	}
+
 	info := &ThingInfo{
 		Name:      thing.Name,
 		ID:        thing.Id,
 		DeviceID:  thing.DeviceId,
 		Variables: vars,
+		Tags:      tags,
 	}
-	return info
+	return info, nil
 }

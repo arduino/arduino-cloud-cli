@@ -19,6 +19,7 @@ package thing
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
@@ -62,5 +63,9 @@ func Create(params *CreateParams) (*ThingInfo, error) {
 		return nil, err
 	}
 
-	return getThingInfo(newThing), nil
+	t, err := getThingInfo(newThing)
+	if err != nil {
+		return nil, fmt.Errorf("getting the new thing %s from cloud: %w", newThing.Id, err)
+	}
+	return t, nil
 }

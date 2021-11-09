@@ -18,6 +18,8 @@
 package thing
 
 import (
+	"fmt"
+
 	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
@@ -50,7 +52,10 @@ func List(params *ListParams) ([]ThingInfo, error) {
 
 	var things []ThingInfo
 	for _, foundThing := range foundThings {
-		info := getThingInfo(&foundThing)
+		info, err := getThingInfo(&foundThing)
+		if err != nil {
+			return nil, fmt.Errorf("getting thing %s from cloud: %w", foundThing.Id, err)
+		}
 		things = append(things, *info)
 	}
 
