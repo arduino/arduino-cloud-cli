@@ -18,8 +18,7 @@
 package thing
 
 import (
-	"fmt"
-
+	"github.com/arduino/arduino-cloud-cli/command/tag"
 	iotclient "github.com/arduino/iot-client-go"
 )
 
@@ -40,13 +39,9 @@ func getThingInfo(thing *iotclient.ArduinoThing) (*ThingInfo, error) {
 		vars = append(vars, p.Name)
 	}
 	// Retrieve thing tags
-	var tags []string
-	for key, value := range thing.Tags {
-		if valStr, ok := value.(string); ok {
-			tags = append(tags, key+": "+valStr)
-		} else {
-			return nil, fmt.Errorf("value of tag `%s` should be of type `string` but is of type `%T`", key, value)
-		}
+	tags, err := tag.Tags(thing.Tags).Info()
+	if err != nil {
+		return nil, err
 	}
 
 	info := &ThingInfo{
