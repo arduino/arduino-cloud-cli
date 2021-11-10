@@ -28,9 +28,11 @@ import (
 )
 
 var uploadFlags struct {
-	deviceID string
-	file     string
-	deferred bool
+	deviceIDs []string
+	tags      map[string]string
+	file      string
+	deferred  bool
+	fqbn      string
 }
 
 func initUploadCommand() *cobra.Command {
@@ -41,23 +43,33 @@ func initUploadCommand() *cobra.Command {
 		Run:   runUploadCommand,
 	}
 
-	uploadCommand.Flags().StringVarP(&uploadFlags.deviceID, "device-id", "d", "", "Device ID")
+	uploadCommand.Flags().StringSliceVarP(&uploadFlags.deviceIDs, "device-ids", "d", []string{},
+		"Comma-separated list of device IDs to update")
+	uploadCommand.Flags().StringToStringVar(&uploadFlags.tags, "tags", nil,
+		"Comma-separated list of tags with format <key>=<value>.\n"+
+			"Perform and OTA upload on all devices that match the provided tags.\n"+
+			"Mutually exclusive with `--device-id`.",
+	)
 	uploadCommand.Flags().StringVarP(&uploadFlags.file, "file", "", "", "Binary file (.bin) to be uploaded")
 	uploadCommand.Flags().BoolVar(&uploadFlags.deferred, "deferred", false, "Perform a deferred OTA. It can take up to 1 week.")
+	uploadCommand.Flags().StringVarP(&uploadFlags.fqbn, "fqbn", "b", "", "FQBN of the devices to update")
 
-	uploadCommand.MarkFlagRequired("device-id")
 	uploadCommand.MarkFlagRequired("file")
+	uploadCommand.MarkFlagRequired("fqbn")
 	return uploadCommand
 }
 
 func runUploadCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Uploading binary %s to device %s", uploadFlags.file, uploadFlags.deviceID)
+	logrus.Infof("Uploading binary %s", uploadFlags.file)
 
 	params := &ota.UploadParams{
-		DeviceID: uploadFlags.deviceID,
-		File:     uploadFlags.file,
-		Deferred: uploadFlags.deferred,
+		DeviceIDs: uploadFlags.deviceIDs,
+		Tags:      uploadFlags.tags,
+		File:      uploadFlags.file,
+		Deferred:  uploadFlags.deferred,
+		FQBN:      uploadFlags.fqbn,
 	}
+
 	err := ota.Upload(params)
 	if err != nil {
 		feedback.Errorf("Error during ota upload: %v", err)
