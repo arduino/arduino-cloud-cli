@@ -116,37 +116,42 @@ func idsGivenTags(iotClient iot.Client, tags map[string]string) ([]string, error
 }
 
 func run(iotClient iot.Client, ids []string, file *os.File, expiration int) error {
-	idsToProcess := make(chan string, 2000)
-	idsFailed := make(chan string, 2000)
-	for _, id := range ids {
-		idsToProcess <- id
+	targets := make(chan string, len(ids))
+	type result struct {
+		id  string
+		err error
 	}
-	close(idsToProcess)
+	results := make(chan result, len(ids))
+
+	for _, id := range ids {
+		targets <- id
+	}
+	close(targets)
 
 	for i := 0; i < numConcurrentUploads; i++ {
 		go func() {
-			for id := range idsToProcess {
+			for id := range targets {
 				err := iotClient.DeviceOTA(id, file, expiration)
-				fail := ""
-				if err != nil {
-					fail = id
-				}
-				idsFailed <- fail
+				results <- result{id: id, err: err}
 			}
 		}()
 	}
 
-	failMsg := ""
+	var fails []string
+	var details []string
 	for range ids {
-		i := <-idsFailed
-		if i != "" {
-			failMsg = strings.Join([]string{i, failMsg}, ",")
+		r := <-results
+		if r.err != nil {
+			fails = append(fails, r.id)
+			details = append(details, fmt.Sprintf("%s: %s", r.id, r.err.Error()))
 		}
 	}
 
-	if failMsg != "" {
-		failMsg = strings.TrimRight(failMsg, ",")
-		return fmt.Errorf("failed to update these devices: %s", failMsg)
+	if len(fails) > 0 {
+		f := strings.Join(fails, ",")
+		f = strings.TrimRight(f, ",")
+		d := strings.Join(details, "\n")
+		return fmt.Errorf("failed to update these devices: %s\nreasons:\n%s", f, d)
 	}
 	return nil
 }
