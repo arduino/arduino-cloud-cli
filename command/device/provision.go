@@ -58,7 +58,7 @@ func (p provision) run() error {
 	time.Sleep(500 * time.Millisecond)
 	// Try to upload the provisioning sketch
 	errMsg := "Error while uploading the provisioning sketch"
-	err = retry(5, time.Millisecond*1000, errMsg, func() error {
+	err = Retry(5, time.Millisecond*1000, errMsg, func() error {
 		//serialutils.Reset(dev.port, true, nil)
 		return p.UploadBin(p.board.fqbn, bin, p.board.port)
 	})
@@ -71,7 +71,7 @@ func (p provision) run() error {
 	time.Sleep(1500 * time.Millisecond)
 	p.ser = serial.NewSerial()
 	errMsg = "Error while connecting to the board"
-	err = retry(5, time.Millisecond*1000, errMsg, func() error {
+	err = Retry(5, time.Millisecond*1000, errMsg, func() error {
 		return p.ser.Connect(p.board.port)
 	})
 	if err != nil {
@@ -268,7 +268,7 @@ func downloadProvisioningFile(fqbn string) (string, error) {
 	//return path, nil
 }
 
-func retry(tries int, sleep time.Duration, errMsg string, fun func() error) error {
+func Retry(tries int, sleep time.Duration, errMsg string, fun func() error) error {
 	var err error
 	for n := 0; n < tries; n++ {
 		err = fun()

@@ -29,6 +29,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/cli/dashboard"
 	"github.com/arduino/arduino-cloud-cli/cli/device"
 	"github.com/arduino/arduino-cloud-cli/cli/ota"
+	"github.com/arduino/arduino-cloud-cli/cli/provision"
 	"github.com/arduino/arduino-cloud-cli/cli/thing"
 	"github.com/arduino/arduino-cloud-cli/cli/version"
 	"github.com/sirupsen/logrus"
@@ -54,6 +55,7 @@ func Execute() {
 	cli.AddCommand(thing.NewCommand())
 	cli.AddCommand(dashboard.NewCommand())
 	cli.AddCommand(ota.NewCommand())
+	cli.AddCommand(provision.NewCommand())
 
 	cli.PersistentFlags().BoolVarP(&cliFlags.verbose, "verbose", "v", false, "Print the logs on the standard output.")
 	cli.PersistentFlags().StringVar(&cliFlags.outputFormat, "format", "text", "The output format, can be {text|json}.")
