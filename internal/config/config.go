@@ -20,6 +20,8 @@ package config
 import (
 	"fmt"
 
+	"github.com/arduino/arduino-cloud-cli/arduino"
+	"github.com/arduino/go-paths-helper"
 	"github.com/spf13/viper"
 )
 
@@ -33,16 +35,50 @@ type Config struct {
 // Retrieve returns the actual parameters contained in the
 // configuration file, if any. Returns error if no config file is found.
 func Retrieve() (*Config, error) {
-	conf := &Config{}
+	configDir, err := searchConfigDir()
+	if err != nil {
+		return nil, fmt.Errorf("can't get config directory: %w", err)
+	}
+
 	v := viper.New()
 	v.SetConfigName(Filename)
-	v.AddConfigPath(".")
-	err := v.ReadInConfig()
+	v.AddConfigPath(configDir)
+	err = v.ReadInConfig()
 	if err != nil {
 		err = fmt.Errorf("%s: %w", "retrieving config file", err)
 		return nil, err
 	}
 
+	conf := &Config{}
 	v.Unmarshal(conf)
 	return conf, nil
+}
+
+func searchConfigDir() (string, error) {
+	// Search in current directory and its parents.
+	cwd, err := paths.Getwd()
+	if err != nil {
+		return "", err
+	}
+	// Don't let bad naming mislead you, cwd.Parents()[0] is cwd itself so
+	// we look in the current directory first and then on its parents.
+	for _, path := range cwd.Parents() {
+		if path.Join(Filename+".yaml").Exist() || path.Join(Filename+".json").Exist() {
+			return path.String(), nil
+		}
+	}
+
+	// Search in arduino's default data directory.
+	arduino15, err := arduino.DataDir()
+	if err != nil {
+		return "", err
+	}
+	if arduino15.Join(Filename+".yaml").Exist() || arduino15.Join(Filename+".json").Exist() {
+		return arduino15.String(), nil
+	}
+
+	return "", fmt.Errorf(
+		"didn't find config file in the current directory, its parents or in %s.",
+		arduino15.String(),
+	)
 }
