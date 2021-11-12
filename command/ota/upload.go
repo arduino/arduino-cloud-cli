@@ -115,7 +115,38 @@ func idsGivenTags(iotClient iot.Client, tags map[string]string) ([]string, error
 	return devices, nil
 }
 
-func run(iotClient iot.Client, ids []string, file *os.File, expiration int) error {
+func validateDevices(iotClient iot.Client, ids []string, fqbn string) (valid, invalid, details []string, err error) {
+	devs, err := iotClient.DeviceList(nil)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("%s: %w", "cannot retrieve devices from cloud", err)
+	}
+
+	for _, id := range ids {
+		var found *iotclient.ArduinoDevicev2
+		for _, d := range devs {
+			if d.Id == id {
+				found = &d
+				break
+			}
+		}
+		// Device not found on the cloud
+		if found == nil {
+			invalid = append(invalid, id)
+			details = append(details, fmt.Sprintf("%s : not found", id))
+			continue
+		}
+		// Device FQBN doesn't match the passed one
+		if found.Fqbn != fqbn {
+			invalid = append(invalid, id)
+			details = append(details, fmt.Sprintf("%s : has FQBN `%s` instead of `%s`", found.Id, found.Fqbn, fqbn))
+			continue
+		}
+		valid = append(valid, id)
+	}
+	return valid, invalid, details, nil
+}
+
+func run(iotClient iot.Client, ids []string, file *os.File, expiration int) (updated, failed, errors []string) {
 	targets := make(chan string, len(ids))
 	type result struct {
 		id  string

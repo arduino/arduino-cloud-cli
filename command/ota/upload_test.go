@@ -33,4 +33,27 @@ func TestRun(t *testing.T) {
 		fmt.Println(len(failed), failed)
 		t.Error("two updates should have failed")
 	}
+	if len(good) != 3 {
+		t.Error("two updates should have succeded")
+	}
+}
+
+func TestValidateDevices(t *testing.T) {
+	mockClient := &mocks.Client{}
+	mockDeviceList := func(tags map[string]string) []iotclient.ArduinoDevicev2 {
+		return []iotclient.ArduinoDevicev2{
+			{Id: "xxxx", Fqbn: "samd"},
+			{Id: "yyyy", Fqbn: "samd"},
+			{Id: "zzzz", Fqbn: "avr"},
+		}
+	}
+	mockClient.On("DeviceList", mock.Anything).Return(mockDeviceList, nil)
+
+	ids := []string{
+		"xxxx",
+		"aaaa",
+		"zzzz",
+	}
+	v, i, d, err := validateDevices(mockClient, ids, "samd")
+	fmt.Println("valid: ", v, "inv: ", i, "det: ", d, "err: ", err)
 }
