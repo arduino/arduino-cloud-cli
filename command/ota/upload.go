@@ -23,10 +23,10 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
+	iotclient "github.com/arduino/iot-client-go"
 )
 
 const (
@@ -48,48 +48,61 @@ type UploadParams struct {
 	FQBN      string
 }
 
+// UploadResp contains the results of the ota upload
+type UploadResp struct {
+	Updated []string // Ids of devices updated
+	Invalid []string // Ids of device not valid (mismatched fqbn)
+	Failed  []string // Ids of device failed
+	Errors  []string // Contains detailed errors for each failure
+}
+
 // Upload command is used to upload a firmware OTA,
 // on a device of Arduino IoT Cloud.
-func Upload(params *UploadParams) error {
+func Upload(params *UploadParams) (*UploadResp, error) {
 	if params.DeviceIDs == nil && params.Tags == nil {
-		return errors.New("provide either DeviceID or Tags")
+		return nil, errors.New("provide either DeviceIDs or Tags")
 	} else if params.DeviceIDs != nil && params.Tags != nil {
-		return errors.New("cannot use both DeviceID and Tags. only one of them should be not nil")
+		return nil, errors.New("cannot use both DeviceIDs and Tags. only one of them should be not nil")
 	}
 
-	conf, err := config.Retrieve()
-	if err != nil {
-		return err
-	}
-	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
-	if err != nil {
-		return err
-	}
-
-	d, err := idsGivenTags(iotClient, params.Tags)
-	if err != nil {
-		return err
-	}
-	devs := append(params.DeviceIDs, d...)
-	if len(devs) == 0 {
-		return errors.New("no device found")
-	}
-
+	// Generate .ota file
 	otaDir, err := ioutil.TempDir("", "")
 	if err != nil {
-		return fmt.Errorf("%s: %w", "cannot create temporary folder", err)
+		return nil, fmt.Errorf("%s: %w", "cannot create temporary folder", err)
 	}
 	otaFile := filepath.Join(otaDir, "temp.ota")
 	defer os.RemoveAll(otaDir)
 
 	err = Generate(params.File, otaFile, params.FQBN)
 	if err != nil {
-		return fmt.Errorf("%s: %w", "cannot generate .ota file", err)
+		return nil, fmt.Errorf("%s: %w", "cannot generate .ota file", err)
 	}
 
 	file, err := os.Open(otaFile)
 	if err != nil {
-		return fmt.Errorf("%s: %w", "cannot open ota file", err)
+		return nil, fmt.Errorf("%s: %w", "cannot open ota file", err)
+	}
+
+	conf, err := config.Retrieve()
+	if err != nil {
+		return nil, err
+	}
+	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+	if err != nil {
+		return nil, err
+	}
+
+	d, err := idsGivenTags(iotClient, params.Tags)
+	if err != nil {
+		return nil, err
+	}
+	d = append(params.DeviceIDs, d...)
+	valid, invalid, details, err := validateDevices(iotClient, d, params.FQBN)
+	if err != nil {
+		return nil, fmt.Errorf("failed to validate devices: %w", err)
+	}
+	if len(valid) == 0 {
+		return &UploadResp{Invalid: invalid}, nil
 	}
 
 	expiration := otaExpirationMins
@@ -97,7 +110,15 @@ func Upload(params *UploadParams) error {
 		expiration = otaDeferredExpirationMins
 	}
 
-	return run(iotClient, devs, file, expiration)
+	good, fail, ers := run(iotClient, valid, file, expiration)
+	if err != nil {
+		return nil, err
+	}
+
+	// Merge the failure details with the details of invalid devices
+	ers = append(details, ers...)
+
+	return &UploadResp{Updated: good, Invalid: invalid, Failed: fail, Errors: ers}, nil
 }
 
 func idsGivenTags(iotClient iot.Client, tags map[string]string) ([]string, error) {
@@ -168,21 +189,14 @@ func run(iotClient iot.Client, ids []string, file *os.File, expiration int) (upd
 		}()
 	}
 
-	var fails []string
-	var details []string
 	for range ids {
 		r := <-results
 		if r.err != nil {
-			fails = append(fails, r.id)
-			details = append(details, fmt.Sprintf("%s: %s", r.id, r.err.Error()))
+			failed = append(failed, r.id)
+			errors = append(errors, fmt.Sprintf("%s: %s", r.id, r.err.Error()))
+		} else {
+			updated = append(updated, r.id)
 		}
 	}
-
-	if len(fails) > 0 {
-		f := strings.Join(fails, ",")
-		f = strings.TrimRight(f, ",")
-		d := strings.Join(details, "\n")
-		return fmt.Errorf("failed to update these devices: %s\nreasons:\n%s", f, d)
-	}
-	return nil
+	return
 }

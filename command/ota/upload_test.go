@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/arduino/arduino-cloud-cli/internal/iot/mocks"
+	iotclient "github.com/arduino/iot-client-go"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -23,14 +24,11 @@ func TestRun(t *testing.T) {
 	}
 	mockClient.On("DeviceOTA", mock.Anything, mock.Anything, mock.Anything).Return(mockDeviceOTA, nil)
 
-	err := run(mockClient, []string{"dont-fail", "fail-1", "dont-fail", "fail-2"}, nil, 0)
+	good, fail, err := run(mockClient, []string{"dont-fail", "fail-1", "dont-fail", "fail-2", "dont-fail"}, nil, 0)
 	if err == nil {
 		t.Error("should return error")
 	}
-	fmt.Println(err.Error())
-	failed := strings.Split(err.Error(), ",")
-	if len(failed) != 2 {
-		fmt.Println(len(failed), failed)
+	if len(fail) != 2 {
 		t.Error("two updates should have failed")
 	}
 	if len(good) != 3 {

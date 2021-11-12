@@ -18,7 +18,9 @@
 package ota
 
 import (
+	"fmt"
 	"os"
+	"strings"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
@@ -70,11 +72,28 @@ func runUploadCommand(cmd *cobra.Command, args []string) {
 		FQBN:      uploadFlags.fqbn,
 	}
 
-	err := ota.Upload(params)
+	resp, err := ota.Upload(params)
 	if err != nil {
 		feedback.Errorf("Error during ota upload: %v", err)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
+	devs := strings.Join(resp.Updated, ",")
+	devs = strings.TrimRight(devs, ",")
+	success := fmt.Sprintf("Successfully sent OTA request to: %s", devs)
+
+	devs = strings.Join(resp.Invalid, ",")
+	devs = strings.TrimRight(devs, ",")
+	invalid := fmt.Sprintf("Cannot send OTA request to: %s", devs)
+
+	devs = strings.Join(resp.Failed, ",")
+	devs = strings.TrimRight(devs, ",")
+	fail := fmt.Sprintf("Failed to send OTA request to: %s", devs)
+
+	det := strings.Join(resp.Errors, "\n")
+	det = strings.TrimRight(det, ",")
+	details := fmt.Sprintf("\nDetails:\n%s", det)
+
+	feedback.Printf(success, invalid, fail, details)
 	logrus.Info("Upload successfully started")
 }
