@@ -18,7 +18,6 @@
 package ota
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -78,22 +77,18 @@ func runUploadCommand(cmd *cobra.Command, args []string) {
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	devs := strings.Join(resp.Updated, ",")
-	devs = strings.TrimRight(devs, ",")
-	success := fmt.Sprintf("Successfully sent OTA request to: %s", devs)
+	success := strings.Join(resp.Updated, ",")
+	success = strings.TrimRight(success, ",")
+	feedback.Printf("\nSuccessfully sent OTA request to: %s", success)
 
-	devs = strings.Join(resp.Invalid, ",")
-	devs = strings.TrimRight(devs, ",")
-	invalid := fmt.Sprintf("Cannot send OTA request to: %s", devs)
+	invalid := strings.Join(resp.Invalid, ",")
+	invalid = strings.TrimRight(invalid, ",")
+	feedback.Printf("Cannot send OTA request to: %s", invalid)
 
-	devs = strings.Join(resp.Failed, ",")
-	devs = strings.TrimRight(devs, ",")
-	fail := fmt.Sprintf("Failed to send OTA request to: %s", devs)
+	fail := strings.Join(resp.Failed, ",")
+	fail = strings.TrimRight(fail, ",")
+	feedback.Printf("Failed to send OTA request to: %s", fail)
 
 	det := strings.Join(resp.Errors, "\n")
-	det = strings.TrimRight(det, ",")
-	details := fmt.Sprintf("\nDetails:\n%s", det)
-
-	feedback.Printf(success, invalid, fail, details)
-	logrus.Info("Upload successfully started")
+	feedback.Printf("\nDetails:\n%s", det)
 }
