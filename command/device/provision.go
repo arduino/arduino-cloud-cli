@@ -20,8 +20,10 @@ package device
 import (
 	"encoding/hex"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/arduino/arduino-cloud-cli/arduino"
@@ -88,7 +90,7 @@ func (p provision) run() error {
 	time.Sleep(500 * time.Millisecond)
 	// Try to upload the provisioning sketch
 	errMsg := "Error while uploading the provisioning sketch"
-	err = retry(5, time.Millisecond*1000, errMsg, func() error {
+	err = Retry(5, time.Millisecond*1000, errMsg, func() error {
 		//serialutils.Reset(dev.port, true, nil)
 		return p.UploadBin(p.board.fqbn, bin, p.board.address, p.board.protocol)
 	})
@@ -101,8 +103,8 @@ func (p provision) run() error {
 	time.Sleep(1500 * time.Millisecond)
 	p.ser = serial.NewSerial()
 	errMsg = "Error while connecting to the board"
-	err = retry(5, time.Millisecond*1000, errMsg, func() error {
-		return p.ser.Connect(p.board.address)
+	err = Retry(5, time.Millisecond*1000, errMsg, func() error {
+		return p.ser.Connect(p.board.port)
 	})
 	if err != nil {
 		return err
@@ -225,7 +227,80 @@ func (p provision) configBoard() error {
 	return nil
 }
 
-func retry(tries int, sleep time.Duration, errMsg string, fun func() error) error {
+func downloadProvisioningFile(fqbn string) (string, error) {
+	// Use local binaries until they are uploaded online
+	bin := filepath.Join("./binaries/", strings.ReplaceAll(fqbn, ":", ".")+".bin")
+	bin, err := filepath.Abs(bin)
+	if err != nil {
+		return "", err
+	}
+	if _, err := os.Stat(bin); err == nil {
+		return bin, nil
+	}
+
+	elf := filepath.Join("./binaries/", strings.ReplaceAll(fqbn, ":", ".")+".elf")
+	elf, err = filepath.Abs(elf)
+	if err != nil {
+		return "", err
+	}
+	if _, err := os.Stat(elf); os.IsNotExist(err) {
+		err = fmt.Errorf("%s: %w", "fqbn not supported", err)
+		return "", err
+	}
+	return elf, nil
+
+	// TODO: upload binaries on some arduino page and enable this flow
+	//url := "https://api2.arduino.cc/iot/v2/binaries/provisioning?fqbn=" + fqbn
+	//path, _ := filepath.Abs("./provisioning.bin")
+
+	//cl := http.Client{
+	//Timeout: time.Second * 3, // Timeout after 2 seconds
+	//}
+
+	//req, err := http.NewRequest(http.MethodGet, url, nil)
+	//if err != nil {
+	//err = fmt.Errorf("%s: %w", "request provisioning binary", err)
+	//return "", err
+	//}
+	//res, err := cl.Do(req)
+	//if err != nil {
+	//err = fmt.Errorf("%s: %w", "request provisioning binary", err)
+	//return "", err
+	//}
+
+	//if res.Body != nil {
+	//defer res.Body.Close()
+	//}
+
+	//body, err := ioutil.ReadAll(res.Body)
+	//if err != nil {
+	//err = fmt.Errorf("%s: %w", "read provisioning request body", err)
+	//return "", err
+	//}
+
+	//bin := binFile{}
+	//err = json.Unmarshal(body, &bin)
+	//if err != nil {
+	//err = fmt.Errorf("%s: %w", "unmarshal provisioning binary", err)
+	//return "", err
+	//}
+
+	//bytes, err := base64.StdEncoding.DecodeString(bin.Bin)
+	//if err != nil {
+	//err = fmt.Errorf("%s: %w", "decoding provisioning binary", err)
+	//return "", err
+	//}
+
+	//err = ioutil.WriteFile(path, bytes, 0666)
+	//if err != nil {
+	//err = fmt.Errorf("%s: %w", "downloading provisioning binary", err)
+	//return "", err
+	//}
+
+	//return path, nil
+}
+
+func Retry(tries int, sleep time.Duration, errMsg string, fun func() error) error {
 	var err error
 	for n := 0; n < tries; n++ {
 		err = fun()

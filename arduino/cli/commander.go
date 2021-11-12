@@ -27,6 +27,7 @@ import (
 
 	"github.com/arduino/arduino-cli/cli/instance"
 	"github.com/arduino/arduino-cli/commands/board"
+	"github.com/arduino/arduino-cli/commands/compile"
 	"github.com/arduino/arduino-cli/commands/upload"
 	"github.com/arduino/arduino-cli/configuration"
 	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
@@ -97,6 +98,43 @@ func (c *commander) UploadBin(fqbn, bin, address, protocol string) error {
 	l := logrus.StandardLogger().WithField("source", "arduino-cli").Writer()
 	if _, err := upload.Upload(context.Background(), req, l, l); err != nil {
 		err = fmt.Errorf("%s: %w", "uploading binary", err)
+		return err
+	}
+	return nil
+}
+
+// Upload executes the 'arduino-cli upload' command
+// and returns its result.
+func (c *commander) Upload(fqbn, sketch, port string) error {
+	req := &rpc.UploadRequest{
+		Instance:   c.Instance,
+		Fqbn:       fqbn,
+		SketchPath: filepath.Dir(sketch),
+		Port:       port,
+		Verbose:    false,
+	}
+
+	l := logrus.StandardLogger().WithField("source", "arduino-cli").Writer()
+	if _, err := upload.Upload(context.Background(), req, l, l); err != nil {
+		err = fmt.Errorf("%s: %w", "uploading sketch", err)
+		return err
+	}
+	return nil
+}
+
+// Compile executes the 'arduino-cli compile' command
+// and returns its result.
+func (c *commander) Compile(fqbn, sketch string) error {
+	req := &rpc.CompileRequest{
+		Instance:   c.Instance,
+		Fqbn:       fqbn,
+		SketchPath: filepath.Dir(sketch),
+		Verbose:    true,
+	}
+
+	l := logrus.StandardLogger().WithField("source", "arduino-cli").Writer()
+	if _, err := compile.Compile(context.Background(), req, l, l, false); err != nil {
+		err = fmt.Errorf("%s: %w", "compiling sketch", err)
 		return err
 	}
 	return nil

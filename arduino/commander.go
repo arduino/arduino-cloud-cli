@@ -26,5 +26,6 @@ import (
 type Commander interface {
 	BoardList() ([]*rpc.DetectedPort, error)
 	UploadBin(fqbn, bin, address, protocol string) error
-	//Compile() error
+	Upload(fqbn, sketch, port string) error
+	Compile(fqbn, sketch string) error
 }
