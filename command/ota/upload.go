@@ -78,11 +78,6 @@ func Upload(params *UploadParams) (*UploadResp, error) {
 		return nil, fmt.Errorf("%s: %w", "cannot generate .ota file", err)
 	}
 
-	file, err := os.Open(otaFile)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "cannot open ota file", err)
-	}
-
 	conf, err := config.Retrieve()
 	if err != nil {
 		return nil, err
@@ -110,7 +105,7 @@ func Upload(params *UploadParams) (*UploadResp, error) {
 		expiration = otaDeferredExpirationMins
 	}
 
-	good, fail, ers := run(iotClient, valid, file, expiration)
+	good, fail, ers := run(iotClient, valid, otaFile, expiration)
 	if err != nil {
 		return nil, err
 	}
@@ -167,8 +162,13 @@ func validateDevices(iotClient iot.Client, ids []string, fqbn string) (valid, in
 	return valid, invalid, details, nil
 }
 
-func run(iotClient iot.Client, ids []string, file *os.File, expiration int) (updated, failed, errors []string) {
-	targets := make(chan string, len(ids))
+func run(iotClient iot.Client, ids []string, otaFile string, expiration int) (updated, failed, errors []string) {
+	type job struct {
+		id   string
+		file *os.File
+	}
+	jobs := make(chan job, len(ids))
+
 	type result struct {
 		id  string
 		err error
@@ -176,15 +176,20 @@ func run(iotClient iot.Client, ids []string, file *os.File, expiration int) (upd
 	results := make(chan result, len(ids))
 
 	for _, id := range ids {
-		targets <- id
+		file, err := os.Open(otaFile)
+		if err != nil {
+			failed = append(failed, id)
+			errors = append(errors, fmt.Sprintf("%s: cannot open ota file", id))
+		}
+		jobs <- job{id: id, file: file}
 	}
-	close(targets)
+	close(jobs)
 
 	for i := 0; i < numConcurrentUploads; i++ {
 		go func() {
-			for id := range targets {
-				err := iotClient.DeviceOTA(id, file, expiration)
-				results <- result{id: id, err: err}
+			for job := range jobs {
+				err := iotClient.DeviceOTA(job.id, job.file, expiration)
+				results <- result{id: job.id, err: err}
 			}
 		}()
 	}
