@@ -39,7 +39,7 @@ func getThingInfo(thing *iotclient.ArduinoThing) (*ThingInfo, error) {
 		vars = append(vars, p.Name)
 	}
 	// Retrieve thing tags
-	tags, err := tag.Tags(thing.Tags).Info()
+	tags, err := tag.TagsInfo(thing.Tags)
 	if err != nil {
 		return nil, err
 	}

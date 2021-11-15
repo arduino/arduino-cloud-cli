@@ -35,7 +35,7 @@ type DeviceInfo struct {
 
 func getDeviceInfo(device *iotclient.ArduinoDevicev2) (*DeviceInfo, error) {
 	// Retrieve device tags
-	tags, err := tag.Tags(device.Tags).Info()
+	tags, err := tag.TagsInfo(device.Tags)
 	if err != nil {
 		return nil, err
 	}
