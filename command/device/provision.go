@@ -80,7 +80,7 @@ func (p provision) run() error {
 	defer p.ser.Close()
 
 	// Wait some time before using the serial port
-	time.Sleep(1500 * time.Millisecond)
+	time.Sleep(2000 * time.Millisecond)
 	logrus.Infof("%s\n\n", "Connected to the board")
 
 	// Send configuration commands to the board

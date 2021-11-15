@@ -55,7 +55,7 @@ func (s *Serial) Connect(address string) error {
 	}
 	s.port = port
 
-	s.port.SetReadTimeout(time.Millisecond * 4000)
+	s.port.SetReadTimeout(time.Millisecond * 2500)
 	return nil
 }
 
