@@ -18,7 +18,6 @@
 package ota
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -26,7 +25,6 @@ import (
 
 	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
-	iotclient "github.com/arduino/iot-client-go"
 )
 
 const (
@@ -34,70 +32,48 @@ const (
 	otaExpirationMins = 10
 	// deferred ota can take up to 1 week (equal to 10080 minutes)
 	otaDeferredExpirationMins = 10080
-
-	numConcurrentUploads = 10
 )
 
 // UploadParams contains the parameters needed to
 // perform an OTA upload.
 type UploadParams struct {
-	DeviceIDs []string
-	Tags      map[string]string
-	File      string
-	Deferred  bool
-	FQBN      string
-}
-
-// UploadResp contains the results of the ota upload
-type UploadResp struct {
-	Updated []string // Ids of devices updated
-	Invalid []string // Ids of device not valid (mismatched fqbn)
-	Failed  []string // Ids of device failed
-	Errors  []string // Contains detailed errors for each failure
+	DeviceID string
+	File     string
+	Deferred bool
 }
 
 // Upload command is used to upload a firmware OTA,
 // on a device of Arduino IoT Cloud.
-func Upload(params *UploadParams) (*UploadResp, error) {
-	if params.DeviceIDs == nil && params.Tags == nil {
-		return nil, errors.New("provide either DeviceIDs or Tags")
-	} else if params.DeviceIDs != nil && params.Tags != nil {
-		return nil, errors.New("cannot use both DeviceIDs and Tags. only one of them should be not nil")
+func Upload(params *UploadParams) error {
+	conf, err := config.Retrieve()
+	if err != nil {
+		return err
+	}
+	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+	if err != nil {
+		return err
 	}
 
-	// Generate .ota file
+	dev, err := iotClient.DeviceShow(params.DeviceID)
+	if err != nil {
+		return err
+	}
+
 	otaDir, err := ioutil.TempDir("", "")
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "cannot create temporary folder", err)
+		return fmt.Errorf("%s: %w", "cannot create temporary folder", err)
 	}
 	otaFile := filepath.Join(otaDir, "temp.ota")
 	defer os.RemoveAll(otaDir)
 
-	err = Generate(params.File, otaFile, params.FQBN)
+	err = Generate(params.File, otaFile, dev.Fqbn)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "cannot generate .ota file", err)
+		return fmt.Errorf("%s: %w", "cannot generate .ota file", err)
 	}
 
-	conf, err := config.Retrieve()
+	file, err := os.Open(otaFile)
 	if err != nil {
-		return nil, err
-	}
-	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
-	if err != nil {
-		return nil, err
-	}
-
-	d, err := idsGivenTags(iotClient, params.Tags)
-	if err != nil {
-		return nil, err
-	}
-	d = append(params.DeviceIDs, d...)
-	valid, invalid, details, err := validateDevices(iotClient, d, params.FQBN)
-	if err != nil {
-		return nil, fmt.Errorf("failed to validate devices: %w", err)
-	}
-	if len(valid) == 0 {
-		return &UploadResp{Invalid: invalid}, nil
+		return fmt.Errorf("%s: %w", "cannot open ota file", err)
 	}
 
 	expiration := otaExpirationMins
@@ -105,103 +81,10 @@ func Upload(params *UploadParams) (*UploadResp, error) {
 		expiration = otaDeferredExpirationMins
 	}
 
-	good, fail, ers := run(iotClient, valid, otaFile, expiration)
+	err = iotClient.DeviceOTA(params.DeviceID, file, expiration)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	// Merge the failure details with the details of invalid devices
-	ers = append(details, ers...)
-
-	return &UploadResp{Updated: good, Invalid: invalid, Failed: fail, Errors: ers}, nil
-}
-
-func idsGivenTags(iotClient iot.Client, tags map[string]string) ([]string, error) {
-	if tags == nil {
-		return nil, nil
-	}
-	devs, err := iotClient.DeviceList(tags)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "cannot retrieve devices from cloud", err)
-	}
-	devices := make([]string, 0, len(devs))
-	for _, d := range devs {
-		devices = append(devices, d.Id)
-	}
-	return devices, nil
-}
-
-func validateDevices(iotClient iot.Client, ids []string, fqbn string) (valid, invalid, details []string, err error) {
-	devs, err := iotClient.DeviceList(nil)
-	if err != nil {
-		return nil, nil, nil, fmt.Errorf("%s: %w", "cannot retrieve devices from cloud", err)
-	}
-
-	for _, id := range ids {
-		var found *iotclient.ArduinoDevicev2
-		for _, d := range devs {
-			if d.Id == id {
-				found = &d
-				break
-			}
-		}
-		// Device not found on the cloud
-		if found == nil {
-			invalid = append(invalid, id)
-			details = append(details, fmt.Sprintf("%s : not found", id))
-			continue
-		}
-		// Device FQBN doesn't match the passed one
-		if found.Fqbn != fqbn {
-			invalid = append(invalid, id)
-			details = append(details, fmt.Sprintf("%s : has FQBN `%s` instead of `%s`", found.Id, found.Fqbn, fqbn))
-			continue
-		}
-		valid = append(valid, id)
-	}
-	return valid, invalid, details, nil
-}
-
-func run(iotClient iot.Client, ids []string, otaFile string, expiration int) (updated, failed, errors []string) {
-	type job struct {
-		id   string
-		file *os.File
-	}
-	jobs := make(chan job, len(ids))
-
-	type result struct {
-		id  string
-		err error
-	}
-	results := make(chan result, len(ids))
-
-	for _, id := range ids {
-		file, err := os.Open(otaFile)
-		if err != nil {
-			failed = append(failed, id)
-			errors = append(errors, fmt.Sprintf("%s: cannot open ota file", id))
-		}
-		jobs <- job{id: id, file: file}
-	}
-	close(jobs)
-
-	for i := 0; i < numConcurrentUploads; i++ {
-		go func() {
-			for job := range jobs {
-				err := iotClient.DeviceOTA(job.id, job.file, expiration)
-				results <- result{id: job.id, err: err}
-			}
-		}()
-	}
-
-	for range ids {
-		r := <-results
-		if r.err != nil {
-			failed = append(failed, r.id)
-			errors = append(errors, fmt.Sprintf("%s: %s", r.id, r.err.Error()))
-		} else {
-			updated = append(updated, r.id)
-		}
-	}
-	return
+	return nil
 }

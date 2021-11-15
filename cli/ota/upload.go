@@ -19,7 +19,6 @@ package ota
 
 import (
 	"os"
-	"strings"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
@@ -29,11 +28,9 @@ import (
 )
 
 var uploadFlags struct {
-	deviceIDs []string
-	tags      map[string]string
-	file      string
-	deferred  bool
-	fqbn      string
+	deviceID string
+	file     string
+	deferred bool
 }
 
 func initUploadCommand() *cobra.Command {
@@ -44,51 +41,28 @@ func initUploadCommand() *cobra.Command {
 		Run:   runUploadCommand,
 	}
 
-	uploadCommand.Flags().StringSliceVarP(&uploadFlags.deviceIDs, "device-ids", "d", []string{},
-		"Comma-separated list of device IDs to update")
-	uploadCommand.Flags().StringToStringVar(&uploadFlags.tags, "tags", nil,
-		"Comma-separated list of tags with format <key>=<value>.\n"+
-			"Perform and OTA upload on all devices that match the provided tags.\n"+
-			"Mutually exclusive with `--device-id`.",
-	)
+	uploadCommand.Flags().StringVarP(&uploadFlags.deviceID, "device-id", "d", "", "Device ID")
 	uploadCommand.Flags().StringVarP(&uploadFlags.file, "file", "", "", "Binary file (.bin) to be uploaded")
 	uploadCommand.Flags().BoolVar(&uploadFlags.deferred, "deferred", false, "Perform a deferred OTA. It can take up to 1 week.")
-	uploadCommand.Flags().StringVarP(&uploadFlags.fqbn, "fqbn", "b", "", "FQBN of the devices to update")
 
+	uploadCommand.MarkFlagRequired("device-id")
 	uploadCommand.MarkFlagRequired("file")
-	uploadCommand.MarkFlagRequired("fqbn")
 	return uploadCommand
 }
 
 func runUploadCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Uploading binary %s", uploadFlags.file)
+	logrus.Infof("Uploading binary %s to device %s", uploadFlags.file, uploadFlags.deviceID)
 
 	params := &ota.UploadParams{
-		DeviceIDs: uploadFlags.deviceIDs,
-		Tags:      uploadFlags.tags,
-		File:      uploadFlags.file,
-		Deferred:  uploadFlags.deferred,
-		FQBN:      uploadFlags.fqbn,
+		DeviceID: uploadFlags.deviceID,
+		File:     uploadFlags.file,
+		Deferred: uploadFlags.deferred,
 	}
-
-	resp, err := ota.Upload(params)
+	err := ota.Upload(params)
 	if err != nil {
 		feedback.Errorf("Error during ota upload: %v", err)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	success := strings.Join(resp.Updated, ",")
-	success = strings.TrimRight(success, ",")
-	feedback.Printf("\nSuccessfully sent OTA request to: %s", success)
-
-	invalid := strings.Join(resp.Invalid, ",")
-	invalid = strings.TrimRight(invalid, ",")
-	feedback.Printf("Cannot send OTA request to: %s", invalid)
-
-	fail := strings.Join(resp.Failed, ",")
-	fail = strings.TrimRight(fail, ",")
-	feedback.Printf("Failed to send OTA request to: %s", fail)
-
-	det := strings.Join(resp.Errors, "\n")
-	feedback.Printf("\nDetails:\n%s", det)
+	logrus.Info("Upload successfully started")
 }

@@ -29,6 +29,7 @@ func NewCommand() *cobra.Command {
 	}
 
 	otaCommand.AddCommand(initUploadCommand())
+	otaCommand.AddCommand(initMassUploadCommand())
 
 	return otaCommand
 }
