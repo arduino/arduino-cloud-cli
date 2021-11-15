@@ -51,7 +51,7 @@ func List(params *ListParams) ([]DeviceInfo, error) {
 	for _, foundDev := range foundDevices {
 		dev, err := getDeviceInfo(&foundDev)
 		if err != nil {
-			return nil, fmt.Errorf("getting device %s from cloud: %w", foundDev.Id, err)
+			return nil, fmt.Errorf("parsing device %s from cloud: %w", foundDev.Id, err)
 		}
 		devices = append(devices, *dev)
 	}

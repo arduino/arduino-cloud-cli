@@ -65,7 +65,7 @@ func Create(params *CreateParams) (*ThingInfo, error) {
 
 	t, err := getThingInfo(newThing)
 	if err != nil {
-		return nil, fmt.Errorf("getting the new thing %s from cloud: %w", newThing.Id, err)
+		return nil, fmt.Errorf("parsing the new thing %s from cloud: %w", newThing.Id, err)
 	}
 	return t, nil
 }

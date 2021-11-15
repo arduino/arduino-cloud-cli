@@ -33,12 +33,12 @@ type ThingInfo struct {
 }
 
 func getThingInfo(thing *iotclient.ArduinoThing) (*ThingInfo, error) {
-	// Retrieve thing variables
+	// Process thing variables
 	var vars []string
 	for _, p := range thing.Properties {
 		vars = append(vars, p.Name)
 	}
-	// Retrieve thing tags
+	// Process thing tags
 	tags, err := tag.TagsInfo(thing.Tags)
 	if err != nil {
 		return nil, err

@@ -54,7 +54,7 @@ func List(params *ListParams) ([]ThingInfo, error) {
 	for _, foundThing := range foundThings {
 		info, err := getThingInfo(&foundThing)
 		if err != nil {
-			return nil, fmt.Errorf("getting thing %s from cloud: %w", foundThing.Id, err)
+			return nil, fmt.Errorf("parsing thing %s from cloud: %w", foundThing.Id, err)
 		}
 		things = append(things, *info)
 	}
