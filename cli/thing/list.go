@@ -101,7 +101,7 @@ func (r result) String() string {
 
 	for _, thing := range r.things {
 		r := []interface{}{thing.Name, thing.ID, thing.DeviceID}
-		r = append(r, strings.Join(thing.Tags, ", "))
+		r = append(r, strings.Join(thing.Tags, ","))
 		if listFlags.variables {
 			r = append(r, strings.Join(thing.Variables, ", "))
 		}

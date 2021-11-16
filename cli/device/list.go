@@ -84,7 +84,7 @@ func (r listResult) String() string {
 			device.Board,
 			device.FQBN,
 			device.Serial,
-			strings.Join(device.Tags, ", "),
+			strings.Join(device.Tags, ","),
 		)
 	}
 	return t.Render()

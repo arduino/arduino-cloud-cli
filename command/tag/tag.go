@@ -28,7 +28,7 @@ func TagsInfo(tags map[string]interface{}) ([]string, error) {
 		if !ok {
 			return nil, fmt.Errorf("value of tag `%s` should be of type `string` but is of type `%T`", key, value)
 		}
-		str = append(str, key+": "+valStr)
+		str = append(str, key+"="+valStr)
 	}
 	return str, nil
 }
