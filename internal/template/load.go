@@ -57,7 +57,7 @@ func loadTemplate(file string, template interface{}) error {
 }
 
 // LoadThing loads a thing from a thing template file.
-func LoadThing(file string) (*iotclient.Thing, error) {
+func LoadThing(file string) (*iotclient.ThingCreate, error) {
 	var template map[string]interface{}
 	err := loadTemplate(file, &template)
 	if err != nil {
@@ -70,7 +70,7 @@ func LoadThing(file string) (*iotclient.Thing, error) {
 	delete(template, "variables")
 
 	// Convert template into thing structure exploiting json marshalling/unmarshalling
-	thing := &iotclient.Thing{}
+	thing := &iotclient.ThingCreate{}
 
 	t, err := json.Marshal(template)
 	if err != nil {

@@ -57,13 +57,13 @@ func Clone(params *CloneParams) (*ThingInfo, error) {
 	return getThingInfo(newThing), nil
 }
 
-func retrieve(client iot.Client, thingID string) (*iotclient.Thing, error) {
+func retrieve(client iot.Client, thingID string) (*iotclient.ThingCreate, error) {
 	clone, err := client.ThingShow(thingID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "retrieving the thing to be cloned", err)
 	}
 
-	thing := &iotclient.Thing{}
+	thing := &iotclient.ThingCreate{}
 
 	// Copy variables
 	for _, p := range clone.Properties {
