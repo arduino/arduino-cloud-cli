@@ -246,11 +246,11 @@ func (_m *Client) DeviceTagsDelete(id string, keys []string) error {
 }
 
 // ThingCreate provides a mock function with given fields: thing, force
-func (_m *Client) ThingCreate(thing *iot.Thing, force bool) (*iot.ArduinoThing, error) {
+func (_m *Client) ThingCreate(thing *iot.ThingCreate, force bool) (*iot.ArduinoThing, error) {
 	ret := _m.Called(thing, force)
 
 	var r0 *iot.ArduinoThing
-	if rf, ok := ret.Get(0).(func(*iot.Thing, bool) *iot.ArduinoThing); ok {
+	if rf, ok := ret.Get(0).(func(*iot.ThingCreate, bool) *iot.ArduinoThing); ok {
 		r0 = rf(thing, force)
 	} else {
 		if ret.Get(0) != nil {
@@ -259,7 +259,7 @@ func (_m *Client) ThingCreate(thing *iot.Thing, force bool) (*iot.ArduinoThing, 
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*iot.Thing, bool) error); ok {
+	if rf, ok := ret.Get(1).(func(*iot.ThingCreate, bool) error); ok {
 		r1 = rf(thing, force)
 	} else {
 		r1 = ret.Error(1)
@@ -357,11 +357,11 @@ func (_m *Client) ThingTagsDelete(id string, keys []string) error {
 }
 
 // ThingUpdate provides a mock function with given fields: id, thing, force
-func (_m *Client) ThingUpdate(id string, thing *iot.Thing, force bool) error {
+func (_m *Client) ThingUpdate(id string, thing *iot.ThingUpdate, force bool) error {
 	ret := _m.Called(id, thing, force)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, *iot.Thing, bool) error); ok {
+	if rf, ok := ret.Get(0).(func(string, *iot.ThingUpdate, bool) error); ok {
 		r0 = rf(id, thing, force)
 	} else {
 		r0 = ret.Error(0)

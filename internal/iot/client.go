@@ -36,8 +36,8 @@ type Client interface {
 	DeviceTagsCreate(id string, tags map[string]string) error
 	DeviceTagsDelete(id string, keys []string) error
 	CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
-	ThingCreate(thing *iotclient.Thing, force bool) (*iotclient.ArduinoThing, error)
-	ThingUpdate(id string, thing *iotclient.Thing, force bool) error
+	ThingCreate(thing *iotclient.ThingCreate, force bool) (*iotclient.ArduinoThing, error)
+	ThingUpdate(id string, thing *iotclient.ThingUpdate, force bool) error
 	ThingDelete(id string) error
 	ThingShow(id string) (*iotclient.ArduinoThing, error)
 	ThingList(ids []string, device *string, props bool, tags map[string]string) ([]iotclient.ArduinoThing, error)
@@ -185,7 +185,7 @@ func (cl *client) CertificateCreate(id, csr string) (*iotclient.ArduinoCompresse
 }
 
 // ThingCreate adds a new thing on Arduino IoT Cloud.
-func (cl *client) ThingCreate(thing *iotclient.Thing, force bool) (*iotclient.ArduinoThing, error) {
+func (cl *client) ThingCreate(thing *iotclient.ThingCreate, force bool) (*iotclient.ArduinoThing, error) {
 	opt := &iotclient.ThingsV2CreateOpts{Force: optional.NewBool(force)}
 	newThing, _, err := cl.api.ThingsV2Api.ThingsV2Create(cl.ctx, *thing, opt)
 	if err != nil {
@@ -195,7 +195,7 @@ func (cl *client) ThingCreate(thing *iotclient.Thing, force bool) (*iotclient.Ar
 }
 
 // ThingUpdate updates a thing on Arduino IoT Cloud.
-func (cl *client) ThingUpdate(id string, thing *iotclient.Thing, force bool) error {
+func (cl *client) ThingUpdate(id string, thing *iotclient.ThingUpdate, force bool) error {
 	opt := &iotclient.ThingsV2UpdateOpts{Force: optional.NewBool(force)}
 	_, _, err := cl.api.ThingsV2Api.ThingsV2Update(cl.ctx, id, *thing, opt)
 	if err != nil {

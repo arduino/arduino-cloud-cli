@@ -42,7 +42,7 @@ func Bind(params *BindParams) error {
 		return err
 	}
 
-	thing := &iotclient.Thing{
+	thing := &iotclient.ThingUpdate{
 		DeviceId: params.DeviceID,
 	}
 
