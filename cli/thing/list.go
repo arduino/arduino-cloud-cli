@@ -93,7 +93,7 @@ func (r result) String() string {
 	}
 	t := table.New()
 
-	h := []interface{}{"Name", "ID", "Device"}
+	h := []interface{}{"Name", "ID", "Device", "Tags"}
 	if listFlags.variables {
 		h = append(h, "Variables")
 	}
@@ -101,6 +101,7 @@ func (r result) String() string {
 
 	for _, thing := range r.things {
 		r := []interface{}{thing.Name, thing.ID, thing.DeviceID}
+		r = append(r, strings.Join(thing.Tags, ","))
 		if listFlags.variables {
 			r = append(r, strings.Join(thing.Variables, ", "))
 		}

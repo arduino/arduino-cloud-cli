@@ -15,41 +15,38 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package thing
+package device
 
 import (
 	"github.com/arduino/arduino-cloud-cli/command/tag"
 	iotclient "github.com/arduino/iot-client-go"
 )
 
-// ThingInfo contains the main parameters of
-// an Arduino IoT Cloud thing.
-type ThingInfo struct {
-	Name      string   `json:"name"`
-	ID        string   `json:"id"`
-	DeviceID  string   `json:"device-id"`
-	Variables []string `json:"variables"`
-	Tags      []string `json:"tags,omitempty"`
+// DeviceInfo contains the most interesting
+// parameters of an Arduino IoT Cloud device.
+type DeviceInfo struct {
+	Name   string   `json:"name"`
+	ID     string   `json:"id"`
+	Board  string   `json:"board"`
+	Serial string   `json:"serial-number"`
+	FQBN   string   `json:"fqbn"`
+	Tags   []string `json:"tags,omitempty"`
 }
 
-func getThingInfo(thing *iotclient.ArduinoThing) (*ThingInfo, error) {
-	// Process thing variables
-	var vars []string
-	for _, p := range thing.Properties {
-		vars = append(vars, p.Name)
-	}
-	// Process thing tags
-	tags, err := tag.TagsInfo(thing.Tags)
+func getDeviceInfo(device *iotclient.ArduinoDevicev2) (*DeviceInfo, error) {
+	// Retrieve device tags
+	tags, err := tag.TagsInfo(device.Tags)
 	if err != nil {
 		return nil, err
 	}
 
-	info := &ThingInfo{
-		Name:      thing.Name,
-		ID:        thing.Id,
-		DeviceID:  thing.DeviceId,
-		Variables: vars,
-		Tags:      tags,
+	dev := &DeviceInfo{
+		Name:   device.Name,
+		ID:     device.Id,
+		Board:  device.Type,
+		Serial: device.Serial,
+		FQBN:   device.Fqbn,
+		Tags:   tags,
 	}
-	return info, nil
+	return dev, nil
 }
