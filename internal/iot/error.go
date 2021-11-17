@@ -18,6 +18,7 @@
 package iot
 
 import (
+	"encoding/json"
 	"fmt"
 
 	iotclient "github.com/arduino/iot-client-go"
@@ -32,9 +33,17 @@ func errorDetail(err error) error {
 	}
 
 	modErr, ok := apiErr.Model().(iotclient.ModelError)
-	if !ok {
-		return err
+	if ok {
+		return fmt.Errorf("%w: %s", err, modErr.Detail)
 	}
 
-	return fmt.Errorf("%w: %s", err, modErr.Detail)
+	body := make(map[string]interface{})
+	if bodyErr := json.Unmarshal(apiErr.Body(), &body); bodyErr != nil {
+		return err
+	}
+	if detail, ok := body["detail"]; ok {
+		return fmt.Errorf("%w: %s", err, detail)
+	}
+
+	return err
 }
