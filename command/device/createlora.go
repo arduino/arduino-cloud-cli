@@ -102,7 +102,7 @@ func CreateLora(params *CreateLoraParams) (*DeviceLoraInfo, error) {
 	if err != nil {
 		errDel := iotClient.DeviceDelete(dev.DeviceId)
 		if errDel != nil { // Oh no
-			panic(
+			return nil, fmt.Errorf(
 				"device was successfully provisioned and configured on IoT-API but " +
 					"now we can't fetch its information nor delete it - please check " +
 					"it on the web application.\n\nFetch error: " + err.Error() +
