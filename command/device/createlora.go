@@ -101,8 +101,7 @@ func CreateLora(params *CreateLoraParams) (*DeviceLoraInfo, error) {
 	devInfo, err := getDeviceLoraInfo(iotClient, dev)
 	if err != nil {
 		iotClient.DeviceDelete(dev.DeviceId)
-		err = fmt.Errorf("%s: %w", "cannot provision LoRa device", err)
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", "cannot provision LoRa device", err)
 	}
 	return devInfo, nil
 }
