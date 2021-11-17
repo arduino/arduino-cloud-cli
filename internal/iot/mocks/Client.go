@@ -245,6 +245,29 @@ func (_m *Client) DeviceTagsDelete(id string, keys []string) error {
 	return r0
 }
 
+// LoraFrequencyPlansList provides a mock function with given fields:
+func (_m *Client) LoraFrequencyPlansList() ([]iot.ArduinoLorafreqplanv1, error) {
+	ret := _m.Called()
+
+	var r0 []iot.ArduinoLorafreqplanv1
+	if rf, ok := ret.Get(0).(func() []iot.ArduinoLorafreqplanv1); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]iot.ArduinoLorafreqplanv1)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ThingCreate provides a mock function with given fields: thing, force
 func (_m *Client) ThingCreate(thing *iot.ThingCreate, force bool) (*iot.ArduinoThing, error) {
 	ret := _m.Called(thing, force)
