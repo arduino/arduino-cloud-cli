@@ -48,7 +48,7 @@ func initMassUploadCommand() *cobra.Command {
 		"Comma-separated list of device IDs to update")
 	massUploadCommand.Flags().StringToStringVar(&massUploadFlags.tags, "tags", nil,
 		"Comma-separated list of tags with format <key>=<value>.\n"+
-			"Perform and OTA upload on all devices that match the provided tags.\n"+
+			"Perform an OTA upload on all devices that match the provided tags.\n"+
 			"Mutually exclusive with `--device-id`.",
 	)
 	massUploadCommand.Flags().StringVarP(&massUploadFlags.file, "file", "", "", "Binary file (.bin) to be uploaded")
