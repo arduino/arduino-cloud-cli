@@ -175,6 +175,7 @@ func run(iotClient iot.Client, ids []string, otaFile string, expiration int) (up
 		if err != nil {
 			failed = append(failed, id)
 			errors = append(errors, fmt.Sprintf("%s: cannot open ota file", id))
+			continue
 		}
 		jobs <- job{id: id, file: file}
 	}
