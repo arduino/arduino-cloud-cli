@@ -35,6 +35,7 @@ func NewCommand() *cobra.Command {
 	deviceCommand.AddCommand(tag.InitCreateTagsCommand())
 	deviceCommand.AddCommand(tag.InitDeleteTagsCommand())
 	deviceCommand.AddCommand(initListFrequencyPlansCommand())
+	deviceCommand.AddCommand(initCreateLoraCommand())
 
 	return deviceCommand
 }

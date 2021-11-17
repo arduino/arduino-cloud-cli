@@ -29,6 +29,7 @@ import (
 // Client can be used to perform actions on Arduino IoT Cloud.
 type Client interface {
 	DeviceCreate(fqbn, name, serial, devType string) (*iotclient.ArduinoDevicev2, error)
+	DeviceLoraCreate(name, serial, devType, eui, freq string) (*iotclient.ArduinoLoradevicev1, error)
 	DeviceDelete(id string) error
 	DeviceList(tags map[string]string) ([]iotclient.ArduinoDevicev2, error)
 	DeviceShow(id string) (*iotclient.ArduinoDevicev2, error)
@@ -79,6 +80,26 @@ func (cl *client) DeviceCreate(fqbn, name, serial, dType string) (*iotclient.Ard
 	dev, _, err := cl.api.DevicesV2Api.DevicesV2Create(cl.ctx, payload)
 	if err != nil {
 		err = fmt.Errorf("creating device, %w", errorDetail(err))
+		return nil, err
+	}
+	return &dev, nil
+}
+
+// DeviceLoraCreate allows to create a new LoRa device on Arduino IoT Cloud.
+// It returns the LoRa information about the newly created device, and an error.
+func (cl *client) DeviceLoraCreate(name, serial, devType, eui, freq string) (*iotclient.ArduinoLoradevicev1, error) {
+	payload := iotclient.CreateLoraDevicesV1Payload{
+		App:           "defaultApp",
+		Eui:           eui,
+		FrequencyPlan: freq,
+		Name:          name,
+		Serial:        serial,
+		Type:          devType,
+		UserId:        "me",
+	}
+	dev, _, err := cl.api.LoraDevicesV1Api.LoraDevicesV1Create(cl.ctx, payload)
+	if err != nil {
+		err = fmt.Errorf("creating lora device: %w", errorDetail(err))
 		return nil, err
 	}
 	return &dev, nil
