@@ -19,6 +19,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/viper"
 )
@@ -39,10 +40,24 @@ func Retrieve() (*Config, error) {
 	v.AddConfigPath(".")
 	err := v.ReadInConfig()
 	if err != nil {
-		err = fmt.Errorf("%s: %w", "retrieving config file", err)
+		fmt.Errorf("%s: %w", "retrieving config file", err)
+	} else {
+		v.Unmarshal(conf)
+	}
+
+	client, found := os.LookupEnv("ARDUINO_CLOUD_CLIENT")
+	if !found {
+		err = fmt.Errorf("%s: %w", "Unable to retrieve token client", err)
+		return nil, err
+
+	}
+	secret, found := os.LookupEnv("ARDUINO_CLOUD_SECRET")
+	if !found {
+		err = fmt.Errorf("%s: %w", "Unable to retrieve token secret", err)
 		return nil, err
 	}
 
-	v.Unmarshal(conf)
+	conf.Client = client
+	conf.Secret = secret
 	return conf, nil
 }
