@@ -123,7 +123,7 @@ func deveuiBinary(fqbn string) (string, error) {
 	return bin, nil
 }
 
-// extractEUI extracts the EUI from the provisioned lora board
+// extractEUI extracts the EUI from the provisioned lora board.
 func extractEUI(port string) (string, error) {
 	var ser serial.Port
 
