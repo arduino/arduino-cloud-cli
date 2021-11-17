@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/arduino/arduino-cloud-cli/internal/iot/mocks"
 	iotclient "github.com/arduino/iot-client-go"
@@ -16,31 +15,37 @@ const testFilename = "testdata/empty.bin"
 
 func TestRun(t *testing.T) {
 	var (
-		failID1 = "00000000-b39d-47a2-adf3-d26cdf474707"
-		failID2 = "00000000-9efd-4670-a478-df76ebdeeb4f"
-		okID1   = "11111111-4838-4f46-8930-d735c5b76cd1"
-		okID2   = "11111111-003f-42f9-a80c-85a1de36753b"
-		okID3   = "11111111-dac4-4a6a-80a4-698062fe2af5"
+		failPrefix = "00000000"
+		failID1    = failPrefix + "-b39d-47a2-adf3-d26cdf474707"
+		failID2    = failPrefix + "-9efd-4670-a478-df76ebdeeb4f"
+		okPrefix   = "11111111"
+		okID1      = okPrefix + "-4838-4f46-8930-d735c5b76cd1"
+		okID2      = okPrefix + "-003f-42f9-a80c-85a1de36753b"
+		okID3      = okPrefix + "-dac4-4a6a-80a4-698062fe2af5"
 	)
 	mockClient := &mocks.Client{}
 	mockDeviceOTA := func(id string, file *os.File, expireMins int) error {
-		time.Sleep(100 * time.Millisecond)
-		if strings.Split(id, "-")[0] == "00000000" {
+		if strings.Split(id, "-")[0] == failPrefix {
 			return errors.New("err")
 		}
 		return nil
 	}
 	mockClient.On("DeviceOTA", mock.Anything, mock.Anything, mock.Anything).Return(mockDeviceOTA, nil)
 
-	good, fail, err := run(mockClient, []string{okID1, failID1, okID2, failID2, okID3}, testFilename, 0)
-	if len(err) != 2 {
-		t.Errorf("two errors should have been returned, got %d: %v", len(err), err)
+	devs := []string{okID1, failID1, okID2, failID2, okID3}
+	res := run(mockClient, devs, testFilename, 0)
+	if len(res) != len(devs) {
+		t.Errorf("expected %d results, got %d", len(devs), len(res))
 	}
-	if len(fail) != 2 {
-		t.Errorf("two updates should have failed, got %d: %v", len(fail), fail)
-	}
-	if len(good) != 3 {
-		t.Errorf("two updates should have succeded, got %d: %v", len(good), good)
+
+	for _, r := range res {
+		pre := strings.Split(r.ID, "-")[0]
+		if pre == okPrefix && r.Err != nil {
+			t.Errorf("device %s expected to succeed, but got error %s", r.ID, r.Err.Error())
+		}
+		if pre == failPrefix && r.Err == nil {
+			t.Errorf("device %s expected to fail, but got no error", r.ID)
+		}
 	}
 }
 
@@ -71,7 +76,10 @@ func TestValidateDevices(t *testing.T) {
 		idCorrect2,
 		idNotValid,
 	}
-	v, i, d, _ := validateDevices(mockClient, ids, correctFQBN)
+	v, i, err := validateDevices(mockClient, ids, correctFQBN)
+	if err != nil {
+		t.Errorf("unexpected error: %s", err.Error())
+	}
 
 	if len(v) != 2 {
 		t.Errorf("expected 2 valid devices, but found %d: %v", len(v), v)
@@ -79,9 +87,5 @@ func TestValidateDevices(t *testing.T) {
 
 	if len(i) != 2 {
 		t.Errorf("expected 2 invalid devices, but found %d: %v", len(i), i)
-	}
-
-	if len(d) != 2 {
-		t.Errorf("expected 2 error details, but found %d: %v", len(d), d)
 	}
 }

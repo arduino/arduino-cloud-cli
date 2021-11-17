@@ -19,10 +19,12 @@ package ota
 
 import (
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
+	"github.com/arduino/arduino-cli/table"
 	"github.com/arduino/arduino-cloud-cli/command/ota"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -77,18 +79,53 @@ func runMassUploadCommand(cmd *cobra.Command, args []string) {
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	success := strings.Join(resp.Updated, ",")
-	success = strings.TrimRight(success, ",")
-	feedback.Printf("\nSuccessfully sent OTA request to: %s", success)
+	// Put successful devices ahead
+	sort.SliceStable(resp, func(i, j int) bool {
+		return resp[i].Err == nil
+	})
 
-	invalid := strings.Join(resp.Invalid, ",")
-	invalid = strings.TrimRight(invalid, ",")
-	feedback.Printf("Cannot send OTA request to: %s", invalid)
+	feedback.PrintResult(massUploadResult{resp})
 
-	fail := strings.Join(resp.Failed, ",")
-	fail = strings.TrimRight(fail, ",")
-	feedback.Printf("Failed to send OTA request to: %s", fail)
+	var failed []string
+	for _, r := range resp {
+		if r.Err != nil {
+			failed = append(failed, r.ID)
+		}
+	}
+	if len(failed) == 0 {
+		return
+	}
+	failStr := strings.Join(failed, ",")
+	feedback.Printf(
+		"You can try to perform the OTA again on the failed devices using the following command:\n"+
+			"$ arduino-cloud-cli ota upload --file %s -d %s", params.File, failStr,
+	)
+}
 
-	det := strings.Join(resp.Errors, "\n")
-	feedback.Printf("\nDetails:\n%s", det)
+type massUploadResult struct {
+	res []ota.Result
+}
+
+func (r massUploadResult) Data() interface{} {
+	return r.res
+}
+
+func (r massUploadResult) String() string {
+	if len(r.res) == 0 {
+		return "No OTA done."
+	}
+	t := table.New()
+	t.SetHeader("ID", "Result")
+	for _, r := range r.res {
+		outcome := "Success"
+		if r.Err != nil {
+			outcome = r.Err.Error()
+		}
+
+		t.AddRow(
+			r.ID,
+			outcome,
+		)
+	}
+	return t.Render()
 }

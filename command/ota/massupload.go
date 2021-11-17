@@ -43,17 +43,15 @@ type MassUploadParams struct {
 	FQBN      string
 }
 
-// MassUploadResp contains the results of the mass ota upload
-type MassUploadResp struct {
-	Updated []string // Ids of devices updated
-	Invalid []string // Ids of device not valid (mismatched fqbn)
-	Failed  []string // Ids of device failed
-	Errors  []string // Contains detailed errors for each failure
+// Result of an ota upload on a device
+type Result struct {
+	ID  string
+	Err error
 }
 
 // MassUpload command is used to mass upload a firmware OTA,
 // on devices of Arduino IoT Cloud.
-func MassUpload(params *MassUploadParams) (*MassUploadResp, error) {
+func MassUpload(params *MassUploadParams) ([]Result, error) {
 	if params.DeviceIDs == nil && params.Tags == nil {
 		return nil, errors.New("provide either DeviceIDs or Tags")
 	} else if params.DeviceIDs != nil && params.Tags != nil {
@@ -82,17 +80,18 @@ func MassUpload(params *MassUploadParams) (*MassUploadResp, error) {
 		return nil, err
 	}
 
+	// Prepare the list of device-ids to update
 	d, err := idsGivenTags(iotClient, params.Tags)
 	if err != nil {
 		return nil, err
 	}
 	d = append(params.DeviceIDs, d...)
-	valid, invalid, details, err := validateDevices(iotClient, d, params.FQBN)
+	valid, invalid, err := validateDevices(iotClient, d, params.FQBN)
 	if err != nil {
 		return nil, fmt.Errorf("failed to validate devices: %w", err)
 	}
 	if len(valid) == 0 {
-		return &MassUploadResp{Invalid: invalid}, nil
+		return invalid, nil
 	}
 
 	expiration := otaExpirationMins
@@ -100,15 +99,9 @@ func MassUpload(params *MassUploadParams) (*MassUploadResp, error) {
 		expiration = otaDeferredExpirationMins
 	}
 
-	good, fail, ers := run(iotClient, valid, otaFile, expiration)
-	if err != nil {
-		return nil, err
-	}
-
-	// Merge the failure details with the details of invalid devices
-	ers = append(details, ers...)
-
-	return &MassUploadResp{Updated: good, Invalid: invalid, Failed: fail, Errors: ers}, nil
+	res := run(iotClient, valid, otaFile, expiration)
+	res = append(res, invalid...)
+	return res, nil
 }
 
 func idsGivenTags(iotClient iot.Client, tags map[string]string) ([]string, error) {
@@ -126,10 +119,10 @@ func idsGivenTags(iotClient iot.Client, tags map[string]string) ([]string, error
 	return devices, nil
 }
 
-func validateDevices(iotClient iot.Client, ids []string, fqbn string) (valid, invalid, details []string, err error) {
+func validateDevices(iotClient iot.Client, ids []string, fqbn string) (valid []string, invalid []Result, err error) {
 	devs, err := iotClient.DeviceList(nil)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("%s: %w", "cannot retrieve devices from cloud", err)
+		return nil, nil, fmt.Errorf("%s: %w", "cannot retrieve devices from cloud", err)
 	}
 
 	for _, id := range ids {
@@ -142,39 +135,36 @@ func validateDevices(iotClient iot.Client, ids []string, fqbn string) (valid, in
 		}
 		// Device not found on the cloud
 		if found == nil {
-			invalid = append(invalid, id)
-			details = append(details, fmt.Sprintf("%s : not found", id))
+			inv := Result{ID: id, Err: fmt.Errorf("not found")}
+			invalid = append(invalid, inv)
 			continue
 		}
 		// Device FQBN doesn't match the passed one
 		if found.Fqbn != fqbn {
-			invalid = append(invalid, id)
-			details = append(details, fmt.Sprintf("%s : has FQBN `%s` instead of `%s`", found.Id, found.Fqbn, fqbn))
+			inv := Result{ID: id, Err: fmt.Errorf("has FQBN '%s' instead of '%s'", found.Fqbn, fqbn)}
+			invalid = append(invalid, inv)
 			continue
 		}
 		valid = append(valid, id)
 	}
-	return valid, invalid, details, nil
+	return valid, invalid, nil
 }
 
-func run(iotClient iot.Client, ids []string, otaFile string, expiration int) (updated, failed, errors []string) {
+func run(iotClient iot.Client, ids []string, otaFile string, expiration int) []Result {
 	type job struct {
 		id   string
 		file *os.File
 	}
 	jobs := make(chan job, len(ids))
 
-	type result struct {
-		id  string
-		err error
-	}
-	results := make(chan result, len(ids))
+	resCh := make(chan Result, len(ids))
+	results := make([]Result, 0, len(ids))
 
 	for _, id := range ids {
 		file, err := os.Open(otaFile)
 		if err != nil {
-			failed = append(failed, id)
-			errors = append(errors, fmt.Sprintf("%s: cannot open ota file", id))
+			r := Result{ID: id, Err: fmt.Errorf("cannot open ota file")}
+			results = append(results, r)
 			continue
 		}
 		jobs <- job{id: id, file: file}
@@ -185,19 +175,14 @@ func run(iotClient iot.Client, ids []string, otaFile string, expiration int) (up
 		go func() {
 			for job := range jobs {
 				err := iotClient.DeviceOTA(job.id, job.file, expiration)
-				results <- result{id: job.id, err: err}
+				resCh <- Result{ID: job.id, Err: err}
 			}
 		}()
 	}
 
 	for range ids {
-		r := <-results
-		if r.err != nil {
-			failed = append(failed, r.id)
-			errors = append(errors, fmt.Sprintf("%s: %s", r.id, r.err.Error()))
-		} else {
-			updated = append(updated, r.id)
-		}
+		r := <-resCh
+		results = append(results, r)
 	}
-	return
+	return results
 }
