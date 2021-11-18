@@ -63,6 +63,12 @@ Use this command to provision a device:
 
 `$ arduino-cloud-cli device create --name <deviceName> --port <port> --fqbn <deviceFqbn>`
 
+####LoRa 
+
+The list of supported LoRa frequency plans can be retrieved with:
+
+`$ arduino-cloud-cli device list-frequency-plans`
+
 ## Device commands
 
 Devices can be deleted using the device delete command. This command accepts two mutually exclusive flags: `--id` and `--tags`. Only one of them must be passed. When the `--id` is passed, the device having such ID gets deleted:

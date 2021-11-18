@@ -35,6 +35,7 @@ type Client interface {
 	DeviceOTA(id string, file *os.File, expireMins int) error
 	DeviceTagsCreate(id string, tags map[string]string) error
 	DeviceTagsDelete(id string, keys []string) error
+	LoraFrequencyPlansList() ([]iotclient.ArduinoLorafreqplanv1, error)
 	CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
 	ThingCreate(thing *iotclient.ThingCreate, force bool) (*iotclient.ArduinoThing, error)
 	ThingUpdate(id string, thing *iotclient.ThingUpdate, force bool) error
@@ -164,6 +165,17 @@ func (cl *client) DeviceTagsDelete(id string, keys []string) error {
 		}
 	}
 	return nil
+}
+
+// LoraFrequencyPlansList retrieves and returns the list of all supported
+// LoRa frequency plans.
+func (cl *client) LoraFrequencyPlansList() ([]iotclient.ArduinoLorafreqplanv1, error) {
+	freqs, _, err := cl.api.LoraFreqPlanV1Api.LoraFreqPlanV1List(cl.ctx)
+	if err != nil {
+		err = fmt.Errorf("listing lora frequency plans: %w", errorDetail(err))
+		return nil, err
+	}
+	return freqs.FrequencyPlans, nil
 }
 
 // CertificateCreate allows to upload a certificate on Arduino IoT Cloud.
