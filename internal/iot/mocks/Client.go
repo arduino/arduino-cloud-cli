@@ -180,6 +180,29 @@ func (_m *Client) DeviceList(tags map[string]string) ([]iot.ArduinoDevicev2, err
 	return r0, r1
 }
 
+// DeviceLoraCreate provides a mock function with given fields: name, serial, devType, eui, freq
+func (_m *Client) DeviceLoraCreate(name string, serial string, devType string, eui string, freq string) (*iot.ArduinoLoradevicev1, error) {
+	ret := _m.Called(name, serial, devType, eui, freq)
+
+	var r0 *iot.ArduinoLoradevicev1
+	if rf, ok := ret.Get(0).(func(string, string, string, string, string) *iot.ArduinoLoradevicev1); ok {
+		r0 = rf(name, serial, devType, eui, freq)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*iot.ArduinoLoradevicev1)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string, string, string, string) error); ok {
+		r1 = rf(name, serial, devType, eui, freq)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // DeviceOTA provides a mock function with given fields: id, file, expireMins
 func (_m *Client) DeviceOTA(id string, file *os.File, expireMins int) error {
 	ret := _m.Called(id, file, expireMins)

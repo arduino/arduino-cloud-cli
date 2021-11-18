@@ -65,9 +65,15 @@ Use this command to provision a device:
 
 ####LoRa 
 
+LoRa devices should be provisioned using a specific command.
+Parameters are the same except for the additional mandatory `--frequency-plan`:
+
+`$ arduino-cloud-cli device create-lora --name <deviceName> --frequency-plan <freqID> --port <port> --fqbn <deviceFqbn>`
+
 The list of supported LoRa frequency plans can be retrieved with:
 
 `$ arduino-cloud-cli device list-frequency-plans`
+
 
 ## Device commands
 
