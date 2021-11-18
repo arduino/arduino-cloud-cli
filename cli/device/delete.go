@@ -46,7 +46,7 @@ func initDeleteCommand() *cobra.Command {
 		nil,
 		"Comma-separated list of tags with format <key>=<value>.\n"+
 			"Delete all devices that match the provided tags.\n"+
-			"Mutually exclusive with `--id`.",
+			"Mutually exclusive with '--id'.",
 	)
 	return deleteCommand
 }
