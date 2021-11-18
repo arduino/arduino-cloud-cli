@@ -41,9 +41,9 @@ func errorDetail(err error) error {
 	if bodyErr := json.Unmarshal(apiErr.Body(), &body); bodyErr != nil {
 		return err
 	}
-	if detail, ok := body["detail"]; ok {
-		return fmt.Errorf("%w: %s", err, detail)
+	detail, ok := body["detail"]
+	if !ok {
+		return err
 	}
-
-	return err
+	return fmt.Errorf("%w: %v", err, detail)
 }
