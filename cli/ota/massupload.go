@@ -18,6 +18,7 @@
 package ota
 
 import (
+	"fmt"
 	"os"
 	"sort"
 	"strings"
@@ -95,10 +96,11 @@ func runMassUploadCommand(cmd *cobra.Command, args []string) {
 	if len(failed) == 0 {
 		return
 	}
-	failStr := strings.Join(failed, ",")
+	failDevs := strings.Join(failed, ",")
 	feedback.Printf(
 		"You can try to perform the OTA again on the failed devices using the following command:\n"+
-			"$ arduino-cloud-cli ota upload --file %s -d %s", params.File, failStr,
+			"$ arduino-cloud-cli ota mass-upload --file %s --fqbn %s -d %s",
+		params.File, params.FQBN, failDevs,
 	)
 }
 
@@ -119,7 +121,7 @@ func (r massUploadResult) String() string {
 	for _, r := range r.res {
 		outcome := "Success"
 		if r.Err != nil {
-			outcome = r.Err.Error()
+			outcome = fmt.Sprintf("Fail: %s", r.Err.Error())
 		}
 
 		t.AddRow(
