@@ -60,8 +60,6 @@ github.com/arduino/go-properties-orderedmap v1.3.0/go.mod h1:DKjD2VXY/NZmlingh4l
 github.com/arduino/go-timeutils v0.0.0-20171220113728-d1dd9e313b1b/go.mod h1:uwGy5PpN4lqW97FiLnbcx+xx8jly5YuPMJWfVwwjJiQ=
 github.com/arduino/go-win32-utils v0.0.0-20180330194947-ed041402e83b h1:3PjgYG5gVPA7cipp7vIR2lF96KkEJIFBJ+ANnuv6J20=
 github.com/arduino/go-win32-utils v0.0.0-20180330194947-ed041402e83b/go.mod h1:iIPnclBMYm1g32Q5kXoqng4jLhMStReIP7ZxaoUC2y8=
-github.com/arduino/iot-client-go v1.3.4-0.20210930122852-04551f4cb061 h1:uQeaIHzj0tOlqnHaRskSy6UwMgQ6LIOECySpaYBCt5M=
-github.com/arduino/iot-client-go v1.3.4-0.20210930122852-04551f4cb061/go.mod h1:gYvpMt7Qw+OSScTLyIlCnpbvy9y96ey/2zhB4w6FoK0=
 github.com/arduino/iot-client-go v1.3.4-0.20211103115604-d4d372164262 h1:qVq8cdkaRPaLc9DAjY/6rH3ocs6ZvnEJtD26f5++/RU=
 github.com/arduino/iot-client-go v1.3.4-0.20211103115604-d4d372164262/go.mod h1:gYvpMt7Qw+OSScTLyIlCnpbvy9y96ey/2zhB4w6FoK0=
 github.com/arduino/iot-client-go v1.3.4-0.20211116175324-9a98dd4ad269 h1:01RHB48b1QRN5viXtdtmSkvyudxHqczDV+OD+1PuE6M=
@@ -501,8 +499,6 @@ golang.org/x/net v0.0.0-20200707034311-ab3426394381/go.mod h1:/O7V0waA8r7cgGh81R
 golang.org/x/net v0.0.0-20200822124328-c89045814202/go.mod h1:/O7V0waA8r7cgGh81Ro3o1hOxt32SMVPicZroKQ2sZA=
 golang.org/x/net v0.0.0-20201021035429-f5854403a974/go.mod h1:sp8m0HH+o8qH0wwXwYZr8TS3Oi6o0r6Gce1SSxlDquU=
 golang.org/x/net v0.0.0-20210316092652-d523dce5a7f4/go.mod h1:RBQZq4jEuRlivfhVLdyRGr576XBO4/greRjx4P4O3yc=
-golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d h1:LO7XpTYMwTqxjLcGWPijK3vRXg1aWdlNOVOHRq45d7c=
-golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
 golang.org/x/net v0.0.0-20211101193420-4a448f8816b3 h1:VrJZAjbekhoRn7n5FBujY31gboH+iB3pdLxn3gE9FjU=
 golang.org/x/net v0.0.0-20211101193420-4a448f8816b3/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
 golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 h1:CIJ76btIcR3eFI5EgSo6k1qKw9KJexJuRLI9G7Hp5wE=
@@ -512,8 +508,6 @@ golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421/go.mod h1:gOpvHmFTYa4Iltr
 golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
 golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
 golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
-golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f h1:Qmd2pbz05z7z6lm0DrgQVVPuBm92jqujBKMHMOlOQEw=
-golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
 golang.org/x/oauth2 v0.0.0-20211028175245-ba495a64dcb5 h1:v79phzBz03tsVCUTbvTBmmC3CUXF5mKYt7DA4ZVldpM=
 golang.org/x/oauth2 v0.0.0-20211028175245-ba495a64dcb5/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
 golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 h1:RerP+noqYHUQ8CMRcPlC2nvTa4dcBIjegkuWdcUDuqg=

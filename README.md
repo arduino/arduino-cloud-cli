@@ -156,6 +156,14 @@ The default OTA upload should complete in 10 minutes. Use `--deferred` flag to e
 
 `$ arduino-cloud-cli ota upload --device-id <deviceID> --file <sketch-file.ino.bin> --deferred`
 
+It is also possible to perform a mass ota upload through a specific command. 
+The fqbn is mandatory. 
+To select the devices to update you can either provide a list of device ids or device tags.
+
+`$ arduino-cloud-cli ota mass-upload --fqbn <deviceFQBN> --device-ids <deviceIDs> --file <sketch-file.ino.bin>`
+
+`$ arduino-cloud-cli ota mass-upload --fqbn <deviceFQBN> --device-tags <key0>=<value0>,<key1>=<value1> --file <sketch-file.ino.bin>`
+
 ## Dashboard commands
 
 Print a list of available dashboards and their widgets by using this command:
