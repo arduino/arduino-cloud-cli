@@ -19,7 +19,12 @@ package config
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"runtime"
 
+	"github.com/arduino/go-paths-helper"
+	"github.com/arduino/go-win32-utils"
 	"github.com/spf13/viper"
 )
 
@@ -45,4 +50,28 @@ func Retrieve() (*Config, error) {
 
 	v.Unmarshal(conf)
 	return conf, nil
+}
+
+// Get Arduino default directory (arduino15)
+func ArduinoDir() (*paths.Path, error) {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, fmt.Errorf("unable to get user home dir: %w", err)
+	}
+
+	var path *paths.Path
+	switch runtime.GOOS {
+	case "darwin":
+		path = paths.New(filepath.Join(userHomeDir, "Library", "Arduino15"))
+	case "windows":
+		localAppDataPath, err := win32.GetLocalAppDataFolder()
+		if err != nil {
+			return nil, fmt.Errorf("unable to get local app data folder: %w", err)
+		}
+		path = paths.New(filepath.Join(localAppDataPath, "Arduino15"))
+	default: // linux, android, *bsd, plan9 and other Unix-like systems
+		path = paths.New(filepath.Join(userHomeDir, ".arduino15"))
+	}
+
+	return path, nil
 }
