@@ -25,7 +25,13 @@ import (
 
 	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/arduino/go-paths-helper"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/viper"
+)
+
+const (
+	clientLen = 32
+	secretLen = 64
 )
 
 // InitParams contains the parameters needed to initialize a configuration file.
@@ -42,7 +48,7 @@ func validateFormatString(arg string) error {
 	return nil
 }
 
-// Init initializes a configuration file with default values.
+// Init initializes a configuration file with values passed in by the user.
 // If the file doesn't exist, it is created.
 // If it already exists, it is written to only if overwrite param is true.
 func Init(params *InitParams) (filepath string, err error) {
@@ -69,17 +75,55 @@ func Init(params *InitParams) (filepath string, err error) {
 	}
 
 	configFile := configPath.Join(config.Filename + "." + params.Format)
-
 	if !params.Overwrite && configFile.Exist() {
 		return "", errors.New("config file already exists, use --overwrite to discard the existing one")
 	}
 
+	id, key, err := prompt()
+	if err != nil {
+		return "", err
+	}
+
 	newSettings := viper.New()
 	newSettings.SetConfigPermissions(os.FileMode(0600))
-	config.SetDefaults(newSettings)
+	newSettings.Set("client", id)
+	newSettings.Set("secret", key)
 	if err := newSettings.WriteConfigAs(configFile.String()); err != nil {
 		return "", fmt.Errorf("cannot create config file: %v", err)
 	}
 
 	return configFile.String(), nil
+}
+
+func prompt() (id, key string, err error) {
+	prompt := promptui.Prompt{
+		Label: "client",
+		Validate: func(s string) error {
+			if len(s) != clientLen {
+				return errors.New("")
+			}
+			return nil
+		},
+	}
+	id, err = prompt.Run()
+	if err != nil {
+		return "", "", fmt.Errorf("client prompt fail: %w", err)
+	}
+
+	prompt = promptui.Prompt{
+		Mask:  '*',
+		Label: "secret",
+		Validate: func(s string) error {
+			if len(s) != secretLen {
+				return errors.New("")
+			}
+			return nil
+		},
+	}
+	key, err = prompt.Run()
+	if err != nil {
+		return "", "", fmt.Errorf("secret prompt fail: %w", err)
+	}
+
+	return id, key, nil
 }

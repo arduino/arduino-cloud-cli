@@ -36,8 +36,8 @@ var initFlags struct {
 func initInitCommand() *cobra.Command {
 	initCommand := &cobra.Command{
 		Use:   "init",
-		Short: "Initialize a configuration file with default values",
-		Long:  "Initialize an Arduino IoT Cloud CLI configuration file with default values",
+		Short: "Initialize a configuration file",
+		Long:  "Initialize an Arduino IoT Cloud CLI configuration",
 		Run:   runInitCommand,
 	}
 
