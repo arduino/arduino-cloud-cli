@@ -52,26 +52,25 @@ func Delete(params *DeleteParams) error {
 		return err
 	}
 
+	deviceIDs := []string{}
 	if params.ID != nil {
-		// Delete by id
-		return iotClient.DeviceDelete(*params.ID)
-
-	} else if params.Tags != nil {
-		// Delete by tags
+		deviceIDs = append(deviceIDs, *params.ID)
+	}
+	if params.Tags != nil {
 		dev, err := iotClient.DeviceList(params.Tags)
 		if err != nil {
 			return err
 		}
 		for _, d := range dev {
-			err = iotClient.DeviceDelete(d.Id)
-			if err != nil {
-				return err
-			}
+			deviceIDs = append(deviceIDs, d.Id)
 		}
+	}
 
-	} else {
-		// should not be reachable
-		return errors.New("provide either '--id' or '--tags' flag")
+	for _, id := range deviceIDs {
+		err = iotClient.DeviceDelete(id)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
