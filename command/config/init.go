@@ -44,33 +44,42 @@ func validateFormatString(arg string) error {
 
 // Init initializes a configuration file with default values.
 // If the file doesn't exist, it is created.
-// If it exists, it is written to only if overwrite param is true.
-func Init(params *InitParams) error {
-	configPath, err := paths.New(params.DestDir).Abs()
-	if err != nil {
-		return fmt.Errorf("%s: %w", "cannot retrieve absolute path of passed dest-dir", err)
+// If it already exists, it is written to only if overwrite param is true.
+func Init(params *InitParams) (filepath string, err error) {
+	var configPath *paths.Path
+	if params.DestDir != "" {
+		configPath, err = paths.New(params.DestDir).Abs()
+		if err != nil {
+			return "", fmt.Errorf("cannot retrieve absolute path of passed dest-dir: %w", err)
+		}
+	} else {
+		configPath, err = config.ArduinoDir()
+		if err != nil {
+			return "", fmt.Errorf("cannot retrieve arduino default directory: %w", err)
+		}
 	}
+
 	if !configPath.IsDir() {
-		return fmt.Errorf("%s: %w", "passed dest-dir is not a valid directory", err)
+		return "", fmt.Errorf("chosen destination dir is not valid: %w", err)
 	}
 
 	params.Format = strings.ToLower(params.Format)
 	if err := validateFormatString(params.Format); err != nil {
-		return err
+		return "", err
 	}
 
 	configFile := configPath.Join(config.Filename + "." + params.Format)
 
 	if !params.Overwrite && configFile.Exist() {
-		return errors.New("config file already exists, use --overwrite to discard the existing one")
+		return "", errors.New("config file already exists, use --overwrite to discard the existing one")
 	}
 
 	newSettings := viper.New()
 	newSettings.SetConfigPermissions(os.FileMode(0600))
 	config.SetDefaults(newSettings)
 	if err := newSettings.WriteConfigAs(configFile.String()); err != nil {
-		return fmt.Errorf("cannot create config file: %v", err)
+		return "", fmt.Errorf("cannot create config file: %v", err)
 	}
 
-	return nil
+	return configFile.String(), nil
 }
