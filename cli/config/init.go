@@ -67,7 +67,7 @@ func runInitCommand(cmd *cobra.Command, args []string) {
 		configPath, err := config.ArduinoDir()
 		initFlags.destDir = configPath.String()
 		if err != nil {
-			feedback.Errorf("Error during config init: cannot retrieve arduino default directory: %w", err)
+			feedback.Errorf("Error during config init: cannot retrieve arduino default directory: %v", err)
 			os.Exit(errorcodes.ErrGeneric)
 		}
 	}
@@ -82,7 +82,7 @@ func runInitCommand(cmd *cobra.Command, args []string) {
 	// Check that the destination directory is valid and build the configuration file path
 	configPath, err := paths.New(initFlags.destDir).Abs()
 	if err != nil {
-		feedback.Errorf("Error during config init: cannot retrieve absolute path of passed dest-dir: %w", err)
+		feedback.Errorf("Error during config init: cannot retrieve absolute path of passed dest-dir: %v", err)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 	if !configPath.IsDir() {
@@ -99,7 +99,7 @@ func runInitCommand(cmd *cobra.Command, args []string) {
 	feedback.Print("To obtain your API credentials visit https://create.arduino.cc/iot/integrations")
 	id, key, err := paramsPrompt()
 	if err != nil {
-		feedback.Errorf("Error during config init: taking config parameters: %w", err)
+		feedback.Errorf("Error during config init: taking config parameters: %v", err)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
@@ -109,11 +109,11 @@ func runInitCommand(cmd *cobra.Command, args []string) {
 	newSettings.Set("client", id)
 	newSettings.Set("secret", key)
 	if err := newSettings.WriteConfigAs(configFile.String()); err != nil {
-		feedback.Errorf("Error during config init: cannot create config file: %w", err)
+		feedback.Errorf("Error during config init: cannot create config file: %v", err)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	logrus.Info("Config file successfully initialized at: %s", configFile.String())
+	logrus.Infof("Config file successfully initialized at: %s", configFile.String())
 }
 
 func paramsPrompt() (id, key string, err error) {
