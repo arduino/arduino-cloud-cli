@@ -150,7 +150,7 @@ messages from cloud to board are not limited in size (as big as they can be)
 PUBLISH /a/d/DEVICE_ID/e/i
 {
     "thing_id": "123",
-    "OTA_URL": "pornhub.comhttps://api2.arduino.cc/iot/ota/9ef3ec89-b4e4-4dc2-8f24-c5285a6e768c",
+    "OTA_URL": "https://api2.arduino.cc/iot/ota/9ef3ec89-b4e4-4dc2-8f24-c5285a6e768c",
     "OTA_REQ": false
 }
 ```
