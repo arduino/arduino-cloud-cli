@@ -69,7 +69,7 @@ PUBLISH /a/t/THING_ID/shadow/i
 {
     "temperature": 27,
     "humidity": 0.5,
-    "OTA_URL": "https://pornhub.com",
+    "OTA_URL": "https://api2.arduino.cc/iot/ota/9ef3ec89-b4e4-4dc2-8f24-c5285a6e768c",
     "OTA_REQ": false,
     "tz_offset": 0,
     "tz_dst_until": 0,
@@ -150,7 +150,7 @@ messages from cloud to board are not limited in size (as big as they can be)
 PUBLISH /a/d/DEVICE_ID/e/i
 {
     "thing_id": "123",
-    "OTA_URL": "pornhub.com",
+    "OTA_URL": "pornhub.comhttps://api2.arduino.cc/iot/ota/9ef3ec89-b4e4-4dc2-8f24-c5285a6e768c",
     "OTA_REQ": false
 }
 ```
@@ -170,7 +170,7 @@ PUBLISH /a/t/THING_ID/shadow/i
 {
     "temperature": 27,
     "humidity": 0.5,
-    "OTA_URL": "https://pornhub.com",
+    "OTA_URL": "https://api2.arduino.cc/iot/ota/9ef3ec89-b4e4-4dc2-8f24-c5285a6e768c",
     "OTA_REQ": false,
     "tz_offset": 0,
     "tz_dst_until": 0,
@@ -185,7 +185,7 @@ PUBLISH /a/t/THING_ID/e/o
 {
     "temperature": 27,
     "humidity": 0.5,
-    "OTA_URL": "https://pornhub.com",
+    "OTA_URL": "https://api2.arduino.cc/iot/ota/9ef3ec89-b4e4-4dc2-8f24-c5285a6e768c",
     "OTA_REQ": false,
     "OTA_SHA256": "122221",
     "OTA_CAP": true,
