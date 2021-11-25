@@ -66,11 +66,11 @@ func runInitCommand(cmd *cobra.Command, args []string) {
 	// Get default destination directory if it's not passed
 	if initFlags.destDir == "" {
 		configPath, err := arduino.DataDir()
-		initFlags.destDir = configPath.String()
 		if err != nil {
 			feedback.Errorf("Error during config init: cannot retrieve arduino default directory: %v", err)
 			os.Exit(errorcodes.ErrGeneric)
 		}
+		initFlags.destDir = configPath.String()
 	}
 
 	// Validate format flag
