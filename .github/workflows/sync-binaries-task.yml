@@ -1,0 +1,52 @@
+name: Sync bins
+on: 
+  workflow_dispatch:
+  repository_dispatch:
+  push:
+# on: 
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - "binaries/**"
+
+jobs:
+  sync-binaries:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v1
+
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v1
+
+      - name: Install Arduino CLI cores and libs for provisioning
+        run: |
+          arduino-cli core update-index -v
+          arduino-cli version
+          arduino-cli core install arduino:samd
+          arduino-cli core install arduino:mbed_nano
+          arduino-cli core install arduino:mbed_portenta
+          arduino-cli lib install ArduinoIotCloud
+          arduino-cli lib install ArduinoECCX08
+          arduino-cli lib install ArduinoSTL
+          arduino-cli lib install uCRC16Lib
+          arduino-cli lib install Arduino_Portenta_OTA
+          arduino-cli lib install MKRWAN
+
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Generate binaries and index
+        run: python ./firmware/generator.py -a $(which arduino-cli)
+
+      - name: s3 sync
+        run: |
+          aws s3 sync ./firmware/binaries s3://cloud-downloads.oniudra.cc/binaries
+        env:
+          AWS_REGION: "us-east-1" # or https://github.com/aws/aws-cli/issues/5623
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
