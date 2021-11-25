@@ -76,23 +76,24 @@ func runInitCommand(cmd *cobra.Command, args []string) {
 	// Validate format flag
 	initFlags.format = strings.ToLower(initFlags.format)
 	if initFlags.format != "json" && initFlags.format != "yaml" {
-		feedback.Error("Error during config init: the provided format is not valid, it should be 'json' or 'yaml'")
+		feedback.Error("Error during config init: format is not valid, provide 'json' or 'yaml'")
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
 	// Check that the destination directory is valid and build the configuration file path
 	configPath, err := paths.New(initFlags.destDir).Abs()
 	if err != nil {
-		feedback.Errorf("Error during config init: cannot retrieve absolute path of dest-dir: %v", err)
+		feedback.Errorf("Error during config init: cannot retrieve absolute path of %s: %v", initFlags.destDir, err)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 	if !configPath.IsDir() {
-		feedback.Error("Error during config init: passed dest-dir is not a valid directory")
+		feedback.Errorf("Error during config init: %s is not a valid directory", configPath)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 	configFile := configPath.Join(config.Filename + "." + initFlags.format)
 	if !initFlags.overwrite && configFile.Exist() {
-		feedback.Error("Error during config init: config file already exists, use --overwrite to discard the existing one")
+		feedback.Errorf("Error during config init: %s already exists, use '--overwrite' to overwrite it",
+			configFile)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
@@ -100,7 +101,7 @@ func runInitCommand(cmd *cobra.Command, args []string) {
 	feedback.Print("To obtain your API credentials visit https://create.arduino.cc/iot/integrations")
 	id, key, err := paramsPrompt()
 	if err != nil {
-		feedback.Errorf("Error during config init: taking config parameters: %v", err)
+		feedback.Errorf("Error during config init: cannot take config params: %v", err)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
@@ -114,7 +115,7 @@ func runInitCommand(cmd *cobra.Command, args []string) {
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	logrus.Infof("Config file successfully initialized at: %s", configFile.String())
+	feedback.Printf("Config file successfully initialized at: %s", configFile)
 }
 
 func paramsPrompt() (id, key string, err error) {
