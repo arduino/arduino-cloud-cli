@@ -83,7 +83,7 @@ func runInitCommand(cmd *cobra.Command, args []string) {
 	// Check that the destination directory is valid and build the configuration file path
 	configPath, err := paths.New(initFlags.destDir).Abs()
 	if err != nil {
-		feedback.Errorf("Error during config init: cannot retrieve absolute path of passed dest-dir: %v", err)
+		feedback.Errorf("Error during config init: cannot retrieve absolute path of dest-dir: %v", err)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 	if !configPath.IsDir() {
