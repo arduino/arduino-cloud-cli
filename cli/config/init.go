@@ -76,7 +76,7 @@ func runInitCommand(cmd *cobra.Command, args []string) {
 	// Validate format flag
 	initFlags.format = strings.ToLower(initFlags.format)
 	if initFlags.format != "json" && initFlags.format != "yaml" {
-		feedback.Error("Error during config init: passed format is not valid, select between 'json' and 'yaml'")
+		feedback.Error("Error during config init: the provided format is not valid, it should be 'json' or 'yaml'")
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
