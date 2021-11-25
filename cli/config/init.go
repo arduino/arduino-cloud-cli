@@ -25,6 +25,7 @@ import (
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
+	"github.com/arduino/arduino-cloud-cli/arduino"
 	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/arduino/go-paths-helper"
 	"github.com/manifoldco/promptui"
@@ -64,7 +65,7 @@ func runInitCommand(cmd *cobra.Command, args []string) {
 
 	// Get default destination directory if it's not passed
 	if initFlags.destDir == "" {
-		configPath, err := config.ArduinoDir()
+		configPath, err := arduino.DataDir()
 		initFlags.destDir = configPath.String()
 		if err != nil {
 			feedback.Errorf("Error during config init: cannot retrieve arduino default directory: %v", err)
