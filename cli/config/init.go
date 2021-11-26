@@ -18,13 +18,25 @@
 package config
 
 import (
+	"errors"
+	"fmt"
 	"os"
+	"strings"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
-	"github.com/arduino/arduino-cloud-cli/command/config"
+	"github.com/arduino/arduino-cloud-cli/arduino"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
+	"github.com/arduino/go-paths-helper"
+	"github.com/manifoldco/promptui"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+)
+
+const (
+	clientIDLen     = 32
+	clientSecretLen = 64
 )
 
 var initFlags struct {
@@ -36,32 +48,105 @@ var initFlags struct {
 func initInitCommand() *cobra.Command {
 	initCommand := &cobra.Command{
 		Use:   "init",
-		Short: "Initialize a configuration file with default values",
-		Long:  "Initialize an Arduino IoT Cloud CLI configuration file with default values",
+		Short: "Initialize a configuration file",
+		Long:  "Initialize an Arduino IoT Cloud CLI configuration",
 		Run:   runInitCommand,
 	}
 
-	initCommand.Flags().StringVar(&initFlags.destDir, "dest-dir", ".", "Sets where to save the configuration file.")
-	initCommand.Flags().BoolVar(&initFlags.overwrite, "overwrite", false, "Overwrite existing config file.")
+	initCommand.Flags().StringVar(&initFlags.destDir, "dest-dir", "", "Sets where to save the configuration file")
+	initCommand.Flags().BoolVar(&initFlags.overwrite, "overwrite", false, "Overwrite existing config file")
 	initCommand.Flags().StringVar(&initFlags.format, "config-format", "yaml", "Format of the configuration file, can be {yaml|json}")
 
 	return initCommand
 }
 
 func runInitCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Initializing a config file in folder: %s", initFlags.destDir)
+	logrus.Info("Initializing config file")
 
-	params := &config.InitParams{
-		DestDir:   initFlags.destDir,
-		Overwrite: initFlags.overwrite,
-		Format:    initFlags.format,
+	// Get default destination directory if it's not passed
+	if initFlags.destDir == "" {
+		configPath, err := arduino.DataDir()
+		if err != nil {
+			feedback.Errorf("Error during config init: cannot retrieve arduino default directory: %v", err)
+			os.Exit(errorcodes.ErrGeneric)
+		}
+		initFlags.destDir = configPath.String()
 	}
 
-	err := config.Init(params)
-	if err != nil {
-		feedback.Errorf("Error during config init: %v", err)
+	// Validate format flag
+	initFlags.format = strings.ToLower(initFlags.format)
+	if initFlags.format != "json" && initFlags.format != "yaml" {
+		feedback.Error("Error during config init: format is not valid, provide 'json' or 'yaml'")
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	logrus.Info("Config file successfully initialized")
+	// Check that the destination directory is valid and build the configuration file path
+	configPath, err := paths.New(initFlags.destDir).Abs()
+	if err != nil {
+		feedback.Errorf("Error during config init: cannot retrieve absolute path of %s: %v", initFlags.destDir, err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+	if !configPath.IsDir() {
+		feedback.Errorf("Error during config init: %s is not a valid directory", configPath)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+	configFile := configPath.Join(config.Filename + "." + initFlags.format)
+	if !initFlags.overwrite && configFile.Exist() {
+		feedback.Errorf("Error during config init: %s already exists, use '--overwrite' to overwrite it",
+			configFile)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
+	// Take needed configuration parameters starting an interactive mode
+	feedback.Print("To obtain your API credentials visit https://create.arduino.cc/iot/integrations")
+	id, key, err := paramsPrompt()
+	if err != nil {
+		feedback.Errorf("Error during config init: cannot take config params: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
+	// Write the configuration file
+	newSettings := viper.New()
+	newSettings.SetConfigPermissions(os.FileMode(0600))
+	newSettings.Set("client", id)
+	newSettings.Set("secret", key)
+	if err := newSettings.WriteConfigAs(configFile.String()); err != nil {
+		feedback.Errorf("Error during config init: cannot create config file: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
+	feedback.Printf("Config file successfully initialized at: %s", configFile)
+}
+
+func paramsPrompt() (id, key string, err error) {
+	prompt := promptui.Prompt{
+		Label: "Please enter the Client ID",
+		Validate: func(s string) error {
+			if len(s) != clientIDLen {
+				return errors.New("client-id not valid")
+			}
+			return nil
+		},
+	}
+	id, err = prompt.Run()
+	if err != nil {
+		return "", "", fmt.Errorf("client prompt fail: %w", err)
+	}
+
+	prompt = promptui.Prompt{
+		Mask:  '*',
+		Label: "Please enter the Client Secret",
+		Validate: func(s string) error {
+			if len(s) != clientSecretLen {
+				return errors.New("client secret not valid")
+			}
+			return nil
+		},
+	}
+	key, err = prompt.Run()
+	if err != nil {
+		return "", "", fmt.Errorf("client secret prompt fail: %w", err)
+	}
+
+	return id, key, nil
 }
