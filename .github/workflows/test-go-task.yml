@@ -63,9 +63,9 @@ jobs:
 
       matrix:
         operating-system:
-          - ubuntu-latest
+          # - ubuntu-latest
           - windows-latest
-          - macos-latest
+          # - macos-latest
         module:
           # TODO: add paths of all Go modules here
           - path: ./
