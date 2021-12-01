@@ -43,6 +43,22 @@ jobs:
       - name: Generate binaries and index
         run: python ./firmware/generator.py -a $(which arduino-cli)
 
+        # fix `gpg: signing failed: Inappropriate ioctl for device`
+        # https://github.com/keybase/keybase-issues/issues/2798
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 -di > /tmp/private.key
+          gpg --batch --import --passphrase "${{ secrets.PASSPHRASE }}" /tmp/private.key
+          echo "GPG_TTY=$(tty)" >> $GITHUB_ENV
+
+        # disable gpg pass prompt
+        # https://stackoverflow.com/questions/49072403/suppress-the-passphrase-prompt-in-gpg-command
+      - name: sign the json
+        run: gpg --pinentry-mode=loopback --passphrase "${{ secrets.PASSPHRASE }}" --output firmware/binaries/index.json.sig --detach-sign firmware/binaries/index.json
+
+      - name: create the gzip
+        run: gzip --keep firmware/binaries/index.json
+
       - name: s3 sync
         run: |
           aws s3 sync ./firmware/binaries s3://cloud-downloads.oniudra.cc/binaries
