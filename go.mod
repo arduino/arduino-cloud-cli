@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/antihax/optional v1.0.0
 	github.com/arduino/arduino-cli v0.0.0-20210607095659-16f41352eac3
+	github.com/arduino/arduino-fwuploader v0.0.0-20211202112845-b7f323ad97e2
 	github.com/arduino/go-paths-helper v1.6.1
 	github.com/arduino/go-win32-utils v0.0.0-20180330194947-ed041402e83b
 	github.com/arduino/iot-client-go v1.3.4-0.20211116175324-9a98dd4ad269
@@ -20,6 +21,7 @@ require (
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.6.1
 	go.bug.st/serial v1.3.0
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	golang.org/x/sys v0.0.0-20211209171907-798191bca915 // indirect
