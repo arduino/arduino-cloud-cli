@@ -19,19 +19,52 @@ package device
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/arduino/arduino-cloud-cli/arduino"
+	"github.com/arduino/arduino-cloud-cli/internal/binary"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	"github.com/arduino/arduino-cloud-cli/internal/serial"
+	"github.com/arduino/go-paths-helper"
 	"github.com/sirupsen/logrus"
 )
 
+// downloadProvisioningFile downloads and returns the absolute path
+// of the provisioning binary corresponding to the passed fqbn.
+func downloadProvisioningFile(fqbn string) (string, error) {
+	index, err := binary.LoadIndex()
+	if err != nil {
+		return "", err
+	}
+	bin := index.FindProvisionBin(fqbn)
+	if bin == nil {
+		return "", errors.New("provisioning binary not found")
+	}
+	bytes, err := binary.Download(bin)
+	if err != nil {
+		return "", fmt.Errorf("downloading provisioning binary: %w", err)
+	}
+
+	// Save provision binary always in the same temporary folder
+	filename := filepath.Base(bin.URL)
+	path := paths.TempDir().Join("cloud-cli").Join(filename)
+	path.Parent().MkdirAll()
+	if err = path.WriteFile(bytes); err != nil {
+		return "", fmt.Errorf("writing provisioning binary: %w", err)
+	}
+	p, err := path.Abs()
+	if err != nil {
+		return "", fmt.Errorf("cannot retrieve absolute path of downloaded binary: %w", err)
+	}
+	return p.String(), nil
+}
+
+// provision is responsible for running the provisioning
+// procedures for boards with crypto-chip
 type provision struct {
 	arduino.Commander
 	iot.Client
@@ -40,14 +73,7 @@ type provision struct {
 	id    string
 }
 
-type binFile struct {
-	Bin      string `json:"bin"`
-	Filename string `json:"filename"`
-	Fqbn     string `json:"fqbn"`
-	Name     string `json:"name"`
-	Sha256   string `json:"sha256"`
-}
-
+// run provisioning procedure for boards with crypto-chip
 func (p provision) run() error {
 	bin, err := downloadProvisioningFile(p.board.fqbn)
 	if err != nil {
@@ -193,79 +219,6 @@ func (p provision) configBoard() error {
 	}
 
 	return nil
-}
-
-func downloadProvisioningFile(fqbn string) (string, error) {
-	// Use local binaries until they are uploaded online
-	bin := filepath.Join("./binaries/", strings.ReplaceAll(fqbn, ":", ".")+".bin")
-	bin, err := filepath.Abs(bin)
-	if err != nil {
-		return "", err
-	}
-	if _, err := os.Stat(bin); err == nil {
-		return bin, nil
-	}
-
-	elf := filepath.Join("./binaries/", strings.ReplaceAll(fqbn, ":", ".")+".elf")
-	elf, err = filepath.Abs(elf)
-	if err != nil {
-		return "", err
-	}
-	if _, err := os.Stat(elf); os.IsNotExist(err) {
-		err = fmt.Errorf("%s: %w", "fqbn not supported", err)
-		return "", err
-	}
-	return elf, nil
-
-	// TODO: upload binaries on some arduino page and enable this flow
-	//url := "https://api2.arduino.cc/iot/v2/binaries/provisioning?fqbn=" + fqbn
-	//path, _ := filepath.Abs("./provisioning.bin")
-
-	//cl := http.Client{
-	//Timeout: time.Second * 3, // Timeout after 2 seconds
-	//}
-
-	//req, err := http.NewRequest(http.MethodGet, url, nil)
-	//if err != nil {
-	//err = fmt.Errorf("%s: %w", "request provisioning binary", err)
-	//return "", err
-	//}
-	//res, err := cl.Do(req)
-	//if err != nil {
-	//err = fmt.Errorf("%s: %w", "request provisioning binary", err)
-	//return "", err
-	//}
-
-	//if res.Body != nil {
-	//defer res.Body.Close()
-	//}
-
-	//body, err := ioutil.ReadAll(res.Body)
-	//if err != nil {
-	//err = fmt.Errorf("%s: %w", "read provisioning request body", err)
-	//return "", err
-	//}
-
-	//bin := binFile{}
-	//err = json.Unmarshal(body, &bin)
-	//if err != nil {
-	//err = fmt.Errorf("%s: %w", "unmarshal provisioning binary", err)
-	//return "", err
-	//}
-
-	//bytes, err := base64.StdEncoding.DecodeString(bin.Bin)
-	//if err != nil {
-	//err = fmt.Errorf("%s: %w", "decoding provisioning binary", err)
-	//return "", err
-	//}
-
-	//err = ioutil.WriteFile(path, bytes, 0666)
-	//if err != nil {
-	//err = fmt.Errorf("%s: %w", "downloading provisioning binary", err)
-	//return "", err
-	//}
-
-	//return path, nil
 }
 
 func retry(tries int, sleep time.Duration, errMsg string, fun func() error) error {

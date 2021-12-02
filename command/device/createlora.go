@@ -3,9 +3,6 @@ package device
 import (
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/arduino/arduino-cloud-cli/arduino/cli"
@@ -64,9 +61,9 @@ func CreateLora(params *CreateLoraParams) (*DeviceLoraInfo, error) {
 		return nil, err
 	}
 
-	bin, err := deveuiBinary(board.fqbn)
+	bin, err := downloadProvisioningFile(board.fqbn)
 	if err != nil {
-		return nil, fmt.Errorf("fqbn not supported for LoRa provisioning: %w", err)
+		return nil, err
 	}
 
 	logrus.Infof("%s", "Uploading deveui sketch on the LoRa board")
@@ -112,22 +109,6 @@ func CreateLora(params *CreateLoraParams) (*DeviceLoraInfo, error) {
 		return nil, fmt.Errorf("%s: %w", "cannot provision LoRa device", err)
 	}
 	return devInfo, nil
-}
-
-// deveuiBinary gets the absolute path of the deveui binary corresponding to the
-// provisioned board's fqbn. It is contained in the local binaries folder.
-func deveuiBinary(fqbn string) (string, error) {
-	// Use local binaries until they are uploaded online
-	bin := filepath.Join("./binaries/", "getdeveui."+strings.ReplaceAll(fqbn, ":", ".")+".bin")
-	bin, err := filepath.Abs(bin)
-	if err != nil {
-		return "", fmt.Errorf("getting the deveui binary: %w", err)
-	}
-	if _, err := os.Stat(bin); os.IsNotExist(err) {
-		err = fmt.Errorf("%s: %w", "deveui binary not found", err)
-		return "", err
-	}
-	return bin, nil
 }
 
 // extractEUI extracts the EUI from the provisioned lora board.
