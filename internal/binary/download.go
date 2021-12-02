@@ -2,16 +2,13 @@ package binary
 
 import (
 	"bytes"
-	"crypto"
-	"encoding/hex"
 	"errors"
 	"fmt"
-	"hash"
-	"io"
 	"io/ioutil"
 	"net/http"
-	"strings"
 	"time"
+
+	fwuploader "github.com/arduino/arduino-fwuploader/indexes/download"
 )
 
 // Download a binary file contained in the binary index
@@ -29,7 +26,7 @@ func Download(bin *IndexBin) ([]byte, error) {
 		return nil, errors.New("download failed: invalid binary size")
 	}
 
-	err = verifyChecksum(bin.Checksum, b)
+	err = fwuploader.VerifyChecksum(bin.Checksum, bytes.NewReader(b))
 	if err != nil {
 		return nil, fmt.Errorf("verifying binary checksum: %w", err)
 	}
@@ -63,42 +60,4 @@ func download(url string) ([]byte, error) {
 		return nil, err
 	}
 	return body, nil
-}
-
-// verifyChecksum is taken and adapted from:
-// https://github.com/arduino/arduino-fwuploader/blob/383d09ce8ecbfbb843272c18437cf4a7a02101e3/indexes/download/download.go#L157
-func verifyChecksum(checksum string, file []byte) error {
-	if checksum == "" {
-		return errors.New("missing checksum")
-	}
-	split := strings.SplitN(checksum, ":", 2)
-	if len(split) != 2 {
-		return fmt.Errorf("invalid checksum format: %s", checksum)
-	}
-	digest, err := hex.DecodeString(split[1])
-	if err != nil {
-		return fmt.Errorf("invalid hash '%s': %s", split[1], err)
-	}
-
-	// names based on: https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#MessageDigest
-	var algo hash.Hash
-	switch split[0] {
-	case "SHA-256":
-		algo = crypto.SHA256.New()
-	case "SHA-1":
-		algo = crypto.SHA1.New()
-	case "MD5":
-		algo = crypto.MD5.New()
-	default:
-		return fmt.Errorf("unsupported hash algorithm: %s", split[0])
-	}
-
-	if _, err := io.Copy(algo, bytes.NewReader(file)); err != nil {
-		return fmt.Errorf("computing hash: %s", err)
-	}
-	if !bytes.Equal(algo.Sum(nil), digest) {
-		return fmt.Errorf("archive hash differs from hash in index")
-	}
-
-	return nil
 }
