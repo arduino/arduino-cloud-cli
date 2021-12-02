@@ -61,6 +61,16 @@ func CreateLora(params *CreateLoraParams) (*DeviceLoraInfo, error) {
 		return nil, err
 	}
 
+	if !board.isLora() {
+		return nil, fmt.Errorf(
+			"board with fqbn %s found at port %s is not a LoRa device."+
+				" Try 'create' command instead if it's a device with supported crypto-chip"+
+				" or 'create-generic' command otherwise",
+			board.fqbn,
+			board.port,
+		)
+	}
+
 	bin, err := downloadProvisioningFile(board.fqbn)
 	if err != nil {
 		return nil, err
