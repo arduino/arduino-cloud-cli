@@ -1,7 +1,6 @@
 name: Sync bins
 on: 
   workflow_dispatch:
-  pull_request:
   push:
     paths:
       - "firmware/**"
