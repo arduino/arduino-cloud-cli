@@ -1,14 +1,13 @@
 name: Sync bins
 on: 
   workflow_dispatch:
-  repository_dispatch:
+  pull_request:
   push:
-# on: 
-#   push:
-#     branches:
-#       - main
-#     paths:
-#       - "binaries/**"
+    paths:
+      - "firmware/**"
+      - ".github/workflows/sync-binaries-task.yml"
+    branches:
+      - main
 
 jobs:
   sync-binaries:
