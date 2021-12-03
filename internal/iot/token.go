@@ -19,7 +19,9 @@ package iot
 
 import (
 	"context"
+	"fmt"
 	"net/url"
+	"strings"
 
 	"golang.org/x/oauth2"
 	cc "golang.org/x/oauth2/clientcredentials"
@@ -37,5 +39,9 @@ func token(client, secret string) (*oauth2.Token, error) {
 		EndpointParams: additionalValues,
 	}
 	// Get the access token in exchange of client_id and client_secret
-	return config.Token(context.Background())
+	t, err := config.Token(context.Background())
+	if err != nil && strings.Contains(err.Error(), "401") {
+		return nil, fmt.Errorf("wrong credentials")
+	}
+	return t, err
 }
