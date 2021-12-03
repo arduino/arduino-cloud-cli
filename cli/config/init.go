@@ -34,11 +34,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-const (
-	clientIDLen     = 32
-	clientSecretLen = 64
-)
-
 var initFlags struct {
 	destDir   string
 	overwrite bool
@@ -122,7 +117,7 @@ func paramsPrompt() (id, key string, err error) {
 	prompt := promptui.Prompt{
 		Label: "Please enter the Client ID",
 		Validate: func(s string) error {
-			if len(s) != clientIDLen {
+			if len(s) != config.ClientIDLen {
 				return errors.New("client-id not valid")
 			}
 			return nil
@@ -137,7 +132,7 @@ func paramsPrompt() (id, key string, err error) {
 		Mask:  '*',
 		Label: "Please enter the Client Secret",
 		Validate: func(s string) error {
-			if len(s) != clientSecretLen {
+			if len(s) != config.ClientSecretLen {
 				return errors.New("client secret not valid")
 			}
 			return nil
