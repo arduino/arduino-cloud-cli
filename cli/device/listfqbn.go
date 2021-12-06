@@ -67,7 +67,7 @@ func (r listFQBNResult) String() string {
 	for _, f := range r.fqbn {
 		t.AddRow(
 			f.Name,
-			f.FQBN,
+			f.Value,
 		)
 	}
 	return t.Render()

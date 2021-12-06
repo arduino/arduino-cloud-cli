@@ -24,10 +24,34 @@ import (
 	"net/http"
 )
 
-// FrequencyPlanInfo describes a LoRa frequency plan.
+const (
+	arduinoPackage = "arduino"
+	esp32Package   = "esp32"
+	esp8266Package = "esp8266"
+)
+
+var (
+	// this is temporary... it will be removed when
+	// https://github.com/arduino/arduino-cloud-cli/pull/74/files#diff-d891696d5c17ea0eecc6b1c23802cbaf553379e701c5e0e1ff23ee0d26d2877cR27-R39
+	// will be merged
+	compatibleArduinoFQBN = []string{
+		"arduino:samd:nano_33_iot",
+		"arduino:samd:mkrwifi1010",
+		"arduino:mbed_nano:nanorp2040connect",
+		"arduino:mbed_portenta:envie_m7",
+		"arduino:samd:mkr1000",
+		"arduino:samd:mkrgsm1400",
+		"arduino:samd:mkrnb1500",
+		"arduino:samd:mkrwan1310",
+		"arduino:samd:mkrwan1300",
+	}
+)
+
+// FQBNInfo contains the details of a FQBN.
 type FQBNInfo struct {
-	Name string `json:"name"`
-	FQBN string `json:"fqbn"`
+	Value   string `json:"fqbn"`
+	Name    string `json:"name"`
+	Package string `json:"package"`
 }
 
 // ListFQBN command returns a list of the supported FQBN.
@@ -43,11 +67,35 @@ func ListFQBN() ([]FQBNInfo, error) {
 		return nil, fmt.Errorf("reading boards from builder.arduino.cc: cannot read response's body: %w", err)
 	}
 
-	var flist struct {
-		FQBN []FQBNInfo `json:"items"`
+	var fqbnList struct {
+		Items []FQBNInfo `json:"items"`
 	}
-	if err = json.Unmarshal(body, &flist); err != nil {
+	if err = json.Unmarshal(body, &fqbnList); err != nil {
 		return nil, fmt.Errorf("cannot parse boards retrieved from builder.arduino.cc: %w", err)
 	}
-	return flist.FQBN, nil
+
+	fqbnList.Items = filterFQBN(fqbnList.Items)
+	return fqbnList.Items, nil
+}
+
+// filterFQBN takes a list of fqbn and returns only the
+// ones supported by iot cloud.
+func filterFQBN(ls []FQBNInfo) []FQBNInfo {
+	filtered := make([]FQBNInfo, 0, len(ls))
+	for _, fqbn := range ls {
+		switch fqbn.Package {
+
+		case esp32Package, esp8266Package:
+			filtered = append(filtered, fqbn)
+
+		case arduinoPackage:
+			for _, b := range compatibleArduinoFQBN {
+				if fqbn.Value == b {
+					filtered = append(filtered, fqbn)
+					break
+				}
+			}
+		}
+	}
+	return filtered
 }
