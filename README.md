@@ -34,7 +34,7 @@ Another example: let's say that the execution of the previous command results in
 arduino-cloud-cli needs a configuration file containing an Arduino IoT Cloud client ID and its corresponding secret.
 You can retrieve these credentials from the [cloud](https://create.arduino.cc/iot/integrations) by creating a new API key.
 
-Once you have the credentials, call the following command and insert them to create a new configuration file:
+Once you have the credentials, execute the following command and provide them when asked to create a new configuration file:
 
 `$ arduino-cloud-cli config init`
 
