@@ -74,9 +74,9 @@ func (r createGenericResult) Data() interface{} {
 func (r createGenericResult) String() string {
 	return fmt.Sprintf(
 		"id: %s\nsecret-key: %s\nname: %s\nboard: %s\nserial-number: %s\nfqbn: %s",
-		r.device.Name,
-		r.device.Password,
 		r.device.ID,
+		r.device.Password,
+		r.device.Name,
 		r.device.Board,
 		r.device.Serial,
 		r.device.FQBN,
