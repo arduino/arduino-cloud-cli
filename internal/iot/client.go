@@ -34,6 +34,7 @@ type Client interface {
 	DeviceList(tags map[string]string) ([]iotclient.ArduinoDevicev2, error)
 	DeviceShow(id string) (*iotclient.ArduinoDevicev2, error)
 	DeviceOTA(id string, file *os.File, expireMins int) error
+	DevicePassShow(id string) (*iotclient.ArduinoDevicev2Pass, error)
 	DeviceTagsCreate(id string, tags map[string]string) error
 	DeviceTagsDelete(id string, keys []string) error
 	LoraFrequencyPlansList() ([]iotclient.ArduinoLorafreqplanv1, error)
@@ -103,6 +104,17 @@ func (cl *client) DeviceLoraCreate(name, serial, devType, eui, freq string) (*io
 		return nil, err
 	}
 	return &dev, nil
+}
+
+// DevicePassShow fetches and returns the password associated to a device on Arduino IoT Cloud.
+func (cl *client) DevicePassShow(id string) (*iotclient.ArduinoDevicev2Pass, error) {
+	opts := &iotclient.DevicesV2PassGetOpts{SuggestedPassword: optional.NewBool(true)}
+	pass, _, err := cl.api.DevicesV2PassApi.DevicesV2PassGet(cl.ctx, id, opts)
+	if err != nil {
+		err = fmt.Errorf("fetching device password: %w", errorDetail(err))
+		return nil, err
+	}
+	return &pass, nil
 }
 
 // DeviceDelete deletes the device corresponding to the passed ID
