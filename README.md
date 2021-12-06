@@ -38,8 +38,8 @@ Once you have the credentials, execute the following command and provide them wh
 
 `$ arduino-cloud-cli config init`
 
-By default, the configuration file will be created in the default arduino data directory (arduino15). 
-To create a configuration file in a different folder, use the `--dest-dir` flag. 
+By default it will be created in the arduino data directory (arduino15). 
+You can specify a different destination folder with the `--dest-dir` option. 
 Note that you can have several configuration files, in such case the config file being used will depend on which directory you are executing commands in. The priority is the following (from highest to lowest): config in the same directory commands are executed in (highest priority); config located in parents directories of the one commands are executed in; arduino15 default directory (lowest priority)
 
 `$ arduino-cloud-cli config init --dest-dir <destinationFolder>`
