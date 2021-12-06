@@ -28,35 +28,13 @@ import (
 
 func TestRetrieve(t *testing.T) {
 	var (
-		validSecret     = "qaRZGEbnQNNvmaeTLqy8Bxs22wLZ6H7obIiNSveTLPdoQuylANnuy6WBOw16XoqH"
-		validClient     = "CQ4iZ5sebOfhGRwUn3IV0r1YFMNrMTIx"
-		validConfig     = &Config{validClient, validSecret}
-		invalidConfig   = &Config{"", validSecret}
-		clientEnv       = EnvPrefix + "_CLIENT"
-		secretEnv       = EnvPrefix + "_SECRET"
-		clientEnvBackup *string
-		secretEnvBackup *string
+		validSecret   = "qaRZGEbnQNNvmaeTLqy8Bxs22wLZ6H7obIiNSveTLPdoQuylANnuy6WBOw16XoqH"
+		validClient   = "CQ4iZ5sebOfhGRwUn3IV0r1YFMNrMTIx"
+		validConfig   = &Config{validClient, validSecret}
+		invalidConfig = &Config{"", validSecret}
+		clientEnv     = EnvPrefix + "_CLIENT"
+		secretEnv     = EnvPrefix + "_SECRET"
 	)
-
-	// Preserve user environment variables when executing this test
-	_ = func() {
-		if c, ok := os.LookupEnv(clientEnv); ok {
-			clientEnvBackup = &c
-		}
-		if s, ok := os.LookupEnv(secretEnv); ok {
-			secretEnvBackup = &s
-		}
-	}
-	_ = func() {
-		if clientEnvBackup != nil {
-			os.Setenv(clientEnv, *clientEnvBackup)
-			clientEnvBackup = nil
-		}
-		if secretEnvBackup != nil {
-			os.Setenv(secretEnv, *secretEnvBackup)
-			secretEnvBackup = nil
-		}
-	}
 
 	tests := []struct {
 		name         string
@@ -68,14 +46,12 @@ func TestRetrieve(t *testing.T) {
 		{
 			name: "valid config written in env",
 			pre: func() {
-				// pushEnv()
 				os.Setenv(clientEnv, validConfig.Client)
 				os.Setenv(secretEnv, validConfig.Secret)
 			},
 			post: func() {
 				os.Unsetenv(clientEnv)
 				os.Unsetenv(secretEnv)
-				// popEnv()
 			},
 			wantedConfig: validConfig,
 			wantedErr:    false,
@@ -84,14 +60,12 @@ func TestRetrieve(t *testing.T) {
 		{
 			name: "invalid config written in env",
 			pre: func() {
-				// pushEnv()
 				os.Setenv(clientEnv, validConfig.Client)
 				os.Setenv(secretEnv, "")
 			},
 			post: func() {
 				os.Unsetenv(clientEnv)
 				os.Unsetenv(secretEnv)
-				// popEnv()
 			},
 			wantedConfig: nil,
 			wantedErr:    true,
