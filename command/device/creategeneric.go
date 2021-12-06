@@ -32,7 +32,7 @@ const (
 // to create a new generic device.
 type CreateGenericParams struct {
 	Name string // Device name
-	Fqbn string // Board FQBN
+	FQBN string // Board FQBN
 }
 
 // DeviceGenericInfo contains the most interesting
@@ -53,7 +53,7 @@ func CreateGeneric(params *CreateGenericParams) (*DeviceGenericInfo, error) {
 		return nil, err
 	}
 
-	dev, err := iotClient.DeviceCreate(params.Fqbn, params.Name, "", genericDType)
+	dev, err := iotClient.DeviceCreate(params.FQBN, params.Name, "", genericDType)
 	if err != nil {
 		return nil, err
 	}

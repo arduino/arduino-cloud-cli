@@ -51,7 +51,7 @@ func runCreateGenericCommand(cmd *cobra.Command, args []string) {
 
 	params := &device.CreateGenericParams{
 		Name: createGenericFlags.name,
-		Fqbn: createGenericFlags.fqbn,
+		FQBN: createGenericFlags.fqbn,
 	}
 
 	dev, err := device.CreateGeneric(params)
