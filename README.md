@@ -31,19 +31,18 @@ Another example: let's say that the execution of the previous command results in
 
 ## Set a configuration
 
-arduino-cloud-cli needs a configuration file to be used. At the moment, the configuration file should be contained in the same directory where the cli commands are executed.
-The configuration file contains the Arduino IoT Cloud client ID and its corresponding secret.
-You can retrieve them from the [cloud](https://create.arduino.cc/iot/integrations) by creating a new API key.
+arduino-cloud-cli needs a configuration file containing an Arduino IoT Cloud client ID and its corresponding secret.
+You can retrieve these credentials from the [cloud](https://create.arduino.cc/iot/integrations) by creating a new API key.
 
-Once you have the IDs, call this command to init a new configuration file:
+Once you have the credentials, execute the following command and provide them when asked to create a new configuration file:
 
 `$ arduino-cloud-cli config init`
 
-A file named `arduino-cloud.yaml` will be created in the current working directory. 
-Then you should open such file and replace the client and secret placeholders with the value you previously retrieved.
+By default it will be created in the arduino data directory (arduino15). 
+You can specify a different destination folder with the `--dest-dir` option. 
+arduino-cloud-cli looks for its configuration file in different directories in the following order: current working directory, parents of the current working directory, arduino15 default directory.
 
-
-To create a configuration file in a different folder, use this command:
+This gives you the possibility to use different configuration files depending on the project you are working on.
 
 `$ arduino-cloud-cli config init --dest-dir <destinationFolder>`
 
