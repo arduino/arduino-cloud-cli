@@ -74,6 +74,14 @@ The list of supported LoRa frequency plans can be retrieved with:
 
 `$ arduino-cloud-cli device list-frequency-plans`
 
+#### Generic device
+
+A generic device is like a virtual device that doesn't need to be attached to an actual physical board.
+Any actual physical board can connect to Arduino IoT Cloud using the credentials of a generic device.
+Generic devices can be created using a specific command. 
+An optional `--fqbn` flag can be passed to specify the fqbn of the device, otherwise it will be set to `generic:generic:generic`.
+
+`$ arduino-cloud-cli device create-generic --name <deviceName> --fqbn <fqbn>`
 
 ## Device commands
 
