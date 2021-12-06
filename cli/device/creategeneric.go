@@ -41,7 +41,7 @@ func initCreateGenericCommand() *cobra.Command {
 		Run:   runCreateGenericCommand,
 	}
 	createGenericCommand.Flags().StringVarP(&createGenericFlags.name, "name", "n", "", "Device name")
-	createGenericCommand.Flags().StringVarP(&createGenericFlags.fqbn, "fqbn", "b", "generic", "Device fqbn")
+	createGenericCommand.Flags().StringVarP(&createGenericFlags.fqbn, "fqbn", "b", "generic:generic:generic", "Device fqbn")
 	createGenericCommand.MarkFlagRequired("name")
 	return createGenericCommand
 }
