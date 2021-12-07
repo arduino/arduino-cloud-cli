@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 const (
@@ -56,7 +57,8 @@ type FQBNInfo struct {
 
 // ListFQBN command returns a list of the supported FQBN.
 func ListFQBN() ([]FQBNInfo, error) {
-	resp, err := http.Get("https://builder.arduino.cc/v3/boards/")
+	h := &http.Client{Timeout: time.Second * 5}
+	resp, err := h.Get("https://builder.arduino.cc/v3/boards/")
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve boards from builder.arduino.cc: %w", err)
 	}
