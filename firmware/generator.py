@@ -41,8 +41,10 @@ def sha2(file_path):
         return hashlib.sha256(f.read()).hexdigest()
 
 # Runs arduino-cli
-def arduino_cli(cli_path, args=[]):
-    res = subprocess.run([cli_path, *args], capture_output=True, text=True)
+def arduino_cli(cli_path, args=None):
+    if args is None:
+        args=[]
+    res = subprocess.run([cli_path, *args], capture_output=True, text=True, check=True)
     return res.stdout, res.stderr
 
 def provision_binary_details(board):
@@ -102,7 +104,6 @@ if __name__ == "__main__":
         "--arduino-cli",
         default="arduino-cli",
         help="Path to arduino-cli executable",
-        required=False,
     )
     args = parser.parse_args(sys.argv[1:])
     generate_binaries(args.arduino_cli, BOARDS)
