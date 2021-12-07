@@ -9,7 +9,7 @@ from pathlib import Path
 import argparse
 import subprocess
 
-DOWNLOAD_URL = "https://cloud-downloads.oniudra.cc"
+DOWNLOAD_URL = "https://cloud-downloads.arduino.cc"
 
 PROVISION_BINARY_PATHS = {
     "lora": "binaries/provision/lora",

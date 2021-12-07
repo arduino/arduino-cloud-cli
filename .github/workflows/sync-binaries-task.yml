@@ -60,7 +60,7 @@ jobs:
 
       - name: s3 sync
         run: |
-          aws s3 sync ./firmware/binaries s3://cloud-downloads.oniudra.cc/binaries
+          aws s3 sync ./firmware/binaries s3://cloud-downloads.arduino.cc/binaries
         env:
           AWS_REGION: "us-east-1" # or https://github.com/aws/aws-cli/issues/5623
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
