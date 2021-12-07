@@ -217,8 +217,8 @@ func (_m *Client) DeviceOTA(id string, file *os.File, expireMins int) error {
 	return r0
 }
 
-// DevicePassShow provides a mock function with given fields: id
-func (_m *Client) DevicePassShow(id string) (*iot.ArduinoDevicev2Pass, error) {
+// DevicePassSet provides a mock function with given fields: id
+func (_m *Client) DevicePassSet(id string) (*iot.ArduinoDevicev2Pass, error) {
 	ret := _m.Called(id)
 
 	var r0 *iot.ArduinoDevicev2Pass
