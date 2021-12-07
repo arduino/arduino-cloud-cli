@@ -58,12 +58,12 @@ func CreateGeneric(params *CreateGenericParams) (*DeviceGenericInfo, error) {
 		return nil, err
 	}
 
-	pass, err := iotClient.DevicePassShow(dev.Id)
+	pass, err := iotClient.DevicePassSet(dev.Id)
 	if err != nil {
 		if errDel := iotClient.DeviceDelete(dev.Id); errDel != nil {
 			return nil, fmt.Errorf(
 				"device was successfully created on IoT-API but " +
-					"now we can't fetch its secret key nor delete it - please check " +
+					"now we can't set its secret key nor delete it - please check " +
 					"it on the web application.\n\nFetch error: " + err.Error() +
 					"\nDeletion error: " + errDel.Error(),
 			)

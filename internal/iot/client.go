@@ -34,7 +34,7 @@ type Client interface {
 	DeviceList(tags map[string]string) ([]iotclient.ArduinoDevicev2, error)
 	DeviceShow(id string) (*iotclient.ArduinoDevicev2, error)
 	DeviceOTA(id string, file *os.File, expireMins int) error
-	DevicePassShow(id string) (*iotclient.ArduinoDevicev2Pass, error)
+	DevicePassSet(id string) (*iotclient.ArduinoDevicev2Pass, error)
 	DeviceTagsCreate(id string, tags map[string]string) error
 	DeviceTagsDelete(id string, keys []string) error
 	LoraFrequencyPlansList() ([]iotclient.ArduinoLorafreqplanv1, error)
@@ -106,12 +106,21 @@ func (cl *client) DeviceLoraCreate(name, serial, devType, eui, freq string) (*io
 	return &dev, nil
 }
 
-// DevicePassShow fetches and returns the password associated to a device on Arduino IoT Cloud.
-func (cl *client) DevicePassShow(id string) (*iotclient.ArduinoDevicev2Pass, error) {
+// DevicePassSet sets the device password to the one suggested by Arduino IoT Cloud.
+// Returns the set password.
+func (cl *client) DevicePassSet(id string) (*iotclient.ArduinoDevicev2Pass, error) {
+	// Fetch suggested password
 	opts := &iotclient.DevicesV2PassGetOpts{SuggestedPassword: optional.NewBool(true)}
 	pass, _, err := cl.api.DevicesV2PassApi.DevicesV2PassGet(cl.ctx, id, opts)
 	if err != nil {
-		err = fmt.Errorf("fetching device password: %w", errorDetail(err))
+		err = fmt.Errorf("fetching device suggested password: %w", errorDetail(err))
+		return nil, err
+	}
+	// Set password to the suggested one
+	p := iotclient.Devicev2Pass{Password: pass.SuggestedPassword}
+	pass, _, err = cl.api.DevicesV2PassApi.DevicesV2PassSet(cl.ctx, id, p)
+	if err != nil {
+		err = fmt.Errorf("setting device password: %w", errorDetail(err))
 		return nil, err
 	}
 	return &pass, nil
