@@ -76,8 +76,7 @@ func ListFQBN() ([]FQBNInfo, error) {
 		return nil, fmt.Errorf("cannot parse boards retrieved from builder.arduino.cc: %w", err)
 	}
 
-	fqbnList.Items = filterFQBN(fqbnList.Items)
-	return fqbnList.Items, nil
+	return filterFQBN(fqbnList.Items), nil
 }
 
 // filterFQBN takes a list of fqbn and returns only the
