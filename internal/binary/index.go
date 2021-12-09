@@ -84,7 +84,7 @@ func LoadIndex() (*Index, error) {
 
 	signer, err := openpgp.CheckDetachedSignature(keyRing, bytes.NewReader(index), bytes.NewReader(sig))
 	if signer == nil || err != nil {
-		return nil, fmt.Errorf("index at %s not valid", IndexGZURL)
+		return nil, fmt.Errorf("invalid signature for index downloaded from %s", IndexGZURL)
 	}
 
 	i := &Index{}
