@@ -53,7 +53,7 @@ func Download(bin *IndexBin) ([]byte, error) {
 
 func download(url string) ([]byte, error) {
 	cl := http.Client{
-		Timeout: time.Second * 3, // Timeout after 2 seconds
+		Timeout: time.Second * 3
 	}
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
