@@ -79,7 +79,7 @@ func LoadIndex() (*Index, error) {
 
 	keyRing, err := openpgp.ReadKeyRing(bytes.NewReader(gpgkey.IndexPublicKey))
 	if err != nil {
-		return nil, fmt.Errorf("retrieving Arduino public key: %w", err)
+		return nil, fmt.Errorf("cannot retrieve Arduino public GPG key: %w", err)
 	}
 
 	signer, err := openpgp.CheckDetachedSignature(keyRing, bytes.NewReader(index), bytes.NewReader(sig))
