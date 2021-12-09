@@ -40,7 +40,7 @@ const (
 // Index contains details about all the binaries
 // loaded in 'cloud-downloads'
 type Index struct {
-	Boards []IndexBoard
+	Boards []IndexBoard `json:"boards"`
 }
 
 // IndexBoard describes all the binaries available for a specific board
@@ -89,7 +89,7 @@ func LoadIndex() (*Index, error) {
 	}
 
 	i := &Index{}
-	if err = json.Unmarshal(index, &i.Boards); err != nil {
+	if err = json.Unmarshal(index, &i); err != nil {
 		return nil, fmt.Errorf("cannot unmarshal index json: %w", err)
 	}
 	return i, nil
