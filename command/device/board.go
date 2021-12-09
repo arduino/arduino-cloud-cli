@@ -77,8 +77,12 @@ func boardFromPorts(ports []*rpc.DetectedPort, params *CreateParams) *board {
 		}
 		boardFound := boardFilter(port.Boards, params)
 		if boardFound != nil {
-			t := strings.Split(boardFound.Fqbn, ":")[2]
-			b := &board{boardFound.Fqbn, port.SerialNumber, t, port.Address}
+			b := &board{
+				fqbn:   boardFound.Fqbn,
+				serial: port.SerialNumber,
+				dType:  strings.Split(boardFound.Fqbn, ":")[2],
+				port:   port.Address,
+			}
 			return b
 		}
 	}
