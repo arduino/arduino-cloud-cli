@@ -55,8 +55,8 @@ type IndexBin struct {
 	Size     json.Number `json:"size"`
 }
 
-// LoadIndex downloads and verify the index of binaries contained
-// in 'cloud-downloads'
+// LoadIndex downloads and verifies the index of binaries
+// contained in 'cloud-downloads'.
 func LoadIndex() (*Index, error) {
 	indexGZ, err := download(IndexGZURL)
 	if err != nil {
