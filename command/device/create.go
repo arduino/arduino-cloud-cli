@@ -55,9 +55,9 @@ func Create(params *CreateParams) (*DeviceInfo, error) {
 
 	if !board.isCrypto() {
 		return nil, fmt.Errorf(
-			"board with fqbn %s found at port %s is not a device with supported crypto-chip.\n"+
-				"Try 'create-lora' command instead if it's a LoRa device"+
-				" or 'create-generic' command otherwise",
+			"board with fqbn %s found at port %s is not a device with a supported crypto-chip.\n"+
+				"Try the 'create-lora' command instead if it's a LoRa device"+
+				" or 'create-generic' otherwise.",
 			board.fqbn,
 			board.port,
 		)
