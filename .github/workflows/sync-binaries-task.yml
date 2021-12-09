@@ -39,7 +39,8 @@ jobs:
           python-version: "3.9"
 
       - name: Generate binaries and index
-        run: python ./firmware/generator.py -a $(which arduino-cli)
+        run: |
+          ./firmware/generator.py
 
         # fix `gpg: signing failed: Inappropriate ioctl for device`
         # https://github.com/keybase/keybase-issues/issues/2798
@@ -57,10 +58,10 @@ jobs:
       - name: create the gzip
         run: gzip --keep firmware/binaries/index.json
 
-      - name: s3 sync
+      - name: Upload binaries and index on S3
         run: |
           aws s3 sync ./firmware/binaries s3://cloud-downloads.arduino.cc/binaries
         env:
-          AWS_REGION: "us-east-1" # or https://github.com/aws/aws-cli/issues/5623
+          AWS_REGION: "us-east-1" 
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
