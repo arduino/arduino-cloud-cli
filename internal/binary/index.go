@@ -22,6 +22,9 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+
+	"compress/gzip"
 
 	"github.com/arduino/arduino-cloud-cli/internal/binary/gpgkey"
 	"golang.org/x/crypto/openpgp"
@@ -29,7 +32,7 @@ import (
 
 const (
 	// URL of cloud-team binary index
-	BinaryIndexURL = "https://cloud-downloads.arduino.cc/binaries/index.json"
+	BinaryIndexGZURL = "https://cloud-downloads.arduino.cc/binaries/index.json.gz"
 	// URL of binary index signature
 	BinaryIndexSigURL = "https://cloud-downloads.arduino.cc/binaries/index.json.sig"
 )
@@ -56,9 +59,18 @@ type IndexBin struct {
 // LoadIndex downloads and verify the index of binaries contained
 // in 'cloud-downloads'
 func LoadIndex() (*Index, error) {
-	index, err := download(BinaryIndexURL)
+	indexGZ, err := download(BinaryIndexGZURL)
 	if err != nil {
 		return nil, fmt.Errorf("cannot download index: %w", err)
+	}
+
+	indexReader, err := gzip.NewReader(bytes.NewReader(indexGZ))
+	if err != nil {
+		return nil, fmt.Errorf("cannot decompress index: %w", err)
+	}
+	index, err := ioutil.ReadAll(indexReader)
+	if err != nil {
+		return nil, fmt.Errorf("cannot read downloaded index: %w", err)
 	}
 
 	sig, err := download(BinaryIndexSigURL)
@@ -73,12 +85,14 @@ func LoadIndex() (*Index, error) {
 
 	signer, err := openpgp.CheckDetachedSignature(keyRing, bytes.NewReader(index), bytes.NewReader(sig))
 	if signer == nil || err != nil {
-		return nil, fmt.Errorf("index at %s not valid", BinaryIndexURL)
+		return nil, fmt.Errorf("index at %s not valid", BinaryIndexGZURL)
 	}
 
 	i := &Index{}
-	err = json.Unmarshal(index, &i.Boards)
-	return i, err
+	if err = json.Unmarshal(index, &i.Boards); err != nil {
+		return nil, fmt.Errorf("cannot unmarshal index json: %w", err)
+	}
+	return i, nil
 }
 
 // FindProvisionBin looks for the provisioning binary corresponding
