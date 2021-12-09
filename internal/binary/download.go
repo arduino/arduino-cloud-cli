@@ -40,7 +40,7 @@ func Download(bin *IndexBin) ([]byte, error) {
 		return nil, fmt.Errorf("cannot retrieve binary size: %w", err)
 	}
 	if len(b) != int(sz) {
-		return nil, errors.New("download failed: invalid binary size")
+		return nil, fmt.Errorf("download failed: invalid binary size, expected %d bytes but got %d", sz, len(b))
 	}
 
 	err = fwuploader.VerifyChecksum(bin.Checksum, bytes.NewReader(b))
