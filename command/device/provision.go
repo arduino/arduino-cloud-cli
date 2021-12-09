@@ -19,7 +19,6 @@ package device
 
 import (
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"path/filepath"
 	"strconv"
@@ -42,7 +41,7 @@ func downloadProvisioningFile(fqbn string) (string, error) {
 	}
 	bin := index.FindProvisionBin(fqbn)
 	if bin == nil {
-		return "", errors.New("provisioning binary not found")
+		return "", fmt.Errorf("provisioning binary for board %s not found", fqbn)
 	}
 	bytes, err := binary.Download(bin)
 	if err != nil {

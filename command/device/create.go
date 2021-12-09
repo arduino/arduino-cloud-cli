@@ -57,7 +57,7 @@ func Create(params *CreateParams) (*DeviceInfo, error) {
 		return nil, fmt.Errorf(
 			"board with fqbn %s found at port %s is not a device with a supported crypto-chip.\n"+
 				"Try the 'create-lora' command instead if it's a LoRa device"+
-				" or 'create-generic' otherwise.",
+				" or 'create-generic' otherwise",
 			board.fqbn,
 			board.port,
 		)
