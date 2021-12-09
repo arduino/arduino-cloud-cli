@@ -49,7 +49,8 @@ func downloadProvisioningFile(fqbn string) (string, error) {
 		return "", fmt.Errorf("downloading provisioning binary: %w", err)
 	}
 
-	// Save provision binary always in the same temporary folder
+	// Save provision binary always in the same temporary folder to
+	// avoid wasting user's storage.
 	filename := filepath.Base(bin.URL)
 	path := paths.TempDir().Join("cloud-cli").Join(filename)
 	path.Parent().MkdirAll()
