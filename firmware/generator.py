@@ -68,11 +68,11 @@ def provision_binary_details(board):
     }
 
 def generate_index(boards):
-    index_json = []
+    index_json = {"boards": []}
     for board in boards:
         index_board = {"fqbn": board["fqbn"]}
         index_board["provision"] = provision_binary_details(board)
-        index_json.append(index_board)
+        index_json["boards"].append(index_board)
 
     p = Path(__file__).parent / INDEX_PATH
     with open(p, "w") as f:
