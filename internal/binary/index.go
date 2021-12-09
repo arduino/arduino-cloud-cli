@@ -29,9 +29,9 @@ import (
 
 const (
 	// URL of cloud-team binary index
-	BinaryIndexURL = "https://cloud-downloads.oniudra.cc/binaries/index.json"
+	BinaryIndexURL = "https://cloud-downloads.arduino.cc/binaries/index.json"
 	// URL of binary index signature
-	BinaryIndexSigURL = "https://cloud-downloads.oniudra.cc/binaries/index.json.sig"
+	BinaryIndexSigURL = "https://cloud-downloads.arduino.cc/binaries/index.json.sig"
 )
 
 // Index contains details about all the binaries
