@@ -32,9 +32,8 @@ import (
 
 const (
 	// URL of cloud-team binary index
-	BinaryIndexGZURL = "https://cloud-downloads.arduino.cc/binaries/index.json.gz"
-	// URL of binary index signature
-	BinaryIndexSigURL = "https://cloud-downloads.arduino.cc/binaries/index.json.sig"
+	IndexGZURL  = "https://cloud-downloads.arduino.cc/binaries/index.json.gz"
+	IndexSigURL = "https://cloud-downloads.arduino.cc/binaries/index.json.sig"
 )
 
 // Index contains details about all the binaries
@@ -59,7 +58,7 @@ type IndexBin struct {
 // LoadIndex downloads and verify the index of binaries contained
 // in 'cloud-downloads'
 func LoadIndex() (*Index, error) {
-	indexGZ, err := download(BinaryIndexGZURL)
+	indexGZ, err := download(IndexGZURL)
 	if err != nil {
 		return nil, fmt.Errorf("cannot download index: %w", err)
 	}
@@ -73,7 +72,7 @@ func LoadIndex() (*Index, error) {
 		return nil, fmt.Errorf("cannot read downloaded index: %w", err)
 	}
 
-	sig, err := download(BinaryIndexSigURL)
+	sig, err := download(IndexSigURL)
 	if err != nil {
 		return nil, fmt.Errorf("cannot download index signature: %w", err)
 	}
@@ -85,7 +84,7 @@ func LoadIndex() (*Index, error) {
 
 	signer, err := openpgp.CheckDetachedSignature(keyRing, bytes.NewReader(index), bytes.NewReader(sig))
 	if signer == nil || err != nil {
-		return nil, fmt.Errorf("index at %s not valid", BinaryIndexGZURL)
+		return nil, fmt.Errorf("index at %s not valid", IndexGZURL)
 	}
 
 	i := &Index{}
