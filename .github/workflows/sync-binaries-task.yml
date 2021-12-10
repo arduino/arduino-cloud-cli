@@ -1,0 +1,67 @@
+name: Sync bins
+on: 
+  workflow_dispatch:
+  push:
+    paths:
+      - "firmware/**"
+      - ".github/workflows/sync-binaries-task.yml"
+    branches:
+      - main
+
+jobs:
+  sync-binaries:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v1
+
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v1
+
+      - name: Install Arduino CLI cores and libs for provisioning
+        run: |
+          arduino-cli core update-index -v
+          arduino-cli version
+          arduino-cli core install arduino:samd
+          arduino-cli core install arduino:mbed_nano
+          arduino-cli core install arduino:mbed_portenta
+          arduino-cli lib install ArduinoIotCloud
+          arduino-cli lib install ArduinoECCX08
+          arduino-cli lib install ArduinoSTL
+          arduino-cli lib install uCRC16Lib
+          arduino-cli lib install Arduino_Portenta_OTA
+          arduino-cli lib install MKRWAN
+
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Generate binaries and index
+        run: |
+          ./firmware/generator.py
+
+        # fix `gpg: signing failed: Inappropriate ioctl for device`
+        # https://github.com/keybase/keybase-issues/issues/2798
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 -di > /tmp/private.key
+          gpg --batch --import --passphrase "${{ secrets.PASSPHRASE }}" /tmp/private.key
+          echo "GPG_TTY=$(tty)" >> $GITHUB_ENV
+
+        # disable gpg pass prompt
+        # https://stackoverflow.com/questions/49072403/suppress-the-passphrase-prompt-in-gpg-command
+      - name: sign the json
+        run: gpg --pinentry-mode=loopback --passphrase "${{ secrets.PASSPHRASE }}" --output firmware/binaries/index.json.sig --detach-sign firmware/binaries/index.json
+
+      - name: create the gzip
+        run: gzip --keep firmware/binaries/index.json
+
+      - name: Upload binaries and index on S3
+        run: |
+          aws s3 sync ./firmware/binaries s3://cloud-downloads.arduino.cc/binaries
+        env:
+          AWS_REGION: "us-east-1" 
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
