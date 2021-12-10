@@ -44,10 +44,3 @@ func TestFindProvisionBin(t *testing.T) {
 		t.Fatalf("provision binary should've not be found, but got: %v", bin)
 	}
 }
-
-func TestLoadIndex(t *testing.T) {
-	_, err := LoadIndex()
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-}
