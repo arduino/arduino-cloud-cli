@@ -81,6 +81,10 @@ An optional `--fqbn` flag can be passed to specify the fqbn of the device, other
 
 `$ arduino-cloud-cli device create-generic --name <deviceName> --fqbn <fqbn>`
 
+The list of supported FQBN can be retrieved with:
+
+`$ arduino-cloud-cli device list-fqbn`
+
 ## Device commands
 
 Devices can be deleted using the device delete command. This command accepts two mutually exclusive flags: `--id` and `--tags`. Only one of them must be passed. When the `--id` is passed, the device having such ID gets deleted:

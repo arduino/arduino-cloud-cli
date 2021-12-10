@@ -37,6 +37,7 @@ func NewCommand() *cobra.Command {
 	deviceCommand.AddCommand(initListFrequencyPlansCommand())
 	deviceCommand.AddCommand(initCreateLoraCommand())
 	deviceCommand.AddCommand(initCreateGenericCommand())
+	deviceCommand.AddCommand(initListFQBNCommand())
 
 	return deviceCommand
 }
