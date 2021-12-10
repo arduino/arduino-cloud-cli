@@ -1,11 +1,25 @@
+// This file is part of arduino-cloud-cli.
+//
+// Copyright (C) 2021 ARDUINO SA (http://www.arduino.cc/)
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 package device
 
 import (
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/arduino/arduino-cloud-cli/arduino/cli"
@@ -64,9 +78,19 @@ func CreateLora(params *CreateLoraParams) (*DeviceLoraInfo, error) {
 		return nil, err
 	}
 
-	bin, err := deveuiBinary(board.fqbn)
+	if !board.isLora() {
+		return nil, fmt.Errorf(
+			"board with fqbn %s found at port %s is not a LoRa device."+
+				" Try the 'create' command instead if it's a device with a supported crypto-chip"+
+				" or 'create-generic' otherwise",
+			board.fqbn,
+			board.port,
+		)
+	}
+
+	bin, err := downloadProvisioningFile(board.fqbn)
 	if err != nil {
-		return nil, fmt.Errorf("fqbn not supported for LoRa provisioning: %w", err)
+		return nil, err
 	}
 
 	logrus.Infof("%s", "Uploading deveui sketch on the LoRa board")
@@ -112,22 +136,6 @@ func CreateLora(params *CreateLoraParams) (*DeviceLoraInfo, error) {
 		return nil, fmt.Errorf("%s: %w", "cannot provision LoRa device", err)
 	}
 	return devInfo, nil
-}
-
-// deveuiBinary gets the absolute path of the deveui binary corresponding to the
-// provisioned board's fqbn. It is contained in the local binaries folder.
-func deveuiBinary(fqbn string) (string, error) {
-	// Use local binaries until they are uploaded online
-	bin := filepath.Join("./binaries/", "getdeveui."+strings.ReplaceAll(fqbn, ":", ".")+".bin")
-	bin, err := filepath.Abs(bin)
-	if err != nil {
-		return "", fmt.Errorf("getting the deveui binary: %w", err)
-	}
-	if _, err := os.Stat(bin); os.IsNotExist(err) {
-		err = fmt.Errorf("%s: %w", "deveui binary not found", err)
-		return "", err
-	}
-	return bin, nil
 }
 
 // extractEUI extracts the EUI from the provisioned lora board.

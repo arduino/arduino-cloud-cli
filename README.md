@@ -7,9 +7,8 @@ This code is licensed under the terms of the GNU Affero General Public License v
 
 ### Requirements
 
-This is all you need to use arduino-cloud-cli for device **provisioning**:
+This is all you need to use arduino-cloud-cli:
  * A client ID and a secret ID, retrievable from the [cloud](https://create.arduino.cc/iot/integrations) by creating a new API key
- * The folder containing the precompiled provisioning firmwares (`binaries`) needs to be in the same location you run the command from
 
 ### Additional info
 
