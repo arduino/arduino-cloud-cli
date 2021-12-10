@@ -8,11 +8,13 @@ require (
 	github.com/arduino/go-paths-helper v1.6.1
 	github.com/arduino/go-win32-utils v0.0.0-20180330194947-ed041402e83b
 	github.com/arduino/iot-client-go v1.3.4-0.20211116175324-9a98dd4ad269
+	github.com/fatih/color v1.13.0 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/google/go-cmp v0.5.6
 	github.com/howeyc/crc16 v0.0.0-20171223171357-2b2a61e366a6
 	github.com/juju/errors v0.0.0-20181118221551-089d3ea4e4d5
 	github.com/manifoldco/promptui v0.9.0
+	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.0
@@ -20,7 +22,7 @@ require (
 	go.bug.st/serial v1.3.0
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
-	golang.org/x/sys v0.0.0-20210503173754-0981d6026fa6 // indirect
+	golang.org/x/sys v0.0.0-20211209171907-798191bca915 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20210504143626-3b2ad6ccc450 // indirect
 	google.golang.org/grpc v1.39.0

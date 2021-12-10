@@ -4,3 +4,7 @@ arduino-cloud-cli.exe
 
 # Configuration file
 config.yaml
+
+# Provisioning binaries and metadata
+firmware/binaries
+firmware/provision/**/build
