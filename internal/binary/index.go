@@ -43,7 +43,7 @@ type Index struct {
 
 // IndexBoard describes all the binaries available for a specific board
 type IndexBoard struct {
-	Fqbn      string    `json:"fqbn"`
+	FQBN      string    `json:"fqbn"`
 	Provision *IndexBin `json:"provision"`
 }
 
@@ -98,7 +98,7 @@ func LoadIndex() (*Index, error) {
 // Returns nil if the binary is not found
 func (i *Index) FindProvisionBin(fqbn string) *IndexBin {
 	for _, b := range i.Boards {
-		if b.Fqbn == fqbn {
+		if b.FQBN == fqbn {
 			return b.Provision
 		}
 	}
