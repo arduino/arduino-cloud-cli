@@ -66,28 +66,28 @@ func TestBoardFromPorts(t *testing.T) {
 
 		{
 			name:   "port-filter",
-			filter: &CreateParams{Fqbn: nil, Port: stringPointer("ACM1")},
+			filter: &CreateParams{FQBN: nil, Port: stringPointer("ACM1")},
 			ports:  portsTwoBoards,
 			want:   &board{fqbn: "arduino:avr:uno", port: "ACM1"},
 		},
 
 		{
 			name:   "fqbn-filter",
-			filter: &CreateParams{Fqbn: stringPointer("arduino:avr:uno"), Port: nil},
+			filter: &CreateParams{FQBN: stringPointer("arduino:avr:uno"), Port: nil},
 			ports:  portsTwoBoards,
 			want:   &board{fqbn: "arduino:avr:uno", port: "ACM1"},
 		},
 
 		{
 			name:   "no-filter-noboards",
-			filter: &CreateParams{Fqbn: nil, Port: nil},
+			filter: &CreateParams{FQBN: nil, Port: nil},
 			ports:  portsNoBoards,
 			want:   nil,
 		},
 
 		{
 			name:   "no-filter",
-			filter: &CreateParams{Fqbn: nil, Port: nil},
+			filter: &CreateParams{FQBN: nil, Port: nil},
 			ports:  portsTwoBoards,
 			// first board found is selected
 			want: &board{fqbn: "arduino:samd:nano_33_iot", port: "ACM0"},
@@ -95,21 +95,21 @@ func TestBoardFromPorts(t *testing.T) {
 
 		{
 			name:   "both-filter-noboards",
-			filter: &CreateParams{Fqbn: stringPointer("arduino:avr:uno"), Port: stringPointer("ACM1")},
+			filter: &CreateParams{FQBN: stringPointer("arduino:avr:uno"), Port: stringPointer("ACM1")},
 			ports:  portsNoBoards,
 			want:   nil,
 		},
 
 		{
 			name:   "both-filter-found",
-			filter: &CreateParams{Fqbn: stringPointer("arduino:avr:uno"), Port: stringPointer("ACM1")},
+			filter: &CreateParams{FQBN: stringPointer("arduino:avr:uno"), Port: stringPointer("ACM1")},
 			ports:  portsTwoBoards,
 			want:   &board{fqbn: "arduino:avr:uno", port: "ACM1"},
 		},
 
 		{
 			name:   "both-filter-notfound",
-			filter: &CreateParams{Fqbn: stringPointer("arduino:avr:uno"), Port: stringPointer("ACM0")},
+			filter: &CreateParams{FQBN: stringPointer("arduino:avr:uno"), Port: stringPointer("ACM0")},
 			ports:  portsTwoBoards,
 			want:   nil,
 		},

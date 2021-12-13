@@ -112,11 +112,11 @@ func portFilter(port *rpc.DetectedPort, params *CreateParams) bool {
 // - a board if it is found.
 // - nil if no board matching the fqbn parameter is found.
 func boardFilter(boards []*rpc.BoardListItem, params *CreateParams) (board *rpc.BoardListItem) {
-	if params.Fqbn == nil {
+	if params.FQBN == nil {
 		return boards[0]
 	}
 	for _, b := range boards {
-		if b.Fqbn == *params.Fqbn {
+		if b.Fqbn == *params.FQBN {
 			return b
 		}
 	}

@@ -29,8 +29,8 @@ func TestFindProvisionBin(t *testing.T) {
 	)
 	index := &Index{
 		Boards: []IndexBoard{
-			{Fqbn: fqbnOK1, Provision: &IndexBin{URL: "mkr"}},
-			{Fqbn: fqbnOK2, Provision: &IndexBin{URL: "nano"}},
+			{FQBN: fqbnOK1, Provision: &IndexBin{URL: "mkr"}},
+			{FQBN: fqbnOK2, Provision: &IndexBin{URL: "nano"}},
 		},
 	}
 

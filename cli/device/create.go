@@ -58,7 +58,7 @@ func runCreateCommand(cmd *cobra.Command, args []string) {
 		params.Port = &createFlags.port
 	}
 	if createFlags.fqbn != "" {
-		params.Fqbn = &createFlags.fqbn
+		params.FQBN = &createFlags.fqbn
 	}
 
 	dev, err := device.Create(params)

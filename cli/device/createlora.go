@@ -65,7 +65,7 @@ func runCreateLoraCommand(cmd *cobra.Command, args []string) {
 		params.Port = &createLoraFlags.port
 	}
 	if createLoraFlags.fqbn != "" {
-		params.Fqbn = &createLoraFlags.fqbn
+		params.FQBN = &createLoraFlags.fqbn
 	}
 
 	dev, err := device.CreateLora(params)
