@@ -26,9 +26,13 @@ import (
 )
 
 const (
-	ClientIDLen     = 32
+	// ClientIDLen specifies the length of Arduino IoT Cloud client ids.
+	ClientIDLen = 32
+	// ClientSecretLen specifies the length of Arduino IoT Cloud client secrets.
 	ClientSecretLen = 64
 
+	// EnvPrefix is the prefix environment variables should have to be
+	// fetched as config parameters during the config retrieval.
 	EnvPrefix = "ARDUINO_CLOUD"
 )
 
@@ -39,8 +43,8 @@ type Config struct {
 	Secret string `map-structure:"secret"` // Secret ID of the user, unique for each Client ID
 }
 
-// Validate the config
-// If config is not valid, it returns an error explaining the reason
+// Validate the config.
+// If config is not valid, it returns an error explaining the reason.
 func (c *Config) Validate() error {
 	if len(c.Client) != ClientIDLen {
 		return fmt.Errorf(
@@ -59,14 +63,14 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-// IsEmpty checks if config has no params set
+// IsEmpty checks if config has no params set.
 func (c *Config) IsEmpty() bool {
 	return len(c.Client) == 0 && len(c.Secret) == 0
 }
 
 // Retrieve looks for configuration parameters in
-// environment variables or in configuration file
-// Returns error if no config is found
+// environment variables or in configuration file.
+// Returns error if no config is found.
 func Retrieve() (*Config, error) {
 	// Config extracted from environment has highest priority
 	c, err := fromEnv()
@@ -92,7 +96,7 @@ func Retrieve() (*Config, error) {
 	)
 }
 
-// fromFile looks for a configuration file
+// fromFile looks for a configuration file.
 // If a config file is not found, it returns a nil config without raising errors.
 // If invalid config file is found, it returns an error.
 func fromFile() (*Config, error) {
@@ -168,10 +172,10 @@ func fromEnv() (*Config, error) {
 }
 
 // searchConfigDir configuration file in different directories in the following order:
-// current working directory, parents of the current working directory, arduino15 default directory
-// Returns a nil string if no config file has been found, without raising errors
+// current working directory, parents of the current working directory, arduino15 default directory.
+// Returns a nil string if no config file has been found, without raising errors.
 // Returns an error if any problem is encountered during the file research which prevents
-// to understand whether a config file exists or not
+// to understand whether a config file exists or not.
 func searchConfigDir() (*string, error) {
 	// Search in current directory and its parents.
 	cwd, err := paths.Getwd()
