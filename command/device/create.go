@@ -32,7 +32,7 @@ import (
 type CreateParams struct {
 	Name string  // Device name
 	Port *string // Serial port - Optional - If omitted then each serial port is analyzed
-	Fqbn *string // Board FQBN - Optional - If omitted then the first device found gets selected
+	FQBN *string // Board FQBN - Optional - If omitted then the first device found gets selected
 }
 
 // Create command is used to provision a new arduino device
