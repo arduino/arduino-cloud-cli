@@ -31,23 +31,6 @@ const (
 	esp8266Package = "esp8266"
 )
 
-var (
-	// this is temporary... it will be removed when
-	// https://github.com/arduino/arduino-cloud-cli/pull/74/files#diff-d891696d5c17ea0eecc6b1c23802cbaf553379e701c5e0e1ff23ee0d26d2877cR27-R39
-	// will be merged
-	compatibleArduinoFQBN = []string{
-		"arduino:samd:nano_33_iot",
-		"arduino:samd:mkrwifi1010",
-		"arduino:mbed_nano:nanorp2040connect",
-		"arduino:mbed_portenta:envie_m7",
-		"arduino:samd:mkr1000",
-		"arduino:samd:mkrgsm1400",
-		"arduino:samd:mkrnb1500",
-		"arduino:samd:mkrwan1310",
-		"arduino:samd:mkrwan1300",
-	}
-)
-
 // FQBNInfo contains the details of a FQBN.
 type FQBNInfo struct {
 	Value   string `json:"fqbn"`
@@ -90,7 +73,8 @@ func filterFQBN(ls []FQBNInfo) []FQBNInfo {
 			filtered = append(filtered, fqbn)
 
 		case arduinoPackage:
-			for _, b := range compatibleArduinoFQBN {
+			compatible := append(cryptoFQBN, loraFQBN...)
+			for _, b := range compatible {
 				if fqbn.Value == b {
 					filtered = append(filtered, fqbn)
 					break
