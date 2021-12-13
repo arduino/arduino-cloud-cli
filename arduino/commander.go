@@ -22,7 +22,7 @@ import (
 )
 
 // Commander of arduino package allows to call
-// the arduino-cli commands in a programmatic way
+// the arduino-cli commands in a programmatic way.
 type Commander interface {
 	BoardList() ([]*rpc.DetectedPort, error)
 	UploadBin(fqbn, bin, port string) error

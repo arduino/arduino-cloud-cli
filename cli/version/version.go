@@ -25,7 +25,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewCommand created a new `version` command
+// NewCommand creates a new `version` command.
 func NewCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:     "version",

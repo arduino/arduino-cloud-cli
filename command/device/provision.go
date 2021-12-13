@@ -64,7 +64,7 @@ func downloadProvisioningFile(fqbn string) (string, error) {
 }
 
 // provision is responsible for running the provisioning
-// procedures for boards with crypto-chip
+// procedures for boards with crypto-chip.
 type provision struct {
 	arduino.Commander
 	iot.Client
@@ -73,7 +73,7 @@ type provision struct {
 	id    string
 }
 
-// run provisioning procedure for boards with crypto-chip
+// run provisioning procedure for boards with crypto-chip.
 func (p provision) run() error {
 	bin, err := downloadProvisioningFile(p.board.fqbn)
 	if err != nil {

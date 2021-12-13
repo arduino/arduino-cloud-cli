@@ -39,7 +39,7 @@ var (
 	}
 )
 
-// board contains details of a physical arduino board
+// board contains details of a physical arduino board.
 type board struct {
 	fqbn   string
 	serial string
@@ -48,7 +48,7 @@ type board struct {
 }
 
 // isCrypto checks if the board is a valid arduino board with a
-// supported crypto-chip
+// supported crypto-chip.
 func (b *board) isCrypto() bool {
 	for _, f := range cryptoFQBN {
 		if b.fqbn == f {
@@ -58,7 +58,7 @@ func (b *board) isCrypto() bool {
 	return false
 }
 
-// isCrypto checks if the board is a valid LoRa arduino board
+// isLora checks if the board is a valid LoRa arduino board.
 func (b *board) isLora() bool {
 	for _, f := range loraFQBN {
 		if b.fqbn == f {
@@ -94,8 +94,8 @@ func boardFromPorts(ports []*rpc.DetectedPort, params *CreateParams) *board {
 // - if the port parameter does not match the actual port address.
 // - if the the detected port does not contain any board.
 // It returns:
-// true -> to skip the port
-// false -> to keep the port
+// true -> to skip the port.
+// false -> to keep the port.
 func portFilter(port *rpc.DetectedPort, params *CreateParams) bool {
 	if len(port.Boards) == 0 {
 		return true

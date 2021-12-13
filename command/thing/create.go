@@ -32,7 +32,7 @@ type CreateParams struct {
 	Template string  // Path of the template file
 }
 
-// Create allows to create a new thing
+// Create allows to create a new thing.
 func Create(params *CreateParams) (*ThingInfo, error) {
 	conf, err := config.Retrieve()
 	if err != nil {
