@@ -26,7 +26,7 @@ var (
 // SetDefaults sets the default values for configuration keys.
 func SetDefaults(settings *viper.Viper) {
 	// Client ID
-	settings.SetDefault("client", "xxxxxxxxxxxxxx")
+	settings.SetDefault("client", "")
 	// Secret
-	settings.SetDefault("secret", "xxxxxxxxxxxxxx")
+	settings.SetDefault("secret", "")
 }
