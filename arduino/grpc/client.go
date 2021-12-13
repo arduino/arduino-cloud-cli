@@ -43,7 +43,7 @@ type client struct {
 // NewClient instantiates and returns a new grpc client that allows to
 // programmatically call arduino-cli commands.
 // It exploits the grpc interface of the arduino-cli.
-// It returns: the client instance, a callback to close the client and an error
+// It returns: the client instance, a callback to close the client and an error.
 func NewClient() (arduino.Commander, func() error, error) {
 	// Establish a connection with the gRPC server, started with the command:
 	// arduino-cli daemon

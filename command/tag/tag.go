@@ -19,8 +19,8 @@ package tag
 
 import "fmt"
 
-// TagsInfo transforms tags into user-readable strings
-// An error is returned if a tag value is not a string
+// TagsInfo transforms tags into user-readable strings.
+// An error is returned if a tag value is not a string.
 func TagsInfo(tags map[string]interface{}) ([]string, error) {
 	var str []string
 	for key, value := range tags {

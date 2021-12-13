@@ -40,7 +40,7 @@ const (
 	serialEUIBaudrate = 9600
 
 	// dev-eui is an IEEE EUI64 address, so it must have length of 8 bytes.
-	// It's retrieved as hexadecimal string, thus 16 chars are expected
+	// It's retrieved as hexadecimal string, thus 16 chars are expected.
 	deveuiLength = 16
 )
 

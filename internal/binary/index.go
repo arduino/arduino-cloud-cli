@@ -30,24 +30,24 @@ import (
 )
 
 const (
-	// URL of cloud-team binary index
+	// URL of cloud-team binary index.
 	IndexGZURL  = "https://cloud-downloads.arduino.cc/binaries/index.json.gz"
 	IndexSigURL = "https://cloud-downloads.arduino.cc/binaries/index.json.sig"
 )
 
 // Index contains details about all the binaries
-// loaded in 'cloud-downloads'
+// loaded in 'cloud-downloads'.
 type Index struct {
 	Boards []IndexBoard `json:"boards"`
 }
 
-// IndexBoard describes all the binaries available for a specific board
+// IndexBoard describes all the binaries available for a specific board.
 type IndexBoard struct {
 	FQBN      string    `json:"fqbn"`
 	Provision *IndexBin `json:"provision"`
 }
 
-// IndexBin contains the details needed to retrieve a binary file from the cloud
+// IndexBin contains the details needed to retrieve a binary file from the cloud.
 type IndexBin struct {
 	URL      string      `json:"url"`
 	Checksum string      `json:"checksum"`
@@ -95,7 +95,7 @@ func LoadIndex() (*Index, error) {
 
 // FindProvisionBin looks for the provisioning binary corresponding
 // to the passed fqbn in the index.
-// Returns nil if the binary is not found
+// Returns nil if the binary is not found.
 func (i *Index) FindProvisionBin(fqbn string) *IndexBin {
 	for _, b := range i.Boards {
 		if b.FQBN == fqbn {

@@ -31,7 +31,7 @@ type CloneParams struct {
 	CloneID string // ID of thing to be cloned
 }
 
-// Clone allows to create a new thing from an already existing one
+// Clone allows to create a new thing from an already existing one.
 func Clone(params *CloneParams) (*ThingInfo, error) {
 	conf, err := config.Retrieve()
 	if err != nil {

@@ -28,7 +28,7 @@ import (
 	fwuploader "github.com/arduino/arduino-fwuploader/indexes/download"
 )
 
-// Download a binary file contained in the binary index
+// Download a binary file contained in the binary index.
 func Download(bin *IndexBin) ([]byte, error) {
 	b, err := download(bin.URL)
 	if err != nil {
