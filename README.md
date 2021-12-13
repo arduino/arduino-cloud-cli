@@ -53,6 +53,8 @@ Configuration file is supported in two different format: json and yaml. Use the 
 
 `$ arduino-cloud-cli config init --config-format json`
 
+It is also possible to specify credentials directly in `ARDUINO_CLOUD_CLIENT` and `ARDUINO_CLOUD_SECRET` environment variables. Credentials specified in environment variables have higher priority than the ones specified in config files.
+
 ## Device provisioning
 
 When provisioning a device, you can optionally specify the port to which the device is connected to and its fqbn. If they are not given, then the first device found will be provisioned.
