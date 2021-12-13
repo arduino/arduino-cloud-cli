@@ -150,7 +150,7 @@ func fromFile() (*Config, error) {
 func fromEnv() (*Config, error) {
 	v := viper.New()
 	SetDefaults(v)
-	v.SetEnvPrefix("ARDUINO_CLOUD")
+	v.SetEnvPrefix(EnvPrefix)
 	v.AutomaticEnv()
 
 	conf := &Config{}
