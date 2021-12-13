@@ -61,13 +61,7 @@ func (c *Config) Validate() error {
 
 // IsEmpty checks if config has no params set
 func (c *Config) IsEmpty() bool {
-	if len(c.Client) != 0 {
-		return false
-	}
-	if len(c.Secret) != 0 {
-		return false
-	}
-	return true
+	return len(c.Client) == 0 && len(c.Secret) == 0
 }
 
 // Retrieve looks for configuration parameters in
