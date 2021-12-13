@@ -27,7 +27,7 @@ import (
 	"github.com/arduino/go-win32-utils"
 )
 
-// DataDir returns the Arduino default data directory (arduino15)
+// DataDir returns the Arduino default data directory (arduino15).
 func DataDir() (*paths.Path, error) {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {

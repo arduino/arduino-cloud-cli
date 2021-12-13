@@ -32,7 +32,7 @@ type CreateParams struct {
 	Template string            // Path of the template file
 }
 
-// Create allows to create a new dashboard
+// Create allows to create a new dashboard.
 func Create(params *CreateParams) (*DashboardInfo, error) {
 	conf, err := config.Retrieve()
 	if err != nil {

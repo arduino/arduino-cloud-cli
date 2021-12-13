@@ -26,7 +26,7 @@ import (
 )
 
 // Config contains all the configuration parameters
-// known by arduino-cloud-cli
+// known by arduino-cloud-cli.
 type Config struct {
 	Client string `map-structure:"client"` // Client ID of the user
 	Secret string `map-structure:"secret"` // Secret ID of the user, unique for each Client ID
@@ -78,7 +78,7 @@ func searchConfigDir() (string, error) {
 	}
 
 	return "", fmt.Errorf(
-		"didn't find config file in the current directory, its parents or in %s.",
+		"didn't find config file in the current directory, its parents or in %s",
 		arduino15.String(),
 	)
 }

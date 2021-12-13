@@ -147,7 +147,7 @@ func (s *Serial) receive() ([]byte, error) {
 	return payload, nil
 }
 
-// encode is internally used to create a valid provisioning packet
+// encode is internally used to create a valid provisioning packet.
 func encode(mType MsgType, msg []byte) []byte {
 	// Insert the preamble sequence followed by the message type
 	packet := append(msgStart[:], byte(mType))

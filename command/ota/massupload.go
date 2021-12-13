@@ -43,7 +43,7 @@ type MassUploadParams struct {
 	FQBN      string
 }
 
-// Result of an ota upload on a device
+// Result of an ota upload on a device.
 type Result struct {
 	ID  string
 	Err error

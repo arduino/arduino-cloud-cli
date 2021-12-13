@@ -18,24 +18,24 @@
 package serial
 
 var (
-	// msgStart is the initial byte sequence of every packet
+	// msgStart is the initial byte sequence of every packet.
 	msgStart = [2]byte{0x55, 0xAA}
-	// msgEnd is the final byte sequence of every packet
+	// msgEnd is the final byte sequence of every packet.
 	msgEnd = [2]byte{0xAA, 0x55}
 )
 
 const (
-	// Position of payload field
+	// payloadField indicates the position of payload field.
 	payloadField = 5
-	// Position of payload length field
+	// payloadLenField indicates the position of payload length field.
 	payloadLenField = 3
-	// Length of payload length field
+	// payloadLenFieldLen indicatest the length of payload length field.
 	payloadLenFieldLen = 2
-	// Length of the signature field
+	// crcFieldLen indicates the length of the signature field.
 	crcFieldLen = 2
 )
 
-// MsgType indicates the type of the packet
+// MsgType indicates the type of the packet.
 type MsgType byte
 
 const (

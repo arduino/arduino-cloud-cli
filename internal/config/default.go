@@ -23,7 +23,7 @@ var (
 	Filename = "arduino-cloud"
 )
 
-// SetDefaults sets the default values for configuration keys
+// SetDefaults sets the default values for configuration keys.
 func SetDefaults(settings *viper.Viper) {
 	// Client ID
 	settings.SetDefault("client", "xxxxxxxxxxxxxx")
