@@ -5,6 +5,12 @@ arduino-cloud-cli.exe
 # Configuration file
 config.yaml
 
-# Provisioning binaries and metadata
+# Sketch compilation results
 firmware/binaries
 firmware/provision/**/build
+*.bin
+*.elf
+*.uf2
+*.ota
+*.hex
+*.map
