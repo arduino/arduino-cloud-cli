@@ -39,7 +39,7 @@ type CreateGenericParams struct {
 // parameters of a generic Arduino IoT Cloud device.
 type DeviceGenericInfo struct {
 	DeviceInfo
-	Password string `json:"secret-key"`
+	Password string `json:"secret_key"`
 }
 
 // CreateGeneric command is used to add a new generic device to Arduino IoT Cloud.

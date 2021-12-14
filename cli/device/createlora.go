@@ -87,8 +87,8 @@ func (r createLoraResult) Data() interface{} {
 
 func (r createLoraResult) String() string {
 	return fmt.Sprintf(
-		"name: %s\nid: %s\nboard: %s\nserial-number: %s\nfqbn: %s"+
-			"\napp-eui: %s\napp-key: %s\neui: %s",
+		"name: %s\nid: %s\nboard: %s\nserial_number: %s\nfqbn: %s"+
+			"\napp_eui: %s\napp_key: %s\neui: %s",
 		r.device.Name,
 		r.device.ID,
 		r.device.Board,

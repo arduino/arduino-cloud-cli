@@ -48,8 +48,8 @@ const (
 // parameters of an Arduino IoT Cloud LoRa device.
 type DeviceLoraInfo struct {
 	DeviceInfo
-	AppEUI string `json:"app-eui"`
-	AppKey string `json:"app-key"`
+	AppEUI string `json:"app_eui"`
+	AppKey string `json:"app_key"`
 	EUI    string `json:"eui"`
 }
 

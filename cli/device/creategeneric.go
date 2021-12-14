@@ -73,7 +73,7 @@ func (r createGenericResult) Data() interface{} {
 
 func (r createGenericResult) String() string {
 	return fmt.Sprintf(
-		"id: %s\nsecret-key: %s\nname: %s\nboard: %s\nserial-number: %s\nfqbn: %s",
+		"id: %s\nsecret_key: %s\nname: %s\nboard: %s\nserial_number: %s\nfqbn: %s",
 		r.device.ID,
 		r.device.Password,
 		r.device.Name,

@@ -82,7 +82,7 @@ func (r createResult) Data() interface{} {
 
 func (r createResult) String() string {
 	return fmt.Sprintf(
-		"name: %s\nid: %s\ndevice-id: %s\nvariables: %s",
+		"name: %s\nid: %s\ndevice_id: %s\nvariables: %s",
 		r.thing.Name,
 		r.thing.ID,
 		r.thing.DeviceID,
