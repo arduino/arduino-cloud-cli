@@ -27,7 +27,7 @@ import (
 type ThingInfo struct {
 	Name      string   `json:"name"`
 	ID        string   `json:"id"`
-	DeviceID  string   `json:"device-id"`
+	DeviceID  string   `json:"device_id"`
 	Variables []string `json:"variables"`
 	Tags      []string `json:"tags,omitempty"`
 }
