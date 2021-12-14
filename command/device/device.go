@@ -28,7 +28,7 @@ type DeviceInfo struct {
 	Name   string   `json:"name"`
 	ID     string   `json:"id"`
 	Board  string   `json:"board"`
-	Serial string   `json:"serial-number"`
+	Serial string   `json:"serial_number"`
 	FQBN   string   `json:"fqbn"`
 	Tags   []string `json:"tags,omitempty"`
 }
