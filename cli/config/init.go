@@ -65,6 +65,13 @@ func runInitCommand(cmd *cobra.Command, args []string) {
 			feedback.Errorf("Error during config init: cannot retrieve arduino default directory: %v", err)
 			os.Exit(errorcodes.ErrGeneric)
 		}
+		// Create arduino default directory if it does not exist
+		if configPath.NotExist() {
+			if err = configPath.MkdirAll(); err != nil {
+				feedback.Errorf("Error during config init: cannot create arduino default directory %s: %v", configPath, err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		}
 		initFlags.destDir = configPath.String()
 	}
 
