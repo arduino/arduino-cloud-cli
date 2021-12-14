@@ -22,6 +22,7 @@ import (
 
 	"github.com/arduino/arduino-cloud-cli/arduino"
 	"github.com/arduino/go-paths-helper"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -73,15 +74,18 @@ func (c *Config) IsEmpty() bool {
 // Returns error if no config is found.
 func Retrieve() (*Config, error) {
 	// Config extracted from environment has highest priority
+	logrus.Info("Looking for configuration in environment variables")
 	c, err := fromEnv()
 	if err != nil {
 		return nil, fmt.Errorf("reading config from environment variables: %w", err)
 	}
 	// Return the config only if it has been found
 	if c != nil {
+		logrus.Info("Configuration found in environment variables")
 		return c, nil
 	}
 
+	logrus.Info("Looking for configuration in file system")
 	c, err = fromFile()
 	if err != nil {
 		return nil, fmt.Errorf("reading config from file: %w", err)
@@ -185,7 +189,9 @@ func searchConfigDir() (*string, error) {
 	// Don't let bad naming mislead you, cwd.Parents()[0] is cwd itself so
 	// we look in the current directory first and then on its parents.
 	for _, path := range cwd.Parents() {
-		if path.Join(Filename+".yaml").Exist() || path.Join(Filename+".json").Exist() {
+		logrus.Infof("Looking for configuration in %s", path)
+		if file, found := configFileInDir(path); found {
+			logrus.Infof("Configuration found at %s", file)
 			p := path.String()
 			return &p, nil
 		}
@@ -196,11 +202,26 @@ func searchConfigDir() (*string, error) {
 	if err != nil {
 		return nil, err
 	}
-	if arduino15.Join(Filename+".yaml").Exist() || arduino15.Join(Filename+".json").Exist() {
+	logrus.Infof("Looking for configuration in %s", arduino15)
+	if file, found := configFileInDir(arduino15); found {
+		logrus.Infof("Configuration found at %s", file)
 		p := arduino15.String()
 		return &p, nil
 	}
 
 	// Didn't find config file in the current directory, its parents or in arduino15"
 	return nil, nil
+}
+
+// configFileInDir looks for a configuration file in the passed directory.
+// If a configuration file is found, then it is returned.
+// In case of multiple config files, it returns the one with the highest priority
+// according to viper.
+func configFileInDir(dir *paths.Path) (filepath *paths.Path, found bool) {
+	for _, ext := range viper.SupportedExts {
+		if filepath = dir.Join(Filename + "." + ext); filepath.Exist() {
+			return filepath, true
+		}
+	}
+	return nil, false
 }
