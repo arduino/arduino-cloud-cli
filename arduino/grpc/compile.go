@@ -45,7 +45,7 @@ func (c compileHandler) UploadBin(fqbn, bin, port string) error {
 			Fqbn:       fqbn,
 			SketchPath: filepath.Dir(bin),
 			ImportFile: bin,
-			Port:       port,
+			Port:       &rpc.Port{Address: port},
 			Verbose:    true,
 		})
 

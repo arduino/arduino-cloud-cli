@@ -27,25 +27,25 @@ import (
 var (
 	portsNoBoards = []*rpc.DetectedPort{
 		{
-			Address: "ACM0",
-			Boards:  []*rpc.BoardListItem{},
+			Port:           &rpc.Port{Address: "ACM0"},
+			MatchingBoards: []*rpc.BoardListItem{},
 		},
 		{
-			Address: "ACM1",
-			Boards:  []*rpc.BoardListItem{},
+			Port:           &rpc.Port{Address: "ACM1"},
+			MatchingBoards: []*rpc.BoardListItem{},
 		},
 	}
 
 	portsTwoBoards = []*rpc.DetectedPort{
 		{
-			Address: "ACM0",
-			Boards: []*rpc.BoardListItem{
+			Port: &rpc.Port{Address: "ACM0"},
+			MatchingBoards: []*rpc.BoardListItem{
 				{Fqbn: "arduino:samd:nano_33_iot"},
 			},
 		},
 		{
-			Address: "ACM1",
-			Boards: []*rpc.BoardListItem{
+			Port: &rpc.Port{Address: "ACM1"},
+			MatchingBoards: []*rpc.BoardListItem{
 				{Fqbn: "arduino:avr:uno"},
 			},
 		},
