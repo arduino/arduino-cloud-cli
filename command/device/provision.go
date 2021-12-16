@@ -86,7 +86,6 @@ func (p provision) run() error {
 	errMsg := "Error while uploading the provisioning sketch"
 	err = retry(5, time.Millisecond*1000, errMsg, func() error {
 		//serialutils.Reset(dev.port, true, nil)
-		fmt.Println(p.board.fqbn, bin, p.board.address)
 		return p.UploadBin(p.board.fqbn, bin, p.board.address, p.board.protocol)
 	})
 	if err != nil {
