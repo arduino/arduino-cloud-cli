@@ -84,7 +84,7 @@ func CreateLora(params *CreateLoraParams) (*DeviceLoraInfo, error) {
 				" Try the 'create' command instead if it's a device with a supported crypto-chip"+
 				" or 'create-generic' otherwise",
 			board.fqbn,
-			board.port,
+			board.address,
 		)
 	}
 
@@ -96,13 +96,13 @@ func CreateLora(params *CreateLoraParams) (*DeviceLoraInfo, error) {
 	logrus.Infof("%s", "Uploading deveui sketch on the LoRa board")
 	errMsg := "Error while uploading the LoRa provisioning binary"
 	err = retry(deveuiUploadAttempts, deveuiUploadWait*time.Millisecond, errMsg, func() error {
-		return comm.UploadBin(board.fqbn, bin, board.port)
+		return comm.UploadBin(board.fqbn, bin, board.address, board.protocol)
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload LoRa provisioning binary: %w", err)
 	}
 
-	eui, err := extractEUI(board.port)
+	eui, err := extractEUI(board.address)
 	if err != nil {
 		return nil, err
 	}

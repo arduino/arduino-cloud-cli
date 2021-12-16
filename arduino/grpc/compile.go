@@ -38,14 +38,14 @@ func (c compileHandler) Compile() error {
 
 // Upload executes the 'arduino-cli upload -i' command
 // and returns its result.
-func (c compileHandler) UploadBin(fqbn, bin, port string) error {
+func (c compileHandler) UploadBin(fqbn, bin, address, protocol string) error {
 	stream, err := c.serviceClient.Upload(context.Background(),
 		&rpc.UploadRequest{
 			Instance:   c.instance,
 			Fqbn:       fqbn,
 			SketchPath: filepath.Dir(bin),
 			ImportFile: bin,
-			Port:       &rpc.Port{Address: port},
+			Port:       &rpc.Port{Address: address, Protocol: protocol},
 			Verbose:    true,
 		})
 

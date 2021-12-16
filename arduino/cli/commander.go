@@ -78,13 +78,13 @@ func (c *commander) BoardList() ([]*rpc.DetectedPort, error) {
 
 // UploadBin executes the 'arduino-cli upload -i' command
 // and returns its result.
-func (c *commander) UploadBin(fqbn, bin, port string) error {
+func (c *commander) UploadBin(fqbn, bin, address, protocol string) error {
 	req := &rpc.UploadRequest{
 		Instance:   c.Instance,
 		Fqbn:       fqbn,
 		SketchPath: filepath.Dir(bin),
 		ImportFile: bin,
-		Port:       &rpc.Port{Address: port},
+		Port:       &rpc.Port{Address: address, Protocol: protocol},
 		Verbose:    false,
 	}
 

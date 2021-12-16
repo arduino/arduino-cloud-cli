@@ -41,10 +41,11 @@ var (
 
 // board contains details of a physical arduino board.
 type board struct {
-	fqbn   string
-	serial string
-	dType  string
-	port   string
+	fqbn     string
+	serial   string
+	dType    string
+	address  string
+	protocol string
 }
 
 // isCrypto checks if the board is a valid arduino board with a
@@ -78,10 +79,11 @@ func boardFromPorts(ports []*rpc.DetectedPort, params *CreateParams) *board {
 		boardFound := boardFilter(port.MatchingBoards, params)
 		if boardFound != nil {
 			b := &board{
-				fqbn:   boardFound.Fqbn,
-				serial: port.Port.Properties["serialNumber"],
-				dType:  strings.Split(boardFound.Fqbn, ":")[2],
-				port:   port.Port.Address,
+				fqbn:     boardFound.Fqbn,
+				serial:   port.Port.Properties["serialNumber"],
+				dType:    strings.Split(boardFound.Fqbn, ":")[2],
+				address:  port.Port.Address,
+				protocol: port.Port.Protocol,
 			}
 			return b
 		}
