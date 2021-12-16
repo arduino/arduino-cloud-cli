@@ -19,6 +19,7 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -52,7 +53,10 @@ func NewCommander() (arduino.Commander, error) {
 	}
 	errs := instance.Init(inst)
 	if len(errs) > 0 {
-		err = fmt.Errorf("initializing arduino-cli instance: %v", errs)
+		err = errors.New("initializing arduino-cli instance: received errors: ")
+		for _, e := range errs {
+			err = fmt.Errorf("%w%v; ", err, e)
+		}
 		return nil, err
 	}
 
