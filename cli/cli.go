@@ -56,7 +56,10 @@ func Execute() {
 	cli.AddCommand(ota.NewCommand())
 
 	cli.PersistentFlags().BoolVarP(&cliFlags.verbose, "verbose", "v", false, "Print the logs on the standard output.")
-	cli.PersistentFlags().StringVar(&cliFlags.outputFormat, "format", "text", "The output format, can be {text|json}.")
+	validOutputFormats := []string{"text", "json", "jsonmini", "yaml"}
+	cli.PersistentFlags().StringVar(&cliFlags.outputFormat, "format", "text",
+		fmt.Sprintf("The output format, can be: %s", strings.Join(validOutputFormats, ", ")),
+	)
 
 	if err := cli.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -65,9 +68,11 @@ func Execute() {
 
 func parseFormatString(arg string) (feedback.OutputFormat, bool) {
 	f, found := map[string]feedback.OutputFormat{
-		"json": feedback.JSON,
-		"text": feedback.Text,
-	}[arg]
+		"json":     feedback.JSON,
+		"jsonmini": feedback.JSONMini,
+		"text":     feedback.Text,
+		"yaml":     feedback.YAML,
+	}[strings.ToLower(arg)]
 
 	return f, found
 }
