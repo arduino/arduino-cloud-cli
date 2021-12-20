@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/antihax/optional v1.0.0
-	github.com/arduino/arduino-cli v0.0.0-20211207164052-d458040fea6f
+	github.com/arduino/arduino-cli v0.0.0-20211220130253-5dd14c4c02b0
 	github.com/arduino/arduino-fwuploader v0.0.0-20211202112845-b7f323ad97e2
 	github.com/arduino/go-paths-helper v1.6.1
 	github.com/arduino/go-win32-utils v0.0.0-20180330194947-ed041402e83b

@@ -51,8 +51,8 @@ github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239/go.mod h1:2FmKhYU
 github.com/antihax/optional v1.0.0 h1:xK2lYat7ZLaVVcIuj82J8kIro4V6kDe0AUDFboUCwcg=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/arduino/arduino-cli v0.0.0-20210603144340-aef5a54882fa/go.mod h1:HNbHWr7qq+9M2rhzBUJIBIpCMRlB6+mptNDLMDZNlG0=
-github.com/arduino/arduino-cli v0.0.0-20211207164052-d458040fea6f h1:PD37bhsT1N4AeBKc2dmJ7BGESJKm5nG7K4+LqiDCKbY=
-github.com/arduino/arduino-cli v0.0.0-20211207164052-d458040fea6f/go.mod h1:cU/LNzIePCU/dvW39BClyZVPuz19Zsrt2dAIbWPtTAA=
+github.com/arduino/arduino-cli v0.0.0-20211220130253-5dd14c4c02b0 h1:RsqajkWB28xaunXpgTQkjR0mnJJbnKwRzeG7ynyzXUA=
+github.com/arduino/arduino-cli v0.0.0-20211220130253-5dd14c4c02b0/go.mod h1:cU/LNzIePCU/dvW39BClyZVPuz19Zsrt2dAIbWPtTAA=
 github.com/arduino/arduino-fwuploader v0.0.0-20211202112845-b7f323ad97e2 h1:ADkeoCxUZ5/uTy7d7e3XXsm11pXwVg2lvFOxmjDfKls=
 github.com/arduino/arduino-fwuploader v0.0.0-20211202112845-b7f323ad97e2/go.mod h1:t6n09kqbFg+AxuzXJFUZaC3i8VPczEZi2SyY7axs+Rs=
 github.com/arduino/board-discovery v0.0.0-20180823133458-1ba29327fb0c h1:agh2JT96G8egU7FEb13L4dq3fnCN7lxXhJ86t69+W7s=
