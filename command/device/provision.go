@@ -86,7 +86,7 @@ func (p provision) run() error {
 	errMsg := "Error while uploading the provisioning sketch"
 	err = retry(5, time.Millisecond*1000, errMsg, func() error {
 		//serialutils.Reset(dev.port, true, nil)
-		return p.UploadBin(p.board.fqbn, bin, p.board.port)
+		return p.UploadBin(p.board.fqbn, bin, p.board.address, p.board.protocol)
 	})
 	if err != nil {
 		return err
@@ -98,7 +98,7 @@ func (p provision) run() error {
 	p.ser = serial.NewSerial()
 	errMsg = "Error while connecting to the board"
 	err = retry(5, time.Millisecond*1000, errMsg, func() error {
-		return p.ser.Connect(p.board.port)
+		return p.ser.Connect(p.board.address)
 	})
 	if err != nil {
 		return err

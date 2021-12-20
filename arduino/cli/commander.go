@@ -19,9 +19,11 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/arduino/arduino-cli/cli/instance"
 	"github.com/arduino/arduino-cli/commands/board"
@@ -45,9 +47,17 @@ func NewCommander() (arduino.Commander, error) {
 	// Initialize arduino-cli configuration
 	configuration.Settings = configuration.Init(configuration.FindConfigFileInArgsOrWorkingDirectory(os.Args))
 	// Create arduino-cli instance, needed to execute arduino-cli commands
-	inst, err := instance.CreateInstance()
+	inst, err := instance.Create()
 	if err != nil {
-		err = fmt.Errorf("%s: %w", "creating arduino-cli instance", err)
+		err = fmt.Errorf("creating arduino-cli instance: %w", err)
+		return nil, err
+	}
+	errs := instance.Init(inst)
+	if len(errs) > 0 {
+		err = errors.New("initializing arduino-cli instance: received errors: ")
+		for _, e := range errs {
+			err = fmt.Errorf("%w%v; ", err, e)
+		}
 		return nil, err
 	}
 
@@ -60,7 +70,11 @@ func NewCommander() (arduino.Commander, error) {
 // BoardList executes the 'arduino-cli board list' command
 // and returns its result.
 func (c *commander) BoardList() ([]*rpc.DetectedPort, error) {
-	ports, err := board.List(c.GetId())
+	req := &rpc.BoardListRequest{
+		Instance: c.Instance,
+		Timeout:  time.Second.Milliseconds(),
+	}
+	ports, err := board.List(req)
 	if err != nil {
 		err = fmt.Errorf("%s: %w", "detecting boards", err)
 		return nil, err
@@ -70,13 +84,13 @@ func (c *commander) BoardList() ([]*rpc.DetectedPort, error) {
 
 // UploadBin executes the 'arduino-cli upload -i' command
 // and returns its result.
-func (c *commander) UploadBin(fqbn, bin, port string) error {
+func (c *commander) UploadBin(fqbn, bin, address, protocol string) error {
 	req := &rpc.UploadRequest{
 		Instance:   c.Instance,
 		Fqbn:       fqbn,
 		SketchPath: filepath.Dir(bin),
 		ImportFile: bin,
-		Port:       port,
+		Port:       &rpc.Port{Address: address, Protocol: protocol},
 		Verbose:    false,
 	}
 
