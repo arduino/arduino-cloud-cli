@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/arduino/arduino-cli/cli/instance"
 	"github.com/arduino/arduino-cli/commands/board"
@@ -71,6 +72,7 @@ func NewCommander() (arduino.Commander, error) {
 func (c *commander) BoardList() ([]*rpc.DetectedPort, error) {
 	req := &rpc.BoardListRequest{
 		Instance: c.Instance,
+		Timeout:  time.Second.Milliseconds(),
 	}
 	ports, err := board.List(req)
 	if err != nil {
