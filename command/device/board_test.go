@@ -27,25 +27,25 @@ import (
 var (
 	portsNoBoards = []*rpc.DetectedPort{
 		{
-			Address: "ACM0",
-			Boards:  []*rpc.BoardListItem{},
+			Port:           &rpc.Port{Address: "ACM0"},
+			MatchingBoards: []*rpc.BoardListItem{},
 		},
 		{
-			Address: "ACM1",
-			Boards:  []*rpc.BoardListItem{},
+			Port:           &rpc.Port{Address: "ACM1"},
+			MatchingBoards: []*rpc.BoardListItem{},
 		},
 	}
 
 	portsTwoBoards = []*rpc.DetectedPort{
 		{
-			Address: "ACM0",
-			Boards: []*rpc.BoardListItem{
+			Port: &rpc.Port{Address: "ACM0"},
+			MatchingBoards: []*rpc.BoardListItem{
 				{Fqbn: "arduino:samd:nano_33_iot"},
 			},
 		},
 		{
-			Address: "ACM1",
-			Boards: []*rpc.BoardListItem{
+			Port: &rpc.Port{Address: "ACM1"},
+			MatchingBoards: []*rpc.BoardListItem{
 				{Fqbn: "arduino:avr:uno"},
 			},
 		},
@@ -68,14 +68,14 @@ func TestBoardFromPorts(t *testing.T) {
 			name:   "port-filter",
 			filter: &CreateParams{FQBN: nil, Port: stringPointer("ACM1")},
 			ports:  portsTwoBoards,
-			want:   &board{fqbn: "arduino:avr:uno", port: "ACM1"},
+			want:   &board{fqbn: "arduino:avr:uno", address: "ACM1"},
 		},
 
 		{
 			name:   "fqbn-filter",
 			filter: &CreateParams{FQBN: stringPointer("arduino:avr:uno"), Port: nil},
 			ports:  portsTwoBoards,
-			want:   &board{fqbn: "arduino:avr:uno", port: "ACM1"},
+			want:   &board{fqbn: "arduino:avr:uno", address: "ACM1"},
 		},
 
 		{
@@ -90,7 +90,7 @@ func TestBoardFromPorts(t *testing.T) {
 			filter: &CreateParams{FQBN: nil, Port: nil},
 			ports:  portsTwoBoards,
 			// first board found is selected
-			want: &board{fqbn: "arduino:samd:nano_33_iot", port: "ACM0"},
+			want: &board{fqbn: "arduino:samd:nano_33_iot", address: "ACM0"},
 		},
 
 		{
@@ -104,7 +104,7 @@ func TestBoardFromPorts(t *testing.T) {
 			name:   "both-filter-found",
 			filter: &CreateParams{FQBN: stringPointer("arduino:avr:uno"), Port: stringPointer("ACM1")},
 			ports:  portsTwoBoards,
-			want:   &board{fqbn: "arduino:avr:uno", port: "ACM1"},
+			want:   &board{fqbn: "arduino:avr:uno", address: "ACM1"},
 		},
 
 		{
@@ -123,14 +123,14 @@ func TestBoardFromPorts(t *testing.T) {
 				return
 
 			} else if got != nil && tt.want == nil {
-				t.Errorf("Expected nil board, received not nil board with port %s and fqbn %s", got.port, got.fqbn)
+				t.Errorf("Expected nil board, received not nil board with port %s and fqbn %s", got.address, got.fqbn)
 
 			} else if got == nil && tt.want != nil {
-				t.Errorf("Expected not nil board with port %s and fqbn %s, received a nil board", tt.want.port, tt.want.fqbn)
+				t.Errorf("Expected not nil board with port %s and fqbn %s, received a nil board", tt.want.address, tt.want.fqbn)
 
-			} else if got.port != tt.want.port || got.fqbn != tt.want.fqbn {
+			} else if got.address != tt.want.address || got.fqbn != tt.want.fqbn {
 				t.Errorf("Expected board with port %s and fqbn %s, received board with port %s and fqbn %s",
-					tt.want.port, tt.want.fqbn, got.port, got.fqbn)
+					tt.want.address, tt.want.fqbn, got.address, got.fqbn)
 			}
 		})
 	}

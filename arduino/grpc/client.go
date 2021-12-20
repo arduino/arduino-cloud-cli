@@ -53,10 +53,11 @@ func NewClient() (arduino.Commander, func() error, error) {
 		return nil, func() error { return nil }, err
 	}
 
-	serv := &service{}
+	serv := &service{
+		serviceClient:  rpc.NewArduinoCoreServiceClient(conn),
+		settingsClient: settings.NewSettingsServiceClient(conn),
+	}
 	// Create an instance of the gRPC clients.
-	serv.serviceClient = rpc.NewArduinoCoreServiceClient(conn)
-	serv.settingsClient = settings.NewSettingsServiceClient(conn)
 	serv.instance, err = initInstance(serv.serviceClient)
 	if err != nil {
 		conn.Close()
@@ -72,13 +73,17 @@ func NewClient() (arduino.Commander, func() error, error) {
 }
 
 func initInstance(client rpc.ArduinoCoreServiceClient) (*rpc.Instance, error) {
-	initRespStream, err := client.Init(context.Background(), &rpc.InitRequest{})
+	createResp, err := client.Create(context.Background(), &rpc.CreateRequest{})
 	if err != nil {
 		err = fmt.Errorf("%s: %w", "Error creating server instance", err)
 		return nil, err
 	}
+	initRespStream, err := client.Init(context.Background(), &rpc.InitRequest{Instance: createResp.GetInstance()})
+	if err != nil {
+		err = fmt.Errorf("%s: %w", "Error initializing server instance", err)
+		return nil, err
+	}
 
-	var instance *rpc.Instance
 	// Loop and consume the server stream until all the setup procedures are done.
 	for {
 		initResp, err := initRespStream.Recv()
@@ -93,22 +98,16 @@ func initInstance(client rpc.ArduinoCoreServiceClient) (*rpc.Instance, error) {
 			return nil, err
 		}
 
-		// The server sent us a valid instance, let's print its ID.
-		if initResp.GetInstance() != nil {
-			instance = initResp.GetInstance()
-			//fmt.Printf("Got a new instance with ID: %v", instance.GetId())
-		}
-
-		// When a download is ongoing, log the progress
-		if initResp.GetDownloadProgress() != nil {
-			fmt.Printf("DOWNLOAD: %s", initResp.GetDownloadProgress())
-		}
-
-		// When an overall task is ongoing, log the progress
-		if initResp.GetTaskProgress() != nil {
-			fmt.Printf("TASK: %s", initResp.GetTaskProgress())
+		// When a download or task is ongoing, log the progress
+		if progress := initResp.GetInitProgress(); progress != nil {
+			if progress.DownloadProgress != nil {
+				fmt.Printf("DOWNLOAD: %s", progress.DownloadProgress)
+			}
+			if progress.TaskProgress != nil {
+				fmt.Printf("TASK: %s", progress.TaskProgress)
+			}
 		}
 	}
 
-	return instance, nil
+	return createResp.GetInstance(), nil
 }

@@ -59,7 +59,7 @@ func Create(params *CreateParams) (*DeviceInfo, error) {
 				"Try the 'create-lora' command instead if it's a LoRa device"+
 				" or 'create-generic' otherwise",
 			board.fqbn,
-			board.port,
+			board.address,
 		)
 	}
 

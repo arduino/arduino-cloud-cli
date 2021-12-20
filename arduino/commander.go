@@ -25,6 +25,6 @@ import (
 // the arduino-cli commands in a programmatic way.
 type Commander interface {
 	BoardList() ([]*rpc.DetectedPort, error)
-	UploadBin(fqbn, bin, port string) error
+	UploadBin(fqbn, bin, address, protocol string) error
 	//Compile() error
 }
