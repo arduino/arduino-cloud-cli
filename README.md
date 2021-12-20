@@ -154,9 +154,9 @@ Delete a thing with the following command:
 
 `$ arduino-cloud-cli thing delete --id <thingID>`
 
-Extract a template from an existing thing. The template can be saved in two formats: json or yaml. The default format is yaml:
+Extract a template from an existing thing. The template is printed to stdout and its format depends on the global `--format` flag:
 
-`$ arduino-cloud-cli thing extract --id <thingID> --outfile <templateFile> --format <yaml|json>`
+`$ arduino-cloud-cli thing extract --id <thingID> --format <json|yaml>`
 
 Bind a thing to an existing device:
 
@@ -198,9 +198,9 @@ Delete a dashboard with the following command:
 
 `$ arduino-cloud-cli dashboard delete --id <dashboardID>`
 
-Extract a template from an existing dashboard. The template can be saved in two formats: json or yaml. The default format is yaml:
+Extract a template from an existing dashboard. The template is printed to stdout and its format depends on the global `--format` flag:
 
-`$ arduino-cloud-cli dashboard extract --id <dashboardID> --outfile <templateFile> --format <yaml|json>`
+`$ arduino-cloud-cli dashboard extract --id <dashboardID> --format <json|yaml>`
 
 Create a dashboard: dashboards can be created only starting from a template. Supported dashboard template formats are JSON and YAML. The name parameter is optional. If it is provided then it overrides the name retrieved from the template. The `override` flag can be used to override the template `thing_id` placeholder with the actual ID of the thing to be used.
 
