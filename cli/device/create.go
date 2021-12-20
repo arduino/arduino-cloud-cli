@@ -37,8 +37,8 @@ var createFlags struct {
 func initCreateCommand() *cobra.Command {
 	createCommand := &cobra.Command{
 		Use:   "create",
-		Short: "Create a device",
-		Long:  "Create a device for Arduino IoT Cloud",
+		Short: "Create a device provisioning the onboard secure element with a valid certificate",
+		Long:  "Create a device for Arduino IoT Cloud provisioning the onboard secure element with a valid certificate",
 		Run:   runCreateCommand,
 	}
 	createCommand.Flags().StringVarP(&createFlags.port, "port", "p", "", "Device port")
