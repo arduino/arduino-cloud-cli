@@ -36,8 +36,8 @@ var createGenericFlags struct {
 func initCreateGenericCommand() *cobra.Command {
 	createGenericCommand := &cobra.Command{
 		Use:   "create-generic",
-		Short: "Create a generic device",
-		Long:  "Create a generic device for Arduino IoT Cloud",
+		Short: "Create a generic device with password authentication - without secure element - WARNING: less secure",
+		Long:  "Create a generic device with password authentication for Arduino IoT Cloud - without secure element - WARNING: less secure",
 		Run:   runCreateGenericCommand,
 	}
 	createGenericCommand.Flags().StringVarP(&createGenericFlags.name, "name", "n", "", "Device name")
