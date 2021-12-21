@@ -25,29 +25,21 @@ import (
 	"github.com/arduino/arduino-cloud-cli/command/dashboard"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 var extractFlags struct {
-	id      string
-	outfile string
-	format  string
+	id string
 }
 
 func initExtractCommand() *cobra.Command {
 	extractCommand := &cobra.Command{
 		Use:   "extract",
 		Short: "Extract a template from a dashboard",
-		Long:  "Extract a template from a Arduino IoT Cloud dashboard and save it in a file",
+		Long:  "Extract a template from a Arduino IoT Cloud dashboard",
 		Run:   runExtractCommand,
 	}
 	extractCommand.Flags().StringVarP(&extractFlags.id, "id", "i", "", "Dashboard ID")
-	extractCommand.Flags().StringVarP(&extractFlags.outfile, "outfile", "o", "", "Template file destination path")
-	extractCommand.Flags().StringVar(
-		&extractFlags.format,
-		"format",
-		"yaml",
-		"Format of template file, can be {json|yaml}. Default is 'yaml'",
-	)
 
 	extractCommand.MarkFlagRequired("id")
 	return extractCommand
@@ -57,18 +49,31 @@ func runExtractCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Extracting template from dashboard %s", extractFlags.id)
 
 	params := &dashboard.ExtractParams{
-		ID:     extractFlags.id,
-		Format: extractFlags.format,
-	}
-	if extractFlags.outfile != "" {
-		params.Outfile = &extractFlags.outfile
+		ID: extractFlags.id,
 	}
 
-	err := dashboard.Extract(params)
+	template, err := dashboard.Extract(params)
 	if err != nil {
 		feedback.Errorf("Error during template extraction: %v", err)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	logrus.Info("Template successfully extracted")
+	feedback.PrintResult(extractResult{template})
+}
+
+type extractResult struct {
+	template map[string]interface{}
+}
+
+func (r extractResult) Data() interface{} {
+	return r.template
+}
+
+func (r extractResult) String() string {
+	t, err := yaml.Marshal(r.template)
+	if err != nil {
+		feedback.Errorf("Error during template parsing: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+	return string(t)
 }
