@@ -34,7 +34,7 @@ type FrequencyPlanInfo struct {
 // ListFrequencyPlans command is used to list
 // the supported LoRa frequency plans.
 func ListFrequencyPlans() ([]FrequencyPlanInfo, error) {
-	conf, err := config.Retrieve()
+	conf, err := config.RetrieveCredentials()
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func ListFrequencyPlans() ([]FrequencyPlanInfo, error) {
 		freq := FrequencyPlanInfo{
 			Name:     f.Name,
 			ID:       f.Id,
-			Advanced: fmt.Sprintf("%v",f.Advanced),
+			Advanced: fmt.Sprintf("%v", f.Advanced),
 		}
 		freqs = append(freqs, freq)
 	}

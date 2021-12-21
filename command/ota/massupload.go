@@ -71,7 +71,7 @@ func MassUpload(params *MassUploadParams) ([]Result, error) {
 		return nil, fmt.Errorf("%s: %w", "cannot generate .ota file", err)
 	}
 
-	conf, err := config.Retrieve()
+	conf, err := config.RetrieveCredentials()
 	if err != nil {
 		return nil, err
 	}

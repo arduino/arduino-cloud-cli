@@ -45,7 +45,7 @@ type UploadParams struct {
 // Upload command is used to upload a firmware OTA,
 // on a device of Arduino IoT Cloud.
 func Upload(params *UploadParams) error {
-	conf, err := config.Retrieve()
+	conf, err := config.RetrieveCredentials()
 	if err != nil {
 		return err
 	}

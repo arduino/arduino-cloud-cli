@@ -33,7 +33,7 @@ type CloneParams struct {
 
 // Clone allows to create a new thing from an already existing one.
 func Clone(params *CloneParams) (*ThingInfo, error) {
-	conf, err := config.Retrieve()
+	conf, err := config.RetrieveCredentials()
 	if err != nil {
 		return nil, err
 	}

@@ -33,7 +33,7 @@ type ListParams struct {
 // List command is used to list
 // the devices of Arduino IoT Cloud.
 func List(params *ListParams) ([]DeviceInfo, error) {
-	conf, err := config.Retrieve()
+	conf, err := config.RetrieveCredentials()
 	if err != nil {
 		return nil, err
 	}

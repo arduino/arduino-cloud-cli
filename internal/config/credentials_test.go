@@ -26,12 +26,12 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestRetrieve(t *testing.T) {
+func TestRetrieveCredentials(t *testing.T) {
 	var (
 		validSecret   = "qaRZGEbnQNNvmaeTLqy8Bxs22wLZ6H7obIiNSveTLPdoQuylANnuy6WBOw16XoqH"
 		validClient   = "CQ4iZ5sebOfhGRwUn3IV0r1YFMNrMTIx"
-		validConfig   = &Config{validClient, validSecret}
-		invalidConfig = &Config{"", validSecret}
+		validConfig   = &Credentials{validClient, validSecret}
+		invalidConfig = &Credentials{"", validSecret}
 		clientEnv     = EnvPrefix + "_CLIENT"
 		secretEnv     = EnvPrefix + "_SECRET"
 	)
@@ -40,11 +40,11 @@ func TestRetrieve(t *testing.T) {
 		name         string
 		pre          func()
 		post         func()
-		wantedConfig *Config
+		wantedConfig *Credentials
 		wantedErr    bool
 	}{
 		{
-			name: "valid config written in env",
+			name: "valid credentials written in env",
 			pre: func() {
 				os.Setenv(clientEnv, validConfig.Client)
 				os.Setenv(secretEnv, validConfig.Secret)
@@ -58,7 +58,7 @@ func TestRetrieve(t *testing.T) {
 		},
 
 		{
-			name: "invalid config written in env",
+			name: "invalid credentials written in env",
 			pre: func() {
 				os.Setenv(clientEnv, validConfig.Client)
 				os.Setenv(secretEnv, "")
@@ -72,16 +72,16 @@ func TestRetrieve(t *testing.T) {
 		},
 
 		{
-			name: "valid config written in parent of cwd",
+			name: "valid credentials written in parent of cwd",
 			pre: func() {
 				parent := "test-parent"
 				cwd := "test-parent/test-cwd"
 				os.MkdirAll(cwd, os.FileMode(0777))
-				// Write valid config in parent dir
+				// Write valid credentials in parent dir
 				os.Chdir(parent)
 				b, _ := json.Marshal(validConfig)
-				os.WriteFile(Filename+".json", b, os.FileMode(0777))
-				// Cwd has no config file
+				os.WriteFile(CredentialsFilename+".json", b, os.FileMode(0777))
+				// Cwd has no credentials file
 				os.Chdir("test-cwd")
 			},
 			post: func() {
@@ -93,19 +93,19 @@ func TestRetrieve(t *testing.T) {
 		},
 
 		{
-			name: "invalid config written in cwd, ignore config of parent dir",
+			name: "invalid credentials written in cwd, ignore credentials of parent dir",
 			pre: func() {
 				parent := "test-parent"
 				cwd := "test-parent/test-cwd"
 				os.MkdirAll(cwd, os.FileMode(0777))
-				// Write valid config in parent dir
+				// Write valid credentials in parent dir
 				os.Chdir(parent)
 				b, _ := json.Marshal(validConfig)
-				os.WriteFile(Filename+".json", b, os.FileMode(0777))
-				// Write invalid config in cwd
+				os.WriteFile(CredentialsFilename+".json", b, os.FileMode(0777))
+				// Write invalid credentials in cwd
 				os.Chdir("test-cwd")
 				b, _ = json.Marshal(invalidConfig)
-				os.WriteFile(Filename+".json", b, os.FileMode(0777))
+				os.WriteFile(CredentialsFilename+".json", b, os.FileMode(0777))
 			},
 			post: func() {
 				os.Chdir("../..")
@@ -118,15 +118,15 @@ func TestRetrieve(t *testing.T) {
 		},
 
 		{
-			name: "invalid config written in env, ignore valid config of cwd",
+			name: "invalid credentials written in env, ignore valid credentials of cwd",
 			pre: func() {
 				cwd := "test-cwd"
 				os.MkdirAll(cwd, os.FileMode(0777))
-				// Write valid config in cwd
+				// Write valid credentials in cwd
 				os.Chdir(cwd)
 				b, _ := json.Marshal(validConfig)
-				os.WriteFile(Filename+".json", b, os.FileMode(0777))
-				// Write invalid config in env
+				os.WriteFile(CredentialsFilename+".json", b, os.FileMode(0777))
+				// Write invalid credentials in env
 				os.Setenv(clientEnv, validConfig.Client)
 				os.Setenv(secretEnv, "")
 			},
@@ -142,7 +142,7 @@ func TestRetrieve(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.pre()
-			got, err := Retrieve()
+			got, err := RetrieveCredentials()
 			tt.post()
 
 			if tt.wantedErr && err == nil {
@@ -153,7 +153,7 @@ func TestRetrieve(t *testing.T) {
 			}
 
 			if !cmp.Equal(got, tt.wantedConfig) {
-				t.Errorf("Wrong config received, diff:\n%s", cmp.Diff(tt.wantedConfig, got))
+				t.Errorf("Wrong credentials received, diff:\n%s", cmp.Diff(tt.wantedConfig, got))
 			}
 		})
 	}
@@ -166,12 +166,12 @@ func TestValidate(t *testing.T) {
 	)
 	tests := []struct {
 		name   string
-		config *Config
+		config *Credentials
 		valid  bool
 	}{
 		{
-			name: "valid config",
-			config: &Config{
+			name: "valid credentials",
+			config: &Credentials{
 				Client: validClient,
 				Secret: validSecret,
 			},
@@ -179,12 +179,12 @@ func TestValidate(t *testing.T) {
 		},
 		{
 			name:   "invalid client id",
-			config: &Config{Client: "", Secret: validSecret},
+			config: &Credentials{Client: "", Secret: validSecret},
 			valid:  false,
 		},
 		{
 			name:   "invalid client secret",
-			config: &Config{Client: validClient, Secret: ""},
+			config: &Credentials{Client: validClient, Secret: ""},
 			valid:  false,
 		},
 	}
@@ -194,14 +194,14 @@ func TestValidate(t *testing.T) {
 			err := tt.config.Validate()
 			if tt.valid && err != nil {
 				t.Errorf(
-					"Wrong validation, the config was correct but an error was received: \nconfig: %v\nerr: %v",
+					"Wrong validation, the credentials were correct but an error was received: \ncredentials: %v\nerr: %v",
 					tt.config,
 					err,
 				)
 			}
 			if !tt.valid && err == nil {
 				t.Errorf(
-					"Wrong validation, the config was invalid but no error was received: \nconfig: %v",
+					"Wrong validation, the credentials were invalid but no error was received: \ncredentials: %v",
 					tt.config,
 				)
 			}
@@ -216,22 +216,22 @@ func TestIsEmpty(t *testing.T) {
 	)
 	tests := []struct {
 		name   string
-		config *Config
+		config *Credentials
 		want   bool
 	}{
 		{
-			name:   "empty config",
-			config: &Config{Client: "", Secret: ""},
+			name:   "empty credentials",
+			config: &Credentials{Client: "", Secret: ""},
 			want:   true,
 		},
 		{
-			name:   "config without id",
-			config: &Config{Client: "", Secret: validSecret},
+			name:   "credentials without id",
+			config: &Credentials{Client: "", Secret: validSecret},
 			want:   false,
 		},
 		{
-			name:   "config without secret",
-			config: &Config{Client: validClient, Secret: ""},
+			name:   "credentials without secret",
+			config: &Credentials{Client: validClient, Secret: ""},
 			want:   false,
 		},
 	}
@@ -240,7 +240,7 @@ func TestIsEmpty(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.config.IsEmpty()
 			if got != tt.want {
-				t.Errorf("Expected %v but got %v, with config: %v", tt.want, got, tt.config)
+				t.Errorf("Expected %v but got %v, with credentials: %v", tt.want, got, tt.config)
 			}
 		})
 	}
