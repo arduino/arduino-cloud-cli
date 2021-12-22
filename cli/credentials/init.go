@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package config
+package credentials
 
 import (
 	"errors"
@@ -43,81 +43,81 @@ var initFlags struct {
 func initInitCommand() *cobra.Command {
 	initCommand := &cobra.Command{
 		Use:   "init",
-		Short: "Initialize a configuration file",
-		Long:  "Initialize an Arduino IoT Cloud CLI configuration",
+		Short: "Initialize a credentials file",
+		Long:  "Initialize an Arduino IoT Cloud CLI credentials file",
 		Run:   runInitCommand,
 	}
 
-	initCommand.Flags().StringVar(&initFlags.destDir, "dest-dir", "", "Sets where to save the configuration file")
-	initCommand.Flags().BoolVar(&initFlags.overwrite, "overwrite", false, "Overwrite existing config file")
-	initCommand.Flags().StringVar(&initFlags.format, "config-format", "yaml", "Format of the configuration file, can be {yaml|json}")
+	initCommand.Flags().StringVar(&initFlags.destDir, "dest-dir", "", "Sets where to save the credentials file")
+	initCommand.Flags().BoolVar(&initFlags.overwrite, "overwrite", false, "Overwrite existing credentials file")
+	initCommand.Flags().StringVar(&initFlags.format, "file-format", "yaml", "Format of the credentials file, can be {yaml|json}")
 
 	return initCommand
 }
 
 func runInitCommand(cmd *cobra.Command, args []string) {
-	logrus.Info("Initializing config file")
+	logrus.Info("Initializing credentials file")
 
 	// Get default destination directory if it's not passed
 	if initFlags.destDir == "" {
-		configPath, err := arduino.DataDir()
+		credPath, err := arduino.DataDir()
 		if err != nil {
-			feedback.Errorf("Error during config init: cannot retrieve arduino default directory: %v", err)
+			feedback.Errorf("Error during credentials init: cannot retrieve arduino default directory: %v", err)
 			os.Exit(errorcodes.ErrGeneric)
 		}
 		// Create arduino default directory if it does not exist
-		if configPath.NotExist() {
-			if err = configPath.MkdirAll(); err != nil {
-				feedback.Errorf("Error during config init: cannot create arduino default directory %s: %v", configPath, err)
+		if credPath.NotExist() {
+			if err = credPath.MkdirAll(); err != nil {
+				feedback.Errorf("Error during credentials init: cannot create arduino default directory %s: %v", credPath, err)
 				os.Exit(errorcodes.ErrGeneric)
 			}
 		}
-		initFlags.destDir = configPath.String()
+		initFlags.destDir = credPath.String()
 	}
 
 	// Validate format flag
 	initFlags.format = strings.ToLower(initFlags.format)
 	if initFlags.format != "json" && initFlags.format != "yaml" {
-		feedback.Error("Error during config init: format is not valid, provide 'json' or 'yaml'")
+		feedback.Error("Error during credentials init: format is not valid, provide 'json' or 'yaml'")
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	// Check that the destination directory is valid and build the configuration file path
-	configPath, err := paths.New(initFlags.destDir).Abs()
+	// Check that the destination directory is valid and build the credentials file path
+	credPath, err := paths.New(initFlags.destDir).Abs()
 	if err != nil {
-		feedback.Errorf("Error during config init: cannot retrieve absolute path of %s: %v", initFlags.destDir, err)
+		feedback.Errorf("Error during credentials init: cannot retrieve absolute path of %s: %v", initFlags.destDir, err)
 		os.Exit(errorcodes.ErrGeneric)
 	}
-	if !configPath.IsDir() {
-		feedback.Errorf("Error during config init: %s is not a valid directory", configPath)
+	if !credPath.IsDir() {
+		feedback.Errorf("Error during credentials init: %s is not a valid directory", credPath)
 		os.Exit(errorcodes.ErrGeneric)
 	}
-	configFile := configPath.Join(config.Filename + "." + initFlags.format)
-	if !initFlags.overwrite && configFile.Exist() {
-		feedback.Errorf("Error during config init: %s already exists, use '--overwrite' to overwrite it",
-			configFile)
+	credFile := credPath.Join(config.CredentialsFilename + "." + initFlags.format)
+	if !initFlags.overwrite && credFile.Exist() {
+		feedback.Errorf("Error during credentials init: %s already exists, use '--overwrite' to overwrite it",
+			credFile)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	// Take needed configuration parameters starting an interactive mode
+	// Take needed credentials starting an interactive mode
 	feedback.Print("To obtain your API credentials visit https://create.arduino.cc/iot/integrations")
 	id, key, err := paramsPrompt()
 	if err != nil {
-		feedback.Errorf("Error during config init: cannot take config params: %v", err)
+		feedback.Errorf("Error during credentials init: cannot take credentials params: %v", err)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	// Write the configuration file
+	// Write the credentials file
 	newSettings := viper.New()
 	newSettings.SetConfigPermissions(os.FileMode(0600))
 	newSettings.Set("client", id)
 	newSettings.Set("secret", key)
-	if err := newSettings.WriteConfigAs(configFile.String()); err != nil {
-		feedback.Errorf("Error during config init: cannot create config file: %v", err)
+	if err := newSettings.WriteConfigAs(credFile.String()); err != nil {
+		feedback.Errorf("Error during credentials init: cannot write credentials file: %v", err)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
-	feedback.Printf("Config file successfully initialized at: %s", configFile)
+	feedback.Printf("Credentials file successfully initialized at: %s", credFile)
 }
 
 func paramsPrompt() (id, key string, err error) {

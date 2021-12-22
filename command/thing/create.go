@@ -34,7 +34,7 @@ type CreateParams struct {
 
 // Create allows to create a new thing.
 func Create(params *CreateParams) (*ThingInfo, error) {
-	conf, err := config.Retrieve()
+	conf, err := config.RetrieveCredentials()
 	if err != nil {
 		return nil, err
 	}

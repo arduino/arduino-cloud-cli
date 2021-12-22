@@ -15,18 +15,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package config
+package credentials
 
-import "github.com/spf13/viper"
-
-var (
-	Filename = "arduino-cloud"
+import (
+	"github.com/spf13/cobra"
 )
 
-// SetDefaults sets the default values for configuration keys.
-func SetDefaults(settings *viper.Viper) {
-	// Client ID
-	settings.SetDefault("client", "")
-	// Secret
-	settings.SetDefault("secret", "")
+func NewCommand() *cobra.Command {
+	credentialsCommand := &cobra.Command{
+		Use:   "credentials",
+		Short: "Credentials commands.",
+		Long:  "Credentials commands.",
+	}
+
+	credentialsCommand.AddCommand(initInitCommand())
+
+	return credentialsCommand
 }
