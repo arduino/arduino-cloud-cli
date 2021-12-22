@@ -28,32 +28,32 @@ Another example: let's say that the execution of the previous command results in
 `$ arduino-cloud-cli device create --name mydevice -v`
 
 
-## Set a configuration
+## Set credentials 
 
-arduino-cloud-cli needs a configuration file containing an Arduino IoT Cloud client ID and its corresponding secret.
+arduino-cloud-cli needs a credentials file containing an Arduino IoT Cloud client ID and its corresponding secret.
 You can retrieve these credentials from the [cloud](https://create.arduino.cc/iot/integrations) by creating a new API key.
 
-Once you have the credentials, execute the following command and provide them when asked to create a new configuration file:
+Once you have the credentials, execute the following command and provide them:
 
-`$ arduino-cloud-cli config init`
+`$ arduino-cloud-cli credentials init`
 
 By default it will be created in the arduino data directory (arduino15). 
 You can specify a different destination folder with the `--dest-dir` option. 
-arduino-cloud-cli looks for its configuration file in different directories in the following order: current working directory, parents of the current working directory, arduino15 default directory.
+arduino-cloud-cli looks for its credentials file in different directories in the following order: current working directory, parents of the current working directory, arduino15 default directory.
 
-This gives you the possibility to use different configuration files depending on the project you are working on.
+This gives you the possibility to use different credentials files depending on the project you are working on.
 
-`$ arduino-cloud-cli config init --dest-dir <destinationFolder>`
+`$ arduino-cloud-cli credentials init --dest-dir <destinationFolder>`
 
-To reset an old configuration file, just overwrite it using this command:
+To reset an old credentials file, just overwrite it using this command:
 
-`$ arduino-cloud-cli config init --overwrite`
+`$ arduino-cloud-cli credentials init --overwrite`
 
-Configuration file is supported in two different format: json and yaml. Use the `--config-format` to choose it. Default is yaml.
+Credentials file is supported in two different format: json and yaml. Use the `--file-format` to choose it. Default is yaml.
 
-`$ arduino-cloud-cli config init --config-format json`
+`$ arduino-cloud-cli credentials init --file-format json`
 
-It is also possible to specify credentials directly in `ARDUINO_CLOUD_CLIENT` and `ARDUINO_CLOUD_SECRET` environment variables. Credentials specified in environment variables have higher priority than the ones specified in config files.
+It is also possible to specify credentials directly in `ARDUINO_CLOUD_CLIENT` and `ARDUINO_CLOUD_SECRET` environment variables. Credentials specified in environment variables have higher priority than the ones specified in credentials files.
 
 ## Device provisioning
 

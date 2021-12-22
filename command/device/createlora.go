@@ -107,7 +107,7 @@ func CreateLora(params *CreateLoraParams) (*DeviceLoraInfo, error) {
 		return nil, err
 	}
 
-	conf, err := config.Retrieve()
+	conf, err := config.RetrieveCredentials()
 	if err != nil {
 		return nil, err
 	}

@@ -35,7 +35,7 @@ type CreateTagsParams struct {
 // CreateTags allows to create or overwrite tags
 // on a resource of Arduino IoT Cloud.
 func CreateTags(params *CreateTagsParams) error {
-	conf, err := config.Retrieve()
+	conf, err := config.RetrieveCredentials()
 	if err != nil {
 		return err
 	}

@@ -43,7 +43,7 @@ func Delete(params *DeleteParams) error {
 		return errors.New("cannot use both ID and Tags. only one of them should be not nil")
 	}
 
-	conf, err := config.Retrieve()
+	conf, err := config.RetrieveCredentials()
 	if err != nil {
 		return err
 	}

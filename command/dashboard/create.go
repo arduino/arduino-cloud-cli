@@ -34,7 +34,7 @@ type CreateParams struct {
 
 // Create allows to create a new dashboard.
 func Create(params *CreateParams) (*DashboardInfo, error) {
-	conf, err := config.Retrieve()
+	conf, err := config.RetrieveCredentials()
 	if err != nil {
 		return nil, err
 	}

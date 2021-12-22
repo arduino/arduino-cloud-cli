@@ -44,7 +44,7 @@ type DeviceGenericInfo struct {
 
 // CreateGeneric command is used to add a new generic device to Arduino IoT Cloud.
 func CreateGeneric(params *CreateGenericParams) (*DeviceGenericInfo, error) {
-	conf, err := config.Retrieve()
+	conf, err := config.RetrieveCredentials()
 	if err != nil {
 		return nil, err
 	}

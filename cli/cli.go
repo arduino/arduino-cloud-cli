@@ -25,7 +25,7 @@ import (
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
-	"github.com/arduino/arduino-cloud-cli/cli/config"
+	"github.com/arduino/arduino-cloud-cli/cli/credentials"
 	"github.com/arduino/arduino-cloud-cli/cli/dashboard"
 	"github.com/arduino/arduino-cloud-cli/cli/device"
 	"github.com/arduino/arduino-cloud-cli/cli/ota"
@@ -49,7 +49,7 @@ func Execute() {
 	}
 
 	cli.AddCommand(version.NewCommand())
-	cli.AddCommand(config.NewCommand())
+	cli.AddCommand(credentials.NewCommand())
 	cli.AddCommand(device.NewCommand())
 	cli.AddCommand(thing.NewCommand())
 	cli.AddCommand(dashboard.NewCommand())
