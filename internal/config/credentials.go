@@ -19,7 +19,9 @@ package config
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/arduino/go-paths-helper"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -77,77 +79,101 @@ func (c *Credentials) IsEmpty() bool {
 	return len(c.Client) == 0 && len(c.Secret) == 0
 }
 
-// RetrieveCredentials looks for credentials in
+// FindCredentials looks for credentials in
 // environment variables or in credentials file.
-// Returns error if no credentials are found or
-// if found credentials are invalid.
-func RetrieveCredentials() (*Credentials, error) {
+// Returns the source of found credentials (env or filepath).
+// Returns an error if credentials are not found
+// specifying paths where the credentials are searched.
+func FindCredentials() (source string, err error) {
 	// Credentials extracted from environment has highest priority
 	logrus.Info("Looking for credentials in environment variables")
 	c, err := fromEnv()
 	if err != nil {
+		return "", fmt.Errorf("looking for credentials in environment variables: %w", err)
+	}
+	if !c.IsEmpty() {
+		logrus.Infof("Credentials found in environment variables with prefix '%s'", EnvPrefix)
+		return "environment variables", nil
+	}
+
+	logrus.Info("Looking for credentials in file system")
+	path, found, err := searchConfigFile(CredentialsFilename)
+	if err != nil {
+		return "", fmt.Errorf("looking for credentials files: %w", err)
+	}
+	if found {
+		return path, nil
+	}
+
+	return "", fmt.Errorf(
+		"credentials have not been found neither in environment variables " +
+			"nor in the current directory, its parents or in arduino15",
+	)
+}
+
+// RetrieveCredentials retrieves credentials from
+// environment variables or credentials file.
+// Returns error if credentials are not found or
+// if found credentials are invalid.
+func RetrieveCredentials() (cred *Credentials, err error) {
+	// Credentials extracted from environment has highest priority
+	logrus.Info("Looking for credentials in environment variables")
+	cred, err = fromEnv()
+	if err != nil {
 		return nil, fmt.Errorf("reading credentials from environment variables: %w", err)
 	}
-	// Return credentials if found in env
-	if !c.IsEmpty() {
-		// Return error if credentials are found but are not valid
-		if err := c.Validate(); err != nil {
+	// Returns credentials if found in env
+	if !cred.IsEmpty() {
+		// Returns error if credentials are found but are not valid
+		if err := cred.Validate(); err != nil {
 			return nil, fmt.Errorf(
 				"credentials retrieved from environment variables with prefix '%s' are not valid: %w", EnvPrefix, err,
 			)
 		}
 		logrus.Infof("Credentials found in environment variables with prefix '%s'", EnvPrefix)
-		return c, nil
+		return cred, nil
 	}
 
 	logrus.Info("Looking for credentials in file system")
-	filepath, found, err := searchConfigDir(CredentialsFilename)
+	filepath, found, err := searchConfigFile(CredentialsFilename)
 	if err != nil {
 		return nil, fmt.Errorf("can't get credentials directory: %w", err)
 	}
-	if !found {
-		return nil, fmt.Errorf(
-			"credentials have not been found neither in environment variables " +
-				"nor in the current directory, its parents or in arduino15",
-		)
+	// Returns credentials if found in a file
+	if found {
+		if cred, err = fromFile(filepath); err != nil {
+			return nil, fmt.Errorf("reading credentials from file %s: %w", filepath, err)
+		}
+		// Returns error if credentials are found but are not valid
+		if err := cred.Validate(); err != nil {
+			return nil, fmt.Errorf(
+				"credentials retrieved from file %s are not valid: %w", filepath, err,
+			)
+		}
+		return cred, nil
 	}
 
-	c, err = fromFile(filepath)
-	if err != nil {
-		return nil, fmt.Errorf("reading credentials from file %s: %w", filepath, err)
-	}
-	// Return error if credentials are not valid
-	if err := c.Validate(); err != nil {
-		return nil, fmt.Errorf(
-			"credentials retrieved from file %s are not valid: %w", filepath, err,
-		)
-	}
-	return c, nil
+	return nil, fmt.Errorf(
+		"credentials have not been found neither in environment variables " +
+			"nor in the current directory, its parents or in arduino15",
+	)
 }
 
-// fromFile looks for a credentials file.
+// fromFile retrieves credentials from a credentials file.
+// Returns error if credentials are not found or cannot be fetched.
 func fromFile(filepath string) (*Credentials, error) {
 	v := viper.New()
-	v.SetConfigName(CredentialsFilename)
-	v.AddConfigPath(filepath)
+	v.SetConfigFile(filepath)
+	v.SetConfigType(strings.TrimLeft(paths.New(filepath).Ext(), "."))
 	err := v.ReadInConfig()
 	if err != nil {
-		err = fmt.Errorf(
-			"credentials file found at %s but cannot read its content: %w",
-			filepath,
-			err,
-		)
-		return nil, err
+		return nil, fmt.Errorf("cannot read credentials file: %w", err)
 	}
 
 	cred := &Credentials{}
 	err = v.Unmarshal(cred)
 	if err != nil {
-		return nil, fmt.Errorf(
-			"credentials file found at %s but cannot unmarshal it: %w",
-			filepath,
-			err,
-		)
+		return nil, fmt.Errorf("cannot unmarshal credentials file: %w", err)
 	}
 	return cred, nil
 }

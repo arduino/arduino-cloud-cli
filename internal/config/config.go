@@ -24,12 +24,12 @@ import (
 	"github.com/spf13/viper"
 )
 
-// searchConfigDir looks for a configuration file in different directories in the following order:
+// searchConfigFile looks for a configuration file in different directories in the following order:
 // current working directory, parents of the current working directory, arduino15 default directory.
 // Returns empty string and false if no config file has been found, without raising errors.
 // Returns an error if any problem is encountered during the file research which prevents
 // to understand whether a config file exists or not.
-func searchConfigDir(confname string) (dir string, found bool, err error) {
+func searchConfigFile(confname string) (dir string, found bool, err error) {
 	// Search in current directory and its parents.
 	cwd, err := paths.Getwd()
 	if err != nil {
@@ -41,7 +41,7 @@ func searchConfigDir(confname string) (dir string, found bool, err error) {
 		logrus.Infof("Looking for %s in %s", confname, path)
 		if file, found := configFileInDir(confname, path); found {
 			logrus.Infof("Found %s at %s", confname, file)
-			return path.String(), true, nil
+			return file.String(), true, nil
 		}
 	}
 
@@ -53,7 +53,7 @@ func searchConfigDir(confname string) (dir string, found bool, err error) {
 	logrus.Infof("Looking for %s in %s", confname, arduino15)
 	if file, found := configFileInDir(confname, arduino15); found {
 		logrus.Infof("%s found at %s", confname, file)
-		return arduino15.String(), true, nil
+		return file.String(), true, nil
 	}
 
 	// Didn't find config file in the current directory, its parents or in arduino15"

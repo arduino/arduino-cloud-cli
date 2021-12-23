@@ -18,18 +18,34 @@
 package credentials
 
 import (
+	"os"
+
+	"github.com/arduino/arduino-cli/cli/errorcodes"
+	"github.com/arduino/arduino-cli/cli/feedback"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
-func NewCommand() *cobra.Command {
-	credentialsCommand := &cobra.Command{
-		Use:   "credentials",
-		Short: "Credentials commands.",
-		Long:  "Credentials commands.",
+func initFindCommand() *cobra.Command {
+	findCommand := &cobra.Command{
+		Use:   "find",
+		Short: "Find the credentials file being used in your current directory",
+		Long:  "Find the Arduino Cloud CLI credentials file being used in your current directory",
+		Run:   runFindCommand,
 	}
 
-	credentialsCommand.AddCommand(initInitCommand())
-	credentialsCommand.AddCommand(initFindCommand())
+	return findCommand
+}
 
-	return credentialsCommand
+func runFindCommand(cmd *cobra.Command, args []string) {
+	logrus.Info("Looking for a credentials file")
+
+	src, err := config.FindCredentials()
+	if err != nil {
+		feedback.Error("Error during credentials find: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
+	feedback.Printf("Using credentials in: %s", src)
 }
