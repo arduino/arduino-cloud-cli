@@ -55,6 +55,12 @@ Credentials file is supported in two different format: json and yaml. Use the `-
 
 It is also possible to specify credentials directly in `ARDUINO_CLOUD_CLIENT` and `ARDUINO_CLOUD_SECRET` environment variables. Credentials specified in environment variables have higher priority than the ones specified in credentials files.
 
+#### Find credentials
+
+To have information about which credentials would be used in the current folder you can use the following command:
+
+`$ arduino-cloud-cli credentials find`
+
 ## Device provisioning
 
 When provisioning a device, you can optionally specify the port to which the device is connected to and its fqbn. If they are not given, then the first device found will be provisioned.
