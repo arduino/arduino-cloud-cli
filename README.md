@@ -12,18 +12,18 @@ This is all you need to use arduino-cloud-cli:
 
 ### Additional info
 
-This tool follows a "quiet on success/verbose on error" behaviour. This means that when the execution of a command results in an error, such error is printed. On the other hand, when the command is successfully executed, there is no 'success' feedback on the output: the results of the command, if any, are directly printed without any other feedback informations. This strategy allows users to save the output of the command in a file. 
+This tool follows a "quiet on success/verbose on error" behaviour. This means that when a command execution result is an error, such error is printed. On the other hand, when the command is successfully executed, there is no 'success' feedback on the output: the results of the command, if any, are directly printed without any other feedback. This strategy allows users to save the output of the command in a file. 
 
-However, if the verbose flag `-v` is used, then the behaviour will change: the logs will always be printed out providing users with feedbacks on the execution of the command. 
+However, if the verbose flag `-v` is used, then the behaviour will change: the logs will always be printed out, providing users with feedback on the execution of the command. 
 
-As an example, let's take the `device create`command. We want to save the information of the newly created device in a file.
+As an example, let's take the `device create` command. We want to save the information of the newly created device in a file.
 So we simply lunch the command:
 
 `$ arduino-cloud-cli device create --name mydevice --format json > mydevice.json`
 
 The resulting mydevice.json will only contain device information in a json format.
 
-Another example: let's say that the execution of the previous command results in an error. In that case the json file will be empty and the terminal will print out the error. Now we want to execute again the command with the logs enabled, in order to understand the issue. So we execute the following:
+Another example: let's say that the execution of the previous command results in an error. In that case, the json file will be empty and the terminal will print out the error. Now we want to execute the command again with the logs enabled in order to understand the issue. So we execute the following:
 
 `$ arduino-cloud-cli device create --name mydevice -v`
 
@@ -37,7 +37,7 @@ Once you have the credentials, execute the following command and provide them:
 
 `$ arduino-cloud-cli credentials init`
 
-By default it will be created in the arduino data directory (arduino15). 
+By default it will be created in the Arduino data directory (Arduino15). 
 You can specify a different destination folder with the `--dest-dir` option. 
 arduino-cloud-cli looks for its credentials file in different directories in the following order: current working directory, parents of the current working directory, arduino15 default directory.
 
@@ -49,7 +49,7 @@ To reset an old credentials file, just overwrite it using this command:
 
 `$ arduino-cloud-cli credentials init --overwrite`
 
-Credentials file is supported in two different format: json and yaml. Use the `--file-format` to choose it. Default is yaml.
+The credentials file is supported in two different formats: json and yaml. Use the `--file-format` to choose it. Default is yaml.
 
 `$ arduino-cloud-cli credentials init --file-format json`
 
@@ -63,7 +63,7 @@ To have information about which credentials would be used in the current folder 
 
 ## Device provisioning
 
-When provisioning a device, you can optionally specify the port to which the device is connected to and its fqbn. If they are not given, then the first device found will be provisioned.
+When provisioning a device, you can optionally specify the port to which the device is connected and its fqbn. If they are not given, then the first device found will be provisioned.
 
 Use this command to provision a device:
 
@@ -121,11 +121,11 @@ Delete specific tags of a device. The keys of the tags to delete should be passe
 
 Things can be created starting from a template or by cloning another thing.
 
-Create a thing from a thing template. Supported template formats are JSON and YAML. The name parameter is optional. If it is provided then it overrides the name retrieved from the template:
+Create a thing from a thing template. Supported template formats are JSON and YAML. The name parameter is optional. If it is provided, then it overrides the name retrieved from the template:
 
 `$ arduino-cloud-cli thing create --name <thingName> --template <template.(json|yaml)>`
 
-Create a thing by cloning another thing, here the *name is mandatory*:
+Create a thing by cloning another thing. Here the *name is mandatory*:
 
 `$ arduino-cloud-cli thing clone --name <thingName> --clone-id <thingToCloneID>`
 
@@ -208,6 +208,6 @@ Extract a template from an existing dashboard. The template is printed to stdout
 
 `$ arduino-cloud-cli dashboard extract --id <dashboardID> --format <json|yaml>`
 
-Create a dashboard: dashboards can be created only starting from a template. Supported dashboard template formats are JSON and YAML. The name parameter is optional. If it is provided then it overrides the name retrieved from the template. The `override` flag can be used to override the template `thing_id` placeholder with the actual ID of the thing to be used.
+Create a dashboard: dashboards can be created only starting from a template. Supported dashboard template formats are JSON and YAML. The name parameter is optional. If it is provided, then it overrides the name retrieved from the template. The `override` flag can be used to override the template `thing_id` placeholder with the actual ID of the thing to be used.
 
 `$ arduino-cloud-cli dashboard create --name <dashboardName> --template <template.(json|yaml)> --override <thing-0>=<actualThingID>,<thing-1>=<otherActualThingID>`
