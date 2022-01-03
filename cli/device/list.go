@@ -45,7 +45,7 @@ func initListCommand() *cobra.Command {
 		"tags",
 		nil,
 		"Comma-separated list of tags with format <key>=<value>.\n"+
-			"List only devices that match the provided tags.",
+			"List only devices that match the provided tags",
 	)
 	return listCommand
 }

@@ -44,7 +44,7 @@ func InitCreateTagsCommand() *cobra.Command {
 		&createTagsFlags.tags,
 		"tags",
 		nil,
-		"Comma-separated list of tags with format <key>=<value>.",
+		"Comma-separated list of tags with format <key>=<value>",
 	)
 	createTagsCommand.MarkFlagRequired("id")
 	createTagsCommand.MarkFlagRequired("tags")

@@ -52,7 +52,7 @@ func initMassUploadCommand() *cobra.Command {
 	massUploadCommand.Flags().StringToStringVar(&massUploadFlags.tags, "device-tags", nil,
 		"Comma-separated list of tags with format <key>=<value>.\n"+
 			"Perform an OTA upload on all devices that match the provided tags.\n"+
-			"Mutually exclusive with '--device-ids'.",
+			"Mutually exclusive with '--device-ids'",
 	)
 	massUploadCommand.Flags().StringVarP(&massUploadFlags.file, "file", "", "", "Binary file (.bin) to be uploaded")
 	massUploadCommand.Flags().BoolVar(&massUploadFlags.deferred, "deferred", false, "Perform a deferred OTA. It can take up to 1 week.")

@@ -46,7 +46,7 @@ func initCreateLoraCommand() *cobra.Command {
 	createLoraCommand.Flags().StringVarP(&createLoraFlags.name, "name", "n", "", "Device name")
 	createLoraCommand.Flags().StringVarP(&createLoraFlags.fqbn, "fqbn", "b", "", "Device fqbn")
 	createLoraCommand.Flags().StringVarP(&createLoraFlags.frequencyPlan, "frequency-plan", "f", "",
-		"ID of the LoRa frequency plan to use. Run the 'device list-frequency-plans' command to obtain a list of valid plans.")
+		"ID of the LoRa frequency plan to use. Run the 'device list-frequency-plans' command to obtain a list of valid plans")
 	createLoraCommand.MarkFlagRequired("name")
 	createLoraCommand.MarkFlagRequired("frequency-plan")
 	return createLoraCommand

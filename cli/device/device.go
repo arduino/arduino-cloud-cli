@@ -25,8 +25,8 @@ import (
 func NewCommand() *cobra.Command {
 	deviceCommand := &cobra.Command{
 		Use:   "device",
-		Short: "Device commands.",
-		Long:  "Device commands.",
+		Short: "Device commands",
+		Long:  "Device commands",
 	}
 
 	deviceCommand.AddCommand(initCreateCommand())

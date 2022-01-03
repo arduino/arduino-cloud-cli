@@ -24,8 +24,8 @@ import (
 func NewCommand() *cobra.Command {
 	credentialsCommand := &cobra.Command{
 		Use:   "credentials",
-		Short: "Credentials commands.",
-		Long:  "Credentials commands.",
+		Short: "Credentials commands",
+		Long:  "Credentials commands",
 	}
 
 	credentialsCommand.AddCommand(initInitCommand())

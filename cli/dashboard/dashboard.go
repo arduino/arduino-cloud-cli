@@ -24,8 +24,8 @@ import (
 func NewCommand() *cobra.Command {
 	dashboardCommand := &cobra.Command{
 		Use:   "dashboard",
-		Short: "Dashboard commands.",
-		Long:  "Dashboard commands.",
+		Short: "Dashboard commands",
+		Long:  "Dashboard commands",
 	}
 
 	dashboardCommand.AddCommand(initCreateCommand())
