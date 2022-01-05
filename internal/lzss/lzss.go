@@ -1,3 +1,5 @@
+// This code is a go port of LZSS encoder-decoder (Haruhiko Okumura; public domain)
+//
 // This file is part of arduino-cloud-cli.
 //
 // Copyright (C) 2021 ARDUINO SA (http://www.arduino.cc/)
@@ -19,26 +21,20 @@ package lzss
 
 import (
 	"bytes"
-	"io"
 )
 
 const (
-	ei     = 11              /* typically 10..13 */
-	ej     = 4               /* typically 4..5 */
-	p      = 1               /* If match length <= P then output one character */
-	bufsz  = (1 << ei)       /* buffer size */
-	looksz = ((1 << ej) + 1) /* lookahead buffer size */
-)
+	idxsz  = 11 // Size of buffer indexes in bit, typically 10..13 bits
+	lensz  = 4  // Size of lookahead indexes in bit, typically 4..5 bits
+	charsz = 8  // Size of encoded chars in bit
 
-var (
-	codecount  = 0
-	bit_buffer = 0
-	bit_mask   = 128
-	EI         = 11              /* typically 10..13 */
-	EJ         = 4               /* typically 4..5 */
-	P          = 1               /* If match length <= P then output one character */
-	N          = (1 << EI)       /* buffer size */
-	F          = ((1 << EJ) + 1) /* lookahead buffer size */
+	threshold = 1                  // If match length <= threshold then output one character
+	bufsz     = (1 << idxsz)       // buffer size
+	looksz    = ((1 << lensz) + 1) // lookahead buffer size
+	historysz = bufsz - looksz     // history buffer size
+
+	charStartBit  = true  // Indicates next bits encode a char
+	tokenStartBit = false // Indicates next bits encode a token
 )
 
 func min(x, y int) int {
@@ -48,163 +44,142 @@ func min(x, y int) int {
 	return y
 }
 
-func contains(buf []byte, el []byte) (ok bool, ln int, idx int) {
-	for i := 0; i < len(buf)-looksz; i++ {
-
-		// }
-		// for i, e := range buf {
-		// Skip mismatching elements
-		// if el[0] != e {
-		if buf[i] != el[0] {
-			continue
-		}
-
-		// Check bounds
-		ahead := min(looksz, len(buf)-i)
-		ahead = min(ahead, len(el))
-
-		// Count number of bytes contained
-		var j int
-		for j = 1; j < ahead; j++ {
-			if buf[i+j] != el[j] {
-				break
+func findLargestMatch(buf []byte, current, size int) (idx, len int) {
+	idx = 0
+	len = 1
+	ahead := min(looksz, size-current)
+	history := current - (historysz)
+	c := buf[current]
+	for i := current - 1; i >= history; i-- {
+		if buf[i] == c {
+			var j int
+			for j = 1; j < ahead; j++ {
+				if buf[i+j] != buf[current+j] {
+					break
+				}
 			}
-		}
-		// store the largest result
-		if j > ln {
-			ok, ln, idx = true, j, i
+			if j > len {
+				idx = i
+				len = j
+			}
 		}
 	}
 	return
 }
 
-func putbit1(out io.Writer) {
-	bit_buffer |= bit_mask
-	bit_mask = bit_mask >> 1
-	if bit_mask == 0 {
-		out.Write([]byte{byte(bit_buffer)})
-		bit_buffer = 0
-		bit_mask = 128
-	}
-}
-
-func putbit0(out io.Writer) {
-	bit_mask = bit_mask >> 1
-	if bit_mask == 0 {
-		out.Write([]byte{byte(bit_buffer)})
-		bit_buffer = 0
-		bit_mask = 128
-	}
-}
-
-func flush_bit_buffer(out io.Writer) {
-	if bit_mask != 128 {
-		out.Write([]byte{byte(bit_buffer)})
-	}
-}
-
-func output1(out io.Writer, c int) {
-	putbit1(out)
-
-	for mask := 256 >> 1; mask != 0; mask = mask >> 1 {
-		if c&mask != 0 {
-			putbit1(out)
-		} else {
-			putbit0(out)
-		}
-	}
-}
-
-func output2(out io.Writer, x, y int) {
-	putbit0(out)
-
-	for mask := N >> 1; mask != 0; mask = mask >> 1 {
-		if x&mask != 0 {
-			putbit1(out)
-		} else {
-			putbit0(out)
-		}
-	}
-
-	for mask := (1 << EJ) >> 1; mask != 0; mask = mask >> 1 {
-		if y&mask != 0 {
-			putbit1(out)
-		} else {
-			putbit0(out)
-		}
-	}
-}
-
 func Encode(data []byte) []byte {
-	bit_buffer = 0
-	bit_mask = 128
-	out := bytes.NewBufferString("")
-	in := bytes.NewReader(data)
-
-	var i, j, f1, x, y, r, s, bufferend int
-	var c byte
-
-	buffer := make([]byte, N*2)
-	for i = 0; i < N-F; i++ {
+	// buffer is made up of two parts: the first is for already processed data (history); the second is for new data
+	buffer := make([]byte, bufsz*2)
+	// Initialize the old-data part (history) of the buffer
+	for i := 0; i < historysz; i++ {
 		buffer[i] = ' '
 	}
+	out := newResult()
+	in := newFiller(data)
 
-	for i = N - F; i < N*2; i++ {
-		b, err := in.ReadByte()
-		if err != nil {
-			break
-		}
-		buffer[i] = b
-	}
-
-	bufferend, r, s = i, N-F, 0
-	for r < bufferend {
-		f1 = min(F, bufferend-r)
-		x = 0
-		y = 1
-		c = buffer[r]
-		for i = r - 1; i >= s; i-- {
-			if buffer[i] == c {
-				for j = 1; j < f1; j++ {
-					if buffer[i+j] != buffer[r+j] {
-						break
-					}
-				}
-				if j > y {
-					x = i
-					y = j
-				}
-			}
-		}
-
-		if y <= P {
-			output1(out, int(c))
-			y = 1
+	// Fill the new-data part of the buffer
+	n := in.fill(buffer[historysz:])
+	bufferend := historysz + n
+	for current := historysz; current < bufferend; {
+		idx, len := findLargestMatch(buffer, current, bufferend)
+		if len <= threshold {
+			out.addChar(buffer[current])
+			len = 1
 		} else {
-			output2(out, x&(N-1), y-2)
+			out.addToken(idx, len)
 		}
 
-		r += y
-		s += y
-		if r >= N*2-F {
-			for i = 0; i < N; i++ {
-				buffer[i] = buffer[i+N]
-			}
-			bufferend -= N
-			r -= N
-			s -= N
-
-			for bufferend < N*2 {
-				b, err := in.ReadByte()
-				if err != nil {
-					break
-				}
-				buffer[bufferend] = b
-				bufferend++
-			}
+		current += len
+		if current >= bufsz*2-looksz {
+			// Shift processed bytes to the old-data portion of the buffer
+			copy(buffer[:bufsz], buffer[bufsz:])
+			current -= bufsz
+			// Refill the new-data portion of the buffer
+			bufferend -= bufsz
+			bufferend += in.fill(buffer[bufferend:])
 		}
 	}
-	flush_bit_buffer(out)
 
-	return out.Bytes()
+	out.flush()
+	return out.bytes()
+}
+
+type filler struct {
+	src []byte
+	idx int
+}
+
+func newFiller(src []byte) *filler {
+	return &filler{
+		src: src,
+	}
+}
+
+func (f *filler) fill(dst []byte) int {
+	n := min(len(f.src)-f.idx, len(dst))
+	copy(dst, f.src[f.idx:f.idx+n])
+	f.idx += n
+	return n
+}
+
+type result struct {
+	bitBuffer int
+	bitMask   int
+	out       *bytes.Buffer
+}
+
+func newResult() *result {
+	return &result{
+		bitBuffer: 0,
+		bitMask:   128,
+		out:       bytes.NewBufferString(""),
+	}
+}
+
+func (r *result) addChar(c byte) {
+	i := int(c)
+	r.putbit(charStartBit)
+	for mask := (1 << charsz) >> 1; mask != 0; mask = mask >> 1 {
+		b := i&mask != 0
+		r.putbit(b)
+	}
+}
+
+func (r *result) addToken(idx, len int) {
+	// Adjust idx and len to fit idxsz and lensz bits respectively
+	idx &= (bufsz - 1)
+	len -= 2
+
+	r.putbit(tokenStartBit)
+	for mask := (1 << idxsz) >> 1; mask != 0; mask = mask >> 1 {
+		b := idx&mask != 0
+		r.putbit(b)
+	}
+
+	for mask := (1 << lensz) >> 1; mask != 0; mask = mask >> 1 {
+		b := len&mask != 0
+		r.putbit(b)
+	}
+}
+
+func (r *result) flush() {
+	if r.bitMask != 128 {
+		r.out.WriteByte(byte(r.bitBuffer))
+	}
+}
+
+func (r *result) putbit(b bool) {
+	if b {
+		r.bitBuffer |= r.bitMask
+	}
+	r.bitMask = r.bitMask >> 1
+	if r.bitMask == 0 {
+		r.out.WriteByte(byte(r.bitBuffer))
+		r.bitBuffer = 0
+		r.bitMask = 128
+	}
+}
+
+func (r *result) bytes() []byte {
+	return r.out.Bytes()
 }
