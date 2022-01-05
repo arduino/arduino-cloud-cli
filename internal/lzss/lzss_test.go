@@ -13,24 +13,9 @@ func TestEncode(t *testing.T) {
 		outfile string
 	}{
 		{
-			name:    "lorem",
-			infile:  "testdata/lorem",
-			outfile: "testdata/lorem.lzss",
-		},
-		{
-			name:    "short",
-			infile:  "testdata/short",
-			outfile: "testdata/short.lzss",
-		},
-		{
 			name:    "blink",
 			infile:  "testdata/blink.bin",
 			outfile: "testdata/blink.lzss",
-		},
-		{
-			name:    "repetitive",
-			infile:  "testdata/repetitive",
-			outfile: "testdata/repetitive.lzss",
 		},
 		{
 			name:    "cloud sketch",
