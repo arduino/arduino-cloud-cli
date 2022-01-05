@@ -27,6 +27,16 @@ func TestEncode(t *testing.T) {
 			infile:  "testdata/blink.bin",
 			outfile: "testdata/blink.lzss",
 		},
+		{
+			name:    "repetitive",
+			infile:  "testdata/repetitive.txt",
+			outfile: "testdata/repetitive.lzss",
+		},
+		{
+			name:    "cloud sketch",
+			infile:  "testdata/cloud.bin",
+			outfile: "testdata/cloud.lzss",
+		},
 	}
 
 	for _, tt := range tests {
