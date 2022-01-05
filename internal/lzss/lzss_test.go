@@ -14,12 +14,12 @@ func TestEncode(t *testing.T) {
 	}{
 		{
 			name:    "lorem",
-			infile:  "testdata/lorem.txt",
+			infile:  "testdata/lorem",
 			outfile: "testdata/lorem.lzss",
 		},
 		{
 			name:    "short",
-			infile:  "testdata/short.txt",
+			infile:  "testdata/short",
 			outfile: "testdata/short.lzss",
 		},
 		{
@@ -29,7 +29,7 @@ func TestEncode(t *testing.T) {
 		},
 		{
 			name:    "repetitive",
-			infile:  "testdata/repetitive.txt",
+			infile:  "testdata/repetitive",
 			outfile: "testdata/repetitive.lzss",
 		},
 		{
