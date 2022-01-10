@@ -32,9 +32,9 @@ const (
 
 	threshold = 1 // If match length > threshold then output a token (idx, len), otherwise output one char.
 
-	bufsz     = (1 << idxsz)       // Buffer size.
-	looksz    = ((1 << lensz) + 1) // Lookahead buffer size.
-	historysz = bufsz - looksz     // History buffer size.
+	bufsz     = 1 << idxsz       // Buffer size.
+	looksz    = (1 << lensz) + 1 // Lookahead buffer size.
+	historysz = bufsz - looksz   // History buffer size.
 
 	charStartBit  = true  // Indicates next bits encode a char.
 	tokenStartBit = false // Indicates next bits encode a token.
@@ -55,7 +55,7 @@ func findLargestMatch(buf []byte, current, size int) (idx, len int) {
 	idx = 0
 	len = 1
 	ahead := min(looksz, size-current)
-	history := current - (historysz)
+	history := current - historysz
 	c := buf[current]
 	for i := current - 1; i >= history; i-- {
 		if buf[i] == c {
@@ -161,7 +161,7 @@ func (r *result) addChar(c byte) {
 	i := int(c)
 	r.putbit(charStartBit)
 	for mask := (1 << charsz) >> 1; mask != 0; mask = mask >> 1 {
-		b := i&mask != 0
+		b := (i & mask) != 0
 		r.putbit(b)
 	}
 }
@@ -169,7 +169,7 @@ func (r *result) addChar(c byte) {
 // addToken stores a token in the out buffer.
 func (r *result) addToken(idx, len int) {
 	// Adjust idx and len to fit idxsz and lensz bits respectively
-	idx &= (bufsz - 1)
+	idx &= bufsz - 1
 	len -= 2
 
 	r.putbit(tokenStartBit)
