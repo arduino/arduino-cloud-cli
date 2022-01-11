@@ -132,8 +132,7 @@ func newFiller(src []byte) *filler {
 // The src buffer offset is then incremented so that all the content of src
 // can be consumed in small chunks.
 func (f *filler) fill(dst []byte) int {
-	n := min(len(f.src)-f.idx, len(dst))
-	copy(dst, f.src[f.idx:f.idx+n])
+	n := copy(dst, f.src[f.idx:])
 	f.idx += n
 	return n
 }
