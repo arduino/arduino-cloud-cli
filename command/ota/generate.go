@@ -18,8 +18,8 @@
 package ota
 
 import (
-	"bytes"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -51,17 +51,15 @@ func Generate(binFile string, outFile string, fqbn string) error {
 		return err
 	}
 
-	var w bytes.Buffer
-	otaWriter := inota.NewWriter(&w, arduinoVendorID, productID)
-	_, err = otaWriter.Write(data)
+	out, err := os.Create(outFile)
 	if err != nil {
 		return err
 	}
-	otaWriter.Close()
 
-	err = ioutil.WriteFile(outFile, w.Bytes(), os.FileMode(0644))
+	enc := inota.NewEncoder(out, arduinoVendorID, productID)
+	err = enc.Encode(data)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to encode binary file: %w", err)
 	}
 
 	return nil

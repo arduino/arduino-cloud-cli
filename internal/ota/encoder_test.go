@@ -21,7 +21,6 @@ import (
 	"bytes"
 	"encoding/hex"
 	"io/ioutil"
-	"log"
 
 	"fmt"
 	"hash/crc32"
@@ -38,7 +37,7 @@ func TestComputeCrc32Checksum(t *testing.T) {
 	assert.Equal(t, crc, uint32(2090640218))
 }
 
-func TestEncoderWrite(t *testing.T) {
+func TestEncode(t *testing.T) {
 	// Setup test data
 	data, _ := hex.DecodeString("DEADBEEF") // uncompressed, or 'ef 6b 77 de f0' (compressed w/ LZSS)
 
@@ -46,17 +45,13 @@ func TestEncoderWrite(t *testing.T) {
 	vendorID := "2341"  // Arduino
 	productID := "8054" // MRK Wifi 1010
 
-	otaWriter := NewWriter(&w, vendorID, productID)
-	otaWriter.Close()
+	enc := NewEncoder(&w, vendorID, productID)
 
-	n, err := otaWriter.Write(data)
+	err := enc.Encode(data)
 	if err != nil {
 		t.Error(err)
-		t.Fail()
 	}
-	log.Println("written ota of", n, "bytes length")
 
-	otaWriter.Close()
 	actual := w.Bytes()
 
 	// You can get the expected result creating an `.ota` file using Alex's tools:
@@ -73,7 +68,7 @@ func TestEncoderWrite(t *testing.T) {
 	assert.Assert(t, res == 0) // 0 means equal
 }
 
-func TestEncoderWriteFiles(t *testing.T) {
+func TestEncodeFiles(t *testing.T) {
 	tests := []struct {
 		name    string
 		infile  string
@@ -106,12 +101,11 @@ func TestEncoderWriteFiles(t *testing.T) {
 			var got bytes.Buffer
 			vendorID := "2341"  // Arduino
 			productID := "8057" // Nano 33 IoT
-			otaWriter := NewWriter(&got, vendorID, productID)
-			_, err = otaWriter.Write(input)
+			otaenc := NewEncoder(&got, vendorID, productID)
+			err = otaenc.Encode(input)
 			if err != nil {
 				t.Error(err)
 			}
-			otaWriter.Close()
 
 			if !bytes.Equal(want, got.Bytes()) {
 				t.Error("encoding failed")
