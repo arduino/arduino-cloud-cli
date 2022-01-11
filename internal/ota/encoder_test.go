@@ -20,6 +20,7 @@ package ota
 import (
 	"bytes"
 	"encoding/hex"
+	"io/ioutil"
 	"log"
 
 	"fmt"
@@ -38,7 +39,6 @@ func TestComputeCrc32Checksum(t *testing.T) {
 }
 
 func TestEncoderWrite(t *testing.T) {
-
 	// Setup test data
 	data, _ := hex.DecodeString("DEADBEEF") // uncompressed, or 'ef 6b 77 de f0' (compressed w/ LZSS)
 
@@ -47,7 +47,7 @@ func TestEncoderWrite(t *testing.T) {
 	productID := "8054" // MRK Wifi 1010
 
 	otaWriter := NewWriter(&w, vendorID, productID)
-	defer otaWriter.Close()
+	otaWriter.Close()
 
 	n, err := otaWriter.Write(data)
 	if err != nil {
@@ -71,4 +71,51 @@ func TestEncoderWrite(t *testing.T) {
 	}
 
 	assert.Assert(t, res == 0) // 0 means equal
+}
+
+func TestEncoderWriteFiles(t *testing.T) {
+	tests := []struct {
+		name    string
+		infile  string
+		outfile string
+	}{
+		{
+			name:    "blink",
+			infile:  "testdata/blink.bin",
+			outfile: "testdata/blink.ota",
+		},
+		{
+			name:    "cloud sketch",
+			infile:  "testdata/cloud.bin",
+			outfile: "testdata/cloud.ota",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			input, err := ioutil.ReadFile(tt.infile)
+			if err != nil {
+				t.Fatal("couldn't open test file")
+			}
+
+			want, err := ioutil.ReadFile(tt.outfile)
+			if err != nil {
+				t.Fatal("couldn't open test file")
+			}
+
+			var got bytes.Buffer
+			vendorID := "2341"  // Arduino
+			productID := "8057" // Nano 33 IoT
+			otaWriter := NewWriter(&got, vendorID, productID)
+			_, err = otaWriter.Write(input)
+			if err != nil {
+				t.Error(err)
+			}
+			otaWriter.Close()
+
+			if !bytes.Equal(want, got.Bytes()) {
+				t.Error("encoding failed")
+			}
+		})
+	}
 }
