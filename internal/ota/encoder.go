@@ -22,9 +22,6 @@ import (
 	"encoding/binary"
 	"hash/crc32"
 	"io"
-	"io/ioutil"
-	"log"
-	"os"
 	"strconv"
 
 	"github.com/arduino/arduino-cloud-cli/internal/lzss"
@@ -86,10 +83,7 @@ func (e *encoder) Write(binaryData []byte) (int, error) {
 	}
 
 	// Compress the compiled binary
-	compressed, err := e.compress(&binaryData)
-	if err != nil {
-		return 0, err
-	}
+	compressed := lzss.Encode(binaryData)
 
 	// Prepend magic number and version field to payload
 	var binDataComplete []byte
@@ -98,12 +92,12 @@ func (e *encoder) Write(binaryData []byte) (int, error) {
 	binDataComplete = append(binDataComplete, compressed...)
 	//log.Println("binDataComplete is", len(binDataComplete), "bytes length")
 
-	headerSize, err := e.writeHeader(&binDataComplete)
+	headerSize, err := e.writeHeader(binDataComplete)
 	if err != nil {
 		return headerSize, err
 	}
 
-	payloadSize, err := e.writePayload(&binDataComplete)
+	payloadSize, err := e.writePayload(binDataComplete)
 	if err != nil {
 		return payloadSize, err
 	}
@@ -117,23 +111,19 @@ func (e *encoder) Close() error {
 	return e.w.Flush()
 }
 
-func (e *encoder) writeHeader(binDataComplete *[]byte) (int, error) {
+func (e *encoder) writeHeader(binDataComplete []byte) (int, error) {
 
-	//
 	// Write the length of the content
-	//
 	lengthAsBytes := make([]byte, 4)
-	binary.LittleEndian.PutUint32(lengthAsBytes, uint32(len(*binDataComplete)))
+	binary.LittleEndian.PutUint32(lengthAsBytes, uint32(len(binDataComplete)))
 
 	n, err := e.w.Write(lengthAsBytes)
 	if err != nil {
 		return n, err
 	}
 
-	//
 	// Calculate the checksum for binDataComplete
-	//
-	crc := crc32.ChecksumIEEE(*binDataComplete)
+	crc := crc32.ChecksumIEEE(binDataComplete)
 
 	// encode the checksum uint32 value as 4 bytes
 	crcAsBytes := make([]byte, 4)
@@ -147,52 +137,6 @@ func (e *encoder) writeHeader(binDataComplete *[]byte) (int, error) {
 	return len(lengthAsBytes) + len(crcAsBytes), nil
 }
 
-func (e *encoder) writePayload(data *[]byte) (int, error) {
-
-	// write the payload
-	payloadSize, err := e.w.Write(*data)
-	if err != nil {
-		return payloadSize, err
-	}
-
-	return payloadSize, nil
-}
-
-func (e *encoder) compress(data *[]byte) ([]byte, error) {
-
-	// create a tmp file for input
-	inputFile, err := ioutil.TempFile("", "ota-lzss-input")
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-	defer os.Remove(inputFile.Name())
-
-	// create a tmp file for output
-	outputFile, err := ioutil.TempFile("", "ota-lzss-output")
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-	defer os.Remove(outputFile.Name())
-
-	// write data in the input file
-	ioutil.WriteFile(inputFile.Name(), *data, 644)
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-
-	// Compress the binary data using LZSS
-	lzss.Encode(inputFile.Name(), outputFile.Name())
-
-	// reads compressed data from output file and write it into
-	// the writer
-	compressed, err := ioutil.ReadFile(outputFile.Name())
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-
-	return compressed, nil
+func (e *encoder) writePayload(data []byte) (int, error) {
+	return e.w.Write(data)
 }
