@@ -40,40 +40,6 @@ const (
 	tokenStartBit = false // Indicates next bits encode a token.
 )
 
-func min(x, y int) int {
-	if x < y {
-		return x
-	}
-	return y
-}
-
-// findLargestMatch looks for the largest sequence of characters (from current to current+ahead)
-// contained in the history of the buffer.
-// It returns the index of the found match, if any, and its length.
-// The index is relative to the current position. If idx 0 is returned than no match has been found.
-func findLargestMatch(buf []byte, current, size int) (idx, len int) {
-	idx = 0
-	len = 1
-	ahead := min(looksz, size-current)
-	history := current - historysz
-	c := buf[current]
-	for i := current - 1; i >= history; i-- {
-		if buf[i] == c {
-			var j int
-			for j = 1; j < ahead; j++ {
-				if buf[i+j] != buf[current+j] {
-					break
-				}
-			}
-			if j > len {
-				idx = i
-				len = j
-			}
-		}
-	}
-	return
-}
-
 // Encode takes a slice of bytes, compresses it using the lzss compression algorithm
 // and returns the result in a new bytes buffer.
 func Encode(data []byte) []byte {
@@ -111,6 +77,40 @@ func Encode(data []byte) []byte {
 
 	out.flush()
 	return out.bytes()
+}
+
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+// findLargestMatch looks for the largest sequence of characters (from current to current+ahead)
+// contained in the history of the buffer.
+// It returns the index of the found match, if any, and its length.
+// The index is relative to the current position. If idx 0 is returned than no match has been found.
+func findLargestMatch(buf []byte, current, size int) (idx, len int) {
+	idx = 0
+	len = 1
+	ahead := min(looksz, size-current)
+	history := current - historysz
+	c := buf[current]
+	for i := current - 1; i >= history; i-- {
+		if buf[i] == c {
+			var j int
+			for j = 1; j < ahead; j++ {
+				if buf[i+j] != buf[current+j] {
+					break
+				}
+			}
+			if j > len {
+				idx = i
+				len = j
+			}
+		}
+	}
+	return
 }
 
 // filler abstracts the process of consuming an input buffer
