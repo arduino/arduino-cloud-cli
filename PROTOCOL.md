@@ -28,32 +28,93 @@ Core concepts
                                                    ° °° °  °°° ° ° °
 
 
-MQTT Topics
----------------
+### MQTT Topics
 
 "IN" ("INPUT") topics are topics on which the device recives data. "OUT" ("OUTPUT") topics are topics on which the device publishes data
 
 * THING_OUT = "/a/t/_thingid_/e/o"    this topic is used to notify all clients that there was a change in Thing status 
 * THING_IN = "/a/t/_thingid_/e/i"   this topic is used by clients that want to request a change to a Thing status      
 
-* DEVICE_OUT = /a/d/_deviceid_/e/o
-* DEVICE_SHADOW_IN = /a/d/_deviceid_/shadow/i
-* DEVICE_SHADOW_OUT = /a/d/_deviceid_/shadow/o
+* DEVICE_OUT = "/a/d/_deviceid_/e/o"    this topic is used by the device to publish device config info to cloud
+* DEVICE_IN = "/a/d/_deviceid_/e/i"    this topic is used by the device to receive device config change requests from cloud
+      
+* THING_SHADOW_OUT = /a/d/_thingid_/shadow/o    is used by the device connected to this thing to request last thing status to cloud
+* THING_SHADOW_IN = /a/d/_thingid_/shadow/i     used by the cloud to communicate last thing status to the connected device
 
-Expected behavior on reset/connection:
 
-1. Device MUST subscribe to DEVICE_SHADOW_IN  to receive:
-  - thingID that represents the Thing that this device is currently associated to and to which it should populate data
-  - last status of all variables associated to this Thing
-when receiving a message on DEVICE_SHADOW_IN, the device MUST restore its internal status to the value of variables received, and properly set associated thingid
 
-2. Device MUST publish to DEVICE_SHADOW_OUT to send:
-  - RPC request of a method "getLastValues" to know the connected thing and status; when this request is received, cloud will reply on topic DEVICE_SHADOW_IN as described above
+### Scenario 1: RESET
 
-3. device can publish on DEVICE_OUT (optional) to send: 
-  - any information about the device itself, like serial numbers, firmwware version, battery status. this will be stored as is by the cloud
+1. Immediately after start, the Device publishes its current configuration to cloud on DEVICE_OUT topic
+Device configuration is a set of properties related to device capability, current firmware version,...
+for example the initial device config message can be
 
-after initial connection
+#device
+PUBLISH /a/d/DEVICE_ID/e/o
+{
+    "OTA_CAP": true,
+    "OTA_ERROR": 0,
+    "OTA_SHA256": "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049"
+}
+
+
+2. Device subscribes to DEVICE_IN  to receive a configuration update from cloud.
+Most important configuration update is the "thingID" configuration, that represents the Thing that this device is currently associated to and to which it should populate data. The device will wait until the config update request is received. If nothing is received after a timeout, the device shall unsubscribe and subscribe again to this topic to trigger a new configuration update request
+
+#device
+SUBSCRIBE /a/d/DEVICE_ID/e/i
+
+3. Cloud sends a configuration update on DEVICE_IN topic 
+this is triggered by the fact that the device subscribed to DEVICE_IN topic. every time the device subscribes, it will receive device config properties
+
+#cloud
+PUBLISH /a/d/DEVICE_ID/e/i
+{
+    "thing_id": "e505ab27-01b5-43a3-9119-d5e9bcd3f1d1"
+}
+  
+Note that cloud might send an empty string for ThingID, to signal that the device is currently not attached to a thing. in such case, the device is not authorized to send data, might report a warning to the user.
+
+4. at this point, the device knows the connected thing, hence it can subscribe to proper topics to receive input data (THING_IN and THING_SHADOW_IN)
+
+#device
+SUBSCRIBE /a/t/THING_ID/e/i
+SUBSCRIBE /a/t/THING_ID/shadow/i
+
+5. in order to restore the last status of the thing on device , the device performs an RPC request of a method "getLastValues" to know the connected thing status 
+
+#device
+PUBLISH /a/t/THING_ID/shadow/o
+{
+    "r:m": "getLastValues"
+}
+
+6. cloud replies to the getLastValues request sending last thing status (all variables) on THING_SHADOW_IN
+
+#cloud
+PUBLISH /a/t/THING_ID/shadow/i
+{
+    "temperature": 27,
+    "humidity": 0.5,
+    "tz_offset": 0,
+    "tz_dst_until": 0
+}
+
+7. the device will now mirror the status change to THING_OUT
+
+#device
+PUBLISH /a/t/THING_ID/e/o
+{
+    "temperature": 27,
+    "humidity": 0.5,
+    "tz_offset": 0,
+    "tz_dst_until": 0,
+}
+
+Note: not sure why this is needed, the thing status is already as such...
+
+
+### After initial connection
 
 * Device can publish variable changes to the topic THING_OUT   
 * Device can subscribe and receive variable changes from a topic THING_IN  
@@ -66,10 +127,6 @@ Proposed behavior:
 * the device is still registered to THING_IN and will still apply the change but doesn't have responsibility to mirror on THING_OUT
 * if the device is offline, the change to thing status happens anyway, and when the device returns online, it will be informed about the change via getLastValues
 
-
--- not sure if this is true ---
-* At any point in time, cloud can send a last status on DEVICE_SHADOW_IN to force a sync with local variables and also to communicate a change in thingid connected.
-the change can also notify thingid = _UNASSOCIATED_ which means the device is not associated to a thing yet
 
   
 Message format
