@@ -33,12 +33,12 @@ MQTT Topics
 
 "IN" ("INPUT") topics are topics on which the device recives data. "OUT" ("OUTPUT") topics are topics on which the device publishes data
 
-* THING_OUT = /a/t/_thingid_/e/o
-* THING_IN = /a/t/_thingid_/e/i
+* THING_OUT = "/a/t/_thingid_/e/o"    this topic is used to notify all clients that there was a change in Thing status 
+* THING_IN = "/a/t/_thingid_/e/i"   this topic is used by clients that want to request a change to a Thing status      
+
 * DEVICE_OUT = /a/d/_deviceid_/e/o
 * DEVICE_SHADOW_IN = /a/d/_deviceid_/shadow/i
 * DEVICE_SHADOW_OUT = /a/d/_deviceid_/shadow/o
-
 
 Expected behavior on reset/connection:
 
@@ -57,6 +57,17 @@ after initial connection
 
 * Device can publish variable changes to the topic THING_OUT   
 * Device can subscribe and receive variable changes from a topic THING_IN  
+Note: at the moment, the expectation is that when a variable change is received on THING_IN topic, the device will apply the variable change and then mirror it back on the THING_OUT topic so that all other listeners will realize that there was a change. One of the listeners is also the cloud which will save this status change in the thing status.
+For example: when a dashboard widget is used to set a variable switch=true, this change request is published by the widget on THING_IN, then the device is applying it and publishing on THING_OUT so that all other listeners (for example other widgets on other dashboards that is not the one which changed the variable) can also be made aware. 
+However, this behavior is questionable because it requires the device to be online. ---- TO BE FURTHER DISCUSSED ----
+Proposed behavior: 
+* widget requests variable change on THING_IN
+* it is cloud responsibility to apply the change to thing_status and mirror the changed status on THING_OUT for all listeners 
+* the device is still registered to THING_IN and will still apply the change but doesn't have responsibility to mirror on THING_OUT
+* if the device is offline, the change to thing status happens anyway, and when the device returns online, it will be informed about the change via getLastValues
+
+
+-- not sure if this is true ---
 * At any point in time, cloud can send a last status on DEVICE_SHADOW_IN to force a sync with local variables and also to communicate a change in thingid connected.
 the change can also notify thingid = _UNASSOCIATED_ which means the device is not associated to a thing yet
 
