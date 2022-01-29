@@ -48,7 +48,7 @@ Core concepts
 1. Immediately after start, the Device publishes its current configuration to cloud on DEVICE_OUT topic
 Device configuration is a set of properties related to device capability, current firmware version,...
 for example the initial device config message can be
-
+```
  #device
  PUBLISH /a/d/DEVICE_ID/e/o
  {
@@ -56,56 +56,67 @@ for example the initial device config message can be
      "OTA_ERROR": 0,
      "OTA_SHA256": "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049"
  }
-
+```
 
 2. Device subscribes to DEVICE_IN  to receive a configuration update from cloud.
 Most important configuration update is the "thingID" configuration, that represents the Thing that this device is currently associated to and to which it should populate data. The device will wait until the config update request is received. If nothing is received after a timeout, the device shall unsubscribe and subscribe again to this topic to trigger a new configuration update request
-
+```
  #device
  SUBSCRIBE /a/d/DEVICE_ID/e/i
+```
 
 3. Cloud sends a configuration update on DEVICE_IN topic 
 this is triggered by the fact that the device subscribed to DEVICE_IN topic. every time the device subscribes, it will receive device config properties
 
+```
  #cloud
  PUBLISH /a/d/DEVICE_ID/e/i
  {
      "thing_id": "e505ab27-01b5-43a3-9119-d5e9bcd3f1d1"
  }
-  
+```
+
 Note that cloud might send an empty string for ThingID, to signal that the device is currently not attached to a thing. in such case, the device is not authorized to send data, might report a warning to the user.
 
 4. at this point, the device knows the connected thing, hence it can subscribe to proper topics to receive input data (THING_IN and THING_SHADOW_IN)
 
+```
  #device
  SUBSCRIBE /a/t/THING_ID/e/i
  SUBSCRIBE /a/t/THING_ID/shadow/i
+```
 
 5. in order to restore the last status of the thing on device , the device performs an RPC request of a method "getLastValues" to know the connected thing status 
 
+```
  #device
  PUBLISH /a/t/THING_ID/shadow/o
  {
      "r:m": "getLastValues"
  }
+```
 
 6. cloud replies to the getLastValues request sending last thing status (all variables) on THING_SHADOW_IN
 
+```
  #cloud
  PUBLISH /a/t/THING_ID/shadow/i
  {
      "temperature": 27,
      "humidity": 0.5
  }
+```
 
 7. the device will now mirror the status change to THING_OUT 
 
+```
  #device
  PUBLISH /a/t/THING_ID/e/o
  {
      "temperature": 27,
      "humidity": 0.5
  }
+```
 
 Note: not sure why this is needed, the thing status is already as such...
 
@@ -114,23 +125,25 @@ Note: not sure why this is needed, the thing status is already as such...
 
 * Device can publish variable changes to the topic THING_OUT
 
+```
  #device
  PUBLISH /a/t/THING_ID/e/o
  {
      "temperature": 29,
      "humidity": 0.5 
  }
-
+```
 
 * Device can receive variable changes from the topic THING_IN  
 
+```
  #cloud
  PUBLISH /a/t/THING_ID/e/i
  {
      "temperature": 29,
      "humidity": 0.5 
  }
-
+```
 
 Note: at the moment, the expectation is that when a variable change is received on THING_IN topic, the device will apply the variable change and then mirror it back on the THING_OUT topic so that all other listeners will realize that there was a change. One of the listeners is also the cloud which will save this status change in the thing status.
 For example: when a dashboard widget is used to set a variable switch=true, this change request is published by the widget on THING_IN, then the device is applying it and publishing on THING_OUT so that all other listeners (for example other widgets on other dashboards that is not the one which changed the variable) can also be made aware. 
@@ -148,6 +161,7 @@ this is a valid scenario only for devices that have sent the OTA_CAP variable as
 
 1. cloud can PREPARE an OTA update request by sending on THING_SHADOW_IN OTA_URL with the url of OTA file to download and apply 
 
+```
  #cloud
  PUBLISH /a/t/THING_ID/shadow/i
  {
@@ -155,11 +169,13 @@ this is a valid scenario only for devices that have sent the OTA_CAP variable as
      "OTA_REQ": false 
      ... there might be other props...
  }
+```
 
 note that this is still only communicating OTA_URL while for preparing the device, it's not requesting the OTA update to start
 
 2. device will mirror back the OTA_URL as part of the mirror of normal variables
 
+```
  #device
  PUBLISH /a/t/THING_ID/e/o
  {
@@ -167,10 +183,12 @@ note that this is still only communicating OTA_URL while for preparing the devic
      "OTA_REQ": false 
      ... there might be other props...
  }
+```
 
 3. now cloud will publish a message on THING_SHADOW_IN with OTA_REQ=true to START the OTA update
 This is a request to the device to start the OTA update process, download the OTA file from OTA_URL, apply and restart.
 
+```
  #cloud
  PUBLISH /a/t/THING_ID/shadow/i
  {
@@ -178,6 +196,7 @@ This is a request to the device to start the OTA update process, download the OT
      "OTA_REQ": true 
      ... there might be other props...
  }
+```
 
 4. the device is executing OTA download, and restart
 after restart (see scenario 1) the first message is the device sending its current configuration, which contains
@@ -185,6 +204,7 @@ variables describing OTA result and in particular:
 * OTA_ERROR = 0 if no error, 1 if there was an error, and the device had to rollback and use previous firmware
 * OTA_SHA256 = the SHA256 of currently running firmware (it could be the last OTA FW or the previous one if OTA failed)
 
+```
  #device
  PUBLISH /a/d/DEVICE_ID/e/o
  {
@@ -192,6 +212,7 @@ variables describing OTA result and in particular:
      "OTA_ERROR": 0,
      "OTA_SHA256": "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049"
  }
+```
 
 cloud can use these information to understand if OTA was successful or not
 
