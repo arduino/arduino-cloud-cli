@@ -50,8 +50,8 @@ func SetEmptyCredentials(settings *viper.Viper) {
 
 // Credentials contains the parameters of Arduino IoT Cloud credentials.
 type Credentials struct {
-	Client string `map-structure:"client"` // Client ID of the user
-	Secret string `map-structure:"secret"` // Secret ID of the user, unique for each Client ID
+	Client string `mapstructure:"client"` // Client ID of the user
+	Secret string `mapstructure:"secret"` // Secret ID of the user, unique for each Client ID
 }
 
 // Validate the credentials.
