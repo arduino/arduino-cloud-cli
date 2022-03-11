@@ -111,7 +111,6 @@ String issueMonth;
 String issueDay;
 String issueHour;
 String expireYears;
-String serialNumber;
 String authorityKeyIdentifier;
 String signature;
 
@@ -132,9 +131,6 @@ void setup() {
   } else {
     Serial1.println("Crypto-element installed");
   }
-
-  serialNumber = ECCX08.serialNumber();
-  Serial1.println(serialNumber);
 }
 
 void loop() {
