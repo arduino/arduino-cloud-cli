@@ -16,21 +16,14 @@
 */
 
 #include <ArduinoIoTCloud.h>
-#include <ArduinoECCX08.h>
-
-#include <utility/ECCX08CSR.h>
-
 #include "ECCX08TLSConfig.h"
 
 #include "uCRC16Lib.h"
 const uint8_t SKETCH_INFO[] = {0x55, 0xaa, 0x01, 0x00, 0x01, 0xff, 0xaa, 0x55};
 const bool DEBUG = true;
-const int keySlot = 0;
-const int compressedCertSlot = 10;
-const int serialNumberAndAuthorityKeyIdentifierSlot = 11;
-const int deviceIdSlot = 12;
 
-ECCX08CertClass ECCX08Cert;
+ArduinoIoTCloudCertClass Cert;
+CryptoUtil Crypto;
 
 enum class MESSAGE_TYPE { NONE = 0, COMMAND, DATA, RESPONSE };
 enum class COMMAND {
@@ -288,18 +281,23 @@ void processCommand() {
   }
   if (cmdCode == COMMAND::BEGIN_STORAGE) {
     Serial1.println("begin storage");
-    if (!ECCX08.writeSlot(deviceIdSlot, (const byte*)deviceIDBytes, sizeof(deviceIDBytes))) {
+    if (!Crypto.writeDeviceId(deviceIDstring, CryptoSlot::DeviceId)) {
       Serial1.println("Error storing device id!");
       char response[] = {char(RESPONSE::RESPONSE_ERROR)};
       sendData(MESSAGE_TYPE::RESPONSE, response, 1);
       return;
     }
-    if (!ECCX08Cert.beginStorage(compressedCertSlot, serialNumberAndAuthorityKeyIdentifierSlot)) {
-      Serial1.println("Error starting ECCX08 storage!");
+    if (!Cert.begin()) {
+      Serial1.println("Error starting Crypto storage!");
       char response[] = {char(RESPONSE::RESPONSE_ERROR)};
       sendData(MESSAGE_TYPE::RESPONSE, response, 1);
       return;
     }
+    Cert.setSubjectCommonName(deviceIDstring);
+    Cert.setIssuerCountryName("US");
+    Cert.setIssuerOrganizationName("Arduino LLC US");
+    Cert.setIssuerOrganizationalUnitName("IT");
+    Cert.setIssuerCommonName("Arduino");
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
   }
@@ -323,7 +321,7 @@ void processCommand() {
     Serial1.println();
     Serial1.print("set Cert YEAR to ");
     Serial1.println(yearString);
-    ECCX08Cert.setIssueYear(yearString.toInt());
+    Cert.setIssueYear(yearString.toInt());
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
@@ -347,7 +345,7 @@ void processCommand() {
     Serial1.println();
     Serial1.print("set Cert MONTH to ");
     Serial1.println(monthString);
-    ECCX08Cert.setIssueMonth(monthString.toInt());
+    Cert.setIssueMonth(monthString.toInt());
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
@@ -372,7 +370,7 @@ void processCommand() {
     Serial1.println();
     Serial1.print("set Cert day to ");
     Serial1.println(dayString);
-    ECCX08Cert.setIssueDay(dayString.toInt());
+    Cert.setIssueDay(dayString.toInt());
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
@@ -397,7 +395,7 @@ void processCommand() {
     Serial1.println();
     Serial1.print("set Cert hour to ");
     Serial1.println(hourString);
-    ECCX08Cert.setIssueHour(hourString.toInt());
+    Cert.setIssueHour(hourString.toInt());
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
@@ -422,7 +420,7 @@ void processCommand() {
     Serial1.println();
     Serial1.print("set Cert validity to ");
     Serial1.println(validityString);
-    ECCX08Cert.setExpireYears(validityString.toInt());
+    Cert.setExpireYears(validityString.toInt());
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
@@ -452,7 +450,7 @@ void processCommand() {
 
     Serial1.println(certSerialString);
 
-    ECCX08Cert.setSerialNumber(certSerialBytes);
+    Cert.setSerialNumber(certSerialBytes, sizeof(certSerialBytes));
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
@@ -480,7 +478,7 @@ void processCommand() {
 
     Serial1.println(authKeyString);
 
-    ECCX08Cert.setAuthorityKeyIdentifier(authKeyBytes);
+    Cert.setAuthorityKeyId(authKeyBytes, sizeof(authKeyBytes));
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
@@ -509,7 +507,7 @@ void processCommand() {
 
     Serial1.println(signatureString);
 
-    ECCX08Cert.setSignature(signatureBytes);
+    Cert.setSignature(signatureBytes, sizeof(signatureBytes));
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
@@ -517,8 +515,15 @@ void processCommand() {
   }
   if (cmdCode == COMMAND::END_STORAGE) {
     Serial1.println("end storage");
-    if (!ECCX08Cert.endStorage()) {
-      Serial1.println("Error storing ECCX08 compressed cert!");
+    if (!Crypto.buildCert(Cert, CryptoSlot::Key)) {
+      Serial1.println("Error creating cert!");
+      char response[] = {char(RESPONSE::RESPONSE_ERROR)};
+      sendData(MESSAGE_TYPE::RESPONSE, response, 1);
+      return;
+    }
+
+    if (!Crypto.writeCert(Cert, CryptoSlot::CompressedCertificate)) {
+      Serial1.println("Error storing Crypto cert!");
       char response[] = {char(RESPONSE::RESPONSE_ERROR)};
       sendData(MESSAGE_TYPE::RESPONSE, response, 1);
       return;
@@ -531,21 +536,15 @@ void processCommand() {
 
   if (cmdCode == COMMAND::RECONSTRUCT_CERT) {
 
-    if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberAndAuthorityKeyIdentifierSlot)) {
-      Serial1.println("Error starting ECCX08 cert reconstruction!");
+    if (!Cert.begin()) {
+      Serial1.println("Error starting Crypto cert reconstruction!");
       char response[] = {char(RESPONSE::RESPONSE_ERROR)};
       sendData(MESSAGE_TYPE::RESPONSE, response, 1);
       return;
     }
 
-    ECCX08Cert.setIssuerCountryName("US");
-    ECCX08Cert.setIssuerOrganizationName("Arduino LLC US");
-    ECCX08Cert.setIssuerOrganizationalUnitName("IT");
-    ECCX08Cert.setIssuerCommonName("Arduino");
-    ECCX08Cert.setSubjectCommonName((const char*)deviceIDBytes);
-
-    if (!ECCX08Cert.endReconstruction()) {
-      Serial1.println("Error reconstructing ECCX08 compressed cert!");
+    if (!Crypto.readCert(Cert, CryptoSlot::CompressedCertificate)) {
+      Serial1.println("Error reconstructing Crypto cert!");
       char response[] = {char(RESPONSE::RESPONSE_ERROR)};
       sendData(MESSAGE_TYPE::RESPONSE, response, 1);
       return;
@@ -553,8 +552,8 @@ void processCommand() {
 
     Serial1.println("Compressed cert = ");
 
-    const byte *certData = ECCX08Cert.bytes();
-    int certLength = ECCX08Cert.length();
+    const byte *certData = Cert.bytes();
+    int certLength = Cert.length();
 
     for (int i = 0; i < certLength; i++) {
       byte b = certData[i];
@@ -635,7 +634,7 @@ uint8_t cryptoInit() {
   unsigned long ecctimeout = 1000;
   unsigned long beginOfTime = millis();
   bool eccOK = 0;
-  while (!(eccOK = ECCX08.begin()) || (millis() - beginOfTime < ecctimeout)) {
+  while (!(eccOK = Crypto.begin()) || (millis() - beginOfTime < ecctimeout)) {
   }
 
   Serial1.print("ECC initialised: ");
@@ -644,13 +643,13 @@ uint8_t cryptoInit() {
 }
 
 PROVISIONING_ERROR cryptoLock() {
-  if (!ECCX08.locked()) {
+  if (!Crypto.locked()) {
 
-    if (!ECCX08.writeConfiguration(DEFAULT_ECCX08_TLS_CONFIG)) {
+    if (!Crypto.writeConfiguration(DEFAULT_ECCX08_TLS_CONFIG)) {
       return PROVISIONING_ERROR::WRITE_CONFIG_FAIL;
     }
 
-    if (!ECCX08.lock()) {
+    if (!Crypto.lock()) {
       return PROVISIONING_ERROR::LOCK_FAIL;
     }
     return PROVISIONING_ERROR::LOCK_SUCCESS;
@@ -659,20 +658,20 @@ PROVISIONING_ERROR cryptoLock() {
 }
 
 PROVISIONING_ERROR generateCSR() {
-  if (!ECCX08.locked()) {
+  if (!Crypto.locked()) {
     Serial1.println("Chip is not locked");
     return PROVISIONING_ERROR::LOCK_FAIL;
   }
   Serial1.println("CSR generation in progress");
   uint8_t csrSlot = 0;
-  //ECCX08Cert.beginCSR(0, true);
-  if (!ECCX08CSR.begin(csrSlot, true)) {
+
+  if (!Cert.begin()) {
     Serial1.println("Error starting CSR generation!");
     return PROVISIONING_ERROR::CSR_GEN_FAIL;
   }
 
-  ECCX08CSR.setCommonName(deviceIDstring);
-  csr = ECCX08CSR.end();
+  Cert.setSubjectCommonName(deviceIDstring);
+  csr = Cert.getCSRPEM();
   if (!csr) {
     Serial1.println("Error generating CSR!");
     return PROVISIONING_ERROR::CSR_GEN_FAIL;
