@@ -171,7 +171,7 @@ func extractEUI(port string) (string, error) {
 	return eui, nil
 }
 
-func getDeviceLoraInfo(iotClient iot.Client, loraDev *iotclient.ArduinoLoradevicev1) (*DeviceLoraInfo, error) {
+func getDeviceLoraInfo(iotClient *iot.Client, loraDev *iotclient.ArduinoLoradevicev1) (*DeviceLoraInfo, error) {
 	dev, err := iotClient.DeviceShow(loraDev.DeviceId)
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve device from the cloud: %w", err)

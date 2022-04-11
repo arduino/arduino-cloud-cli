@@ -21,7 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/arduino/arduino-cloud-cli/internal/iot"
+	iotclient "github.com/arduino/iot-client-go"
 )
 
 type dashboardTemplate struct {
@@ -61,10 +61,15 @@ func (v *variableTemplate) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.VariableID)
 }
 
+// ThingFetcher wraps the method to fetch a thing given its id.
+type ThingFetcher interface {
+	ThingShow(id string) (*iotclient.ArduinoThing, error)
+}
+
 // getVariableID returns the id of a variable, given its name and its thing id.
 // If the variable is not found, an error is returned.
-func getVariableID(thingID string, variableName string, iotClient iot.Client) (string, error) {
-	thing, err := iotClient.ThingShow(thingID)
+func getVariableID(thingID string, variableName string, fetcher ThingFetcher) (string, error) {
+	thing, err := fetcher.ThingShow(thingID)
 	if err != nil {
 		return "", fmt.Errorf("getting variables of thing %s: %w", thingID, err)
 	}

@@ -61,8 +61,12 @@ func Clone(params *CloneParams) (*ThingInfo, error) {
 	return t, nil
 }
 
-func retrieve(client iot.Client, thingID string) (*iotclient.ThingCreate, error) {
-	clone, err := client.ThingShow(thingID)
+type thingFetcher interface {
+	ThingShow(id string) (*iotclient.ArduinoThing, error)
+}
+
+func retrieve(fetcher thingFetcher, thingID string) (*iotclient.ThingCreate, error) {
+	clone, err := fetcher.ThingShow(thingID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "retrieving the thing to be cloned", err)
 	}

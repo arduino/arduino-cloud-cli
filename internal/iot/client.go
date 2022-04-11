@@ -26,41 +26,16 @@ import (
 	iotclient "github.com/arduino/iot-client-go"
 )
 
-// Client can be used to perform actions on Arduino IoT Cloud.
-type Client interface {
-	DeviceCreate(fqbn, name, serial, devType string) (*iotclient.ArduinoDevicev2, error)
-	DeviceLoraCreate(name, serial, devType, eui, freq string) (*iotclient.ArduinoLoradevicev1, error)
-	DeviceDelete(id string) error
-	DeviceList(tags map[string]string) ([]iotclient.ArduinoDevicev2, error)
-	DeviceShow(id string) (*iotclient.ArduinoDevicev2, error)
-	DeviceOTA(id string, file *os.File, expireMins int) error
-	DevicePassSet(id string) (*iotclient.ArduinoDevicev2Pass, error)
-	DeviceTagsCreate(id string, tags map[string]string) error
-	DeviceTagsDelete(id string, keys []string) error
-	LoraFrequencyPlansList() ([]iotclient.ArduinoLorafreqplanv1, error)
-	CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
-	ThingCreate(thing *iotclient.ThingCreate, force bool) (*iotclient.ArduinoThing, error)
-	ThingUpdate(id string, thing *iotclient.ThingUpdate, force bool) error
-	ThingDelete(id string) error
-	ThingShow(id string) (*iotclient.ArduinoThing, error)
-	ThingList(ids []string, device *string, props bool, tags map[string]string) ([]iotclient.ArduinoThing, error)
-	ThingTagsCreate(id string, tags map[string]string) error
-	ThingTagsDelete(id string, keys []string) error
-	DashboardCreate(dashboard *iotclient.Dashboardv2) (*iotclient.ArduinoDashboardv2, error)
-	DashboardShow(id string) (*iotclient.ArduinoDashboardv2, error)
-	DashboardDelete(id string) error
-	DashboardList() ([]iotclient.ArduinoDashboardv2, error)
-}
-
-type client struct {
+// Client can perform actions on Arduino IoT Cloud.
+type Client struct {
 	ctx context.Context
 	api *iotclient.APIClient
 }
 
 // NewClient returns a new client implementing the Client interface.
 // It needs a ClientID and SecretID for cloud authentication.
-func NewClient(clientID, secretID string) (Client, error) {
-	cl := &client{}
+func NewClient(clientID, secretID string) (*Client, error) {
+	cl := &Client{}
 	err := cl.setup(clientID, secretID)
 	if err != nil {
 		err = fmt.Errorf("instantiate new iot client: %w", err)
@@ -71,7 +46,7 @@ func NewClient(clientID, secretID string) (Client, error) {
 
 // DeviceCreate allows to create a new device on Arduino IoT Cloud.
 // It returns the newly created device, and an error.
-func (cl *client) DeviceCreate(fqbn, name, serial, dType string) (*iotclient.ArduinoDevicev2, error) {
+func (cl *Client) DeviceCreate(fqbn, name, serial, dType string) (*iotclient.ArduinoDevicev2, error) {
 	payload := iotclient.CreateDevicesV2Payload{
 		Fqbn:   fqbn,
 		Name:   name,
@@ -88,7 +63,7 @@ func (cl *client) DeviceCreate(fqbn, name, serial, dType string) (*iotclient.Ard
 
 // DeviceLoraCreate allows to create a new LoRa device on Arduino IoT Cloud.
 // It returns the LoRa information about the newly created device, and an error.
-func (cl *client) DeviceLoraCreate(name, serial, devType, eui, freq string) (*iotclient.ArduinoLoradevicev1, error) {
+func (cl *Client) DeviceLoraCreate(name, serial, devType, eui, freq string) (*iotclient.ArduinoLoradevicev1, error) {
 	payload := iotclient.CreateLoraDevicesV1Payload{
 		App:           "defaultApp",
 		Eui:           eui,
@@ -108,7 +83,7 @@ func (cl *client) DeviceLoraCreate(name, serial, devType, eui, freq string) (*io
 
 // DevicePassSet sets the device password to the one suggested by Arduino IoT Cloud.
 // Returns the set password.
-func (cl *client) DevicePassSet(id string) (*iotclient.ArduinoDevicev2Pass, error) {
+func (cl *Client) DevicePassSet(id string) (*iotclient.ArduinoDevicev2Pass, error) {
 	// Fetch suggested password
 	opts := &iotclient.DevicesV2PassGetOpts{SuggestedPassword: optional.NewBool(true)}
 	pass, _, err := cl.api.DevicesV2PassApi.DevicesV2PassGet(cl.ctx, id, opts)
@@ -128,7 +103,7 @@ func (cl *client) DevicePassSet(id string) (*iotclient.ArduinoDevicev2Pass, erro
 
 // DeviceDelete deletes the device corresponding to the passed ID
 // from Arduino IoT Cloud.
-func (cl *client) DeviceDelete(id string) error {
+func (cl *Client) DeviceDelete(id string) error {
 	_, err := cl.api.DevicesV2Api.DevicesV2Delete(cl.ctx, id)
 	if err != nil {
 		err = fmt.Errorf("deleting device: %w", errorDetail(err))
@@ -139,7 +114,7 @@ func (cl *client) DeviceDelete(id string) error {
 
 // DeviceList retrieves and returns a list of all Arduino IoT Cloud devices
 // belonging to the user performing the request.
-func (cl *client) DeviceList(tags map[string]string) ([]iotclient.ArduinoDevicev2, error) {
+func (cl *Client) DeviceList(tags map[string]string) ([]iotclient.ArduinoDevicev2, error) {
 	opts := &iotclient.DevicesV2ListOpts{}
 	if tags != nil {
 		t := make([]string, 0, len(tags))
@@ -160,7 +135,7 @@ func (cl *client) DeviceList(tags map[string]string) ([]iotclient.ArduinoDevicev
 
 // DeviceShow allows to retrieve a specific device, given its id,
 // from Arduino IoT Cloud.
-func (cl *client) DeviceShow(id string) (*iotclient.ArduinoDevicev2, error) {
+func (cl *Client) DeviceShow(id string) (*iotclient.ArduinoDevicev2, error) {
 	dev, _, err := cl.api.DevicesV2Api.DevicesV2Show(cl.ctx, id)
 	if err != nil {
 		err = fmt.Errorf("retrieving device, %w", errorDetail(err))
@@ -171,7 +146,7 @@ func (cl *client) DeviceShow(id string) (*iotclient.ArduinoDevicev2, error) {
 
 // DeviceOTA performs an OTA upload request to Arduino IoT Cloud, passing
 // the ID of the device to be updated and the actual file containing the OTA firmware.
-func (cl *client) DeviceOTA(id string, file *os.File, expireMins int) error {
+func (cl *Client) DeviceOTA(id string, file *os.File, expireMins int) error {
 	opt := &iotclient.DevicesV2OtaUploadOpts{
 		ExpireInMins: optional.NewInt32(int32(expireMins)),
 	}
@@ -184,7 +159,7 @@ func (cl *client) DeviceOTA(id string, file *os.File, expireMins int) error {
 }
 
 // DeviceTagsCreate allows to create or overwrite tags on a device of Arduino IoT Cloud.
-func (cl *client) DeviceTagsCreate(id string, tags map[string]string) error {
+func (cl *Client) DeviceTagsCreate(id string, tags map[string]string) error {
 	for key, val := range tags {
 		t := iotclient.Tag{Key: key, Value: val}
 		_, err := cl.api.DevicesV2TagsApi.DevicesV2TagsUpsert(cl.ctx, id, t)
@@ -198,7 +173,7 @@ func (cl *client) DeviceTagsCreate(id string, tags map[string]string) error {
 
 // DeviceTagsDelete deletes the tags of a device of Arduino IoT Cloud,
 // given the device id and the keys of the tags.
-func (cl *client) DeviceTagsDelete(id string, keys []string) error {
+func (cl *Client) DeviceTagsDelete(id string, keys []string) error {
 	for _, key := range keys {
 		_, err := cl.api.DevicesV2TagsApi.DevicesV2TagsDelete(cl.ctx, id, key)
 		if err != nil {
@@ -211,7 +186,7 @@ func (cl *client) DeviceTagsDelete(id string, keys []string) error {
 
 // LoraFrequencyPlansList retrieves and returns the list of all supported
 // LoRa frequency plans.
-func (cl *client) LoraFrequencyPlansList() ([]iotclient.ArduinoLorafreqplanv1, error) {
+func (cl *Client) LoraFrequencyPlansList() ([]iotclient.ArduinoLorafreqplanv1, error) {
 	freqs, _, err := cl.api.LoraFreqPlanV1Api.LoraFreqPlanV1List(cl.ctx)
 	if err != nil {
 		err = fmt.Errorf("listing lora frequency plans: %w", errorDetail(err))
@@ -222,7 +197,7 @@ func (cl *client) LoraFrequencyPlansList() ([]iotclient.ArduinoLorafreqplanv1, e
 
 // CertificateCreate allows to upload a certificate on Arduino IoT Cloud.
 // It returns the certificate parameters populated by the cloud.
-func (cl *client) CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error) {
+func (cl *Client) CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error) {
 	cert := iotclient.CreateDevicesV2CertsPayload{
 		Ca:      "Arduino",
 		Csr:     csr,
@@ -239,7 +214,7 @@ func (cl *client) CertificateCreate(id, csr string) (*iotclient.ArduinoCompresse
 }
 
 // ThingCreate adds a new thing on Arduino IoT Cloud.
-func (cl *client) ThingCreate(thing *iotclient.ThingCreate, force bool) (*iotclient.ArduinoThing, error) {
+func (cl *Client) ThingCreate(thing *iotclient.ThingCreate, force bool) (*iotclient.ArduinoThing, error) {
 	opt := &iotclient.ThingsV2CreateOpts{Force: optional.NewBool(force)}
 	newThing, _, err := cl.api.ThingsV2Api.ThingsV2Create(cl.ctx, *thing, opt)
 	if err != nil {
@@ -249,7 +224,7 @@ func (cl *client) ThingCreate(thing *iotclient.ThingCreate, force bool) (*iotcli
 }
 
 // ThingUpdate updates a thing on Arduino IoT Cloud.
-func (cl *client) ThingUpdate(id string, thing *iotclient.ThingUpdate, force bool) error {
+func (cl *Client) ThingUpdate(id string, thing *iotclient.ThingUpdate, force bool) error {
 	opt := &iotclient.ThingsV2UpdateOpts{Force: optional.NewBool(force)}
 	_, _, err := cl.api.ThingsV2Api.ThingsV2Update(cl.ctx, id, *thing, opt)
 	if err != nil {
@@ -259,7 +234,7 @@ func (cl *client) ThingUpdate(id string, thing *iotclient.ThingUpdate, force boo
 }
 
 // ThingDelete deletes a thing from Arduino IoT Cloud.
-func (cl *client) ThingDelete(id string) error {
+func (cl *Client) ThingDelete(id string) error {
 	_, err := cl.api.ThingsV2Api.ThingsV2Delete(cl.ctx, id, nil)
 	if err != nil {
 		err = fmt.Errorf("deleting thing: %w", errorDetail(err))
@@ -270,7 +245,7 @@ func (cl *client) ThingDelete(id string) error {
 
 // ThingShow allows to retrieve a specific thing, given its id,
 // from Arduino IoT Cloud.
-func (cl *client) ThingShow(id string) (*iotclient.ArduinoThing, error) {
+func (cl *Client) ThingShow(id string) (*iotclient.ArduinoThing, error) {
 	thing, _, err := cl.api.ThingsV2Api.ThingsV2Show(cl.ctx, id, nil)
 	if err != nil {
 		err = fmt.Errorf("retrieving thing, %w", errorDetail(err))
@@ -280,7 +255,7 @@ func (cl *client) ThingShow(id string) (*iotclient.ArduinoThing, error) {
 }
 
 // ThingList returns a list of things on Arduino IoT Cloud.
-func (cl *client) ThingList(ids []string, device *string, props bool, tags map[string]string) ([]iotclient.ArduinoThing, error) {
+func (cl *Client) ThingList(ids []string, device *string, props bool, tags map[string]string) ([]iotclient.ArduinoThing, error) {
 	opts := &iotclient.ThingsV2ListOpts{}
 	opts.ShowProperties = optional.NewBool(props)
 
@@ -310,7 +285,7 @@ func (cl *client) ThingList(ids []string, device *string, props bool, tags map[s
 }
 
 // ThingTagsCreate allows to create or overwrite tags on a thing of Arduino IoT Cloud.
-func (cl *client) ThingTagsCreate(id string, tags map[string]string) error {
+func (cl *Client) ThingTagsCreate(id string, tags map[string]string) error {
 	for key, val := range tags {
 		t := iotclient.Tag{Key: key, Value: val}
 		_, err := cl.api.ThingsV2TagsApi.ThingsV2TagsUpsert(cl.ctx, id, t)
@@ -324,7 +299,7 @@ func (cl *client) ThingTagsCreate(id string, tags map[string]string) error {
 
 // ThingTagsDelete deletes the tags of a thing of Arduino IoT Cloud,
 // given the thing id and the keys of the tags.
-func (cl *client) ThingTagsDelete(id string, keys []string) error {
+func (cl *Client) ThingTagsDelete(id string, keys []string) error {
 	for _, key := range keys {
 		_, err := cl.api.ThingsV2TagsApi.ThingsV2TagsDelete(cl.ctx, id, key)
 		if err != nil {
@@ -336,7 +311,7 @@ func (cl *client) ThingTagsDelete(id string, keys []string) error {
 }
 
 // DashboardCreate adds a new dashboard on Arduino IoT Cloud.
-func (cl *client) DashboardCreate(dashboard *iotclient.Dashboardv2) (*iotclient.ArduinoDashboardv2, error) {
+func (cl *Client) DashboardCreate(dashboard *iotclient.Dashboardv2) (*iotclient.ArduinoDashboardv2, error) {
 	newDashboard, _, err := cl.api.DashboardsV2Api.DashboardsV2Create(cl.ctx, *dashboard)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "adding new dashboard", errorDetail(err))
@@ -346,7 +321,7 @@ func (cl *client) DashboardCreate(dashboard *iotclient.Dashboardv2) (*iotclient.
 
 // DashboardShow allows to retrieve a specific dashboard, given its id,
 // from Arduino IoT Cloud.
-func (cl *client) DashboardShow(id string) (*iotclient.ArduinoDashboardv2, error) {
+func (cl *Client) DashboardShow(id string) (*iotclient.ArduinoDashboardv2, error) {
 	dashboard, _, err := cl.api.DashboardsV2Api.DashboardsV2Show(cl.ctx, id)
 	if err != nil {
 		err = fmt.Errorf("retrieving dashboard, %w", errorDetail(err))
@@ -356,7 +331,7 @@ func (cl *client) DashboardShow(id string) (*iotclient.ArduinoDashboardv2, error
 }
 
 // DashboardList returns a list of dashboards on Arduino IoT Cloud.
-func (cl *client) DashboardList() ([]iotclient.ArduinoDashboardv2, error) {
+func (cl *Client) DashboardList() ([]iotclient.ArduinoDashboardv2, error) {
 	dashboards, _, err := cl.api.DashboardsV2Api.DashboardsV2List(cl.ctx, nil)
 	if err != nil {
 		err = fmt.Errorf("listing dashboards: %w", errorDetail(err))
@@ -366,7 +341,7 @@ func (cl *client) DashboardList() ([]iotclient.ArduinoDashboardv2, error) {
 }
 
 // DashboardDelete deletes a dashboard from Arduino IoT Cloud.
-func (cl *client) DashboardDelete(id string) error {
+func (cl *Client) DashboardDelete(id string) error {
 	_, err := cl.api.DashboardsV2Api.DashboardsV2Delete(cl.ctx, id)
 	if err != nil {
 		err = fmt.Errorf("deleting dashboard: %w", errorDetail(err))
@@ -375,7 +350,7 @@ func (cl *client) DashboardDelete(id string) error {
 	return nil
 }
 
-func (cl *client) setup(client, secret string) error {
+func (cl *Client) setup(client, secret string) error {
 	// Get the access token in exchange of client_id and client_secret
 	tok, err := token(client, secret)
 	if err != nil {
