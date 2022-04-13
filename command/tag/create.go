@@ -34,12 +34,8 @@ type CreateTagsParams struct {
 
 // CreateTags allows to create or overwrite tags
 // on a resource of Arduino IoT Cloud.
-func CreateTags(params *CreateTagsParams) error {
-	conf, err := config.RetrieveCredentials()
-	if err != nil {
-		return err
-	}
-	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+func CreateTags(params *CreateTagsParams, cred *config.Credentials) error {
+	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
 	if err != nil {
 		return err
 	}

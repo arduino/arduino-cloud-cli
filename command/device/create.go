@@ -37,7 +37,7 @@ type CreateParams struct {
 
 // Create command is used to provision a new arduino device
 // and to add it to Arduino IoT Cloud.
-func Create(params *CreateParams) (*DeviceInfo, error) {
+func Create(params *CreateParams, cred *config.Credentials) (*DeviceInfo, error) {
 	comm, err := cli.NewCommander()
 	if err != nil {
 		return nil, err
@@ -63,11 +63,7 @@ func Create(params *CreateParams) (*DeviceInfo, error) {
 		)
 	}
 
-	conf, err := config.RetrieveCredentials()
-	if err != nil {
-		return nil, err
-	}
-	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
 	if err != nil {
 		return nil, err
 	}

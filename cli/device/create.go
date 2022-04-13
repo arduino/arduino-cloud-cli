@@ -24,6 +24,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/command/device"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -51,6 +52,12 @@ func initCreateCommand() *cobra.Command {
 func runCreateCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Creating device with name %s", createFlags.name)
 
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		feedback.Errorf("Error during device create: retrieving credentials: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
 	params := &device.CreateParams{
 		Name: createFlags.name,
 	}
@@ -61,7 +68,7 @@ func runCreateCommand(cmd *cobra.Command, args []string) {
 		params.FQBN = &createFlags.fqbn
 	}
 
-	dev, err := device.Create(params)
+	dev, err := device.Create(params, cred)
 	if err != nil {
 		feedback.Errorf("Error during device create: %v", err)
 		os.Exit(errorcodes.ErrGeneric)

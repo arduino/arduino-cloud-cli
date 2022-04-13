@@ -23,6 +23,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/command/thing"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -49,11 +50,17 @@ func initBindCommand() *cobra.Command {
 func runBindCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Binding thing %s to device %s", bindFlags.id, bindFlags.deviceID)
 
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		feedback.Errorf("Error during thing bind: retrieving credentials: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
 	params := &thing.BindParams{
 		ID:       bindFlags.id,
 		DeviceID: bindFlags.deviceID,
 	}
-	err := thing.Bind(params)
+	err = thing.Bind(params, cred)
 	if err != nil {
 		feedback.Errorf("Error during thing bind: %v", err)
 		os.Exit(errorcodes.ErrGeneric)

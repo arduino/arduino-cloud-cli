@@ -36,18 +36,14 @@ type DeleteParams struct {
 
 // Delete command is used to delete a thing
 // from Arduino IoT Cloud.
-func Delete(params *DeleteParams) error {
+func Delete(params *DeleteParams, cred *config.Credentials) error {
 	if params.ID == nil && params.Tags == nil {
 		return errors.New("provide either ID or Tags")
 	} else if params.ID != nil && params.Tags != nil {
 		return errors.New("cannot use both ID and Tags. only one of them should be not nil")
 	}
 
-	conf, err := config.RetrieveCredentials()
-	if err != nil {
-		return err
-	}
-	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
 	if err != nil {
 		return err
 	}

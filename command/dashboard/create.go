@@ -33,12 +33,8 @@ type CreateParams struct {
 }
 
 // Create allows to create a new dashboard.
-func Create(params *CreateParams) (*DashboardInfo, error) {
-	conf, err := config.RetrieveCredentials()
-	if err != nil {
-		return nil, err
-	}
-	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+func Create(params *CreateParams, cred *config.Credentials) (*DashboardInfo, error) {
+	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
 	if err != nil {
 		return nil, err
 	}

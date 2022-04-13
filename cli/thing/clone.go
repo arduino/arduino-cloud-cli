@@ -25,6 +25,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/command/thing"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -51,12 +52,18 @@ func initCloneCommand() *cobra.Command {
 func runCloneCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Cloning thing %s into a new thing called %s", cloneFlags.cloneID, cloneFlags.name)
 
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		feedback.Errorf("Error during thing clone: retrieving credentials: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
 	params := &thing.CloneParams{
 		Name:    cloneFlags.name,
 		CloneID: cloneFlags.cloneID,
 	}
 
-	thing, err := thing.Clone(params)
+	thing, err := thing.Clone(params, cred)
 	if err != nil {
 		feedback.Errorf("Error during thing clone: %v", err)
 		os.Exit(errorcodes.ErrGeneric)
