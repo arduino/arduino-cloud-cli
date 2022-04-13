@@ -59,7 +59,7 @@ func runCreateCommand(cmd *cobra.Command, args []string) {
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during dashboard create: retrieving credentials: %w", err)
+		feedback.Errorf("Error during dashboard create: retrieving credentials: %v", err)
 		os.Exit(errorcodes.ErrGeneric)
 	}
 
