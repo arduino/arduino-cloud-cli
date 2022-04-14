@@ -32,20 +32,25 @@ func initFindCommand() *cobra.Command {
 		Use:   "find",
 		Short: "Find the credentials that would be used in your current directory",
 		Long:  "Find the credentials to access Arduino IoT Cloud that would be used in your current directory",
-		Run:   runFindCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runFindCommand(); err != nil {
+				feedback.Errorf("Error during credentials find: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
 
 	return findCommand
 }
 
-func runFindCommand(cmd *cobra.Command, args []string) {
+func runFindCommand() error {
 	logrus.Info("Looking for credentials")
 
 	src, err := config.FindCredentials()
 	if err != nil {
-		feedback.Errorf("Error during credentials find: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	feedback.Printf("Using credentials in: %s", src)
+	return nil
 }

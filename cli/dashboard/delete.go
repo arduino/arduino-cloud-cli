@@ -18,6 +18,7 @@
 package dashboard
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
@@ -28,37 +29,42 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var deleteFlags struct {
+type deleteFlags struct {
 	id string
 }
 
 func initDeleteCommand() *cobra.Command {
+	flags := &deleteFlags{}
 	deleteCommand := &cobra.Command{
 		Use:   "delete",
 		Short: "Delete a dashboard",
 		Long:  "Delete a dashboard from Arduino IoT Cloud",
-		Run:   runDeleteCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runDeleteCommand(flags); err != nil {
+				feedback.Errorf("Error during dashboard delete: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
-	deleteCommand.Flags().StringVarP(&deleteFlags.id, "id", "i", "", "Dashboard ID")
+	deleteCommand.Flags().StringVarP(&flags.id, "id", "i", "", "Dashboard ID")
 	deleteCommand.MarkFlagRequired("id")
 	return deleteCommand
 }
 
-func runDeleteCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Deleting dashboard %s", deleteFlags.id)
+func runDeleteCommand(flags *deleteFlags) error {
+	logrus.Infof("Deleting dashboard %s", flags.id)
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during dashboard delete: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
-	params := &dashboard.DeleteParams{ID: deleteFlags.id}
+	params := &dashboard.DeleteParams{ID: flags.id}
 	err = dashboard.Delete(params, cred)
 	if err != nil {
-		feedback.Errorf("Error during dashboard delete: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	logrus.Info("Dashboard successfully deleted")
+	return nil
 }

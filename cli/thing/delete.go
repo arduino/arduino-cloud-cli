@@ -18,6 +18,7 @@
 package thing
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
@@ -28,21 +29,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var deleteFlags struct {
+type deleteFlags struct {
 	id   string
 	tags map[string]string
 }
 
 func initDeleteCommand() *cobra.Command {
+	flags := &deleteFlags{}
 	deleteCommand := &cobra.Command{
 		Use:   "delete",
 		Short: "Delete a thing",
 		Long:  "Delete a thing from Arduino IoT Cloud",
-		Run:   runDeleteCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runDeleteCommand(flags); err != nil {
+				feedback.Errorf("Error during thing delete: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
-	deleteCommand.Flags().StringVarP(&deleteFlags.id, "id", "i", "", "Thing ID")
+	deleteCommand.Flags().StringVarP(&flags.id, "id", "i", "", "Thing ID")
 	deleteCommand.Flags().StringToStringVar(
-		&deleteFlags.tags,
+		&flags.tags,
 		"tags",
 		nil,
 		"Comma-separated list of tags with format <key>=<value>.\n"+
@@ -52,25 +59,24 @@ func initDeleteCommand() *cobra.Command {
 	return deleteCommand
 }
 
-func runDeleteCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Deleting thing %s", deleteFlags.id)
+func runDeleteCommand(flags *deleteFlags) error {
+	logrus.Infof("Deleting thing %s", flags.id)
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during thing delete: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
-	params := &thing.DeleteParams{Tags: deleteFlags.tags}
-	if deleteFlags.id != "" {
-		params.ID = &deleteFlags.id
+	params := &thing.DeleteParams{Tags: flags.tags}
+	if flags.id != "" {
+		params.ID = &flags.id
 	}
 
 	err = thing.Delete(params, cred)
 	if err != nil {
-		feedback.Errorf("Error during thing delete: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	logrus.Info("Thing successfully deleted")
+	return nil
 }

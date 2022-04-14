@@ -29,7 +29,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var createLoraFlags struct {
+type createLoraFlags struct {
 	port          string
 	name          string
 	fqbn          string
@@ -37,51 +37,56 @@ var createLoraFlags struct {
 }
 
 func initCreateLoraCommand() *cobra.Command {
+	flags := &createLoraFlags{}
 	createLoraCommand := &cobra.Command{
 		Use:   "create-lora",
 		Short: "Create a LoRa device",
 		Long:  "Create a LoRa device for Arduino IoT Cloud",
-		Run:   runCreateLoraCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runCreateLoraCommand(flags); err != nil {
+				feedback.Errorf("Error during device create-lora: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
-	createLoraCommand.Flags().StringVarP(&createLoraFlags.port, "port", "p", "", "Device port")
-	createLoraCommand.Flags().StringVarP(&createLoraFlags.name, "name", "n", "", "Device name")
-	createLoraCommand.Flags().StringVarP(&createLoraFlags.fqbn, "fqbn", "b", "", "Device fqbn")
-	createLoraCommand.Flags().StringVarP(&createLoraFlags.frequencyPlan, "frequency-plan", "f", "",
+	createLoraCommand.Flags().StringVarP(&flags.port, "port", "p", "", "Device port")
+	createLoraCommand.Flags().StringVarP(&flags.name, "name", "n", "", "Device name")
+	createLoraCommand.Flags().StringVarP(&flags.fqbn, "fqbn", "b", "", "Device fqbn")
+	createLoraCommand.Flags().StringVarP(&flags.frequencyPlan, "frequency-plan", "f", "",
 		"ID of the LoRa frequency plan to use. Run the 'device list-frequency-plans' command to obtain a list of valid plans.")
 	createLoraCommand.MarkFlagRequired("name")
 	createLoraCommand.MarkFlagRequired("frequency-plan")
 	return createLoraCommand
 }
 
-func runCreateLoraCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Creating LoRa device with name %s", createLoraFlags.name)
+func runCreateLoraCommand(flags *createLoraFlags) error {
+	logrus.Infof("Creating LoRa device with name %s", flags.name)
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during device create-lora: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
 	params := &device.CreateLoraParams{
 		CreateParams: device.CreateParams{
-			Name: createLoraFlags.name,
+			Name: flags.name,
 		},
-		FrequencyPlan: createLoraFlags.frequencyPlan,
+		FrequencyPlan: flags.frequencyPlan,
 	}
-	if createLoraFlags.port != "" {
-		params.Port = &createLoraFlags.port
+	if flags.port != "" {
+		params.Port = &flags.port
 	}
-	if createLoraFlags.fqbn != "" {
-		params.FQBN = &createLoraFlags.fqbn
+	if flags.fqbn != "" {
+		params.FQBN = &flags.fqbn
 	}
 
 	dev, err := device.CreateLora(params, cred)
 	if err != nil {
-		feedback.Errorf("Error during device create-lora: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	feedback.PrintResult(createLoraResult{dev})
+	return nil
 }
 
 type createLoraResult struct {

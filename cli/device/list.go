@@ -18,6 +18,7 @@
 package device
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -30,19 +31,25 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var listFlags struct {
+type listFlags struct {
 	tags map[string]string
 }
 
 func initListCommand() *cobra.Command {
+	flags := &listFlags{}
 	listCommand := &cobra.Command{
 		Use:   "list",
 		Short: "List devices",
 		Long:  "List devices on Arduino IoT Cloud",
-		Run:   runListCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runListCommand(flags); err != nil {
+				feedback.Errorf("Error during device list: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
 	listCommand.Flags().StringToStringVar(
-		&listFlags.tags,
+		&flags.tags,
 		"tags",
 		nil,
 		"Comma-separated list of tags with format <key>=<value>.\n"+
@@ -51,23 +58,22 @@ func initListCommand() *cobra.Command {
 	return listCommand
 }
 
-func runListCommand(cmd *cobra.Command, args []string) {
+func runListCommand(flags *listFlags) error {
 	logrus.Info("Listing devices")
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during device list: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
-	params := &device.ListParams{Tags: listFlags.tags}
+	params := &device.ListParams{Tags: flags.tags}
 	devs, err := device.List(params, cred)
 	if err != nil {
-		feedback.Errorf("Error during device list: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	feedback.PrintResult(listResult{devs})
+	return nil
 }
 
 type listResult struct {

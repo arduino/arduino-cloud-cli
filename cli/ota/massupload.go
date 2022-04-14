@@ -32,7 +32,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var massUploadFlags struct {
+type massUploadFlags struct {
 	deviceIDs []string
 	tags      map[string]string
 	file      string
@@ -41,50 +41,52 @@ var massUploadFlags struct {
 }
 
 func initMassUploadCommand() *cobra.Command {
+	flags := &massUploadFlags{}
 	massUploadCommand := &cobra.Command{
 		Use:   "mass-upload",
 		Short: "Mass OTA upload",
 		Long:  "Mass OTA upload on devices of Arduino IoT Cloud",
-		Run:   runMassUploadCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runMassUploadCommand(flags); err != nil {
+				feedback.Errorf("Error during ota mass-upload: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
-
-	massUploadCommand.Flags().StringSliceVarP(&massUploadFlags.deviceIDs, "device-ids", "d", nil,
+	massUploadCommand.Flags().StringSliceVarP(&flags.deviceIDs, "device-ids", "d", nil,
 		"Comma-separated list of device IDs to update")
-	massUploadCommand.Flags().StringToStringVar(&massUploadFlags.tags, "device-tags", nil,
+	massUploadCommand.Flags().StringToStringVar(&flags.tags, "device-tags", nil,
 		"Comma-separated list of tags with format <key>=<value>.\n"+
 			"Perform an OTA upload on all devices that match the provided tags.\n"+
 			"Mutually exclusive with '--device-ids'.",
 	)
-	massUploadCommand.Flags().StringVarP(&massUploadFlags.file, "file", "", "", "Binary file (.bin) to be uploaded")
-	massUploadCommand.Flags().BoolVar(&massUploadFlags.deferred, "deferred", false, "Perform a deferred OTA. It can take up to 1 week.")
-	massUploadCommand.Flags().StringVarP(&massUploadFlags.fqbn, "fqbn", "b", "", "FQBN of the devices to update")
-
+	massUploadCommand.Flags().StringVarP(&flags.file, "file", "", "", "Binary file (.bin) to be uploaded")
+	massUploadCommand.Flags().BoolVar(&flags.deferred, "deferred", false, "Perform a deferred OTA. It can take up to 1 week.")
+	massUploadCommand.Flags().StringVarP(&flags.fqbn, "fqbn", "b", "", "FQBN of the devices to update")
 	massUploadCommand.MarkFlagRequired("file")
 	massUploadCommand.MarkFlagRequired("fqbn")
 	return massUploadCommand
 }
 
-func runMassUploadCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Uploading binary %s", massUploadFlags.file)
+func runMassUploadCommand(flags *massUploadFlags) error {
+	logrus.Infof("Uploading binary %s", flags.file)
 
 	params := &ota.MassUploadParams{
-		DeviceIDs: massUploadFlags.deviceIDs,
-		Tags:      massUploadFlags.tags,
-		File:      massUploadFlags.file,
-		Deferred:  massUploadFlags.deferred,
-		FQBN:      massUploadFlags.fqbn,
+		DeviceIDs: flags.deviceIDs,
+		Tags:      flags.tags,
+		File:      flags.file,
+		Deferred:  flags.deferred,
+		FQBN:      flags.fqbn,
 	}
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during device list-frequency-plans: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
 	resp, err := ota.MassUpload(params, cred)
 	if err != nil {
-		feedback.Errorf("Error during ota upload: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	// Put successful devices ahead
@@ -101,7 +103,7 @@ func runMassUploadCommand(cmd *cobra.Command, args []string) {
 		}
 	}
 	if len(failed) == 0 {
-		return
+		return nil
 	}
 	failDevs := strings.Join(failed, ",")
 	feedback.Printf(
@@ -109,6 +111,7 @@ func runMassUploadCommand(cmd *cobra.Command, args []string) {
 			"$ arduino-cloud-cli ota mass-upload --file %s --fqbn %s -d %s",
 		params.File, params.FQBN, failDevs,
 	)
+	return nil
 }
 
 type massUploadResult struct {
