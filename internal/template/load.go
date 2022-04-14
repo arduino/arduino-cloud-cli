@@ -66,7 +66,11 @@ func LoadThing(file string) (*iotclient.ThingCreate, error) {
 
 	// Adapt thing template to thing structure
 	delete(template, "id")
-	template["properties"] = template["variables"]
+	vars, ok := template["variables"]
+	if !ok {
+		return nil, errors.New("loaded thing template doesn't have a `variables` field")
+	}
+	template["properties"] = vars
 	delete(template, "variables")
 
 	// Convert template into thing structure exploiting json marshalling/unmarshalling
