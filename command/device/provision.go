@@ -26,9 +26,9 @@ import (
 
 	"github.com/arduino/arduino-cloud-cli/arduino"
 	"github.com/arduino/arduino-cloud-cli/internal/binary"
-	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	"github.com/arduino/arduino-cloud-cli/internal/serial"
 	"github.com/arduino/go-paths-helper"
+	iotclient "github.com/arduino/iot-client-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -63,11 +63,15 @@ func downloadProvisioningFile(fqbn string) (string, error) {
 	return p.String(), nil
 }
 
+type certificateCreator interface {
+	CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
+}
+
 // provision is responsible for running the provisioning
 // procedures for boards with crypto-chip.
 type provision struct {
 	arduino.Commander
-	iot.Client
+	cert  certificateCreator
 	ser   *serial.Serial
 	board *board
 	id    string
@@ -125,7 +129,7 @@ func (p provision) configBoard() error {
 	if err != nil {
 		return err
 	}
-	cert, err := p.CertificateCreate(p.id, string(csr))
+	cert, err := p.cert.CertificateCreate(p.id, string(csr))
 	if err != nil {
 		return err
 	}
