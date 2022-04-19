@@ -23,6 +23,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/command/ota"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -53,12 +54,18 @@ func initUploadCommand() *cobra.Command {
 func runUploadCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Uploading binary %s to device %s", uploadFlags.file, uploadFlags.deviceID)
 
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		feedback.Errorf("Error during ota upload: retrieving credentials: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
 	params := &ota.UploadParams{
 		DeviceID: uploadFlags.deviceID,
 		File:     uploadFlags.file,
 		Deferred: uploadFlags.deferred,
 	}
-	err := ota.Upload(params)
+	err = ota.Upload(params, cred)
 	if err != nil {
 		feedback.Errorf("Error during ota upload: %v", err)
 		os.Exit(errorcodes.ErrGeneric)

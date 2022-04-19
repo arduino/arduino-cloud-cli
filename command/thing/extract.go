@@ -33,12 +33,8 @@ type ExtractParams struct {
 
 // Extract command is used to extract a thing template
 // from a thing on Arduino IoT Cloud.
-func Extract(params *ExtractParams) (map[string]interface{}, error) {
-	conf, err := config.RetrieveCredentials()
-	if err != nil {
-		return nil, err
-	}
-	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+func Extract(params *ExtractParams, cred *config.Credentials) (map[string]interface{}, error) {
+	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
 	if err != nil {
 		return nil, err
 	}

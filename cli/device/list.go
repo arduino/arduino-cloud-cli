@@ -25,6 +25,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cli/table"
 	"github.com/arduino/arduino-cloud-cli/command/device"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -53,8 +54,14 @@ func initListCommand() *cobra.Command {
 func runListCommand(cmd *cobra.Command, args []string) {
 	logrus.Info("Listing devices")
 
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		feedback.Errorf("Error during device list: retrieving credentials: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
 	params := &device.ListParams{Tags: listFlags.tags}
-	devs, err := device.List(params)
+	devs, err := device.List(params, cred)
 	if err != nil {
 		feedback.Errorf("Error during device list: %v", err)
 		os.Exit(errorcodes.ErrGeneric)

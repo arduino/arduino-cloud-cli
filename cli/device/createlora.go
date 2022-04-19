@@ -24,6 +24,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/command/device"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -55,6 +56,12 @@ func initCreateLoraCommand() *cobra.Command {
 func runCreateLoraCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Creating LoRa device with name %s", createLoraFlags.name)
 
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		feedback.Errorf("Error during device create-lora: retrieving credentials: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
 	params := &device.CreateLoraParams{
 		CreateParams: device.CreateParams{
 			Name: createLoraFlags.name,
@@ -68,7 +75,7 @@ func runCreateLoraCommand(cmd *cobra.Command, args []string) {
 		params.FQBN = &createLoraFlags.fqbn
 	}
 
-	dev, err := device.CreateLora(params)
+	dev, err := device.CreateLora(params, cred)
 	if err != nil {
 		feedback.Errorf("Error during device create-lora: %v", err)
 		os.Exit(errorcodes.ErrGeneric)

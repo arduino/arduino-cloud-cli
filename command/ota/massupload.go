@@ -51,7 +51,7 @@ type Result struct {
 
 // MassUpload command is used to mass upload a firmware OTA,
 // on devices of Arduino IoT Cloud.
-func MassUpload(params *MassUploadParams) ([]Result, error) {
+func MassUpload(params *MassUploadParams, cred *config.Credentials) ([]Result, error) {
 	if params.DeviceIDs == nil && params.Tags == nil {
 		return nil, errors.New("provide either DeviceIDs or Tags")
 	} else if params.DeviceIDs != nil && params.Tags != nil {
@@ -71,11 +71,7 @@ func MassUpload(params *MassUploadParams) ([]Result, error) {
 		return nil, fmt.Errorf("%s: %w", "cannot generate .ota file", err)
 	}
 
-	conf, err := config.RetrieveCredentials()
-	if err != nil {
-		return nil, err
-	}
-	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
 	if err != nil {
 		return nil, err
 	}

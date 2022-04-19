@@ -23,6 +23,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/command/dashboard"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -48,11 +49,17 @@ func initExtractCommand() *cobra.Command {
 func runExtractCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Extracting template from dashboard %s", extractFlags.id)
 
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		feedback.Errorf("Error during dashboard extract: retrieving credentials: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
 	params := &dashboard.ExtractParams{
 		ID: extractFlags.id,
 	}
 
-	template, err := dashboard.Extract(params)
+	template, err := dashboard.Extract(params, cred)
 	if err != nil {
 		feedback.Errorf("Error during template extraction: %v", err)
 		os.Exit(errorcodes.ErrGeneric)

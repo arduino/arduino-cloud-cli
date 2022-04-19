@@ -44,12 +44,8 @@ type UploadParams struct {
 
 // Upload command is used to upload a firmware OTA,
 // on a device of Arduino IoT Cloud.
-func Upload(params *UploadParams) error {
-	conf, err := config.RetrieveCredentials()
-	if err != nil {
-		return err
-	}
-	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+func Upload(params *UploadParams, cred *config.Credentials) error {
+	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
 	if err != nil {
 		return err
 	}

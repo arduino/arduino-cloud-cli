@@ -34,12 +34,8 @@ type DeleteTagsParams struct {
 
 // DeleteTags command is used to delete tags of a device
 // from Arduino IoT Cloud.
-func DeleteTags(params *DeleteTagsParams) error {
-	conf, err := config.RetrieveCredentials()
-	if err != nil {
-		return err
-	}
-	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+func DeleteTags(params *DeleteTagsParams, cred *config.Credentials) error {
+	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
 	if err != nil {
 		return err
 	}

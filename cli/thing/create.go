@@ -25,6 +25,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/command/thing"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -56,6 +57,12 @@ func initCreateCommand() *cobra.Command {
 func runCreateCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Creating thing from template %s", createFlags.template)
 
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		feedback.Errorf("Error during thing create: retrieving credentials: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
 	params := &thing.CreateParams{
 		Template: createFlags.template,
 	}
@@ -63,7 +70,7 @@ func runCreateCommand(cmd *cobra.Command, args []string) {
 		params.Name = &createFlags.name
 	}
 
-	thing, err := thing.Create(params)
+	thing, err := thing.Create(params, cred)
 	if err != nil {
 		feedback.Errorf("Error during thing create: %v", err)
 		os.Exit(errorcodes.ErrGeneric)

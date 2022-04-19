@@ -62,7 +62,7 @@ type CreateLoraParams struct {
 
 // CreateLora command is used to provision a new LoRa arduino device
 // and to add it to Arduino IoT Cloud.
-func CreateLora(params *CreateLoraParams) (*DeviceLoraInfo, error) {
+func CreateLora(params *CreateLoraParams, cred *config.Credentials) (*DeviceLoraInfo, error) {
 	comm, err := cli.NewCommander()
 	if err != nil {
 		return nil, err
@@ -107,11 +107,7 @@ func CreateLora(params *CreateLoraParams) (*DeviceLoraInfo, error) {
 		return nil, err
 	}
 
-	conf, err := config.RetrieveCredentials()
-	if err != nil {
-		return nil, err
-	}
-	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
 	if err != nil {
 		return nil, err
 	}

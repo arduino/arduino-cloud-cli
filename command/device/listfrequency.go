@@ -33,12 +33,8 @@ type FrequencyPlanInfo struct {
 
 // ListFrequencyPlans command is used to list
 // the supported LoRa frequency plans.
-func ListFrequencyPlans() ([]FrequencyPlanInfo, error) {
-	conf, err := config.RetrieveCredentials()
-	if err != nil {
-		return nil, err
-	}
-	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+func ListFrequencyPlans(cred *config.Credentials) ([]FrequencyPlanInfo, error) {
+	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
 	if err != nil {
 		return nil, err
 	}

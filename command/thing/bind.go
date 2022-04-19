@@ -32,12 +32,8 @@ type BindParams struct {
 
 // Bind command is used to bind a thing to a device
 // on Arduino IoT Cloud.
-func Bind(params *BindParams) error {
-	conf, err := config.RetrieveCredentials()
-	if err != nil {
-		return err
-	}
-	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+func Bind(params *BindParams, cred *config.Credentials) error {
+	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
 	if err != nil {
 		return err
 	}

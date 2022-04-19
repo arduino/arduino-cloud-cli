@@ -23,6 +23,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/command/tag"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -51,13 +52,19 @@ func InitDeleteTagsCommand() *cobra.Command {
 func runDeleteTagsCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Deleting tags with keys %s", deleteTagsFlags.keys)
 
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		feedback.Errorf("Error during thing delete-tags: retrieving credentials: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
 	params := &tag.DeleteTagsParams{
 		ID:       deleteTagsFlags.id,
 		Keys:     deleteTagsFlags.keys,
 		Resource: tag.Thing,
 	}
 
-	err := tag.DeleteTags(params)
+	err = tag.DeleteTags(params, cred)
 	if err != nil {
 		feedback.Errorf("Error during thing delete-tags: %v", err)
 		os.Exit(errorcodes.ErrGeneric)
