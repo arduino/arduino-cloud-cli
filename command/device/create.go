@@ -80,7 +80,7 @@ func Create(params *CreateParams) (*DeviceInfo, error) {
 
 	prov := &provision{
 		Commander: comm,
-		Client:    iotClient,
+		cert:      iotClient,
 		board:     board,
 		id:        dev.Id,
 	}

@@ -20,11 +20,9 @@ package template
 import (
 	"testing"
 
-	"github.com/arduino/arduino-cloud-cli/internal/iot/mocks"
 	iotclient "github.com/arduino/iot-client-go"
 	"github.com/gofrs/uuid"
 	"github.com/google/go-cmp/cmp"
-	"github.com/stretchr/testify/mock"
 )
 
 const (
@@ -145,26 +143,27 @@ func TestLoadTemplate(t *testing.T) {
 	}
 }
 
-func TestLoadDashboard(t *testing.T) {
-	mockClient := &mocks.Client{}
-	mockThingShow := func(thingID string) *iotclient.ArduinoThing {
-		if thingID == thingOverriddenID {
-			return &iotclient.ArduinoThing{
-				Properties: []iotclient.ArduinoProperty{
-					{Id: switchyOverriddenID, Name: "switchy"},
-				},
-			}
-		}
+type thingShowTest struct{}
+
+func (t *thingShowTest) ThingShow(thingID string) (*iotclient.ArduinoThing, error) {
+	if thingID == thingOverriddenID {
 		return &iotclient.ArduinoThing{
 			Properties: []iotclient.ArduinoProperty{
-				{Id: switchyID, Name: "switchy"},
-				{Id: relayID, Name: "relay_2"},
-				{Id: blinkSpeedID, Name: "blink_speed"},
+				{Id: switchyOverriddenID, Name: "switchy"},
 			},
-		}
+		}, nil
 	}
-	mockClient.On("ThingShow", mock.AnythingOfType("string")).Return(mockThingShow, nil)
+	return &iotclient.ArduinoThing{
+		Properties: []iotclient.ArduinoProperty{
+			{Id: switchyID, Name: "switchy"},
+			{Id: relayID, Name: "relay_2"},
+			{Id: blinkSpeedID, Name: "blink_speed"},
+		},
+	}, nil
+}
 
+func TestLoadDashboard(t *testing.T) {
+	mockThingShow := &thingShowTest{}
 	tests := []struct {
 		name     string
 		file     string
@@ -216,7 +215,7 @@ func TestLoadDashboard(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := LoadDashboard(tt.file, tt.override, mockClient)
+			got, err := LoadDashboard(tt.file, tt.override, mockThingShow)
 			if err != nil {
 				t.Errorf("%v", err)
 			}

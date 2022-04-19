@@ -104,11 +104,15 @@ func MassUpload(params *MassUploadParams) ([]Result, error) {
 	return res, nil
 }
 
-func idsGivenTags(iotClient iot.Client, tags map[string]string) ([]string, error) {
+type deviceLister interface {
+	DeviceList(tags map[string]string) ([]iotclient.ArduinoDevicev2, error)
+}
+
+func idsGivenTags(lister deviceLister, tags map[string]string) ([]string, error) {
 	if tags == nil {
 		return nil, nil
 	}
-	devs, err := iotClient.DeviceList(tags)
+	devs, err := lister.DeviceList(tags)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "cannot retrieve devices from cloud", err)
 	}
@@ -119,8 +123,8 @@ func idsGivenTags(iotClient iot.Client, tags map[string]string) ([]string, error
 	return devices, nil
 }
 
-func validateDevices(iotClient iot.Client, ids []string, fqbn string) (valid []string, invalid []Result, err error) {
-	devs, err := iotClient.DeviceList(nil)
+func validateDevices(lister deviceLister, ids []string, fqbn string) (valid []string, invalid []Result, err error) {
+	devs, err := lister.DeviceList(nil)
 	if err != nil {
 		return nil, nil, fmt.Errorf("%s: %w", "cannot retrieve devices from cloud", err)
 	}
@@ -150,7 +154,11 @@ func validateDevices(iotClient iot.Client, ids []string, fqbn string) (valid []s
 	return valid, invalid, nil
 }
 
-func run(iotClient iot.Client, ids []string, otaFile string, expiration int) []Result {
+type otaUploader interface {
+	DeviceOTA(id string, file *os.File, expireMins int) error
+}
+
+func run(uploader otaUploader, ids []string, otaFile string, expiration int) []Result {
 	type job struct {
 		id   string
 		file *os.File
@@ -174,7 +182,7 @@ func run(iotClient iot.Client, ids []string, otaFile string, expiration int) []R
 	for i := 0; i < numConcurrentUploads; i++ {
 		go func() {
 			for job := range jobs {
-				err := iotClient.DeviceOTA(job.id, job.file, expiration)
+				err := uploader.DeviceOTA(job.id, job.file, expiration)
 				resCh <- Result{ID: job.id, Err: err}
 			}
 		}()

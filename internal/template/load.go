@@ -24,7 +24,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	iotclient "github.com/arduino/iot-client-go"
 	"github.com/gofrs/uuid"
 	"gopkg.in/yaml.v3"
@@ -87,8 +86,8 @@ func LoadThing(file string) (*iotclient.ThingCreate, error) {
 
 // LoadDashboard loads a dashboard from a dashboard template file.
 // It applies the thing overrides specified by the override parameter.
-// It requires an iot.Client parameter to retrieve the actual variable id.
-func LoadDashboard(file string, override map[string]string, iotClient iot.Client) (*iotclient.Dashboardv2, error) {
+// It requires a ThingFetcher to retrieve the actual variable ids.
+func LoadDashboard(file string, override map[string]string, thinger ThingFetcher) (*iotclient.Dashboardv2, error) {
 	template := dashboardTemplate{}
 	err := loadTemplate(file, &template)
 	if err != nil {
@@ -114,7 +113,7 @@ func LoadDashboard(file string, override map[string]string, iotClient iot.Client
 			if id, ok := override[variable.ThingID]; ok {
 				variable.ThingID = id
 			}
-			variable.VariableID, err = getVariableID(variable.ThingID, variable.VariableName, iotClient)
+			variable.VariableID, err = getVariableID(variable.ThingID, variable.VariableName, thinger)
 			if err != nil {
 				return nil, err
 			}

@@ -6,12 +6,18 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/arduino/arduino-cloud-cli/internal/iot/mocks"
 	iotclient "github.com/arduino/iot-client-go"
-	"github.com/stretchr/testify/mock"
 )
 
 const testFilename = "testdata/empty.bin"
+
+type deviceUploaderTest struct {
+	deviceOTA func(id string, file *os.File, expireMins int) error
+}
+
+func (d *deviceUploaderTest) DeviceOTA(id string, file *os.File, expireMins int) error {
+	return d.deviceOTA(id, file, expireMins)
+}
 
 func TestRun(t *testing.T) {
 	var (
@@ -23,14 +29,14 @@ func TestRun(t *testing.T) {
 		okID2      = okPrefix + "-003f-42f9-a80c-85a1de36753b"
 		okID3      = okPrefix + "-dac4-4a6a-80a4-698062fe2af5"
 	)
-	mockClient := &mocks.Client{}
-	mockDeviceOTA := func(id string, file *os.File, expireMins int) error {
-		if strings.Split(id, "-")[0] == failPrefix {
-			return errors.New("err")
-		}
-		return nil
+	mockClient := &deviceUploaderTest{
+		deviceOTA: func(id string, file *os.File, expireMins int) error {
+			if strings.Split(id, "-")[0] == failPrefix {
+				return errors.New("err")
+			}
+			return nil
+		},
 	}
-	mockClient.On("DeviceOTA", mock.Anything, mock.Anything, mock.Anything).Return(mockDeviceOTA, nil)
 
 	devs := []string{okID1, failID1, okID2, failID2, okID3}
 	res := run(mockClient, devs, testFilename, 0)
@@ -49,6 +55,14 @@ func TestRun(t *testing.T) {
 	}
 }
 
+type deviceListerTest struct {
+	list []iotclient.ArduinoDevicev2
+}
+
+func (d *deviceListerTest) DeviceList(tags map[string]string) ([]iotclient.ArduinoDevicev2, error) {
+	return d.list, nil
+}
+
 func TestValidateDevices(t *testing.T) {
 	var (
 		correctFQBN = "arduino:samd:nano_33_iot"
@@ -60,15 +74,13 @@ func TestValidateDevices(t *testing.T) {
 		idNotFound = "deb17b7f-b39d-47a2-adf3-d26cdf474707"
 	)
 
-	mockClient := &mocks.Client{}
-	mockDeviceList := func(tags map[string]string) []iotclient.ArduinoDevicev2 {
-		return []iotclient.ArduinoDevicev2{
+	mockDeviceList := deviceListerTest{
+		list: []iotclient.ArduinoDevicev2{
 			{Id: idCorrect1, Fqbn: correctFQBN},
 			{Id: idCorrect2, Fqbn: correctFQBN},
 			{Id: idNotValid, Fqbn: wrongFQBN},
-		}
+		},
 	}
-	mockClient.On("DeviceList", mock.Anything).Return(mockDeviceList, nil)
 
 	ids := []string{
 		idCorrect1,
@@ -76,7 +88,7 @@ func TestValidateDevices(t *testing.T) {
 		idCorrect2,
 		idNotValid,
 	}
-	v, i, err := validateDevices(mockClient, ids, correctFQBN)
+	v, i, err := validateDevices(&mockDeviceList, ids, correctFQBN)
 	if err != nil {
 		t.Errorf("unexpected error: %s", err.Error())
 	}
