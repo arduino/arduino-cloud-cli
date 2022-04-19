@@ -35,12 +35,8 @@ type ListParams struct {
 
 // List command is used to list
 // the things of Arduino IoT Cloud.
-func List(params *ListParams) ([]ThingInfo, error) {
-	conf, err := config.RetrieveCredentials()
-	if err != nil {
-		return nil, err
-	}
-	iotClient, err := iot.NewClient(conf.Client, conf.Secret)
+func List(params *ListParams, cred *config.Credentials) ([]ThingInfo, error) {
+	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
 	if err != nil {
 		return nil, err
 	}

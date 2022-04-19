@@ -23,6 +23,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/command/device"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -54,12 +55,18 @@ func initDeleteCommand() *cobra.Command {
 func runDeleteCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Deleting device %s", deleteFlags.id)
 
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		feedback.Errorf("Error during device delete: retrieving credentials: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
 	params := &device.DeleteParams{Tags: deleteFlags.tags}
 	if deleteFlags.id != "" {
 		params.ID = &deleteFlags.id
 	}
 
-	err := device.Delete(params)
+	err = device.Delete(params, cred)
 	if err != nil {
 		feedback.Errorf("Error during device delete: %v", err)
 		os.Exit(errorcodes.ErrGeneric)

@@ -23,6 +23,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/command/dashboard"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -46,8 +47,14 @@ func initDeleteCommand() *cobra.Command {
 func runDeleteCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Deleting dashboard %s", deleteFlags.id)
 
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		feedback.Errorf("Error during dashboard delete: retrieving credentials: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
 	params := &dashboard.DeleteParams{ID: deleteFlags.id}
-	err := dashboard.Delete(params)
+	err = dashboard.Delete(params, cred)
 	if err != nil {
 		feedback.Errorf("Error during dashboard delete: %v", err)
 		os.Exit(errorcodes.ErrGeneric)

@@ -26,6 +26,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cli/table"
 	"github.com/arduino/arduino-cloud-cli/command/dashboard"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -53,7 +54,13 @@ func initListCommand() *cobra.Command {
 func runListCommand(cmd *cobra.Command, args []string) {
 	logrus.Info("Listing dashboards")
 
-	dash, err := dashboard.List()
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		feedback.Errorf("Error during dashboard list: retrieving credentials: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
+	dash, err := dashboard.List(cred)
 	if err != nil {
 		feedback.Errorf("Error during dashboard list: %v", err)
 		os.Exit(errorcodes.ErrGeneric)

@@ -23,6 +23,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/command/tag"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -60,7 +61,13 @@ func runCreateTagsCommand(cmd *cobra.Command, args []string) {
 		Resource: tag.Thing,
 	}
 
-	err := tag.CreateTags(params)
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		feedback.Errorf("Error during thing create-tags: retrieving credentials: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
+	err = tag.CreateTags(params, cred)
 	if err != nil {
 		feedback.Errorf("Error during thing create-tags: %v", err)
 		os.Exit(errorcodes.ErrGeneric)

@@ -27,6 +27,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cli/table"
 	"github.com/arduino/arduino-cloud-cli/command/ota"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -74,7 +75,13 @@ func runMassUploadCommand(cmd *cobra.Command, args []string) {
 		FQBN:      massUploadFlags.fqbn,
 	}
 
-	resp, err := ota.MassUpload(params)
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		feedback.Errorf("Error during device list-frequency-plans: retrieving credentials: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
+	resp, err := ota.MassUpload(params, cred)
 	if err != nil {
 		feedback.Errorf("Error during ota upload: %v", err)
 		os.Exit(errorcodes.ErrGeneric)

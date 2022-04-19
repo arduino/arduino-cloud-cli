@@ -24,6 +24,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/command/device"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -49,12 +50,18 @@ func initCreateGenericCommand() *cobra.Command {
 func runCreateGenericCommand(cmd *cobra.Command, args []string) {
 	logrus.Infof("Creating generic device with name %s", createGenericFlags.name)
 
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		feedback.Errorf("Error during device create-generic: retrieving credentials: %v", err)
+		os.Exit(errorcodes.ErrGeneric)
+	}
+
 	params := &device.CreateGenericParams{
 		Name: createGenericFlags.name,
 		FQBN: createGenericFlags.fqbn,
 	}
 
-	dev, err := device.CreateGeneric(params)
+	dev, err := device.CreateGeneric(params, cred)
 	if err != nil {
 		feedback.Errorf("Error during device create-generic: %v", err)
 		os.Exit(errorcodes.ErrGeneric)
