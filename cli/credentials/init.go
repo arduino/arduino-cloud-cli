@@ -100,7 +100,7 @@ func runInitCommand(flags *initFlags) error {
 
 	// Take needed credentials starting an interactive mode
 	feedback.Print("To obtain your API credentials visit https://create.arduino.cc/iot/integrations")
-	id, key, err := paramsPrompt()
+	id, key, org, err := paramsPrompt()
 	if err != nil {
 		return fmt.Errorf("cannot take credentials params: %w", err)
 	}
@@ -110,6 +110,7 @@ func runInitCommand(flags *initFlags) error {
 	newSettings.SetConfigPermissions(os.FileMode(0600))
 	newSettings.Set("client", id)
 	newSettings.Set("secret", key)
+	newSettings.Set("organization", org)
 	if err := newSettings.WriteConfigAs(credFile.String()); err != nil {
 		return fmt.Errorf("cannot write credentials file: %w", err)
 	}
@@ -118,7 +119,7 @@ func runInitCommand(flags *initFlags) error {
 	return nil
 }
 
-func paramsPrompt() (id, key string, err error) {
+func paramsPrompt() (id, key, org string, err error) {
 	prompt := promptui.Prompt{
 		Label: "Please enter the Client ID",
 		Validate: func(s string) error {
@@ -130,7 +131,7 @@ func paramsPrompt() (id, key string, err error) {
 	}
 	id, err = prompt.Run()
 	if err != nil {
-		return "", "", fmt.Errorf("client prompt fail: %w", err)
+		return "", "", "", fmt.Errorf("client prompt fail: %w", err)
 	}
 
 	prompt = promptui.Prompt{
@@ -145,8 +146,23 @@ func paramsPrompt() (id, key string, err error) {
 	}
 	key, err = prompt.Run()
 	if err != nil {
-		return "", "", fmt.Errorf("client secret prompt fail: %w", err)
+		return "", "", "", fmt.Errorf("client secret prompt fail: %w", err)
 	}
 
-	return id, key, nil
+	prompt = promptui.Prompt{
+		Mask:  '*',
+		Label: "Please enter the Organization ID - if any - Leave empty otherwise",
+		Validate: func(s string) error {
+			if len(s) != 0 && len(s) != config.OrganizationLen {
+				return errors.New("organization id not valid")
+			}
+			return nil
+		},
+	}
+	org, err = prompt.Run()
+	if err != nil {
+		return "", "", "", fmt.Errorf("organization id prompt fail: %w", err)
+	}
+
+	return id, key, org, nil
 }
