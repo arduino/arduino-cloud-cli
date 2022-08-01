@@ -107,7 +107,7 @@ func CreateLora(params *CreateLoraParams, cred *config.Credentials) (*DeviceLora
 		return nil, err
 	}
 
-	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
+	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
 	}

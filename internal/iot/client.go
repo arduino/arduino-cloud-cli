@@ -23,6 +23,7 @@ import (
 	"os"
 
 	"github.com/antihax/optional"
+	"github.com/arduino/arduino-cloud-cli/internal/config"
 	iotclient "github.com/arduino/iot-client-go"
 )
 
@@ -33,10 +34,10 @@ type Client struct {
 }
 
 // NewClient returns a new client implementing the Client interface.
-// It needs a ClientID and SecretID for cloud authentication.
-func NewClient(clientID, secretID string) (*Client, error) {
+// It needs client Credentials for cloud authentication.
+func NewClient(cred *config.Credentials) (*Client, error) {
 	cl := &Client{}
-	err := cl.setup(clientID, secretID)
+	err := cl.setup(cred.Client, cred.Secret, cred.Organization)
 	if err != nil {
 		err = fmt.Errorf("instantiate new iot client: %w", err)
 		return nil, err
@@ -350,7 +351,7 @@ func (cl *Client) DashboardDelete(id string) error {
 	return nil
 }
 
-func (cl *Client) setup(client, secret string) error {
+func (cl *Client) setup(client, secret, organization string) error {
 	// Get the access token in exchange of client_id and client_secret
 	tok, err := token(client, secret)
 	if err != nil {
@@ -363,7 +364,11 @@ func (cl *Client) setup(client, secret string) error {
 
 	// Create an instance of the iot-api Go client, we pass an empty config
 	// because defaults are ok
-	cl.api = iotclient.NewAPIClient(iotclient.NewConfiguration())
+	config := iotclient.NewConfiguration()
+	if organization != "" {
+		config.DefaultHeader = map[string]string{"X-Organization": organization}
+	}
+	cl.api = iotclient.NewAPIClient(config)
 
 	return nil
 }

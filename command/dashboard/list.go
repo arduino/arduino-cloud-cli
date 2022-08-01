@@ -25,7 +25,7 @@ import (
 // List command is used to list
 // the dashboards of Arduino IoT Cloud.
 func List(cred *config.Credentials) ([]DashboardInfo, error) {
-	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
+	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
 	}

@@ -33,7 +33,7 @@ type CloneParams struct {
 
 // Clone allows to create a new thing from an already existing one.
 func Clone(params *CloneParams, cred *config.Credentials) (*ThingInfo, error) {
-	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
+	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
 	}
