@@ -63,7 +63,7 @@ func Create(params *CreateParams, cred *config.Credentials) (*DeviceInfo, error)
 		)
 	}
 
-	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
+	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
 	}

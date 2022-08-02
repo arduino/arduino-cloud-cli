@@ -28,12 +28,15 @@ import (
 
 func TestRetrieveCredentials(t *testing.T) {
 	var (
-		validSecret   = "qaRZGEbnQNNvmaeTLqy8Bxs22wLZ6H7obIiNSveTLPdoQuylANnuy6WBOw16XoqH"
-		validClient   = "CQ4iZ5sebOfhGRwUn3IV0r1YFMNrMTIx"
-		validConfig   = &Credentials{validClient, validSecret}
-		invalidConfig = &Credentials{"", validSecret}
-		clientEnv     = EnvPrefix + "_CLIENT"
-		secretEnv     = EnvPrefix + "_SECRET"
+		validSecret             = "qaRZGEbnQNNvmaeTLqy8Bxs22wLZ6H7obIiNSveTLPdoQuylANnuy6WBOw16XoqH"
+		validClient             = "CQ4iZ5sebOfhGRwUn3IV0r1YFMNrMTIx"
+		validOrganization       = "dc6a6159-3cd5-41a2-b391-553b1351cd98"
+		validConfig             = &Credentials{Client: validClient, Secret: validSecret}
+		validWithOptionalConfig = &Credentials{Client: validClient, Secret: validSecret, Organization: validOrganization}
+		invalidConfig           = &Credentials{Client: "", Secret: validSecret}
+		clientEnv               = EnvPrefix + "_CLIENT"
+		secretEnv               = EnvPrefix + "_SECRET"
+		organizationEnv         = EnvPrefix + "_ORGANIZATION"
 	)
 
 	tests := []struct {
@@ -44,7 +47,7 @@ func TestRetrieveCredentials(t *testing.T) {
 		wantedErr    bool
 	}{
 		{
-			name: "valid credentials written in env",
+			name: "valid credentials with only mandatory params written in env",
 			pre: func() {
 				os.Setenv(clientEnv, validConfig.Client)
 				os.Setenv(secretEnv, validConfig.Secret)
@@ -54,6 +57,22 @@ func TestRetrieveCredentials(t *testing.T) {
 				os.Unsetenv(secretEnv)
 			},
 			wantedConfig: validConfig,
+			wantedErr:    false,
+		},
+
+		{
+			name: "valid credentials with optional params written in env",
+			pre: func() {
+				os.Setenv(clientEnv, validWithOptionalConfig.Client)
+				os.Setenv(secretEnv, validWithOptionalConfig.Secret)
+				os.Setenv(organizationEnv, validWithOptionalConfig.Organization)
+			},
+			post: func() {
+				os.Unsetenv(clientEnv)
+				os.Unsetenv(secretEnv)
+				os.Unsetenv(organizationEnv)
+			},
+			wantedConfig: validWithOptionalConfig,
 			wantedErr:    false,
 		},
 
@@ -89,6 +108,27 @@ func TestRetrieveCredentials(t *testing.T) {
 				os.RemoveAll("test-parent")
 			},
 			wantedConfig: validConfig,
+			wantedErr:    false,
+		},
+
+		{
+			name: "valid credentials with optional params written in parent of cwd",
+			pre: func() {
+				parent := "test-parent"
+				cwd := "test-parent/test-cwd"
+				os.MkdirAll(cwd, os.FileMode(0777))
+				// Write valid credentials in parent dir
+				os.Chdir(parent)
+				b, _ := json.Marshal(validWithOptionalConfig)
+				os.WriteFile(CredentialsFilename+".json", b, os.FileMode(0777))
+				// Cwd has no credentials file
+				os.Chdir("test-cwd")
+			},
+			post: func() {
+				os.Chdir("../..")
+				os.RemoveAll("test-parent")
+			},
+			wantedConfig: validWithOptionalConfig,
 			wantedErr:    false,
 		},
 
@@ -161,8 +201,9 @@ func TestRetrieveCredentials(t *testing.T) {
 
 func TestValidate(t *testing.T) {
 	var (
-		validSecret = "qaRZGEbnQNNvmaeTLqy8Bxs22wLZ6H7obIiNSveTLPdoQuylANnuy6WBOw16XoqH"
-		validClient = "CQ4iZ5sebOfhGRwUn3IV0r1YFMNrMTIx"
+		validSecret       = "qaRZGEbnQNNvmaeTLqy8Bxs22wLZ6H7obIiNSveTLPdoQuylANnuy6WBOw16XoqH"
+		validClient       = "CQ4iZ5sebOfhGRwUn3IV0r1YFMNrMTIx"
+		validOrganization = "dc6a6159-3cd5-41a2-b391-553b1351cd98"
 	)
 	tests := []struct {
 		name   string
@@ -170,12 +211,14 @@ func TestValidate(t *testing.T) {
 		valid  bool
 	}{
 		{
-			name: "valid credentials",
-			config: &Credentials{
-				Client: validClient,
-				Secret: validSecret,
-			},
-			valid: true,
+			name:   "valid credentials",
+			config: &Credentials{Client: validClient, Secret: validSecret, Organization: validOrganization},
+			valid:  true,
+		},
+		{
+			name:   "valid credentials, organization is optional",
+			config: &Credentials{Client: validClient, Secret: validSecret, Organization: ""},
+			valid:  true,
 		},
 		{
 			name:   "invalid client id",
@@ -209,10 +252,11 @@ func TestValidate(t *testing.T) {
 	}
 }
 
-func TestIsEmpty(t *testing.T) {
+func TestComplete(t *testing.T) {
 	var (
-		validSecret = "qaRZGEbnQNNvmaeTLqy8Bxs22wLZ6H7obIiNSveTLPdoQuylANnuy6WBOw16XoqH"
-		validClient = "CQ4iZ5sebOfhGRwUn3IV0r1YFMNrMTIx"
+		validSecret       = "qaRZGEbnQNNvmaeTLqy8Bxs22wLZ6H7obIiNSveTLPdoQuylANnuy6WBOw16XoqH"
+		validClient       = "CQ4iZ5sebOfhGRwUn3IV0r1YFMNrMTIx"
+		validOrganization = "dc6a6159-3cd5-41a2-b391-553b1351cd98"
 	)
 	tests := []struct {
 		name   string
@@ -221,7 +265,12 @@ func TestIsEmpty(t *testing.T) {
 	}{
 		{
 			name:   "empty credentials",
-			config: &Credentials{Client: "", Secret: ""},
+			config: &Credentials{Client: "", Secret: "", Organization: ""},
+			want:   true,
+		},
+		{
+			name:   "empty mandatory credentials - optionals given",
+			config: &Credentials{Client: "", Secret: "", Organization: validOrganization},
 			want:   true,
 		},
 		{
@@ -238,7 +287,7 @@ func TestIsEmpty(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.config.IsEmpty()
+			got := tt.config.Complete()
 			if got != tt.want {
 				t.Errorf("Expected %v but got %v, with credentials: %v", tt.want, got, tt.config)
 			}

@@ -31,6 +31,8 @@ const (
 	ClientIDLen = 32
 	// ClientSecretLen specifies the length of Arduino IoT Cloud client secrets.
 	ClientSecretLen = 64
+	// OrganizationLen specifies the length of Arduino IoT Cloud organization.
+	OrganizationLen = 36
 
 	// EnvPrefix is the prefix environment variables should have to be
 	// fetched as credentials parameters during the credentials retrieval.
@@ -46,12 +48,15 @@ func SetEmptyCredentials(settings *viper.Viper) {
 	settings.SetDefault("client", "")
 	// Secret
 	settings.SetDefault("secret", "")
+	// OrganizationID
+	settings.SetDefault("organization", "")
 }
 
 // Credentials contains the parameters of Arduino IoT Cloud credentials.
 type Credentials struct {
-	Client string `mapstructure:"client"` // Client ID of the user
-	Secret string `mapstructure:"secret"` // Secret ID of the user, unique for each Client ID
+	Client       string `mapstructure:"client"`       // Client ID of the user; mandatory.
+	Secret       string `mapstructure:"secret"`       // Secret ID of the user, unique for each Client ID; mandatory.
+	Organization string `mapstructure:"organization"` // Organization ID of the user; this is considered optional.
 }
 
 // Validate the credentials.
@@ -71,11 +76,19 @@ func (c *Credentials) Validate() error {
 			len(c.Secret),
 		)
 	}
+	if len(c.Organization) != 0 && len(c.Organization) != OrganizationLen {
+		return fmt.Errorf(
+			"organization not valid, expected len %d but got %d",
+			OrganizationLen,
+			len(c.Organization),
+		)
+	}
 	return nil
 }
 
-// IsEmpty checks if credentials has no params set.
-func (c *Credentials) IsEmpty() bool {
+// Complete checks if Credentials has all the mandatory params set.
+// Optional parameters are not considered here.
+func (c *Credentials) Complete() bool {
 	return len(c.Client) == 0 && len(c.Secret) == 0
 }
 
@@ -91,7 +104,7 @@ func FindCredentials() (source string, err error) {
 	if err != nil {
 		return "", fmt.Errorf("looking for credentials in environment variables: %w", err)
 	}
-	if !c.IsEmpty() {
+	if c.Complete() {
 		logrus.Infof("Credentials found in environment variables with prefix '%s'", EnvPrefix)
 		return "environment variables", nil
 	}
@@ -123,7 +136,7 @@ func RetrieveCredentials() (cred *Credentials, err error) {
 		return nil, fmt.Errorf("reading credentials from environment variables: %w", err)
 	}
 	// Returns credentials if found in env
-	if !cred.IsEmpty() {
+	if !cred.Complete() {
 		// Returns error if credentials are found but are not valid
 		if err := cred.Validate(); err != nil {
 			return nil, fmt.Errorf(
