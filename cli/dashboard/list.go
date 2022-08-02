@@ -18,6 +18,7 @@
 package dashboard
 
 import (
+	"fmt"
 	"math"
 	"os"
 	"strings"
@@ -35,42 +36,48 @@ const (
 	widgetsPerRow = 3
 )
 
-var listFlags struct {
+type listFlags struct {
 	showWidgets bool
 }
 
 func initListCommand() *cobra.Command {
+	flags := &listFlags{}
 	listCommand := &cobra.Command{
 		Use:   "list",
 		Short: "List dashboards",
 		Long:  "List dashboards on Arduino IoT Cloud",
-		Run:   runListCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runListCommand(flags); err != nil {
+				feedback.Errorf("Error during dashboard list: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
 
-	listCommand.Flags().BoolVarP(&listFlags.showWidgets, "show-widgets", "s", false, "Show names of dashboard widgets")
+	listCommand.Flags().BoolVarP(&flags.showWidgets, "show-widgets", "s", false, "Show names of dashboard widgets")
 	return listCommand
 }
 
-func runListCommand(cmd *cobra.Command, args []string) {
+func runListCommand(flags *listFlags) error {
 	logrus.Info("Listing dashboards")
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during dashboard list: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
 	dash, err := dashboard.List(cred)
 	if err != nil {
-		feedback.Errorf("Error during dashboard list: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
-	feedback.PrintResult(listResult{dash})
+	feedback.PrintResult(listResult{dashboards: dash, showWidgets: flags.showWidgets})
+	return nil
 }
 
 type listResult struct {
-	dashboards []dashboard.DashboardInfo
+	dashboards  []dashboard.DashboardInfo
+	showWidgets bool
 }
 
 func (r listResult) Data() interface{} {
@@ -84,7 +91,7 @@ func (r listResult) String() string {
 	t := table.New()
 
 	head := []interface{}{"Name", "ID", "UpdatedAt"}
-	if listFlags.showWidgets {
+	if r.showWidgets {
 		head = append(head, "Widgets")
 	}
 	t.SetHeader(head...)
@@ -92,7 +99,7 @@ func (r listResult) String() string {
 	for _, dash := range r.dashboards {
 		row := []interface{}{dash.Name, dash.ID, dash.UpdatedAt}
 
-		if listFlags.showWidgets {
+		if r.showWidgets {
 			// Limit number of widgets per row.
 			if len(dash.Widgets) > widgetsPerRow {
 				row = append(row, strings.Join(dash.Widgets[:widgetsPerRow], ", "))
@@ -105,7 +112,7 @@ func (r listResult) String() string {
 		t.AddRow(row...)
 
 		// Print remaining widgets in new rows
-		if listFlags.showWidgets {
+		if r.showWidgets {
 			for len(dash.Widgets) > 0 {
 				row := []interface{}{"", "", ""}
 				l := int(math.Min(float64(len(dash.Widgets)), widgetsPerRow))

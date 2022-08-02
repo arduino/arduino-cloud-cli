@@ -33,21 +33,26 @@ func initListFQBNCommand() *cobra.Command {
 		Use:   "list-fqbn",
 		Short: "List supported FQBN",
 		Long:  "List all the FQBN supported by Arduino IoT Cloud",
-		Run:   runListFQBNCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runListFQBNCommand(); err != nil {
+				feedback.Errorf("Error during device list-fqbn: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
 	return listFQBNCommand
 }
 
-func runListFQBNCommand(cmd *cobra.Command, args []string) {
+func runListFQBNCommand() error {
 	logrus.Info("Listing supported FQBN")
 
 	fqbn, err := device.ListFQBN()
 	if err != nil {
-		feedback.Errorf("Error during device list-fqbn: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	feedback.PrintResult(listFQBNResult{fqbn})
+	return nil
 }
 
 type listFQBNResult struct {

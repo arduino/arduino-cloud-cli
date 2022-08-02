@@ -18,6 +18,7 @@
 package device
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
@@ -34,27 +35,31 @@ func initListFrequencyPlansCommand() *cobra.Command {
 		Use:   "list-frequency-plans",
 		Short: "List LoRa frequency plans",
 		Long:  "List all supported LoRa frequency plans",
-		Run:   runListFrequencyPlansCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runListFrequencyPlansCommand(); err != nil {
+				feedback.Errorf("Error during device list-frequency-plans: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
 	return listCommand
 }
 
-func runListFrequencyPlansCommand(cmd *cobra.Command, args []string) {
+func runListFrequencyPlansCommand() error {
 	logrus.Info("Listing supported frequency plans")
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during device list-frequency-plans: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
 	freqs, err := device.ListFrequencyPlans(cred)
 	if err != nil {
-		feedback.Errorf("Error during device list-frequency-plans: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	feedback.PrintResult(listFrequencyPlansResult{freqs})
+	return nil
 }
 
 type listFrequencyPlansResult struct {

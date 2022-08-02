@@ -18,6 +18,7 @@
 package thing
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
@@ -29,43 +30,47 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var extractFlags struct {
+type extractFlags struct {
 	id string
 }
 
 func initExtractCommand() *cobra.Command {
+	flags := &extractFlags{}
 	extractCommand := &cobra.Command{
 		Use:   "extract",
 		Short: "Extract a template from a thing",
 		Long:  "Extract a template from a Arduino IoT Cloud thing",
-		Run:   runExtractCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runExtractCommand(flags); err != nil {
+				feedback.Errorf("Error during thing extract: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
-	extractCommand.Flags().StringVarP(&extractFlags.id, "id", "i", "", "Thing ID")
-
+	extractCommand.Flags().StringVarP(&flags.id, "id", "i", "", "Thing ID")
 	extractCommand.MarkFlagRequired("id")
 	return extractCommand
 }
 
-func runExtractCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Extracting template from thing %s", extractFlags.id)
+func runExtractCommand(flags *extractFlags) error {
+	logrus.Infof("Extracting template from thing %s", flags.id)
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during template extraction: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
 	params := &thing.ExtractParams{
-		ID: extractFlags.id,
+		ID: flags.id,
 	}
 
 	template, err := thing.Extract(params, cred)
 	if err != nil {
-		feedback.Errorf("Error during template extraction: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	feedback.PrintResult(extractResult{template})
+	return nil
 }
 
 type extractResult struct {

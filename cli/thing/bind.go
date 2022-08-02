@@ -18,6 +18,7 @@
 package thing
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
@@ -28,43 +29,47 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var bindFlags struct {
+type bindFlags struct {
 	id       string
 	deviceID string
 }
 
 func initBindCommand() *cobra.Command {
+	flags := &bindFlags{}
 	bindCommand := &cobra.Command{
 		Use:   "bind",
 		Short: "Bind a thing to a device",
 		Long:  "Bind a thing to a device on Arduino IoT Cloud",
-		Run:   runBindCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runBindCommand(flags); err != nil {
+				feedback.Errorf("Error during thing bind: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
-	bindCommand.Flags().StringVarP(&bindFlags.id, "id", "i", "", "Thing ID")
-	bindCommand.Flags().StringVarP(&bindFlags.deviceID, "device-id", "d", "", "Device ID")
+	bindCommand.Flags().StringVarP(&flags.id, "id", "i", "", "Thing ID")
+	bindCommand.Flags().StringVarP(&flags.deviceID, "device-id", "d", "", "Device ID")
 	bindCommand.MarkFlagRequired("id")
 	bindCommand.MarkFlagRequired("device-id")
 	return bindCommand
 }
 
-func runBindCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Binding thing %s to device %s", bindFlags.id, bindFlags.deviceID)
+func runBindCommand(flags *bindFlags) error {
+	logrus.Infof("Binding thing %s to device %s", flags.id, flags.deviceID)
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during thing bind: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
 	params := &thing.BindParams{
-		ID:       bindFlags.id,
-		DeviceID: bindFlags.deviceID,
+		ID:       flags.id,
+		DeviceID: flags.deviceID,
 	}
-	err = thing.Bind(params, cred)
-	if err != nil {
-		feedback.Errorf("Error during thing bind: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+	if err = thing.Bind(params, cred); err != nil {
+		return err
 	}
 
 	logrus.Info("Thing-Device bound successfully updated")
+	return nil
 }

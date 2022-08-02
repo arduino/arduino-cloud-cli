@@ -30,46 +30,51 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var cloneFlags struct {
+type cloneFlags struct {
 	name    string
 	cloneID string
 }
 
 func initCloneCommand() *cobra.Command {
+	flags := &cloneFlags{}
 	cloneCommand := &cobra.Command{
 		Use:   "clone",
 		Short: "Clone a thing",
 		Long:  "Clone a thing for Arduino IoT Cloud",
-		Run:   runCloneCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runCloneCommand(flags); err != nil {
+				feedback.Errorf("Error during thing clone: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
-	cloneCommand.Flags().StringVarP(&cloneFlags.name, "name", "n", "", "Thing name")
-	cloneCommand.Flags().StringVarP(&cloneFlags.cloneID, "clone-id", "c", "", "ID of Thing to be cloned")
+	cloneCommand.Flags().StringVarP(&flags.name, "name", "n", "", "Thing name")
+	cloneCommand.Flags().StringVarP(&flags.cloneID, "clone-id", "c", "", "ID of Thing to be cloned")
 	cloneCommand.MarkFlagRequired("name")
 	cloneCommand.MarkFlagRequired("clone-id")
 	return cloneCommand
 }
 
-func runCloneCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Cloning thing %s into a new thing called %s", cloneFlags.cloneID, cloneFlags.name)
+func runCloneCommand(flags *cloneFlags) error {
+	logrus.Infof("Cloning thing %s into a new thing called %s", flags.cloneID, flags.name)
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during thing clone: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
 	params := &thing.CloneParams{
-		Name:    cloneFlags.name,
-		CloneID: cloneFlags.cloneID,
+		Name:    flags.name,
+		CloneID: flags.cloneID,
 	}
 
 	thing, err := thing.Clone(params, cred)
 	if err != nil {
-		feedback.Errorf("Error during thing clone: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	feedback.PrintResult(cloneResult{thing})
+	return nil
 }
 
 type cloneResult struct {
