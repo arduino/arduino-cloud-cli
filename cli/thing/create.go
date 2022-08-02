@@ -30,21 +30,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var createFlags struct {
+type createFlags struct {
 	name     string
 	template string
 }
 
 func initCreateCommand() *cobra.Command {
+	flags := &createFlags{}
 	createCommand := &cobra.Command{
 		Use:   "create",
 		Short: "Create a thing from a template",
 		Long:  "Create a thing from a template for Arduino IoT Cloud",
-		Run:   runCreateCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runCreateCommand(flags); err != nil {
+				feedback.Errorf("Error during thing create: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
-	createCommand.Flags().StringVarP(&createFlags.name, "name", "n", "", "Thing name")
+	createCommand.Flags().StringVarP(&flags.name, "name", "n", "", "Thing name")
 	createCommand.Flags().StringVarP(
-		&createFlags.template,
+		&flags.template,
 		"template",
 		"t",
 		"",
@@ -54,29 +60,28 @@ func initCreateCommand() *cobra.Command {
 	return createCommand
 }
 
-func runCreateCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Creating thing from template %s", createFlags.template)
+func runCreateCommand(flags *createFlags) error {
+	logrus.Infof("Creating thing from template %s", flags.template)
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during thing create: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
 	params := &thing.CreateParams{
-		Template: createFlags.template,
+		Template: flags.template,
 	}
-	if createFlags.name != "" {
-		params.Name = &createFlags.name
+	if flags.name != "" {
+		params.Name = &flags.name
 	}
 
 	thing, err := thing.Create(params, cred)
 	if err != nil {
-		feedback.Errorf("Error during thing create: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	feedback.PrintResult(createResult{thing})
+	return nil
 }
 
 type createResult struct {

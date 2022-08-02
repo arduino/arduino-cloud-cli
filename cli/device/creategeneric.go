@@ -29,45 +29,50 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var createGenericFlags struct {
+type createGenericFlags struct {
 	name string
 	fqbn string
 }
 
 func initCreateGenericCommand() *cobra.Command {
+	flags := &createGenericFlags{}
 	createGenericCommand := &cobra.Command{
 		Use:   "create-generic",
 		Short: "Create a generic device with password authentication - without secure element - WARNING: less secure",
 		Long:  "Create a generic device with password authentication for Arduino IoT Cloud - without secure element - WARNING: less secure",
-		Run:   runCreateGenericCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runCreateGenericCommand(flags); err != nil {
+				feedback.Errorf("Error during device create-generic: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
-	createGenericCommand.Flags().StringVarP(&createGenericFlags.name, "name", "n", "", "Device name")
-	createGenericCommand.Flags().StringVarP(&createGenericFlags.fqbn, "fqbn", "b", "generic:generic:generic", "Device fqbn")
+	createGenericCommand.Flags().StringVarP(&flags.name, "name", "n", "", "Device name")
+	createGenericCommand.Flags().StringVarP(&flags.fqbn, "fqbn", "b", "generic:generic:generic", "Device fqbn")
 	createGenericCommand.MarkFlagRequired("name")
 	return createGenericCommand
 }
 
-func runCreateGenericCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Creating generic device with name %s", createGenericFlags.name)
+func runCreateGenericCommand(flags *createGenericFlags) error {
+	logrus.Infof("Creating generic device with name %s", flags.name)
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during device create-generic: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
 	params := &device.CreateGenericParams{
-		Name: createGenericFlags.name,
-		FQBN: createGenericFlags.fqbn,
+		Name: flags.name,
+		FQBN: flags.fqbn,
 	}
 
 	dev, err := device.CreateGeneric(params, cred)
 	if err != nil {
-		feedback.Errorf("Error during device create-generic: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	feedback.PrintResult(createGenericResult{dev})
+	return nil
 }
 
 type createGenericResult struct {

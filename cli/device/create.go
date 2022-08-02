@@ -29,52 +29,57 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var createFlags struct {
+type createFlags struct {
 	port string
 	name string
 	fqbn string
 }
 
 func initCreateCommand() *cobra.Command {
+	flags := &createFlags{}
 	createCommand := &cobra.Command{
 		Use:   "create",
 		Short: "Create a device provisioning the onboard secure element with a valid certificate",
 		Long:  "Create a device for Arduino IoT Cloud provisioning the onboard secure element with a valid certificate",
-		Run:   runCreateCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runCreateCommand(flags); err != nil {
+				feedback.Errorf("Error during device create: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
-	createCommand.Flags().StringVarP(&createFlags.port, "port", "p", "", "Device port")
-	createCommand.Flags().StringVarP(&createFlags.name, "name", "n", "", "Device name")
-	createCommand.Flags().StringVarP(&createFlags.fqbn, "fqbn", "b", "", "Device fqbn")
+	createCommand.Flags().StringVarP(&flags.port, "port", "p", "", "Device port")
+	createCommand.Flags().StringVarP(&flags.name, "name", "n", "", "Device name")
+	createCommand.Flags().StringVarP(&flags.fqbn, "fqbn", "b", "", "Device fqbn")
 	createCommand.MarkFlagRequired("name")
 	return createCommand
 }
 
-func runCreateCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Creating device with name %s", createFlags.name)
+func runCreateCommand(flags *createFlags) error {
+	logrus.Infof("Creating device with name %s", flags.name)
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during device create: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
 	params := &device.CreateParams{
-		Name: createFlags.name,
+		Name: flags.name,
 	}
-	if createFlags.port != "" {
-		params.Port = &createFlags.port
+	if flags.port != "" {
+		params.Port = &flags.port
 	}
-	if createFlags.fqbn != "" {
-		params.FQBN = &createFlags.fqbn
+	if flags.fqbn != "" {
+		params.FQBN = &flags.fqbn
 	}
 
 	dev, err := device.Create(params, cred)
 	if err != nil {
-		feedback.Errorf("Error during device create: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	feedback.PrintResult(createResult{dev})
+	return nil
 }
 
 type createResult struct {

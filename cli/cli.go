@@ -35,18 +35,29 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var cliFlags struct {
+type cliFlags struct {
 	verbose      bool
 	outputFormat string
 }
 
 func Execute() {
+	flags := &cliFlags{}
 	cli := &cobra.Command{
-		Use:              "arduino-cloud-cli",
-		Short:            "Arduino Cloud CLI.",
-		Long:             "Arduino Cloud Command Line Interface (arduino-cloud-cli).",
-		PersistentPreRun: preRun,
+		Use:   "arduino-cloud-cli",
+		Short: "Arduino Cloud CLI.",
+		Long:  "Arduino Cloud Command Line Interface (arduino-cloud-cli).",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if err := preRun(flags); err != nil {
+				feedback.Error(err)
+				os.Exit(errorcodes.ErrBadCall)
+			}
+		},
 	}
+	cli.PersistentFlags().BoolVarP(&flags.verbose, "verbose", "v", false, "Print the logs on the standard output.")
+	validOutputFormats := []string{"text", "json", "jsonmini", "yaml"}
+	cli.PersistentFlags().StringVar(&flags.outputFormat, "format", "text",
+		fmt.Sprintf("The output format, can be: %s", strings.Join(validOutputFormats, ", ")),
+	)
 
 	cli.AddCommand(version.NewCommand())
 	cli.AddCommand(credentials.NewCommand())
@@ -54,12 +65,6 @@ func Execute() {
 	cli.AddCommand(thing.NewCommand())
 	cli.AddCommand(dashboard.NewCommand())
 	cli.AddCommand(ota.NewCommand())
-
-	cli.PersistentFlags().BoolVarP(&cliFlags.verbose, "verbose", "v", false, "Print the logs on the standard output.")
-	validOutputFormats := []string{"text", "json", "jsonmini", "yaml"}
-	cli.PersistentFlags().StringVar(&cliFlags.outputFormat, "format", "text",
-		fmt.Sprintf("The output format, can be: %s", strings.Join(validOutputFormats, ", ")),
-	)
 
 	if err := cli.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -77,22 +82,22 @@ func parseFormatString(arg string) (feedback.OutputFormat, bool) {
 	return f, found
 }
 
-func preRun(cmd *cobra.Command, args []string) {
+func preRun(flags *cliFlags) error {
 	logrus.SetOutput(ioutil.Discard)
 	// enable log only if verbose flag is passed
-	if cliFlags.verbose {
+	if flags.verbose {
 		logrus.SetLevel(logrus.InfoLevel)
 		logrus.SetOutput(os.Stdout)
 	}
 
 	// normalize the format strings
-	cliFlags.outputFormat = strings.ToLower(cliFlags.outputFormat)
+	flags.outputFormat = strings.ToLower(flags.outputFormat)
 	// check the right output format was passed
-	format, found := parseFormatString(cliFlags.outputFormat)
+	format, found := parseFormatString(flags.outputFormat)
 	if !found {
-		feedback.Error("Invalid output format: " + cliFlags.outputFormat)
-		os.Exit(errorcodes.ErrBadCall)
+		return fmt.Errorf("invalid output format: %s", flags.outputFormat)
 	}
 	// use the output format to configure the Feedback
 	feedback.SetFormat(format)
+	return nil
 }

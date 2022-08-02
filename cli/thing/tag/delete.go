@@ -18,6 +18,7 @@
 package tag
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
@@ -28,47 +29,50 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var deleteTagsFlags struct {
+type deleteTagsFlags struct {
 	id   string
 	keys []string
 }
 
 func InitDeleteTagsCommand() *cobra.Command {
+	flags := &deleteTagsFlags{}
 	deleteTagsCommand := &cobra.Command{
 		Use:   "delete-tags",
 		Short: "Delete tags of a thing",
 		Long:  "Delete tags of a thing of Arduino IoT Cloud",
-		Run:   runDeleteTagsCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runDeleteTagsCommand(flags); err != nil {
+				feedback.Errorf("Error during thing delete-tags: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
-
-	deleteTagsCommand.Flags().StringVarP(&deleteTagsFlags.id, "id", "i", "", "Thing ID")
-	deleteTagsCommand.Flags().StringSliceVarP(&deleteTagsFlags.keys, "keys", "k", nil, "Comma-separated list of keys of tags to delete")
-
+	deleteTagsCommand.Flags().StringVarP(&flags.id, "id", "i", "", "Thing ID")
+	deleteTagsCommand.Flags().StringSliceVarP(&flags.keys, "keys", "k", nil, "Comma-separated list of keys of tags to delete")
 	deleteTagsCommand.MarkFlagRequired("id")
 	deleteTagsCommand.MarkFlagRequired("keys")
 	return deleteTagsCommand
 }
 
-func runDeleteTagsCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Deleting tags with keys %s", deleteTagsFlags.keys)
+func runDeleteTagsCommand(flags *deleteTagsFlags) error {
+	logrus.Infof("Deleting tags with keys %s", flags.keys)
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during thing delete-tags: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
 	params := &tag.DeleteTagsParams{
-		ID:       deleteTagsFlags.id,
-		Keys:     deleteTagsFlags.keys,
+		ID:       flags.id,
+		Keys:     flags.keys,
 		Resource: tag.Thing,
 	}
 
 	err = tag.DeleteTags(params, cred)
 	if err != nil {
-		feedback.Errorf("Error during thing delete-tags: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	logrus.Info("Tags successfully deleted")
+	return nil
 }

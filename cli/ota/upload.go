@@ -18,6 +18,7 @@
 package ota
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
@@ -28,48 +29,51 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var uploadFlags struct {
+type uploadFlags struct {
 	deviceID string
 	file     string
 	deferred bool
 }
 
 func initUploadCommand() *cobra.Command {
+	flags := &uploadFlags{}
 	uploadCommand := &cobra.Command{
 		Use:   "upload",
 		Short: "OTA upload",
 		Long:  "OTA upload on a device of Arduino IoT Cloud",
-		Run:   runUploadCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runUploadCommand(flags); err != nil {
+				feedback.Errorf("Error during ota upload: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
-
-	uploadCommand.Flags().StringVarP(&uploadFlags.deviceID, "device-id", "d", "", "Device ID")
-	uploadCommand.Flags().StringVarP(&uploadFlags.file, "file", "", "", "Binary file (.bin) to be uploaded")
-	uploadCommand.Flags().BoolVar(&uploadFlags.deferred, "deferred", false, "Perform a deferred OTA. It can take up to 1 week.")
-
+	uploadCommand.Flags().StringVarP(&flags.deviceID, "device-id", "d", "", "Device ID")
+	uploadCommand.Flags().StringVarP(&flags.file, "file", "", "", "Binary file (.bin) to be uploaded")
+	uploadCommand.Flags().BoolVar(&flags.deferred, "deferred", false, "Perform a deferred OTA. It can take up to 1 week.")
 	uploadCommand.MarkFlagRequired("device-id")
 	uploadCommand.MarkFlagRequired("file")
 	return uploadCommand
 }
 
-func runUploadCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Uploading binary %s to device %s", uploadFlags.file, uploadFlags.deviceID)
+func runUploadCommand(flags *uploadFlags) error {
+	logrus.Infof("Uploading binary %s to device %s", flags.file, flags.deviceID)
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during ota upload: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
 	params := &ota.UploadParams{
-		DeviceID: uploadFlags.deviceID,
-		File:     uploadFlags.file,
-		Deferred: uploadFlags.deferred,
+		DeviceID: flags.deviceID,
+		File:     flags.file,
+		Deferred: flags.deferred,
 	}
 	err = ota.Upload(params, cred)
 	if err != nil {
-		feedback.Errorf("Error during ota upload: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	logrus.Info("Upload successfully started")
+	return nil
 }

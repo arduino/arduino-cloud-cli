@@ -18,6 +18,7 @@
 package tag
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
@@ -28,21 +29,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var createTagsFlags struct {
+type createTagsFlags struct {
 	id   string
 	tags map[string]string
 }
 
 func InitCreateTagsCommand() *cobra.Command {
+	flags := &createTagsFlags{}
 	createTagsCommand := &cobra.Command{
 		Use:   "create-tags",
 		Short: "Create or overwrite tags on a thing",
 		Long:  "Create or overwrite tags on a thing of Arduino IoT Cloud",
-		Run:   runCreateTagsCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runCreateTagsCommand(flags); err != nil {
+				feedback.Errorf("Error during thing create-tags: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
-	createTagsCommand.Flags().StringVarP(&createTagsFlags.id, "id", "i", "", "Thing ID")
+	createTagsCommand.Flags().StringVarP(&flags.id, "id", "i", "", "Thing ID")
 	createTagsCommand.Flags().StringToStringVar(
-		&createTagsFlags.tags,
+		&flags.tags,
 		"tags",
 		nil,
 		"Comma-separated list of tags with format <key>=<value>.",
@@ -52,26 +59,25 @@ func InitCreateTagsCommand() *cobra.Command {
 	return createTagsCommand
 }
 
-func runCreateTagsCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Creating tags on thing %s", createTagsFlags.id)
+func runCreateTagsCommand(flags *createTagsFlags) error {
+	logrus.Infof("Creating tags on thing %s", flags.id)
 
 	params := &tag.CreateTagsParams{
-		ID:       createTagsFlags.id,
-		Tags:     createTagsFlags.tags,
+		ID:       flags.id,
+		Tags:     flags.tags,
 		Resource: tag.Thing,
 	}
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during thing create-tags: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
 	err = tag.CreateTags(params, cred)
 	if err != nil {
-		feedback.Errorf("Error during thing create-tags: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	logrus.Info("Tags successfully created")
+	return nil
 }

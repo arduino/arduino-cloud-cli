@@ -30,54 +30,59 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var createFlags struct {
+type createFlags struct {
 	name     string
 	template string
 	override map[string]string
 }
 
 func initCreateCommand() *cobra.Command {
+	flags := &createFlags{}
 	createCommand := &cobra.Command{
 		Use:   "create",
 		Short: "Create a dashboard from a template",
 		Long:  "Create a dashboard from a template for Arduino IoT Cloud",
-		Run:   runCreateCommand,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runCreateCommand(flags); err != nil {
+				feedback.Errorf("Error during dashboard create: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
-	createCommand.Flags().StringVarP(&createFlags.name, "name", "n", "", "Dashboard name")
-	createCommand.Flags().StringVarP(&createFlags.template, "template", "t", "",
+	createCommand.Flags().StringVarP(&flags.name, "name", "n", "", "Dashboard name")
+	createCommand.Flags().StringVarP(&flags.template, "template", "t", "",
 		"File containing a dashboard template, JSON and YAML format are supported",
 	)
-	createCommand.Flags().StringToStringVarP(&createFlags.override, "override", "o", nil,
+	createCommand.Flags().StringToStringVarP(&flags.override, "override", "o", nil,
 		"Map stating the items to be overridden. Ex: 'thing-0=xxxxxxxx,thing-1=yyyyyyyy'")
 
 	createCommand.MarkFlagRequired("template")
 	return createCommand
 }
 
-func runCreateCommand(cmd *cobra.Command, args []string) {
-	logrus.Infof("Creating dashboard from template %s", createFlags.template)
+func runCreateCommand(flags *createFlags) error {
+	logrus.Infof("Creating dashboard from template %s", flags.template)
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
-		feedback.Errorf("Error during dashboard create: retrieving credentials: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
 	params := &dashboard.CreateParams{
-		Template: createFlags.template,
-		Override: createFlags.override,
+		Template: flags.template,
+		Override: flags.override,
 	}
-	if createFlags.name != "" {
-		params.Name = &createFlags.name
+	if flags.name != "" {
+		params.Name = &flags.name
 	}
 
 	dashboard, err := dashboard.Create(params, cred)
 	if err != nil {
-		feedback.Errorf("Error during dashboard create: %v", err)
-		os.Exit(errorcodes.ErrGeneric)
+		return err
 	}
 
 	feedback.PrintResult(createResult{dashboard})
+	return nil
 }
 
 type createResult struct {
