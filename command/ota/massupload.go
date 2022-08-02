@@ -71,7 +71,7 @@ func MassUpload(params *MassUploadParams, cred *config.Credentials) ([]Result, e
 		return nil, fmt.Errorf("%s: %w", "cannot generate .ota file", err)
 	}
 
-	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
+	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
 	}

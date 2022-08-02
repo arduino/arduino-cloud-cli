@@ -43,7 +43,7 @@ func Delete(params *DeleteParams, cred *config.Credentials) error {
 		return errors.New("cannot use both ID and Tags. only one of them should be not nil")
 	}
 
-	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
+	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return err
 	}

@@ -31,7 +31,7 @@ type DeleteParams struct {
 // Delete command is used to delete a dashboard
 // from Arduino IoT Cloud.
 func Delete(params *DeleteParams, cred *config.Credentials) error {
-	iotClient, err := iot.NewClient(cred.Client, cred.Secret)
+	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return err
 	}
