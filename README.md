@@ -31,6 +31,7 @@ Another example: let's say that the execution of the previous command results in
 ## Set credentials 
 
 arduino-cloud-cli needs a credentials file containing an Arduino IoT Cloud client ID and its corresponding secret.
+Credentials can also include an optional organization ID that specifies the organization to use each user can specify.
 You can retrieve these credentials from the [cloud](https://create.arduino.cc/iot/integrations) by creating a new API key.
 
 Once you have the credentials, execute the following command and provide them:
@@ -53,7 +54,8 @@ The credentials file is supported in two different formats: json and yaml. Use t
 
 `$ arduino-cloud-cli credentials init --file-format json`
 
-It is also possible to specify credentials directly in `ARDUINO_CLOUD_CLIENT` and `ARDUINO_CLOUD_SECRET` environment variables. Credentials specified in environment variables have higher priority than the ones specified in credentials files.
+It is also possible to specify credentials directly in `ARDUINO_CLOUD_CLIENT`, `ARDUINO_CLOUD_SECRET` and optionally `ARDUINO_CLOUD_ORGANIZATION` environment variables. Credentials specified in environment variables have higher priority than the ones specified in credentials files.
+Please note that credentials are correctly extracted from environment variables only if all the mandatory credentials parameters (client and secret) are found in environment variables. (think of it as another config file but with higher priority)
 
 #### Find credentials
 
