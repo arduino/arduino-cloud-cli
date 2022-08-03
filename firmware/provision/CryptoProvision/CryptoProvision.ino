@@ -663,17 +663,22 @@ PROVISIONING_ERROR generateCSR() {
     return PROVISIONING_ERROR::LOCK_FAIL;
   }
   Serial1.println("CSR generation in progress");
-  uint8_t csrSlot = 0;
 
   if (!Cert.begin()) {
-    Serial1.println("Error starting CSR generation!");
+    Serial1.println("Error initializing CSR data!");
     return PROVISIONING_ERROR::CSR_GEN_FAIL;
   }
 
   Cert.setSubjectCommonName(deviceIDstring);
+
+  if (!Crypto.buildCSR(Cert, CryptoSlot::Key, true)) {
+    Serial.println("Error generating CSR!");
+    return PROVISIONING_ERROR::CSR_GEN_FAIL;
+  }
+
   csr = Cert.getCSRPEM();
   if (!csr) {
-    Serial1.println("Error generating CSR!");
+    Serial1.println("Error reading CSR PEM data!");
     return PROVISIONING_ERROR::CSR_GEN_FAIL;
   }
   Serial1.println(csr.length());
