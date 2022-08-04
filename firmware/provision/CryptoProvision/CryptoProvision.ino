@@ -521,6 +521,9 @@ void processCommand() {
       return;
     }
 
+    Serial1.println("Certificate PEM file");
+    Serial1.println(Cert.getCertPEM());
+
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
   }
