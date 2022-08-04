@@ -631,9 +631,6 @@ uint8_t cryptoInit() {
   bool eccOK = 0;
   while (!(eccOK = Crypto.begin()) || (millis() - beginOfTime < ecctimeout)) {
   }
-
-  Serial1.print("ECC initialised: ");
-  Serial1.println(eccOK);
   return eccOK;
 }
 
