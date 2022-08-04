@@ -241,12 +241,12 @@ void processCommand() {
   Serial1.print("%%%%% ");
   Serial1.println(">> processing command");
   COMMAND cmdCode = (COMMAND)payloadBuffer[0];
+
   if (cmdCode == COMMAND::GET_SKETCH_INFO) {
     Serial1.println("get sketch info");
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
   }
-
   if (cmdCode == COMMAND::GET_CSR) {
     // extract payload from [1] to [payloadLength]
     // this will be the device_id used to generate a valid CSR
@@ -300,8 +300,6 @@ void processCommand() {
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
   }
-
-
   if (cmdCode == COMMAND::SET_YEAR) {
     Serial1.println("set year");
     char yearBytes[4];
@@ -324,7 +322,6 @@ void processCommand() {
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
-
   }
   if (cmdCode == COMMAND::SET_MONTH) {
     Serial1.println("set month");
@@ -348,9 +345,7 @@ void processCommand() {
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
-
   }
-
   if (cmdCode == COMMAND::SET_DAY) {
     Serial1.println("set day");
     char dayBytes[4];
@@ -373,9 +368,7 @@ void processCommand() {
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
-
   }
-
   if (cmdCode == COMMAND::SET_HOUR) {
     Serial1.println("set hour");
     char hourBytes[4];
@@ -398,9 +391,7 @@ void processCommand() {
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
-
   }
-
   if (cmdCode == COMMAND::SET_VALIDITY) {
     Serial1.println("set validity");
     char validityBytes[4];
@@ -423,9 +414,7 @@ void processCommand() {
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
-
   }
-
   if (cmdCode == COMMAND::SET_CERT_SERIAL) {
     // extract payload from [1] to [payloadLength]
     // this will be the certificate serial number included in the device certificate
@@ -526,8 +515,6 @@ void processCommand() {
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
   }
-
-
   if (cmdCode == COMMAND::RECONSTRUCT_CERT) {
 
     if (!Cert.begin()) {
@@ -556,7 +543,6 @@ void processCommand() {
         Serial1.print('0');
       }
       Serial1.print(b, HEX);
-
     }
     Serial1.println();
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
