@@ -55,6 +55,7 @@ func Generate(binFile string, outFile string, fqbn string) error {
 	if err != nil {
 		return err
 	}
+	defer out.Close()
 
 	enc := inota.NewEncoder(out, arduinoVendorID, productID)
 	err = enc.Encode(data)
