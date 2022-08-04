@@ -480,32 +480,30 @@ void processCommand() {
   }
   if (cmdCode == COMMAND::SET_SIGNATURE) {
     // extract payload from [1] to [payloadLength]
-    // this will be the device_id used to generate a valid CSR
+    // this will be the signature included in the device certificate
     Serial1.println("set Signature ");
-    byte signatureBytes[msgLength - CRC_SIZE];
+    byte signatureBytes[msgLength - CRC_SIZE - 1];
 
     for (uint8_t i = 1; i < msgLength - CRC_SIZE; i++) {
       signatureBytes[i - 1] = payloadBuffer[i];
     }
+    Serial1.println();
 
-    // clear device ID string
-    // this will be sent to the host
-    String signatureString = "";
     Serial1.print("Signature from host: ");
-    char charBuffer[2];
     for (uint8_t i = 0; i < msgLength - CRC_SIZE - 1; i++) {
       Serial1.print(signatureBytes[i], HEX);
-      sprintf(charBuffer, "%02X", signatureBytes[i]);
-      signatureString += charBuffer;//String(deviceIDBytes[i], 16);
     }
+    Serial1.println();
 
-    Serial1.println(signatureString);
-
-    Cert.setSignature(signatureBytes, sizeof(signatureBytes));
+    if(!Cert.setSignature(signatureBytes, sizeof(signatureBytes))) {
+      Serial1.println("set signature Error");
+      char response[] = {char(RESPONSE::RESPONSE_ERROR)};
+      sendData(MESSAGE_TYPE::RESPONSE, response, 1);
+      return;
+    }
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
-
   }
   if (cmdCode == COMMAND::END_STORAGE) {
     Serial1.println("end storage");
