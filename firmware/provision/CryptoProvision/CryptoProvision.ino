@@ -487,7 +487,6 @@ void processCommand() {
     for (uint8_t i = 1; i < msgLength - CRC_SIZE; i++) {
       signatureBytes[i - 1] = payloadBuffer[i];
     }
-    Serial1.println();
 
     Serial1.print("Signature from host: ");
     for (uint8_t i = 0; i < msgLength - CRC_SIZE - 1; i++) {
