@@ -262,10 +262,9 @@ void processCommand() {
     char charBuffer[2];
     for (uint8_t i = 0; i < msgLength - CRC_SIZE - 1; i++) {
       Serial1.print(deviceIDBytes[i], HEX);
-      sprintf(charBuffer, "%02x", deviceIDBytes[i]);
-      deviceIDstring += charBuffer;//String(deviceIDBytes[i], 16);
-      //deviceIDstring += deviceIDBytes[i];
     }
+
+    deviceIDstring = String((char*)deviceIDBytes);
 
     Serial1.println();
     Serial1.print("request for CSR with device ID ");
