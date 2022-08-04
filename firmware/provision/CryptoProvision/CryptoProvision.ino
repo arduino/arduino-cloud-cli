@@ -664,7 +664,7 @@ PROVISIONING_ERROR generateCSR() {
   Cert.setSubjectCommonName(deviceIDstring);
 
   if (!Crypto.buildCSR(Cert, CryptoSlot::Key, true)) {
-    Serial.println("Error generating CSR!");
+    Serial1.println("Error generating CSR!");
     return PROVISIONING_ERROR::CSR_GEN_FAIL;
   }
 
