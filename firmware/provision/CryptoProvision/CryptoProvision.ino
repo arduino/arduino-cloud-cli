@@ -454,32 +454,29 @@ void processCommand() {
   }
   if (cmdCode == COMMAND::SET_AUTH_KEY) {
     // extract payload from [1] to [payloadLength]
-    // this will be the device_id used to generate a valid CSR
-    Serial1.println("set Auth Key ");
-    byte authKeyBytes[msgLength - CRC_SIZE];
+    // this will be the authority key id included in the device certificate
+    Serial1.println("set Auth Key Id");
+    byte authKeyBytes[msgLength - CRC_SIZE - 1];
 
     for (uint8_t i = 1; i < msgLength - CRC_SIZE; i++) {
       authKeyBytes[i - 1] = payloadBuffer[i];
     }
 
-    // clear device ID string
-    // this will be sent to the host
-    String authKeyString = "";
-    Serial1.print("Authority Key from host: ");
-    char charBuffer[2];
+    Serial1.print("Authority Key Id from host: ");
     for (uint8_t i = 0; i < msgLength - CRC_SIZE - 1; i++) {
       Serial1.print(authKeyBytes[i], HEX);
-      sprintf(charBuffer, "%02X", authKeyBytes[i]);
-      authKeyString += charBuffer;//String(deviceIDBytes[i], 16);
     }
+    Serial1.println();
 
-    Serial1.println(authKeyString);
-
-    Cert.setAuthorityKeyId(authKeyBytes, sizeof(authKeyBytes));
+    if(!Cert.setAuthorityKeyId(authKeyBytes, sizeof(authKeyBytes))) {
+      Serial1.println("set AuthorityKeyId Error");
+      char response[] = {char(RESPONSE::RESPONSE_ERROR)};
+      sendData(MESSAGE_TYPE::RESPONSE, response, 1);
+      return;
+    }
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
-
   }
   if (cmdCode == COMMAND::SET_SIGNATURE) {
     // extract payload from [1] to [payloadLength]
