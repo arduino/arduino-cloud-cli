@@ -19,13 +19,16 @@ package binary
 
 import (
 	"bytes"
+	"crypto"
+	"encoding/hex"
 	"errors"
 	"fmt"
+	"hash"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
-
-	fwuploader "github.com/arduino/arduino-fwuploader/indexes/download"
 )
 
 // Download a binary file contained in the binary index.
@@ -43,7 +46,7 @@ func Download(bin *IndexBin) ([]byte, error) {
 		return nil, fmt.Errorf("download failed: invalid binary size, expected %d bytes but got %d", sz, len(b))
 	}
 
-	err = fwuploader.VerifyChecksum(bin.Checksum, bytes.NewReader(b))
+	err = VerifyChecksum(bin.Checksum, bytes.NewReader(b))
 	if err != nil {
 		return nil, fmt.Errorf("verifying binary checksum: %w", err)
 	}
@@ -77,4 +80,47 @@ func download(url string) ([]byte, error) {
 		return nil, err
 	}
 	return body, nil
+}
+
+// VerifyChecksum has been extracted from github.com/arduino/arduino-fwupload :
+// https://github.com/arduino/arduino-fwuploader/blob/fc20a808ece9a082e043e13e3cfa69c571721d76/indexes/download/download.go
+//
+// We're not using arduino-fwuploader directly as a dependency because it
+// indirectly depends on github.com/daaku/go.zipexe which panics during an
+// 'init' function, causing cloud-cli to panic when compiled with go1.19.
+// More on the issue here: https://github.com/golang/go/issues/54227 .
+func VerifyChecksum(checksum string, file io.Reader) error {
+	if checksum == "" {
+		return errors.New("missing checksum")
+	}
+	split := strings.SplitN(checksum, ":", 2)
+	if len(split) != 2 {
+		return fmt.Errorf("invalid checksum format: %s", checksum)
+	}
+	digest, err := hex.DecodeString(split[1])
+	if err != nil {
+		return fmt.Errorf("invalid hash '%s': %s", split[1], err)
+	}
+
+	// names based on: https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#MessageDigest
+	var algo hash.Hash
+	switch split[0] {
+	case "SHA-256":
+		algo = crypto.SHA256.New()
+	case "SHA-1":
+		algo = crypto.SHA1.New()
+	case "MD5":
+		algo = crypto.MD5.New()
+	default:
+		return fmt.Errorf("unsupported hash algorithm: %s", split[0])
+	}
+
+	if _, err := io.Copy(algo, file); err != nil {
+		return fmt.Errorf("computing hash: %s", err)
+	}
+	if !bytes.Equal(algo.Sum(nil), digest) {
+		return fmt.Errorf("archive hash differs from hash in index")
+	}
+
+	return nil
 }
