@@ -516,14 +516,7 @@ void processCommand() {
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
   }
   if (cmdCode == COMMAND::RECONSTRUCT_CERT) {
-
-    if (!Cert.begin()) {
-      Serial1.println("Error starting Crypto cert reconstruction!");
-      char response[] = {char(RESPONSE::RESPONSE_ERROR)};
-      sendData(MESSAGE_TYPE::RESPONSE, response, 1);
-      return;
-    }
-
+    Serial1.println("reconstruct certificate");
     if (!Crypto.readCert(Cert, CryptoSlot::CompressedCertificate)) {
       Serial1.println("Error reconstructing Crypto cert!");
       char response[] = {char(RESPONSE::RESPONSE_ERROR)};
