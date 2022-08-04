@@ -428,28 +428,26 @@ void processCommand() {
 
   if (cmdCode == COMMAND::SET_CERT_SERIAL) {
     // extract payload from [1] to [payloadLength]
-    // this will be the device_id used to generate a valid CSR
+    // this will be the certificate serial number included in the device certificate
     Serial1.println("set CERT Serial");
-    byte certSerialBytes[msgLength - CRC_SIZE];
+    byte certSerialBytes[msgLength - CRC_SIZE - 1];
 
     for (uint8_t i = 1; i < msgLength - CRC_SIZE; i++) {
       certSerialBytes[i - 1] = payloadBuffer[i];
     }
 
-    // clear device ID string
-    // this will be sent to the host
-    String certSerialString = "";
     Serial1.print("Serial Number from host: ");
-    char charBuffer[2];
     for (uint8_t i = 0; i < msgLength - CRC_SIZE - 1; i++) {
       Serial1.print(certSerialBytes[i], HEX);
-      sprintf(charBuffer, "%02X", certSerialBytes[i]);
-      certSerialString += charBuffer;//String(deviceIDBytes[i], 16);
     }
+    Serial1.println();
 
-    Serial1.println(certSerialString);
-
-    Cert.setSerialNumber(certSerialBytes, sizeof(certSerialBytes));
+    if(!Cert.setSerialNumber(certSerialBytes, sizeof(certSerialBytes))) {
+      Serial1.println("set CERT Error");
+      char response[] = {char(RESPONSE::RESPONSE_ERROR)};
+      sendData(MESSAGE_TYPE::RESPONSE, response, 1);
+      return;
+    }
 
     char response[] = {char(RESPONSE::RESPONSE_ACK)};
     sendData(MESSAGE_TYPE::RESPONSE, response, 1);
