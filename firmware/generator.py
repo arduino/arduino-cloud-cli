@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
+import argparse
+import hashlib
+import json
 import os
 import shutil
-import json
-import hashlib
+import subprocess
 import sys
 from pathlib import Path
-import argparse
-import subprocess
 
 DOWNLOAD_URL = "https://cloud-downloads.arduino.cc"
 
@@ -16,10 +16,7 @@ PROVISION_BINARY_PATHS = {
     "crypto": "binaries/provision/crypto",
 }
 
-SKETCH_NAMES = {
-    "lora": "LoraProvision",
-    "crypto": "CryptoProvision"
-}
+SKETCH_NAMES = {"lora": "LoraProvision", "crypto": "CryptoProvision"}
 
 INDEX_PATH = "binaries/index.json"
 
@@ -40,15 +37,17 @@ def sha2(file_path):
     with open(file_path, "rb") as f:
         return hashlib.sha256(f.read()).hexdigest()
 
+
 # Runs arduino-cli
 def arduino_cli(cli_path, args=None):
     if args is None:
-        args=[]
+        args = []
     res = subprocess.run([cli_path, *args], capture_output=True, text=True, check=True)
     return res.stdout, res.stderr
 
+
 def provision_binary_details(board):
-    bin_path = PROVISION_BINARY_PATHS[board["type"]] 
+    bin_path = PROVISION_BINARY_PATHS[board["type"]]
     simple_fqbn = board["fqbn"].replace(":", ".")
     sketch_dir = Path(__file__).parent / bin_path / simple_fqbn
     sketch_files = list(sketch_dir.iterdir())
@@ -56,7 +55,7 @@ def provision_binary_details(board):
     if len(sketch_files) != 1:
         print(f"Invalid binaries found in {sketch_dir}")
         sys.exit(1)
-    sketch_file = sketch_files[0]  
+    sketch_file = sketch_files[0]
 
     sketch_dest = f"{bin_path}/{simple_fqbn}/{sketch_file.name}"
     file_hash = sha2(sketch_file)
@@ -66,6 +65,7 @@ def provision_binary_details(board):
         "checksum": f"SHA-256:{file_hash}",
         "size": f"{sketch_file.stat().st_size}",
     }
+
 
 def generate_index(boards):
     index_json = {"boards": []}
@@ -78,24 +78,37 @@ def generate_index(boards):
     with open(p, "w") as f:
         json.dump(index_json, f, indent=2)
 
+
 def generate_binaries(arduino_cli_path, boards):
     for board in boards:
         sketch_path = Path(__file__).parent / "provision" / SKETCH_NAMES[board["type"]]
         print(f"Compiling for {board['fqbn']}")
-        res, err = arduino_cli(arduino_cli_path, args=[
-            "compile", 
-            "-e", 
-            "-b", board["fqbn"], 
-            sketch_path,
-        ])
+        res, err = arduino_cli(
+            arduino_cli_path,
+            args=[
+                "compile",
+                "-e",
+                "-b",
+                board["fqbn"],
+                sketch_path,
+            ],
+        )
         print(res, err)
         simple_fqbn = board["fqbn"].replace(":", ".")
         # Make output directory
-        out = Path(__file__).parent / PROVISION_BINARY_PATHS[board["type"]] / simple_fqbn
+        out = (
+            Path(__file__).parent / PROVISION_BINARY_PATHS[board["type"]] / simple_fqbn
+        )
         os.makedirs(out, exist_ok=True)
         # Copy the new binary file in the correct output directory
-        compiled_bin = sketch_path / "build" / simple_fqbn / (SKETCH_NAMES[board["type"]] + ".ino" + board["ext"])
+        compiled_bin = (
+            sketch_path
+            / "build"
+            / simple_fqbn
+            / (SKETCH_NAMES[board["type"]] + ".ino" + board["ext"])
+        )
         shutil.copy2(compiled_bin, out / ("provision" + board["ext"]))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="generator.py")
