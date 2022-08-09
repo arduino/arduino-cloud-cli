@@ -54,8 +54,8 @@ func TestEncode(t *testing.T) {
 
 	actual := w.Bytes()
 
-	// You can get the expected result creating an `.ota` file using Alex's tools:
-	// https://github.com/arduino-libraries/ArduinoIoTCloud/tree/master/extras/tools
+	// Expected result has been computed with the following tool:
+	// https://github.com/arduino-libraries/ArduinoIoTCloud/tree/master/extras/tools .
 	expected, _ := hex.DecodeString("11000000a1744bd4548041230000000000000040ef6b77def0")
 
 	res := bytes.Compare(expected, actual)
@@ -68,6 +68,8 @@ func TestEncode(t *testing.T) {
 	assert.Assert(t, res == 0) // 0 means equal
 }
 
+// Expected '.ota' files contained in testdata have been computed with the following tool:
+// https://github.com/arduino-libraries/ArduinoIoTCloud/tree/master/extras/tools .
 func TestEncodeFiles(t *testing.T) {
 	tests := []struct {
 		name    string
