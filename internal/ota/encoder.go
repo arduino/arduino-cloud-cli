@@ -18,60 +18,48 @@
 package ota
 
 import (
-	"bufio"
 	"encoding/binary"
+	"fmt"
 	"hash/crc32"
 	"io"
 	"strconv"
 
 	"github.com/arduino/arduino-cloud-cli/internal/lzss"
-	"github.com/juju/errors"
 )
 
-// A writer is a buffered, flushable writer.
-type writer interface {
-	io.Writer
-	Flush() error
-}
+// Encoder writes a binary to an output stream in the ota format.
+type Encoder struct {
+	// w is the stream where encoded bytes are written.
+	w io.Writer
 
-// encoder encodes a binary into an .ota file.
-type encoder struct {
-	// w is the writer that compressed bytes are written to.
-	w writer
-
-	// vendorID is the ID of the board vendor
+	// vendorID is the ID of the board vendor.
 	vendorID string
 
-	// is the ID of the board vendor is the ID of the board model
+	// productID is the ID of the board model.
 	productID string
 }
 
-// NewWriter creates a new `WriteCloser` for the the given VID/PID.
-func NewWriter(w io.Writer, vendorID, productID string) io.WriteCloser {
-	bw, ok := w.(writer)
-	if !ok {
-		bw = bufio.NewWriter(w)
-	}
-	return &encoder{
-		w:         bw,
+// NewEncoder creates a new ota encoder.
+func NewEncoder(w io.Writer, vendorID, productID string) *Encoder {
+	return &Encoder{
+		w:         w,
 		vendorID:  vendorID,
 		productID: productID,
 	}
 }
 
-// Write writes a compressed representation of p to e's underlying writer.
-func (e *encoder) Write(binaryData []byte) (int, error) {
-	//log.Println("original binaryData is", len(binaryData), "bytes length")
-
-	// Magic number (VID/PID)
+// Encode compresses data using a lzss algorithm, encodes the result
+// in ota format and writes it to e's underlying writer.
+func (e *Encoder) Encode(data []byte) error {
+	// Compute the magic number (VID/PID)
 	magicNumber := make([]byte, 4)
 	vid, err := strconv.ParseUint(e.vendorID, 16, 16)
 	if err != nil {
-		return 0, errors.Annotate(err, "OTA encoder: failed to parse vendorID")
+		return fmt.Errorf("cannot parse vendorID: %w", err)
 	}
 	pid, err := strconv.ParseUint(e.productID, 16, 16)
 	if err != nil {
-		return 0, errors.Annotate(err, "OTA encoder: failed to parse productID")
+		return fmt.Errorf("cannot parse productID: %w", err)
 	}
 
 	binary.LittleEndian.PutUint16(magicNumber[0:2], uint16(pid))
@@ -82,61 +70,43 @@ func (e *encoder) Write(binaryData []byte) (int, error) {
 		Compression: true,
 	}
 
-	// Compress the compiled binary
-	compressed := lzss.Encode(binaryData)
-
+	compressed := lzss.Encode(data)
 	// Prepend magic number and version field to payload
-	var binDataComplete []byte
-	binDataComplete = append(binDataComplete, magicNumber...)
-	binDataComplete = append(binDataComplete, version.AsBytes()...)
-	binDataComplete = append(binDataComplete, compressed...)
-	//log.Println("binDataComplete is", len(binDataComplete), "bytes length")
+	var outData []byte
+	outData = append(outData, magicNumber...)
+	outData = append(outData, version.Bytes()...)
+	outData = append(outData, compressed...)
 
-	headerSize, err := e.writeHeader(binDataComplete)
+	err = e.writeHeader(outData)
 	if err != nil {
-		return headerSize, err
+		return fmt.Errorf("cannot write data header to output stream: %w", err)
 	}
 
-	payloadSize, err := e.writePayload(binDataComplete)
+	_, err = e.w.Write(outData)
 	if err != nil {
-		return payloadSize, err
+		return fmt.Errorf("cannot write encoded data to output stream: %w", err)
 	}
 
-	return headerSize + payloadSize, nil
+	return nil
 }
 
-// Close closes the encoder, flushing any pending output. It does not close or
-// flush e's underlying writer.
-func (e *encoder) Close() error {
-	return e.w.Flush()
-}
-
-func (e *encoder) writeHeader(binDataComplete []byte) (int, error) {
-
+func (e *Encoder) writeHeader(data []byte) error {
 	// Write the length of the content
 	lengthAsBytes := make([]byte, 4)
-	binary.LittleEndian.PutUint32(lengthAsBytes, uint32(len(binDataComplete)))
-
-	n, err := e.w.Write(lengthAsBytes)
+	binary.LittleEndian.PutUint32(lengthAsBytes, uint32(len(data)))
+	_, err := e.w.Write(lengthAsBytes)
 	if err != nil {
-		return n, err
+		return err
 	}
 
-	// Calculate the checksum for binDataComplete
-	crc := crc32.ChecksumIEEE(binDataComplete)
-
-	// encode the checksum uint32 value as 4 bytes
+	// Write the checksum uint32 value as 4 bytes
+	crc := crc32.ChecksumIEEE(data)
 	crcAsBytes := make([]byte, 4)
 	binary.LittleEndian.PutUint32(crcAsBytes, crc)
-
-	n, err = e.w.Write(crcAsBytes)
+	_, err = e.w.Write(crcAsBytes)
 	if err != nil {
-		return n, err
+		return err
 	}
 
-	return len(lengthAsBytes) + len(crcAsBytes), nil
-}
-
-func (e *encoder) writePayload(data []byte) (int, error) {
-	return e.w.Write(data)
+	return nil
 }

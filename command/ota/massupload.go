@@ -171,6 +171,7 @@ func run(uploader otaUploader, ids []string, otaFile string, expiration int) []R
 			results = append(results, r)
 			continue
 		}
+		defer file.Close()
 		jobs <- job{id: id, file: file}
 	}
 	close(jobs)

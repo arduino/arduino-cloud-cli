@@ -34,7 +34,7 @@ func TestVersionWithCompressionEnabled(t *testing.T) {
 	}
 
 	expected := []byte{0, 0, 0, 0, 0, 0, 0, 0x40}
-	actual := version.AsBytes()
+	actual := version.Bytes()
 
 	// create a tabwriter for formatting the output
 	w := new(tabwriter.Writer)

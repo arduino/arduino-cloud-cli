@@ -71,6 +71,7 @@ func Upload(params *UploadParams, cred *config.Credentials) error {
 	if err != nil {
 		return fmt.Errorf("%s: %w", "cannot open ota file", err)
 	}
+	defer file.Close()
 
 	expiration := otaExpirationMins
 	if params.Deferred {
