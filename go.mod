@@ -10,7 +10,7 @@ require (
 	github.com/arduino/go-paths-helper v1.6.1
 	github.com/arduino/go-properties-orderedmap v1.7.0 // indirect
 	github.com/arduino/go-win32-utils v0.0.0-20180330194947-ed041402e83b
-	github.com/arduino/iot-client-go v1.4.0
+	github.com/arduino/iot-client-go v1.4.2
 	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/google/go-cmp v0.5.6
 	github.com/h2non/filetype v1.1.3 // indirect
