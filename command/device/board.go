@@ -29,6 +29,7 @@ var (
 		"arduino:samd:mkrwifi1010",
 		"arduino:mbed_nano:nanorp2040connect",
 		"arduino:mbed_portenta:envie_m7",
+		"arduino:mbed_nicla:nicla_vision",
 		"arduino:samd:mkr1000",
 		"arduino:samd:mkrgsm1400",
 		"arduino:samd:mkrnb1500",

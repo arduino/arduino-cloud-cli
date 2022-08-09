@@ -28,6 +28,7 @@ BOARDS = [
     {"type": "crypto", "ext": ".bin", "fqbn": "arduino:samd:mkrwifi1010"},
     {"type": "crypto", "ext": ".elf", "fqbn": "arduino:mbed_nano:nanorp2040connect"},
     {"type": "crypto", "ext": ".bin", "fqbn": "arduino:mbed_portenta:envie_m7"},
+    {"type": "crypto", "ext": ".bin", "fqbn": "arduino:mbed_nicla:nicla_vision"},
     {"type": "crypto", "ext": ".bin", "fqbn": "arduino:samd:mkr1000"},
     {"type": "crypto", "ext": ".bin", "fqbn": "arduino:samd:mkrgsm1400"},
     {"type": "crypto", "ext": ".bin", "fqbn": "arduino:samd:mkrnb1500"},
