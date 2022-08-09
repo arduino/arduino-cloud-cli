@@ -32,8 +32,8 @@ type Version struct {
 	PayloadBuildNum uint32
 }
 
-// AsBytes builds a 8 byte length representation of the Version Struct for the OTA update.
-func (v *Version) AsBytes() []byte {
+// Bytes builds a 8 byte length representation of the Version Struct for the OTA update.
+func (v *Version) Bytes() []byte {
 	version := []byte{0, 0, 0, 0, 0, 0, 0, 0}
 
 	// Set compression
