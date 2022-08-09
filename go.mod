@@ -6,13 +6,11 @@ require (
 	github.com/Microsoft/go-winio v0.5.1 // indirect
 	github.com/antihax/optional v1.0.0
 	github.com/arduino/arduino-cli v0.0.0-20211220130253-5dd14c4c02b0
-	github.com/arduino/arduino-fwuploader v0.0.0-20211203105922-0eafccc7d8d7
 	github.com/arduino/board-discovery v0.0.0-20211020061712-fd83c2e3c908 // indirect
 	github.com/arduino/go-paths-helper v1.6.1
 	github.com/arduino/go-properties-orderedmap v1.7.0 // indirect
 	github.com/arduino/go-win32-utils v0.0.0-20180330194947-ed041402e83b
 	github.com/arduino/iot-client-go v1.4.0
-	github.com/daaku/go.zipexe v1.0.1 // indirect
 	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/google/go-cmp v0.5.6
 	github.com/h2non/filetype v1.1.3 // indirect
