@@ -99,26 +99,26 @@ func VerifyChecksum(checksum string, file io.Reader) error {
 	}
 	digest, err := hex.DecodeString(split[1])
 	if err != nil {
-		return fmt.Errorf("invalid hash '%s': %s", split[1], err)
+		return fmt.Errorf("invalid hash '%s': %w", split[1], err)
 	}
 
 	// names based on: https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#MessageDigest
-	var algo hash.Hash
+	var h hash.Hash
 	switch split[0] {
 	case "SHA-256":
-		algo = crypto.SHA256.New()
+		h = crypto.SHA256.New()
 	case "SHA-1":
-		algo = crypto.SHA1.New()
+		h = crypto.SHA1.New()
 	case "MD5":
-		algo = crypto.MD5.New()
+		h = crypto.MD5.New()
 	default:
 		return fmt.Errorf("unsupported hash algorithm: %s", split[0])
 	}
 
-	if _, err := io.Copy(algo, file); err != nil {
+	if _, err := io.Copy(h, file); err != nil {
 		return fmt.Errorf("computing hash: %s", err)
 	}
-	if !bytes.Equal(algo.Sum(nil), digest) {
+	if !bytes.Equal(h.Sum(nil), digest) {
 		return fmt.Errorf("archive hash differs from hash in index")
 	}
 
