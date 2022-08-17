@@ -353,8 +353,13 @@ func (cl *Client) DashboardDelete(id string) error {
 }
 
 func (cl *Client) setup(client, secret, organization string) error {
+	baseURL := "https://api2.arduino.cc"
+	if url := os.Getenv("IOT_API_URL"); url != "" {
+		baseURL = url
+	}
+
 	// Get the access token in exchange of client_id and client_secret
-	tok, err := token(client, secret)
+	tok, err := token(client, secret, baseURL)
 	if err != nil {
 		err = fmt.Errorf("cannot retrieve token given client and secret: %w", err)
 		return err
@@ -367,6 +372,7 @@ func (cl *Client) setup(client, secret, organization string) error {
 	if organization != "" {
 		config.DefaultHeader = map[string]string{"X-Organization": organization}
 	}
+	config.BasePath = baseURL + "/iot"
 	cl.api = iotclient.NewAPIClient(config)
 
 	return nil

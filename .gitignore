@@ -3,7 +3,7 @@ arduino-cloud-cli
 arduino-cloud-cli.exe
 
 # Configuration file
-config.yaml
+arduino-cloud-credentials.*
 
 # Provisioning binaries and metadata
 firmware/binaries
