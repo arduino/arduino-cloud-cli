@@ -252,7 +252,7 @@ func TestValidate(t *testing.T) {
 	}
 }
 
-func TestComplete(t *testing.T) {
+func TestIsEmpty(t *testing.T) {
 	var (
 		validSecret       = "qaRZGEbnQNNvmaeTLqy8Bxs22wLZ6H7obIiNSveTLPdoQuylANnuy6WBOw16XoqH"
 		validClient       = "CQ4iZ5sebOfhGRwUn3IV0r1YFMNrMTIx"
@@ -283,11 +283,16 @@ func TestComplete(t *testing.T) {
 			config: &Credentials{Client: validClient, Secret: ""},
 			want:   false,
 		},
+		{
+			name:   "credentials with all mandatory params set",
+			config: &Credentials{Client: validClient, Secret: validSecret},
+			want:   false,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.config.Complete()
+			got := tt.config.IsEmpty()
 			if got != tt.want {
 				t.Errorf("Expected %v but got %v, with credentials: %v", tt.want, got, tt.config)
 			}
