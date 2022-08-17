@@ -27,7 +27,7 @@ import (
 	cc "golang.org/x/oauth2/clientcredentials"
 )
 
-func token(client, secret string) (*oauth2.Token, error) {
+func token(client, secret, baseURL string) (*oauth2.Token, error) {
 	// We need to pass the additional "audience" var to request an access token
 	additionalValues := url.Values{}
 	additionalValues.Add("audience", "https://api2.arduino.cc/iot")
@@ -35,9 +35,10 @@ func token(client, secret string) (*oauth2.Token, error) {
 	config := cc.Config{
 		ClientID:       client,
 		ClientSecret:   secret,
-		TokenURL:       "https://api2.arduino.cc/iot/v1/clients/token",
+		TokenURL:       baseURL + "/iot/v1/clients/token",
 		EndpointParams: additionalValues,
 	}
+
 	// Get the access token in exchange of client_id and client_secret
 	t, err := config.Token(context.Background())
 	if err != nil && strings.Contains(err.Error(), "401") {
