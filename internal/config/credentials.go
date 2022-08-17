@@ -86,9 +86,9 @@ func (c *Credentials) Validate() error {
 	return nil
 }
 
-// Complete checks if Credentials has all the mandatory params set.
+// IsEmpty checks if Credentials has no mandatory params set.
 // Optional parameters are not considered here.
-func (c *Credentials) Complete() bool {
+func (c *Credentials) IsEmpty() bool {
 	return len(c.Client) == 0 && len(c.Secret) == 0
 }
 
@@ -104,7 +104,7 @@ func FindCredentials() (source string, err error) {
 	if err != nil {
 		return "", fmt.Errorf("looking for credentials in environment variables: %w", err)
 	}
-	if c.Complete() {
+	if !c.IsEmpty() {
 		logrus.Infof("Credentials found in environment variables with prefix '%s'", EnvPrefix)
 		return "environment variables", nil
 	}
@@ -136,7 +136,7 @@ func RetrieveCredentials() (cred *Credentials, err error) {
 		return nil, fmt.Errorf("reading credentials from environment variables: %w", err)
 	}
 	// Returns credentials if found in env
-	if !cred.Complete() {
+	if !cred.IsEmpty() {
 		// Returns error if credentials are found but are not valid
 		if err := cred.Validate(); err != nil {
 			return nil, fmt.Errorf(
