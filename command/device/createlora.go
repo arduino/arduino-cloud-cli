@@ -69,7 +69,7 @@ func CreateLora(ctx context.Context, params *CreateLoraParams, cred *config.Cred
 		return nil, err
 	}
 
-	ports, err := comm.BoardList(context.Background())
+	ports, err := comm.BoardList(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -89,21 +89,21 @@ func CreateLora(ctx context.Context, params *CreateLoraParams, cred *config.Cred
 		)
 	}
 
-	bin, err := downloadProvisioningFile(context.Background(), board.fqbn)
+	bin, err := downloadProvisioningFile(ctx, board.fqbn)
 	if err != nil {
 		return nil, err
 	}
 
 	logrus.Infof("%s", "Uploading deveui sketch on the LoRa board")
 	errMsg := "Error while uploading the LoRa provisioning binary"
-	err = retry(context.Background(), deveuiUploadAttempts, deveuiUploadWait*time.Millisecond, errMsg, func() error {
-		return comm.UploadBin(context.Background(), board.fqbn, bin, board.address, board.protocol)
+	err = retry(ctx, deveuiUploadAttempts, deveuiUploadWait*time.Millisecond, errMsg, func() error {
+		return comm.UploadBin(ctx, board.fqbn, bin, board.address, board.protocol)
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload LoRa provisioning binary: %w", err)
 	}
 
-	eui, err := extractEUI(board.address)
+	eui, err := extractEUI(ctx, board.address)
 	if err != nil {
 		return nil, err
 	}
@@ -137,12 +137,12 @@ func CreateLora(ctx context.Context, params *CreateLoraParams, cred *config.Cred
 }
 
 // extractEUI extracts the EUI from the provisioned lora board.
-func extractEUI(port string) (string, error) {
+func extractEUI(ctx context.Context, port string) (string, error) {
 	var ser serial.Port
 
 	logrus.Infof("%s\n", "Connecting to the board through serial port")
 	errMsg := "Error while connecting to the board"
-	err := retry(context.Background(), serialEUIAttempts, serialEUIWait*time.Millisecond, errMsg, func() error {
+	err := retry(ctx, serialEUIAttempts, serialEUIWait*time.Millisecond, errMsg, func() error {
 		var err error
 		ser, err = serial.Open(port, &serial.Mode{BaudRate: serialEUIBaudrate})
 		return err
