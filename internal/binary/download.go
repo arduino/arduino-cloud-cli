@@ -19,6 +19,7 @@ package binary
 
 import (
 	"bytes"
+	"context"
 	"crypto"
 	"encoding/hex"
 	"errors"
@@ -32,8 +33,8 @@ import (
 )
 
 // Download a binary file contained in the binary index.
-func Download(bin *IndexBin) ([]byte, error) {
-	b, err := download(bin.URL)
+func Download(ctx context.Context, bin *IndexBin) ([]byte, error) {
+	b, err := download(ctx, bin.URL)
 	if err != nil {
 		return nil, fmt.Errorf("cannot download binary at %s: %w", bin.URL, err)
 	}
@@ -54,11 +55,11 @@ func Download(bin *IndexBin) ([]byte, error) {
 	return b, nil
 }
 
-func download(url string) ([]byte, error) {
+func download(ctx context.Context, url string) ([]byte, error) {
 	cl := http.Client{
 		Timeout: time.Second * 3,
 	}
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		err = fmt.Errorf("%s: %w", "request url", err)
 		return nil, err

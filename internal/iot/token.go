@@ -19,19 +19,21 @@ package iot
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"strings"
 
+	iotclient "github.com/arduino/iot-client-go"
 	"golang.org/x/oauth2"
 	cc "golang.org/x/oauth2/clientcredentials"
 )
 
-func token(client, secret, baseURL string) (*oauth2.Token, error) {
-	// We need to pass the additional "audience" var to request an access token
+func token(client, secret, baseURL string) oauth2.TokenSource {
+	// We need to pass the additional "audience" var to request an access token.
 	additionalValues := url.Values{}
 	additionalValues.Add("audience", "https://api2.arduino.cc/iot")
-	// Set up OAuth2 configuration
+	// Set up OAuth2 configuration.
 	config := cc.Config{
 		ClientID:       client,
 		ClientSecret:   secret,
@@ -39,10 +41,19 @@ func token(client, secret, baseURL string) (*oauth2.Token, error) {
 		EndpointParams: additionalValues,
 	}
 
-	// Get the access token in exchange of client_id and client_secret
-	t, err := config.Token(context.Background())
-	if err != nil && strings.Contains(err.Error(), "401") {
-		return nil, fmt.Errorf("wrong credentials")
+	// Retrieve a token source that allows to retrieve tokens
+	// with an automatic refresh mechanism.
+	return config.TokenSource(context.Background())
+}
+
+func ctxWithToken(ctx context.Context, src oauth2.TokenSource) (context.Context, error) {
+	// Retrieve a valid token from the src.
+	tok, err := src.Token()
+	if err != nil {
+		if strings.Contains(err.Error(), "401") {
+			return nil, errors.New("wrong credentials")
+		}
+		return nil, fmt.Errorf("cannot retrieve a valid token: %w", err)
 	}
-	return t, err
+	return context.WithValue(ctx, iotclient.ContextAccessToken, tok.AccessToken), nil
 }

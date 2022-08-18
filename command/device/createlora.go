@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -62,13 +63,13 @@ type CreateLoraParams struct {
 
 // CreateLora command is used to provision a new LoRa arduino device
 // and to add it to Arduino IoT Cloud.
-func CreateLora(params *CreateLoraParams, cred *config.Credentials) (*DeviceLoraInfo, error) {
+func CreateLora(ctx context.Context, params *CreateLoraParams, cred *config.Credentials) (*DeviceLoraInfo, error) {
 	comm, err := cli.NewCommander()
 	if err != nil {
 		return nil, err
 	}
 
-	ports, err := comm.BoardList()
+	ports, err := comm.BoardList(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -88,15 +89,15 @@ func CreateLora(params *CreateLoraParams, cred *config.Credentials) (*DeviceLora
 		)
 	}
 
-	bin, err := downloadProvisioningFile(board.fqbn)
+	bin, err := downloadProvisioningFile(context.Background(), board.fqbn)
 	if err != nil {
 		return nil, err
 	}
 
 	logrus.Infof("%s", "Uploading deveui sketch on the LoRa board")
 	errMsg := "Error while uploading the LoRa provisioning binary"
-	err = retry(deveuiUploadAttempts, deveuiUploadWait*time.Millisecond, errMsg, func() error {
-		return comm.UploadBin(board.fqbn, bin, board.address, board.protocol)
+	err = retry(context.Background(), deveuiUploadAttempts, deveuiUploadWait*time.Millisecond, errMsg, func() error {
+		return comm.UploadBin(context.Background(), board.fqbn, bin, board.address, board.protocol)
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload LoRa provisioning binary: %w", err)
@@ -113,14 +114,15 @@ func CreateLora(params *CreateLoraParams, cred *config.Credentials) (*DeviceLora
 	}
 
 	logrus.Info("Creating a new device on the cloud")
-	dev, err := iotClient.DeviceLoraCreate(params.Name, board.serial, board.dType, eui, params.FrequencyPlan)
+	dev, err := iotClient.DeviceLoraCreate(ctx, params.Name, board.serial, board.dType, eui, params.FrequencyPlan)
 	if err != nil {
 		return nil, err
 	}
 
-	devInfo, err := getDeviceLoraInfo(iotClient, dev)
+	devInfo, err := getDeviceLoraInfo(ctx, iotClient, dev)
 	if err != nil {
-		errDel := iotClient.DeviceDelete(dev.DeviceId)
+		// Don't use the passed context for the cleanup because it could be cancelled.
+		errDel := iotClient.DeviceDelete(context.Background(), dev.DeviceId)
 		if errDel != nil { // Oh no
 			return nil, fmt.Errorf(
 				"device was successfully provisioned and configured on IoT-API but " +
@@ -140,7 +142,7 @@ func extractEUI(port string) (string, error) {
 
 	logrus.Infof("%s\n", "Connecting to the board through serial port")
 	errMsg := "Error while connecting to the board"
-	err := retry(serialEUIAttempts, serialEUIWait*time.Millisecond, errMsg, func() error {
+	err := retry(context.Background(), serialEUIAttempts, serialEUIWait*time.Millisecond, errMsg, func() error {
 		var err error
 		ser, err = serial.Open(port, &serial.Mode{BaudRate: serialEUIBaudrate})
 		return err
@@ -167,8 +169,8 @@ func extractEUI(port string) (string, error) {
 	return eui, nil
 }
 
-func getDeviceLoraInfo(iotClient *iot.Client, loraDev *iotclient.ArduinoLoradevicev1) (*DeviceLoraInfo, error) {
-	dev, err := iotClient.DeviceShow(loraDev.DeviceId)
+func getDeviceLoraInfo(ctx context.Context, iotClient *iot.Client, loraDev *iotclient.ArduinoLoradevicev1) (*DeviceLoraInfo, error) {
+	dev, err := iotClient.DeviceShow(ctx, loraDev.DeviceId)
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve device from the cloud: %w", err)
 	}

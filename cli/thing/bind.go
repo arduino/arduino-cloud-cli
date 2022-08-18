@@ -18,6 +18,7 @@
 package thing
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -66,7 +67,7 @@ func runBindCommand(flags *bindFlags) error {
 		ID:       flags.id,
 		DeviceID: flags.deviceID,
 	}
-	if err = thing.Bind(params, cred); err != nil {
+	if err = thing.Bind(context.TODO(), params, cred); err != nil {
 		return err
 	}
 

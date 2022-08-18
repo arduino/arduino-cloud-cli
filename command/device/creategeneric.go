@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/arduino/arduino-cloud-cli/config"
@@ -43,20 +44,21 @@ type DeviceGenericInfo struct {
 }
 
 // CreateGeneric command is used to add a new generic device to Arduino IoT Cloud.
-func CreateGeneric(params *CreateGenericParams, cred *config.Credentials) (*DeviceGenericInfo, error) {
+func CreateGeneric(ctx context.Context, params *CreateGenericParams, cred *config.Credentials) (*DeviceGenericInfo, error) {
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
 	}
 
-	dev, err := iotClient.DeviceCreate(params.FQBN, params.Name, "", genericDType)
+	dev, err := iotClient.DeviceCreate(context.Background(), params.FQBN, params.Name, "", genericDType)
 	if err != nil {
 		return nil, err
 	}
 
-	pass, err := iotClient.DevicePassSet(dev.Id)
+	pass, err := iotClient.DevicePassSet(ctx, dev.Id)
 	if err != nil {
-		if errDel := iotClient.DeviceDelete(dev.Id); errDel != nil {
+		// Don't use the passed context for the cleanup because it could be cancelled.
+		if errDel := iotClient.DeviceDelete(context.Background(), dev.Id); errDel != nil {
 			return nil, fmt.Errorf(
 				"device was successfully created on IoT-API but " +
 					"now we can't set its secret key nor delete it - please check " +

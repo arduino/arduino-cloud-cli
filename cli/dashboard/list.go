@@ -18,6 +18,7 @@
 package dashboard
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"os"
@@ -66,7 +67,7 @@ func runListCommand(flags *listFlags) error {
 		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
-	dash, err := dashboard.List(cred)
+	dash, err := dashboard.List(context.TODO(), cred)
 	if err != nil {
 		return err
 	}

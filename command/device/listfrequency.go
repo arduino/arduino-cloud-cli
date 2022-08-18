@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/arduino/arduino-cloud-cli/config"
@@ -33,13 +34,13 @@ type FrequencyPlanInfo struct {
 
 // ListFrequencyPlans command is used to list
 // the supported LoRa frequency plans.
-func ListFrequencyPlans(cred *config.Credentials) ([]FrequencyPlanInfo, error) {
+func ListFrequencyPlans(ctx context.Context, cred *config.Credentials) ([]FrequencyPlanInfo, error) {
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
 	}
 
-	foundFreqs, err := iotClient.LoraFrequencyPlansList()
+	foundFreqs, err := iotClient.LoraFrequencyPlansList(ctx)
 	if err != nil {
 		return nil, err
 	}

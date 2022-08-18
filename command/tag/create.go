@@ -18,6 +18,7 @@
 package tag
 
 import (
+	"context"
 	"errors"
 
 	"github.com/arduino/arduino-cloud-cli/config"
@@ -34,7 +35,7 @@ type CreateTagsParams struct {
 
 // CreateTags allows to create or overwrite tags
 // on a resource of Arduino IoT Cloud.
-func CreateTags(params *CreateTagsParams, cred *config.Credentials) error {
+func CreateTags(ctx context.Context, params *CreateTagsParams, cred *config.Credentials) error {
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return err
@@ -42,9 +43,9 @@ func CreateTags(params *CreateTagsParams, cred *config.Credentials) error {
 
 	switch params.Resource {
 	case Thing:
-		err = iotClient.ThingTagsCreate(params.ID, params.Tags)
+		err = iotClient.ThingTagsCreate(ctx, params.ID, params.Tags)
 	case Device:
-		err = iotClient.DeviceTagsCreate(params.ID, params.Tags)
+		err = iotClient.DeviceTagsCreate(ctx, params.ID, params.Tags)
 	default:
 		err = errors.New("passed Resource parameter is not valid")
 	}

@@ -18,8 +18,11 @@
 package device
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
@@ -80,7 +83,15 @@ func runCreateLoraCommand(flags *createLoraFlags) error {
 		params.FQBN = &flags.fqbn
 	}
 
-	dev, err := device.CreateLora(params, cred)
+	ctx, canc := context.WithCancel(context.Background())
+	ch := make(chan os.Signal)
+	signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-ch
+		canc()
+	}()
+
+	dev, err := device.CreateLora(ctx, params, cred)
 	if err != nil {
 		return err
 	}

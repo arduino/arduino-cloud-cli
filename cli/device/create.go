@@ -18,8 +18,11 @@
 package device
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
@@ -73,7 +76,15 @@ func runCreateCommand(flags *createFlags) error {
 		params.FQBN = &flags.fqbn
 	}
 
-	dev, err := device.Create(params, cred)
+	ctx, canc := context.WithCancel(context.Background())
+	ch := make(chan os.Signal)
+	signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-ch
+		canc()
+	}()
+
+	dev, err := device.Create(ctx, params, cred)
 	if err != nil {
 		return err
 	}

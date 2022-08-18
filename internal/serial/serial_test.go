@@ -19,6 +19,7 @@ package serial
 
 import (
 	"bytes"
+	"context"
 	"testing"
 
 	"github.com/arduino/arduino-cloud-cli/internal/serial/mocks"
@@ -45,7 +46,7 @@ func TestSendReceive(t *testing.T) {
 	mockPort.On("Write", mock.AnythingOfType("[]uint8")).Return(0, nil)
 	mockPort.On("Read", mock.AnythingOfType("[]uint8")).Return(mockRead, nil)
 
-	res, err := mockSerial.SendReceive(BeginStorage, []byte{1, 2})
+	res, err := mockSerial.SendReceive(context.TODO(), BeginStorage, []byte{1, 2})
 	if err != nil {
 		t.Error(err)
 	}
@@ -64,7 +65,7 @@ func TestSend(t *testing.T) {
 	cmd := SetDay
 	want := []byte{msgStart[0], msgStart[1], 1, 0, 5, 10, 1, 2, 143, 124, msgEnd[0], msgEnd[1]}
 
-	err := mockSerial.Send(cmd, payload)
+	err := mockSerial.Send(context.TODO(), cmd, payload)
 	if err != nil {
 		t.Error(err)
 	}

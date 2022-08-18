@@ -18,6 +18,7 @@
 package thing
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -75,7 +76,7 @@ func runCreateCommand(flags *createFlags) error {
 		params.Name = &flags.name
 	}
 
-	thing, err := thing.Create(params, cred)
+	thing, err := thing.Create(context.TODO(), params, cred)
 	if err != nil {
 		return err
 	}

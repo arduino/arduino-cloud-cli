@@ -19,6 +19,7 @@ package serial
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -60,7 +61,11 @@ func (s *Serial) Connect(address string) error {
 }
 
 // Send allows to send a provisioning command to a connected arduino device.
-func (s *Serial) Send(cmd Command, payload []byte) error {
+func (s *Serial) Send(ctx context.Context, cmd Command, payload []byte) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	payload = append([]byte{byte(cmd)}, payload...)
 	msg := encode(Cmd, payload)
 
@@ -76,12 +81,12 @@ func (s *Serial) Send(cmd Command, payload []byte) error {
 // SendReceive allows to send a provisioning command to a connected arduino device.
 // Then, it waits for a response from the device and, if any, returns it.
 // If no response is received after 2 seconds, an error is returned.
-func (s *Serial) SendReceive(cmd Command, payload []byte) ([]byte, error) {
-	err := s.Send(cmd, payload)
+func (s *Serial) SendReceive(ctx context.Context, cmd Command, payload []byte) ([]byte, error) {
+	err := s.Send(ctx, cmd, payload)
 	if err != nil {
 		return nil, err
 	}
-	return s.receive()
+	return s.receive(ctx)
 }
 
 // Close should be used when the Serial connection isn't used anymore.
@@ -96,7 +101,7 @@ func (s *Serial) Close() error {
 // TODO: consider refactoring using a more explicit procedure:
 // start := s.Read(buff, MsgStartLength)
 // payloadLen := s.Read(buff, payloadFieldLen)
-func (s *Serial) receive() ([]byte, error) {
+func (s *Serial) receive(ctx context.Context) ([]byte, error) {
 	buff := make([]byte, 1000)
 	var resp []byte
 
@@ -105,6 +110,10 @@ func (s *Serial) receive() ([]byte, error) {
 	// Wait to receive the entire packet that is long as the preamble (from msgStart to payload length field)
 	// plus the actual payload length plus the length of the ending sequence.
 	for received < (payloadLenField+payloadLenFieldLen)+payloadLen+len(msgEnd) {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+
 		n, err := s.port.Read(buff)
 		if err != nil {
 			err = fmt.Errorf("%s: %w", "receiving from serial", err)
