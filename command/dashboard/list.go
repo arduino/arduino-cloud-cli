@@ -18,19 +18,22 @@
 package dashboard
 
 import (
+	"context"
+
 	"github.com/arduino/arduino-cloud-cli/config"
+
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
 
 // List command is used to list
 // the dashboards of Arduino IoT Cloud.
-func List(cred *config.Credentials) ([]DashboardInfo, error) {
+func List(ctx context.Context, cred *config.Credentials) ([]DashboardInfo, error) {
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
 	}
 
-	foundDashboards, err := iotClient.DashboardList()
+	foundDashboards, err := iotClient.DashboardList(ctx)
 	if err != nil {
 		return nil, err
 	}

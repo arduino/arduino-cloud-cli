@@ -18,6 +18,7 @@
 package thing
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/arduino/arduino-cloud-cli/config"
@@ -35,13 +36,13 @@ type ListParams struct {
 
 // List command is used to list
 // the things of Arduino IoT Cloud.
-func List(params *ListParams, cred *config.Credentials) ([]ThingInfo, error) {
+func List(ctx context.Context, params *ListParams, cred *config.Credentials) ([]ThingInfo, error) {
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
 	}
 
-	foundThings, err := iotClient.ThingList(params.IDs, params.DeviceID, params.Variables, params.Tags)
+	foundThings, err := iotClient.ThingList(ctx, params.IDs, params.DeviceID, params.Variables, params.Tags)
 	if err != nil {
 		return nil, err
 	}

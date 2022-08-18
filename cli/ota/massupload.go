@@ -18,6 +18,7 @@
 package ota
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"sort"
@@ -84,7 +85,7 @@ func runMassUploadCommand(flags *massUploadFlags) error {
 		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
-	resp, err := ota.MassUpload(params, cred)
+	resp, err := ota.MassUpload(context.TODO(), params, cred)
 	if err != nil {
 		return err
 	}

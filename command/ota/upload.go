@@ -18,6 +18,7 @@
 package ota
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -44,13 +45,13 @@ type UploadParams struct {
 
 // Upload command is used to upload a firmware OTA,
 // on a device of Arduino IoT Cloud.
-func Upload(params *UploadParams, cred *config.Credentials) error {
+func Upload(ctx context.Context, params *UploadParams, cred *config.Credentials) error {
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return err
 	}
 
-	dev, err := iotClient.DeviceShow(params.DeviceID)
+	dev, err := iotClient.DeviceShow(ctx, params.DeviceID)
 	if err != nil {
 		return err
 	}
@@ -78,7 +79,7 @@ func Upload(params *UploadParams, cred *config.Credentials) error {
 		expiration = otaDeferredExpirationMins
 	}
 
-	err = iotClient.DeviceOTA(params.DeviceID, file, expiration)
+	err = iotClient.DeviceOTA(ctx, params.DeviceID, file, expiration)
 	if err != nil {
 		return err
 	}

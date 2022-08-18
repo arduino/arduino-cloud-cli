@@ -18,6 +18,7 @@
 package dashboard
 
 import (
+	"context"
 	"errors"
 
 	"github.com/arduino/arduino-cloud-cli/config"
@@ -33,13 +34,13 @@ type CreateParams struct {
 }
 
 // Create allows to create a new dashboard.
-func Create(params *CreateParams, cred *config.Credentials) (*DashboardInfo, error) {
+func Create(ctx context.Context, params *CreateParams, cred *config.Credentials) (*DashboardInfo, error) {
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
 	}
 
-	dashboard, err := template.LoadDashboard(params.Template, params.Override, iotClient)
+	dashboard, err := template.LoadDashboard(ctx, params.Template, params.Override, iotClient)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +54,7 @@ func Create(params *CreateParams, cred *config.Credentials) (*DashboardInfo, err
 		return nil, errors.New("dashboard name not specified")
 	}
 
-	newDashboard, err := iotClient.DashboardCreate(dashboard)
+	newDashboard, err := iotClient.DashboardCreate(ctx, dashboard)
 	if err != nil {
 		return nil, err
 	}

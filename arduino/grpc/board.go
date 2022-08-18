@@ -30,7 +30,7 @@ type boardHandler struct {
 
 // BoardList executes the 'arduino-cli board list' command
 // and returns its result.
-func (b boardHandler) BoardList() ([]*rpc.DetectedPort, error) {
+func (b boardHandler) BoardList(ctx context.Context) ([]*rpc.DetectedPort, error) {
 	boardListResp, err := b.serviceClient.BoardList(context.Background(),
 		&rpc.BoardListRequest{Instance: b.instance})
 

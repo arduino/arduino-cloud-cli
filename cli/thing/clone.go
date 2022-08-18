@@ -18,6 +18,7 @@
 package thing
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -68,7 +69,7 @@ func runCloneCommand(flags *cloneFlags) error {
 		CloneID: flags.cloneID,
 	}
 
-	thing, err := thing.Clone(params, cred)
+	thing, err := thing.Clone(context.TODO(), params, cred)
 	if err != nil {
 		return err
 	}

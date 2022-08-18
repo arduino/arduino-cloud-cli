@@ -18,6 +18,7 @@
 package thing
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -72,7 +73,7 @@ func runDeleteCommand(flags *deleteFlags) error {
 		params.ID = &flags.id
 	}
 
-	err = thing.Delete(params, cred)
+	err = thing.Delete(context.TODO(), params, cred)
 	if err != nil {
 		return err
 	}

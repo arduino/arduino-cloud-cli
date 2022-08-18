@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"os"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
@@ -46,7 +47,7 @@ func initListFQBNCommand() *cobra.Command {
 func runListFQBNCommand() error {
 	logrus.Info("Listing supported FQBN")
 
-	fqbn, err := device.ListFQBN()
+	fqbn, err := device.ListFQBN(context.TODO())
 	if err != nil {
 		return err
 	}

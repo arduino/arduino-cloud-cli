@@ -18,6 +18,7 @@
 package ota
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -69,7 +70,7 @@ func runUploadCommand(flags *uploadFlags) error {
 		File:     flags.file,
 		Deferred: flags.deferred,
 	}
-	err = ota.Upload(params, cred)
+	err = ota.Upload(context.TODO(), params, cred)
 	if err != nil {
 		return err
 	}

@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -72,7 +73,7 @@ func runDeleteCommand(flags *deleteFlags) error {
 		params.ID = &flags.id
 	}
 
-	err = device.Delete(params, cred)
+	err = device.Delete(context.TODO(), params, cred)
 	if err != nil {
 		return err
 	}

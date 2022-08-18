@@ -18,6 +18,7 @@
 package tag
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -73,7 +74,7 @@ func runCreateTagsCommand(flags *createTagsFlags) error {
 		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
-	if err = tag.CreateTags(params, cred); err != nil {
+	if err = tag.CreateTags(context.TODO(), params, cred); err != nil {
 		return err
 	}
 

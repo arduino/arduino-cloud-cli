@@ -18,6 +18,7 @@
 package tag
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -68,7 +69,7 @@ func runDeleteTagsCommand(flags *deleteTagsFlags) error {
 		Resource: tag.Thing,
 	}
 
-	err = tag.DeleteTags(params, cred)
+	err = tag.DeleteTags(context.TODO(), params, cred)
 	if err != nil {
 		return err
 	}

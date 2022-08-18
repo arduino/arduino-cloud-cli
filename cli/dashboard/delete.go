@@ -18,6 +18,7 @@
 package dashboard
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -60,7 +61,7 @@ func runDeleteCommand(flags *deleteFlags) error {
 	}
 
 	params := &dashboard.DeleteParams{ID: flags.id}
-	err = dashboard.Delete(params, cred)
+	err = dashboard.Delete(context.TODO(), params, cred)
 	if err != nil {
 		return err
 	}

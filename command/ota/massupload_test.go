@@ -1,6 +1,7 @@
 package ota
 
 import (
+	"context"
 	"errors"
 	"os"
 	"strings"
@@ -12,11 +13,11 @@ import (
 const testFilename = "testdata/empty.bin"
 
 type deviceUploaderTest struct {
-	deviceOTA func(id string, file *os.File, expireMins int) error
+	deviceOTA func(ctx context.Context, id string, file *os.File, expireMins int) error
 }
 
-func (d *deviceUploaderTest) DeviceOTA(id string, file *os.File, expireMins int) error {
-	return d.deviceOTA(id, file, expireMins)
+func (d *deviceUploaderTest) DeviceOTA(ctx context.Context, id string, file *os.File, expireMins int) error {
+	return d.deviceOTA(ctx, id, file, expireMins)
 }
 
 func TestRun(t *testing.T) {
@@ -30,7 +31,7 @@ func TestRun(t *testing.T) {
 		okID3      = okPrefix + "-dac4-4a6a-80a4-698062fe2af5"
 	)
 	mockClient := &deviceUploaderTest{
-		deviceOTA: func(id string, file *os.File, expireMins int) error {
+		deviceOTA: func(ctx context.Context, id string, file *os.File, expireMins int) error {
 			if strings.Split(id, "-")[0] == failPrefix {
 				return errors.New("err")
 			}
@@ -39,7 +40,7 @@ func TestRun(t *testing.T) {
 	}
 
 	devs := []string{okID1, failID1, okID2, failID2, okID3}
-	res := run(mockClient, devs, testFilename, 0)
+	res := run(context.TODO(), mockClient, devs, testFilename, 0)
 	if len(res) != len(devs) {
 		t.Errorf("expected %d results, got %d", len(devs), len(res))
 	}
@@ -59,7 +60,7 @@ type deviceListerTest struct {
 	list []iotclient.ArduinoDevicev2
 }
 
-func (d *deviceListerTest) DeviceList(tags map[string]string) ([]iotclient.ArduinoDevicev2, error) {
+func (d *deviceListerTest) DeviceList(ctx context.Context, tags map[string]string) ([]iotclient.ArduinoDevicev2, error) {
 	return d.list, nil
 }
 
@@ -88,7 +89,7 @@ func TestValidateDevices(t *testing.T) {
 		idCorrect2,
 		idNotValid,
 	}
-	v, i, err := validateDevices(&mockDeviceList, ids, correctFQBN)
+	v, i, err := validateDevices(context.TODO(), &mockDeviceList, ids, correctFQBN)
 	if err != nil {
 		t.Errorf("unexpected error: %s", err.Error())
 	}

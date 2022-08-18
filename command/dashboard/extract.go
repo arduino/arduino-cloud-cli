@@ -18,6 +18,7 @@
 package dashboard
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/arduino/arduino-cloud-cli/config"
@@ -33,13 +34,13 @@ type ExtractParams struct {
 
 // Extract command is used to extract a dashboard template
 // from a dashboard on Arduino IoT Cloud.
-func Extract(params *ExtractParams, cred *config.Credentials) (map[string]interface{}, error) {
+func Extract(ctx context.Context, params *ExtractParams, cred *config.Credentials) (map[string]interface{}, error) {
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
 	}
 
-	dashboard, err := iotClient.DashboardShow(params.ID)
+	dashboard, err := iotClient.DashboardShow(ctx, params.ID)
 	if err != nil {
 		err = fmt.Errorf("%s: %w", "cannot extract dashboard: ", err)
 		return nil, err

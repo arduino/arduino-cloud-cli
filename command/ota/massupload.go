@@ -18,6 +18,7 @@
 package ota
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -51,7 +52,7 @@ type Result struct {
 
 // MassUpload command is used to mass upload a firmware OTA,
 // on devices of Arduino IoT Cloud.
-func MassUpload(params *MassUploadParams, cred *config.Credentials) ([]Result, error) {
+func MassUpload(ctx context.Context, params *MassUploadParams, cred *config.Credentials) ([]Result, error) {
 	if params.DeviceIDs == nil && params.Tags == nil {
 		return nil, errors.New("provide either DeviceIDs or Tags")
 	} else if params.DeviceIDs != nil && params.Tags != nil {
@@ -77,12 +78,12 @@ func MassUpload(params *MassUploadParams, cred *config.Credentials) ([]Result, e
 	}
 
 	// Prepare the list of device-ids to update
-	d, err := idsGivenTags(iotClient, params.Tags)
+	d, err := idsGivenTags(ctx, iotClient, params.Tags)
 	if err != nil {
 		return nil, err
 	}
 	d = append(params.DeviceIDs, d...)
-	valid, invalid, err := validateDevices(iotClient, d, params.FQBN)
+	valid, invalid, err := validateDevices(ctx, iotClient, d, params.FQBN)
 	if err != nil {
 		return nil, fmt.Errorf("failed to validate devices: %w", err)
 	}
@@ -95,20 +96,20 @@ func MassUpload(params *MassUploadParams, cred *config.Credentials) ([]Result, e
 		expiration = otaDeferredExpirationMins
 	}
 
-	res := run(iotClient, valid, otaFile, expiration)
+	res := run(ctx, iotClient, valid, otaFile, expiration)
 	res = append(res, invalid...)
 	return res, nil
 }
 
 type deviceLister interface {
-	DeviceList(tags map[string]string) ([]iotclient.ArduinoDevicev2, error)
+	DeviceList(ctx context.Context, tags map[string]string) ([]iotclient.ArduinoDevicev2, error)
 }
 
-func idsGivenTags(lister deviceLister, tags map[string]string) ([]string, error) {
+func idsGivenTags(ctx context.Context, lister deviceLister, tags map[string]string) ([]string, error) {
 	if tags == nil {
 		return nil, nil
 	}
-	devs, err := lister.DeviceList(tags)
+	devs, err := lister.DeviceList(ctx, tags)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "cannot retrieve devices from cloud", err)
 	}
@@ -119,8 +120,8 @@ func idsGivenTags(lister deviceLister, tags map[string]string) ([]string, error)
 	return devices, nil
 }
 
-func validateDevices(lister deviceLister, ids []string, fqbn string) (valid []string, invalid []Result, err error) {
-	devs, err := lister.DeviceList(nil)
+func validateDevices(ctx context.Context, lister deviceLister, ids []string, fqbn string) (valid []string, invalid []Result, err error) {
+	devs, err := lister.DeviceList(ctx, nil)
 	if err != nil {
 		return nil, nil, fmt.Errorf("%s: %w", "cannot retrieve devices from cloud", err)
 	}
@@ -151,10 +152,10 @@ func validateDevices(lister deviceLister, ids []string, fqbn string) (valid []st
 }
 
 type otaUploader interface {
-	DeviceOTA(id string, file *os.File, expireMins int) error
+	DeviceOTA(ctx context.Context, id string, file *os.File, expireMins int) error
 }
 
-func run(uploader otaUploader, ids []string, otaFile string, expiration int) []Result {
+func run(ctx context.Context, uploader otaUploader, ids []string, otaFile string, expiration int) []Result {
 	type job struct {
 		id   string
 		file *os.File
@@ -179,7 +180,7 @@ func run(uploader otaUploader, ids []string, otaFile string, expiration int) []R
 	for i := 0; i < numConcurrentUploads; i++ {
 		go func() {
 			for job := range jobs {
-				err := uploader.DeviceOTA(job.id, job.file, expiration)
+				err := uploader.DeviceOTA(ctx, job.id, job.file, expiration)
 				resCh <- Result{ID: job.id, Err: err}
 			}
 		}()

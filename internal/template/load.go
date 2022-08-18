@@ -18,6 +18,7 @@
 package template
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -87,7 +88,7 @@ func LoadThing(file string) (*iotclient.ThingCreate, error) {
 // LoadDashboard loads a dashboard from a dashboard template file.
 // It applies the thing overrides specified by the override parameter.
 // It requires a ThingFetcher to retrieve the actual variable ids.
-func LoadDashboard(file string, override map[string]string, thinger ThingFetcher) (*iotclient.Dashboardv2, error) {
+func LoadDashboard(ctx context.Context, file string, override map[string]string, thinger ThingFetcher) (*iotclient.Dashboardv2, error) {
 	template := dashboardTemplate{}
 	err := loadTemplate(file, &template)
 	if err != nil {
@@ -113,7 +114,7 @@ func LoadDashboard(file string, override map[string]string, thinger ThingFetcher
 			if id, ok := override[variable.ThingID]; ok {
 				variable.ThingID = id
 			}
-			variable.VariableID, err = getVariableID(variable.ThingID, variable.VariableName, thinger)
+			variable.VariableID, err = getVariableID(ctx, variable.ThingID, variable.VariableName, thinger)
 			if err != nil {
 				return nil, err
 			}
