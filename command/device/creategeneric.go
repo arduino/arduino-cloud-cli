@@ -50,7 +50,7 @@ func CreateGeneric(ctx context.Context, params *CreateGenericParams, cred *confi
 		return nil, err
 	}
 
-	dev, err := iotClient.DeviceCreate(context.Background(), params.FQBN, params.Name, "", genericDType)
+	dev, err := iotClient.DeviceCreate(ctx, params.FQBN, params.Name, "", genericDType)
 	if err != nil {
 		return nil, err
 	}

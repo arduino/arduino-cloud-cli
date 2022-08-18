@@ -82,8 +82,7 @@ func (s *Serial) Send(ctx context.Context, cmd Command, payload []byte) error {
 // Then, it waits for a response from the device and, if any, returns it.
 // If no response is received after 2 seconds, an error is returned.
 func (s *Serial) SendReceive(ctx context.Context, cmd Command, payload []byte) ([]byte, error) {
-	err := s.Send(ctx, cmd, payload)
-	if err != nil {
+	if err := s.Send(ctx, cmd, payload); err != nil {
 		return nil, err
 	}
 	return s.receive(ctx)
