@@ -26,7 +26,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/arduino"
-	"github.com/arduino/arduino-cloud-cli/internal/config"
+	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/go-paths-helper"
 	"github.com/manifoldco/promptui"
 	"github.com/sirupsen/logrus"
