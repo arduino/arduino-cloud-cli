@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/arduino/arduino-cloud-cli/arduino/cli"
-	"github.com/arduino/arduino-cloud-cli/internal/config"
+	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	iotclient "github.com/arduino/iot-client-go"
 	"github.com/sirupsen/logrus"
