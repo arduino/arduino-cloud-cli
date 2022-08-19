@@ -57,3 +57,7 @@ func ctxWithToken(ctx context.Context, src oauth2.TokenSource) (context.Context,
 	}
 	return context.WithValue(ctx, iotclient.ContextAccessToken, tok.AccessToken), nil
 }
+
+func ctxWithTokenSrc(ctx context.Context, token oauth2.TokenSource) context.Context {
+	return context.WithValue(ctx, iotclient.ContextOAuth2, token)
+}
