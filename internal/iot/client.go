@@ -49,10 +49,10 @@ func NewClient(cred *config.Credentials) (*Client, error) {
 // DeviceCreate allows to create a new device on Arduino IoT Cloud.
 // It returns the newly created device, and an error.
 func (cl *Client) DeviceCreate(ctx context.Context, fqbn, name, serial, dType string) (*iotclient.ArduinoDevicev2, error) {
-	var err error
-	if ctx, err = ctxWithToken(ctx, cl.token); err != nil {
-		return nil, err
-	}
+	// if ctx, err = ctxWithToken(ctx, cl.token); err != nil {
+	// 	return nil, err
+	// }
+	ctx = ctxWithTokenSrc(ctx, cl.token)
 
 	payload := iotclient.CreateDevicesV2Payload{
 		Fqbn:   fqbn,
