@@ -20,7 +20,7 @@ package device
 import (
 	"errors"
 
-	"github.com/arduino/arduino-cloud-cli/internal/config"
+	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
 

@@ -23,7 +23,7 @@ import (
 	"os"
 
 	"github.com/antihax/optional"
-	"github.com/arduino/arduino-cloud-cli/internal/config"
+	"github.com/arduino/arduino-cloud-cli/config"
 	iotclient "github.com/arduino/iot-client-go"
 )
 

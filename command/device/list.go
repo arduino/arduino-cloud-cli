@@ -20,7 +20,7 @@ package device
 import (
 	"fmt"
 
-	"github.com/arduino/arduino-cloud-cli/internal/config"
+	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
 
