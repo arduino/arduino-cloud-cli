@@ -24,6 +24,7 @@ require (
 	github.com/spf13/viper v1.10.1
 	github.com/stretchr/testify v1.8.0
 	github.com/xanzy/ssh-agent v0.3.1 // indirect
+	go.bug.st/cleanup v1.0.0
 	go.bug.st/serial v1.3.3
 	go.bug.st/serial.v1 v0.0.0-20191202182710-24a6610f0541 // indirect
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3

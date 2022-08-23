@@ -21,8 +21,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
@@ -30,6 +28,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"go.bug.st/cleanup"
 )
 
 type createFlags struct {
@@ -76,13 +75,8 @@ func runCreateCommand(flags *createFlags) error {
 		params.FQBN = &flags.fqbn
 	}
 
-	ctx, canc := context.WithCancel(context.Background())
-	ch := make(chan os.Signal)
-	signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-ch
-		canc()
-	}()
+	ctx, cancel := cleanup.InterruptableContext(context.Background())
+	defer cancel()
 
 	dev, err := device.Create(ctx, params, cred)
 	if err != nil {
