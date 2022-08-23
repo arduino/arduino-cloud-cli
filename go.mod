@@ -15,7 +15,7 @@ require (
 	github.com/google/go-cmp v0.5.6
 	github.com/h2non/filetype v1.1.3 // indirect
 	github.com/howeyc/crc16 v0.0.0-20171223171357-2b2a61e366a6
-	github.com/juju/errors v0.0.0-20210818161939-5560c4c073ff
+	github.com/juju/errors v0.0.0-20210818161939-5560c4c073ff // indirect
 	github.com/kevinburke/ssh_config v1.1.0 // indirect
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mattn/go-runewidth v0.0.13 // indirect
@@ -27,6 +27,7 @@ require (
 	github.com/spf13/viper v1.10.1
 	github.com/stretchr/testify v1.7.0
 	github.com/xanzy/ssh-agent v0.3.1 // indirect
+	go.bug.st/cleanup v1.0.0
 	go.bug.st/serial v1.3.3
 	go.bug.st/serial.v1 v0.0.0-20191202182710-24a6610f0541 // indirect
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
