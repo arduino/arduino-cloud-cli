@@ -21,8 +21,8 @@ import (
 	"errors"
 
 	"github.com/arduino/arduino-cloud-cli/config"
-	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	"github.com/arduino/arduino-cloud-cli/internal/template"
+	"github.com/arduino/arduino-cloud-cli/iot"
 )
 
 // CreateParams contains the parameters needed to create a new dashboard.
