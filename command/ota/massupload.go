@@ -25,7 +25,7 @@ import (
 	"path/filepath"
 
 	"github.com/arduino/arduino-cloud-cli/config"
-	"github.com/arduino/arduino-cloud-cli/internal/iot"
+	"github.com/arduino/arduino-cloud-cli/iot"
 	iotclient "github.com/arduino/iot-client-go"
 )
 
