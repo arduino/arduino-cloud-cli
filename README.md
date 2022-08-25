@@ -71,6 +71,18 @@ Use this command to provision a device:
 
 `$ arduino-cloud-cli device create --name <deviceName> --port <port> --fqbn <deviceFqbn>`
 
+Here are the FQBNs of the Arduino boards that can be provisioned with this command:
+```
+- arduino:samd:nano_33_iot
+- arduino:samd:mkrwifi1010
+- arduino:mbed_nano:nanorp2040connect
+- arduino:mbed_portenta:envie_m7
+- arduino:mbed_nicla:nicla_vision
+- arduino:samd:mkr1000
+- arduino:samd:mkrgsm1400
+- arduino:samd:mkrnb1500
+```
+
 #### LoRa 
 
 LoRa devices should be provisioned using a specific command.
@@ -81,6 +93,12 @@ Parameters are the same except for the additional mandatory `--frequency-plan`:
 The list of supported LoRa frequency plans can be retrieved with:
 
 `$ arduino-cloud-cli device list-frequency-plans`
+
+Here are the FQBNs of the Arduino boards that can be provisioned with this command:
+```
+- arduino:samd:mkrwan1310
+- arduino:samd:mkrwan1300
+```
 
 #### Generic device
 
