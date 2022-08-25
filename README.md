@@ -200,7 +200,7 @@ Delete specific tags of a thing. The keys of the tags to delete should be passed
 ## Ota commands
 
 Perform an OTA firmware update. Note that the binary file (`.bin`) should be compiled using an arduino core that supports the specified device.
-The default OTA upload should complete in 10 minutes. Use `--deferred` flag to extend this time to one week.
+The default OTA upload should complete in 10 minutes. Use `--deferred` flag to extend this time to one week (see an example sketch [here](https://github.com/arduino-libraries/ArduinoIoTCloud/blob/ab0af75a5666f875929029ac6df59e04789269c5/examples/ArduinoIoTCloud-DeferredOTA/ArduinoIoTCloud-DeferredOTA.ino)).
 
 `$ arduino-cloud-cli ota upload --device-id <deviceID> --file <sketch-file.ino.bin>`
 
