@@ -5,7 +5,7 @@ type: go
 summary: Package ctxhttp provides helper functions for performing context-aware HTTP
   requests.
 homepage: https://pkg.go.dev/golang.org/x/net/context/ctxhttp
-license: other
+license: bsd-3-clause
 licenses:
 - sources: net@v0.0.0-20211216030914-fe4d6282115f/LICENSE
   text: |
