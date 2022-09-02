@@ -8,7 +8,7 @@ This code is licensed under the terms of the GNU Affero General Public License v
 ### Requirements
 
 This is all you need to use arduino-cloud-cli:
- * A client ID and a secret ID, retrievable from the [cloud](https://create.arduino.cc/iot/integrations) by creating a new API key
+ * A client ID and a secret ID, retrievable from the [cloud](https://cloud.arduino.cc/home/api-keys) by creating a new API key
 
 ### Additional info
 
@@ -32,7 +32,7 @@ Another example: let's say that the execution of the previous command results in
 
 arduino-cloud-cli needs a credentials file containing an Arduino IoT Cloud client ID and its corresponding secret.
 Credentials can also include an optional organization ID that specifies the organization to use.
-You can retrieve these credentials from the [cloud](https://create.arduino.cc/iot/integrations) by creating a new API key.
+You can retrieve these credentials from the [cloud](https://cloud.arduino.cc/home/api-keys) by creating a new API key.
 
 Once you have the credentials, execute the following command and provide them:
 
