@@ -1,12 +1,12 @@
 ---
 name: golang.org/x/net/trace
-version: v0.0.0-20210505024714-0287a6fb4125
+version: v0.0.0-20211216030914-fe4d6282115f
 type: go
 summary: Package trace implements tracing of requests and long-lived objects.
 homepage: https://pkg.go.dev/golang.org/x/net/trace
-license: bsd-3-clause
+license: other
 licenses:
-- sources: net@v0.0.0-20210505024714-0287a6fb4125/LICENSE
+- sources: net@v0.0.0-20211216030914-fe4d6282115f/LICENSE
   text: |
     Copyright (c) 2009 The Go Authors. All rights reserved.
 
@@ -35,7 +35,7 @@ licenses:
     THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-- sources: net@v0.0.0-20210505024714-0287a6fb4125/PATENTS
+- sources: net@v0.0.0-20211216030914-fe4d6282115f/PATENTS
   text: |
     Additional IP Rights Grant (Patents)
 

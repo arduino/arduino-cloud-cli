@@ -1,6 +1,6 @@
 ---
 name: github.com/arduino/board-discovery
-version: v0.0.0-20180823133458-1ba29327fb0c
+version: v0.0.0-20211020061712-fd83c2e3c908
 type: go
 summary: 'Package discovery keeps an updated list of the devices connected to the
   computer, via serial ports or found in the network Usage: monitor := discovery.New(time.Millisecond)
@@ -12,7 +12,7 @@ summary: 'Package discovery keeps an updated list of the devices connected to th
   for ev := range monitor.Events { fmt.Println(ev) } Output: {add 0x2341/0x8036 <nil>}
   {add <nil> YunShield}'
 homepage: https://pkg.go.dev/github.com/arduino/board-discovery
-license: gpl-2.0-or-later
+license: gpl-2.0
 licenses:
 - sources: LICENSE
   text: |2
