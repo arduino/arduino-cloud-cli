@@ -59,8 +59,12 @@ jobs:
       - name: Check for outdated cache
         id: diff
         run: |
-          git add --intent-to-add .
-          git diff --color --exit-code
+          git add .
+          if ! git diff --cached --color --exit-code; then
+            echo
+            echo "::error::Dependency license metadata out of sync. See: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/check-go-dependencies-task.md#metadata-cache"
+            exit 1
+          fi
 
       # Some might find it convenient to have CI generate the cache rather than setting up for it locally
       - name: Upload cache to workflow artifact
