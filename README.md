@@ -46,7 +46,7 @@ Once you have the credentials, execute the following command and provide them:
 arduino-cloud-cli credentials init
 ```
 
-By default it will be created in the Arduino data directory (Arduino15).
+By default it will be created in the [Arduino data directory](https://support.arduino.cc/hc/en-us/articles/360018448279-Open-the-Arduino15-folder)
 You can specify a different destination folder with the `--dest-dir` option:
 
 ```bash
@@ -91,7 +91,7 @@ arduino-cloud-cli credentials find
 
 ## Device provisioning
 
-When provisioning a device, you can optionally specify the port to which the device is connected and its fqbn. If they are not given, then the first device found will be provisioned.
+When provisioning a device, you can optionally specify the port to which the device is connected and its [FQBN](https://arduino.github.io/arduino-cli/latest/FAQ/#whats-the-fqbn-string). If they are not given, then the first device found will be provisioned.
 
 Use this command to provision a device:
 
@@ -135,7 +135,7 @@ arduino-cloud-cli device list-frequency-plans
 A generic device is like a virtual device that doesn't need to be attached to an actual physical board.
 Any actual physical board can connect to Arduino IoT Cloud using the credentials of a generic device.
 Generic devices can be created using a specific command.
-An optional `--fqbn` flag can be passed to specify the fqbn of the device, otherwise it will be set to `generic:generic:generic`.
+An optional `--fqbn` flag can be passed to specify the FQBN of the device, otherwise it will be set to `generic:generic:generic`.
 
 ```bash
 arduino-cloud-cli device create-generic --name <deviceName> --fqbn <fqbn>
@@ -301,7 +301,7 @@ arduino-cloud-cli thing delete-tags --id <thingID> --keys <key0>,<key1>
 
 Perform an OTA firmware update.
 
-Note that the binary file (`.bin`) should be compiled using an arduino core that supports the specified device:
+Note that the binary file (`.bin`) should be compiled using an arduino core that supports the specified device (check [here](https://arduino.github.io/arduino-cli/0.27/commands/arduino-cli_compile/) how to compile a sketch using the `arduino-cli`): 
 
 ```bash
 arduino-cloud-cli ota upload --device-id <deviceID> --file <sketch-file.ino.bin>
