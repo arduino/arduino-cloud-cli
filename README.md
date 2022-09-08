@@ -8,8 +8,8 @@ This code is licensed under the terms of the GNU Affero General Public License v
 
 ## Setup
 
-* Install [the latest release](https://github.com/arduino/arduino-cloud-cli/releases)
-* A client ID and a secret ID, retrievable from the [cloud](https://cloud.arduino.cc/home/api-keys) by creating a new API key
+* Install [the latest release](https://github.com/arduino/arduino-cloud-cli/releases).
+* A client ID and a secret ID, retrievable from the [cloud](https://cloud.arduino.cc/home/api-keys) by creating a new API key.
 
 ## Usage
 
