@@ -32,7 +32,13 @@ type compileHandler struct {
 
 // Compile executes the 'arduino-cli compile' command
 // and returns its result.
-func (c compileHandler) Compile() error {
+func (c compileHandler) Compile(fqbn, sketch string) error {
+	return nil
+}
+
+// Upload executes the 'arduino-cli upload' command
+// and returns its result.
+func (c compileHandler) Upload(fqbn, sketch, port string) error {
 	return nil
 }
 

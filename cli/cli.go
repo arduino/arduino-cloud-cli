@@ -29,6 +29,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/cli/dashboard"
 	"github.com/arduino/arduino-cloud-cli/cli/device"
 	"github.com/arduino/arduino-cloud-cli/cli/ota"
+	"github.com/arduino/arduino-cloud-cli/cli/provision"
 	"github.com/arduino/arduino-cloud-cli/cli/thing"
 	"github.com/arduino/arduino-cloud-cli/cli/version"
 	"github.com/sirupsen/logrus"
@@ -65,6 +66,7 @@ func Execute() {
 	cli.AddCommand(thing.NewCommand())
 	cli.AddCommand(dashboard.NewCommand())
 	cli.AddCommand(ota.NewCommand())
+	cli.AddCommand(provision.NewCommand())
 
 	if err := cli.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
