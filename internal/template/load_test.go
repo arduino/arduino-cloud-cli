@@ -149,15 +149,15 @@ func (t *thingShowTest) ThingShow(thingID string) (*iotclient.ArduinoThing, erro
 	if thingID == thingOverriddenID {
 		return &iotclient.ArduinoThing{
 			Properties: []iotclient.ArduinoProperty{
-				{Id: switchyOverriddenID, Name: "switchy"},
+				{Id: switchyOverriddenID, VariableName: "switchy"},
 			},
 		}, nil
 	}
 	return &iotclient.ArduinoThing{
 		Properties: []iotclient.ArduinoProperty{
-			{Id: switchyID, Name: "switchy"},
-			{Id: relayID, Name: "relay_2"},
-			{Id: blinkSpeedID, Name: "blink_speed"},
+			{Id: switchyID, VariableName: "switchy"},
+			{Id: relayID, VariableName: "relay_2"},
+			{Id: blinkSpeedID, VariableName: "blink_speed"},
 		},
 	}, nil
 }

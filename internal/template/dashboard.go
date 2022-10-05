@@ -75,7 +75,7 @@ func getVariableID(thingID string, variableName string, fetcher ThingFetcher) (s
 	}
 
 	for _, v := range thing.Properties {
-		if v.Name == variableName {
+		if v.VariableName == variableName {
 			return v.Id, nil
 		}
 	}
