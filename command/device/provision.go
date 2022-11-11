@@ -64,7 +64,7 @@ func downloadProvisioningFile(fqbn string) (string, error) {
 }
 
 type certificateCreator interface {
-	CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
+	CertificateCreate(id, csr string) (*iotclient.ArduinoDevicev2Cert, error)
 }
 
 // provision is responsible for running the provisioning
@@ -129,10 +129,13 @@ func (p provision) configBoard() error {
 	if err != nil {
 		return err
 	}
-	cert, err := p.cert.CertificateCreate(p.id, string(csr))
+
+	c, err := p.cert.CertificateCreate(p.id, string(csr))
 	if err != nil {
 		return err
 	}
+
+	cert := c.Compressed
 
 	logrus.Info("Requesting begin storage")
 	err = p.ser.Send(serial.BeginStorage, nil)

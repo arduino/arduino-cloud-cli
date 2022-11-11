@@ -19,7 +19,7 @@ package dashboard
 
 import (
 	"github.com/arduino/arduino-cloud-cli/config"
-	"github.com/arduino/arduino-cloud-cli/internal/iot"
+	"github.com/arduino/arduino-cloud-cli/iot"
 )
 
 // List command is used to list

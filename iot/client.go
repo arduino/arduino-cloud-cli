@@ -199,7 +199,7 @@ func (cl *Client) LoraFrequencyPlansList() ([]iotclient.ArduinoLorafreqplanv1, e
 
 // CertificateCreate allows to upload a certificate on Arduino IoT Cloud.
 // It returns the certificate parameters populated by the cloud.
-func (cl *Client) CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error) {
+func (cl *Client) CertificateCreate(id, csr string) (*iotclient.ArduinoDevicev2Cert, error) {
 	cert := iotclient.CreateDevicesV2CertsPayload{
 		Ca:      "Arduino",
 		Csr:     csr,
@@ -212,7 +212,7 @@ func (cl *Client) CertificateCreate(id, csr string) (*iotclient.ArduinoCompresse
 		return nil, err
 	}
 
-	return &newCert.Compressed, nil
+	return &newCert, nil
 }
 
 // ThingCreate adds a new thing on Arduino IoT Cloud.
