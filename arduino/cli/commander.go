@@ -43,7 +43,7 @@ type commander struct {
 // It directly imports the golang packages of the arduino-cli.
 func NewCommander() (arduino.Commander, error) {
 	// Discard arduino-cli log info messages
-	logrus.SetLevel(logrus.PanicLevel)
+	logrus.SetLevel(logrus.ErrorLevel)
 	// Initialize arduino-cli configuration
 	configuration.Settings = configuration.Init(configuration.FindConfigFileInArgsOrWorkingDirectory(os.Args))
 	// Create arduino-cli instance, needed to execute arduino-cli commands
@@ -52,14 +52,8 @@ func NewCommander() (arduino.Commander, error) {
 		err = fmt.Errorf("creating arduino-cli instance: %w", err)
 		return nil, err
 	}
-	errs := instance.Init(inst)
-	if len(errs) > 0 {
-		err = errors.New("initializing arduino-cli instance: received errors: ")
-		for _, e := range errs {
-			err = fmt.Errorf("%w%v; ", err, e)
-		}
-		return nil, err
-	}
+
+	instance.Init(inst)
 
 	// Re-enable info level log
 	logrus.SetLevel(logrus.InfoLevel)
@@ -74,11 +68,21 @@ func (c *commander) BoardList() ([]*rpc.DetectedPort, error) {
 		Instance: c.Instance,
 		Timeout:  time.Second.Milliseconds(),
 	}
-	ports, err := board.List(req)
+
+	ports, errs, err := board.List(req)
 	if err != nil {
 		err = fmt.Errorf("%s: %w", "detecting boards", err)
 		return nil, err
 	}
+
+	if len(errs) > 0 {
+		err = errors.New("starting discovery procedure: received errors: ")
+		for _, e := range errs {
+			err = fmt.Errorf("%w%v; ", err, e)
+		}
+		return nil, err
+	}
+
 	return ports, nil
 }
 

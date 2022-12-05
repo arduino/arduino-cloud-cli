@@ -1,12 +1,12 @@
 ---
 name: github.com/arduino/arduino-cli/table
-version: v0.0.0-20211220130253-5dd14c4c02b0
+version: v0.0.0-20221116144942-76251df9241a
 type: go
 summary: 
 homepage: https://pkg.go.dev/github.com/arduino/arduino-cli/table
 license: gpl-3.0
 licenses:
-- sources: arduino-cli@v0.0.0-20211220130253-5dd14c4c02b0/LICENSE.txt
+- sources: arduino-cli@v0.0.0-20221116144942-76251df9241a/LICENSE.txt
   text: |2
                         GNU GENERAL PUBLIC LICENSE
                            Version 3, 29 June 2007
@@ -682,7 +682,7 @@ licenses:
     the library.  If this is what you want to do, use the GNU Lesser General
     Public License instead of this License.  But first, please read
     <https://www.gnu.org/licenses/why-not-lgpl.html>.
-- sources: arduino-cli@v0.0.0-20211220130253-5dd14c4c02b0/README.md
+- sources: arduino-cli@v0.0.0-20221116144942-76251df9241a/README.md
   text: |-
     Arduino CLI is licensed under the [GPL 3.0] license.
 
