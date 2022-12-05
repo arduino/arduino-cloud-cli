@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -27,6 +28,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"go.bug.st/cleanup"
 )
 
 type createGenericFlags struct {
@@ -66,7 +68,10 @@ func runCreateGenericCommand(flags *createGenericFlags) error {
 		FQBN: flags.fqbn,
 	}
 
-	dev, err := device.CreateGeneric(params, cred)
+	ctx, cancel := cleanup.InterruptableContext(context.Background())
+	defer cancel()
+
+	dev, err := device.CreateGeneric(ctx, params, cred)
 	if err != nil {
 		return err
 	}

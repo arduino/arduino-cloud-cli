@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/arduino/arduino-cloud-cli/config"
@@ -32,13 +33,13 @@ type ListParams struct {
 
 // List command is used to list
 // the devices of Arduino IoT Cloud.
-func List(params *ListParams, cred *config.Credentials) ([]DeviceInfo, error) {
+func List(ctx context.Context, params *ListParams, cred *config.Credentials) ([]DeviceInfo, error) {
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
 	}
 
-	foundDevices, err := iotClient.DeviceList(params.Tags)
+	foundDevices, err := iotClient.DeviceList(ctx, params.Tags)
 	if err != nil {
 		return nil, err
 	}

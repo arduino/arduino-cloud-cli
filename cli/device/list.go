@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -67,7 +68,7 @@ func runListCommand(flags *listFlags) error {
 	}
 
 	params := &device.ListParams{Tags: flags.tags}
-	devs, err := device.List(params, cred)
+	devs, err := device.List(context.TODO(), params, cred)
 	if err != nil {
 		return err
 	}

@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -39,11 +40,17 @@ type FQBNInfo struct {
 }
 
 // ListFQBN command returns a list of the supported FQBN.
-func ListFQBN() ([]FQBNInfo, error) {
-	h := &http.Client{Timeout: time.Second * 5}
-	resp, err := h.Get("https://builder.arduino.cc/v3/boards/")
+func ListFQBN(ctx context.Context) ([]FQBNInfo, error) {
+	url := "https://builder.arduino.cc/v3/boards/"
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("cannot retrieve boards from builder.arduino.cc: %w", err)
+		return nil, fmt.Errorf("cannot retrieve boards: %w", err)
+	}
+
+	h := &http.Client{Timeout: time.Second * 5}
+	resp, err := h.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("cannot retrieve boards: %w", err)
 	}
 	defer resp.Body.Close()
 

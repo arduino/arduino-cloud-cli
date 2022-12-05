@@ -18,6 +18,8 @@
 package dashboard
 
 import (
+	"context"
+
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
@@ -30,11 +32,11 @@ type DeleteParams struct {
 
 // Delete command is used to delete a dashboard
 // from Arduino IoT Cloud.
-func Delete(params *DeleteParams, cred *config.Credentials) error {
+func Delete(ctx context.Context, params *DeleteParams, cred *config.Credentials) error {
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return err
 	}
 
-	return iotClient.DashboardDelete(params.ID)
+	return iotClient.DashboardDelete(ctx, params.ID)
 }

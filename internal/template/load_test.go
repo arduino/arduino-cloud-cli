@@ -18,6 +18,7 @@
 package template
 
 import (
+	"context"
 	"testing"
 
 	iotclient "github.com/arduino/iot-client-go"
@@ -145,7 +146,7 @@ func TestLoadTemplate(t *testing.T) {
 
 type thingShowTest struct{}
 
-func (t *thingShowTest) ThingShow(thingID string) (*iotclient.ArduinoThing, error) {
+func (t *thingShowTest) ThingShow(ctx context.Context, thingID string) (*iotclient.ArduinoThing, error) {
 	if thingID == thingOverriddenID {
 		return &iotclient.ArduinoThing{
 			Properties: []iotclient.ArduinoProperty{
@@ -215,7 +216,7 @@ func TestLoadDashboard(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := LoadDashboard(tt.file, tt.override, mockThingShow)
+			got, err := LoadDashboard(context.TODO(), tt.file, tt.override, mockThingShow)
 			if err != nil {
 				t.Errorf("%v", err)
 			}

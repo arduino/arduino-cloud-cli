@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -53,7 +54,7 @@ func runListFrequencyPlansCommand() error {
 		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
-	freqs, err := device.ListFrequencyPlans(cred)
+	freqs, err := device.ListFrequencyPlans(context.TODO(), cred)
 	if err != nil {
 		return err
 	}

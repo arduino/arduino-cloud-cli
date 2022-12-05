@@ -18,7 +18,10 @@
 package thing
 
 import (
+	"context"
+
 	"github.com/arduino/arduino-cloud-cli/config"
+
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	iotclient "github.com/arduino/iot-client-go"
 )
@@ -32,7 +35,7 @@ type BindParams struct {
 
 // Bind command is used to bind a thing to a device
 // on Arduino IoT Cloud.
-func Bind(params *BindParams, cred *config.Credentials) error {
+func Bind(ctx context.Context, params *BindParams, cred *config.Credentials) error {
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return err
@@ -42,7 +45,7 @@ func Bind(params *BindParams, cred *config.Credentials) error {
 		DeviceId: params.DeviceID,
 	}
 
-	err = iotClient.ThingUpdate(params.ID, thing, true)
+	err = iotClient.ThingUpdate(ctx, params.ID, thing, true)
 	if err != nil {
 		return err
 	}

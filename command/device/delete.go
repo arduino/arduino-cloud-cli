@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"errors"
 
 	"github.com/arduino/arduino-cloud-cli/config"
@@ -36,7 +37,7 @@ type DeleteParams struct {
 
 // Delete command is used to delete a device
 // from Arduino IoT Cloud.
-func Delete(params *DeleteParams, cred *config.Credentials) error {
+func Delete(ctx context.Context, params *DeleteParams, cred *config.Credentials) error {
 	if params.ID == nil && params.Tags == nil {
 		return errors.New("provide either ID or Tags")
 	} else if params.ID != nil && params.Tags != nil {
@@ -53,7 +54,7 @@ func Delete(params *DeleteParams, cred *config.Credentials) error {
 		deviceIDs = append(deviceIDs, *params.ID)
 	}
 	if params.Tags != nil {
-		dev, err := iotClient.DeviceList(params.Tags)
+		dev, err := iotClient.DeviceList(ctx, params.Tags)
 		if err != nil {
 			return err
 		}
@@ -63,7 +64,7 @@ func Delete(params *DeleteParams, cred *config.Credentials) error {
 	}
 
 	for _, id := range deviceIDs {
-		err = iotClient.DeviceDelete(id)
+		err = iotClient.DeviceDelete(ctx, id)
 		if err != nil {
 			return err
 		}

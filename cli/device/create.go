@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -27,6 +28,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"go.bug.st/cleanup"
 )
 
 type createFlags struct {
@@ -73,7 +75,10 @@ func runCreateCommand(flags *createFlags) error {
 		params.FQBN = &flags.fqbn
 	}
 
-	dev, err := device.Create(params, cred)
+	ctx, cancel := cleanup.InterruptableContext(context.Background())
+	defer cancel()
+
+	dev, err := device.Create(ctx, params, cred)
 	if err != nil {
 		return err
 	}

@@ -18,13 +18,15 @@
 package arduino
 
 import (
+	"context"
+
 	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // Commander of arduino package allows to call
 // the arduino-cli commands in a programmatic way.
 type Commander interface {
-	BoardList() ([]*rpc.DetectedPort, error)
-	UploadBin(fqbn, bin, address, protocol string) error
+	BoardList(ctx context.Context) ([]*rpc.DetectedPort, error)
+	UploadBin(ctx context.Context, fqbn, bin, address, protocol string) error
 	//Compile() error
 }

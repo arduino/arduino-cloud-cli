@@ -18,6 +18,7 @@
 package dashboard
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -64,7 +65,7 @@ func runExtractCommand(flags *extractFlags) error {
 		ID: flags.id,
 	}
 
-	template, err := dashboard.Extract(params, cred)
+	template, err := dashboard.Extract(context.TODO(), params, cred)
 	if err != nil {
 		return err
 	}

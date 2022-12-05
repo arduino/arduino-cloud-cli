@@ -18,6 +18,7 @@
 package thing
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -33,7 +34,7 @@ type CreateParams struct {
 }
 
 // Create allows to create a new thing.
-func Create(params *CreateParams, cred *config.Credentials) (*ThingInfo, error) {
+func Create(ctx context.Context, params *CreateParams, cred *config.Credentials) (*ThingInfo, error) {
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
@@ -54,7 +55,7 @@ func Create(params *CreateParams, cred *config.Credentials) (*ThingInfo, error) 
 	}
 
 	force := true
-	newThing, err := iotClient.ThingCreate(thing, force)
+	newThing, err := iotClient.ThingCreate(ctx, thing, force)
 	if err != nil {
 		return nil, err
 	}

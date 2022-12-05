@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -27,6 +28,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"go.bug.st/cleanup"
 )
 
 type createLoraFlags struct {
@@ -80,7 +82,10 @@ func runCreateLoraCommand(flags *createLoraFlags) error {
 		params.FQBN = &flags.fqbn
 	}
 
-	dev, err := device.CreateLora(params, cred)
+	ctx, cancel := cleanup.InterruptableContext(context.Background())
+	defer cancel()
+
+	dev, err := device.CreateLora(ctx, params, cred)
 	if err != nil {
 		return err
 	}

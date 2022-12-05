@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"encoding/hex"
 	"fmt"
 	"path/filepath"
@@ -34,8 +35,8 @@ import (
 
 // downloadProvisioningFile downloads and returns the absolute path
 // of the provisioning binary corresponding to the passed fqbn.
-func downloadProvisioningFile(fqbn string) (string, error) {
-	index, err := binary.LoadIndex()
+func downloadProvisioningFile(ctx context.Context, fqbn string) (string, error) {
+	index, err := binary.LoadIndex(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -43,7 +44,7 @@ func downloadProvisioningFile(fqbn string) (string, error) {
 	if bin == nil {
 		return "", fmt.Errorf("provisioning binary for board %s not found", fqbn)
 	}
-	bytes, err := binary.Download(bin)
+	bytes, err := binary.Download(ctx, bin)
 	if err != nil {
 		return "", fmt.Errorf("downloading provisioning binary: %w", err)
 	}
@@ -64,7 +65,7 @@ func downloadProvisioningFile(fqbn string) (string, error) {
 }
 
 type certificateCreator interface {
-	CertificateCreate(id, csr string) (*iotclient.ArduinoCompressedv2, error)
+	CertificateCreate(ctx context.Context, id, csr string) (*iotclient.ArduinoCompressedv2, error)
 }
 
 // provision is responsible for running the provisioning
@@ -78,44 +79,49 @@ type provision struct {
 }
 
 // run provisioning procedure for boards with crypto-chip.
-func (p provision) run() error {
-	bin, err := downloadProvisioningFile(p.board.fqbn)
+func (p provision) run(ctx context.Context) error {
+	bin, err := downloadProvisioningFile(ctx, p.board.fqbn)
 	if err != nil {
 		return err
 	}
 
-	logrus.Infof("%s\n", "Uploading provisioning sketch on the board")
-	time.Sleep(500 * time.Millisecond)
 	// Try to upload the provisioning sketch
+	logrus.Infof("%s\n", "Uploading provisioning sketch on the board")
+	if err = sleepCtx(ctx, 500*time.Millisecond); err != nil {
+		return err
+	}
 	errMsg := "Error while uploading the provisioning sketch"
-	err = retry(5, time.Millisecond*1000, errMsg, func() error {
+	err = retry(ctx, 5, time.Millisecond*1000, errMsg, func() error {
 		//serialutils.Reset(dev.port, true, nil)
-		return p.UploadBin(p.board.fqbn, bin, p.board.address, p.board.protocol)
+		return p.UploadBin(ctx, p.board.fqbn, bin, p.board.address, p.board.protocol)
 	})
 	if err != nil {
 		return err
 	}
 
-	logrus.Infof("%s\n", "Connecting to the board through serial port")
 	// Try to connect to board through the serial port
-	time.Sleep(1500 * time.Millisecond)
+	logrus.Infof("%s\n", "Connecting to the board through serial port")
+	if err = sleepCtx(ctx, 1500*time.Millisecond); err != nil {
+		return err
+	}
 	p.ser = serial.NewSerial()
 	errMsg = "Error while connecting to the board"
-	err = retry(5, time.Millisecond*1000, errMsg, func() error {
+	err = retry(ctx, 5, time.Millisecond*1000, errMsg, func() error {
 		return p.ser.Connect(p.board.address)
 	})
 	if err != nil {
 		return err
 	}
 	defer p.ser.Close()
-
-	// Wait some time before using the serial port
-	time.Sleep(2000 * time.Millisecond)
 	logrus.Infof("%s\n\n", "Connected to the board")
 
+	// Wait some time before using the serial port
+	if err = sleepCtx(ctx, 2000*time.Millisecond); err != nil {
+		return err
+	}
+
 	// Send configuration commands to the board
-	err = p.configBoard()
-	if err != nil {
+	if err = p.configBoard(ctx); err != nil {
 		return err
 	}
 
@@ -123,109 +129,106 @@ func (p provision) run() error {
 	return nil
 }
 
-func (p provision) configBoard() error {
+func (p provision) configBoard(ctx context.Context) error {
 	logrus.Info("Receiving the certificate")
-	csr, err := p.ser.SendReceive(serial.CSR, []byte(p.id))
+	csr, err := p.ser.SendReceive(ctx, serial.CSR, []byte(p.id))
 	if err != nil {
 		return err
 	}
-	cert, err := p.cert.CertificateCreate(p.id, string(csr))
+	cert, err := p.cert.CertificateCreate(ctx, p.id, string(csr))
 	if err != nil {
 		return err
 	}
 
 	logrus.Info("Requesting begin storage")
-	err = p.ser.Send(serial.BeginStorage, nil)
-	if err != nil {
+	if err = p.ser.Send(ctx, serial.BeginStorage, nil); err != nil {
 		return err
 	}
 
 	s := strconv.Itoa(cert.NotBefore.Year())
 	logrus.Info("Sending year: ", s)
-	err = p.ser.Send(serial.SetYear, []byte(s))
-	if err != nil {
+	if err = p.ser.Send(ctx, serial.SetYear, []byte(s)); err != nil {
 		return err
 	}
 
 	s = fmt.Sprintf("%02d", int(cert.NotBefore.Month()))
 	logrus.Info("Sending month: ", s)
-	err = p.ser.Send(serial.SetMonth, []byte(s))
-	if err != nil {
+	if err = p.ser.Send(ctx, serial.SetMonth, []byte(s)); err != nil {
 		return err
 	}
 
 	s = fmt.Sprintf("%02d", cert.NotBefore.Day())
 	logrus.Info("Sending day: ", s)
-	err = p.ser.Send(serial.SetDay, []byte(s))
-	if err != nil {
+	if err = p.ser.Send(ctx, serial.SetDay, []byte(s)); err != nil {
 		return err
 	}
 
 	s = fmt.Sprintf("%02d", cert.NotBefore.Hour())
 	logrus.Info("Sending hour: ", s)
-	err = p.ser.Send(serial.SetHour, []byte(s))
-	if err != nil {
+	if err = p.ser.Send(ctx, serial.SetHour, []byte(s)); err != nil {
 		return err
 	}
 
 	s = strconv.Itoa(31)
 	logrus.Info("Sending validity: ", s)
-	err = p.ser.Send(serial.SetValidity, []byte(s))
-	if err != nil {
+	if err = p.ser.Send(ctx, serial.SetValidity, []byte(s)); err != nil {
 		return err
 	}
 
 	logrus.Info("Sending certificate serial")
 	b, err := hex.DecodeString(cert.Serial)
 	if err != nil {
-		err = fmt.Errorf("%s: %w", "decoding certificate serial", err)
-		return err
+		return fmt.Errorf("decoding certificate serial: %w", err)
 	}
-	err = p.ser.Send(serial.SetCertSerial, b)
-	if err != nil {
+	if err = p.ser.Send(ctx, serial.SetCertSerial, b); err != nil {
 		return err
 	}
 
 	logrus.Info("Sending certificate authority key")
 	b, err = hex.DecodeString(cert.AuthorityKeyIdentifier)
 	if err != nil {
-		err = fmt.Errorf("%s: %w", "decoding certificate authority key id", err)
-		return err
+		return fmt.Errorf("decoding certificate authority key id: %w", err)
 	}
-	err = p.ser.Send(serial.SetAuthKey, b)
-	if err != nil {
+	if err = p.ser.Send(ctx, serial.SetAuthKey, b); err != nil {
 		return err
 	}
 
 	logrus.Info("Sending certificate signature")
 	b, err = hex.DecodeString(cert.SignatureAsn1X + cert.SignatureAsn1Y)
 	if err != nil {
-		err = fmt.Errorf("%s: %w", "decoding certificate signature", err)
+		err = fmt.Errorf("decoding certificate signature: %w", err)
 		return err
 	}
-	err = p.ser.Send(serial.SetSignature, b)
-	if err != nil {
+	if err = p.ser.Send(ctx, serial.SetSignature, b); err != nil {
 		return err
 	}
 
-	time.Sleep(time.Second)
+	if err := sleepCtx(ctx, 1*time.Second); err != nil {
+		return err
+	}
+
 	logrus.Info("Requesting end storage")
-	err = p.ser.Send(serial.EndStorage, nil)
-	if err != nil {
+	if err = p.ser.Send(ctx, serial.EndStorage, nil); err != nil {
 		return err
 	}
 
-	time.Sleep(2 * time.Second)
+	if err := sleepCtx(ctx, 2*time.Second); err != nil {
+		return err
+	}
+
 	logrus.Info("Requesting certificate reconstruction")
-	err = p.ser.Send(serial.ReconstructCert, nil)
-	if err != nil {
+	if err = p.ser.Send(ctx, serial.ReconstructCert, nil); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func retry(tries int, sleep time.Duration, errMsg string, fun func() error) error {
+func retry(ctx context.Context, tries int, sleep time.Duration, errMsg string, fun func() error) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	var err error
 	for n := 0; n < tries; n++ {
 		err = fun()
@@ -233,7 +236,18 @@ func retry(tries int, sleep time.Duration, errMsg string, fun func() error) erro
 			break
 		}
 		logrus.Warningf("%s: %s: %s", errMsg, err.Error(), "\nTrying again...")
-		time.Sleep(sleep)
+		if err := sleepCtx(ctx, sleep); err != nil {
+			return err
+		}
 	}
 	return err
+}
+
+func sleepCtx(ctx context.Context, tm time.Duration) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-time.After(tm):
+		return nil
+	}
 }

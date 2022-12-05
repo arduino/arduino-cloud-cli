@@ -18,6 +18,7 @@
 package thing
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/arduino/arduino-cloud-cli/config"
@@ -32,20 +33,20 @@ type CloneParams struct {
 }
 
 // Clone allows to create a new thing from an already existing one.
-func Clone(params *CloneParams, cred *config.Credentials) (*ThingInfo, error) {
+func Clone(ctx context.Context, params *CloneParams, cred *config.Credentials) (*ThingInfo, error) {
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
 	}
 
-	thing, err := retrieve(iotClient, params.CloneID)
+	thing, err := retrieve(ctx, iotClient, params.CloneID)
 	if err != nil {
 		return nil, err
 	}
 
 	thing.Name = params.Name
 	force := true
-	newThing, err := iotClient.ThingCreate(thing, force)
+	newThing, err := iotClient.ThingCreate(ctx, thing, force)
 	if err != nil {
 		return nil, err
 	}
@@ -58,11 +59,11 @@ func Clone(params *CloneParams, cred *config.Credentials) (*ThingInfo, error) {
 }
 
 type thingFetcher interface {
-	ThingShow(id string) (*iotclient.ArduinoThing, error)
+	ThingShow(ctx context.Context, id string) (*iotclient.ArduinoThing, error)
 }
 
-func retrieve(fetcher thingFetcher, thingID string) (*iotclient.ThingCreate, error) {
-	clone, err := fetcher.ThingShow(thingID)
+func retrieve(ctx context.Context, fetcher thingFetcher, thingID string) (*iotclient.ThingCreate, error) {
+	clone, err := fetcher.ThingShow(ctx, thingID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "retrieving the thing to be cloned", err)
 	}

@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -37,13 +38,13 @@ type CreateParams struct {
 
 // Create command is used to provision a new arduino device
 // and to add it to Arduino IoT Cloud.
-func Create(params *CreateParams, cred *config.Credentials) (*DeviceInfo, error) {
+func Create(ctx context.Context, params *CreateParams, cred *config.Credentials) (*DeviceInfo, error) {
 	comm, err := cli.NewCommander()
 	if err != nil {
 		return nil, err
 	}
 
-	ports, err := comm.BoardList()
+	ports, err := comm.BoardList(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +70,7 @@ func Create(params *CreateParams, cred *config.Credentials) (*DeviceInfo, error)
 	}
 
 	logrus.Info("Creating a new device on the cloud")
-	dev, err := iotClient.DeviceCreate(board.fqbn, params.Name, board.serial, board.dType)
+	dev, err := iotClient.DeviceCreate(ctx, board.fqbn, params.Name, board.serial, board.dType)
 	if err != nil {
 		return nil, err
 	}
@@ -80,8 +81,9 @@ func Create(params *CreateParams, cred *config.Credentials) (*DeviceInfo, error)
 		board:     board,
 		id:        dev.Id,
 	}
-	if err = prov.run(); err != nil {
-		if errDel := iotClient.DeviceDelete(dev.Id); errDel != nil {
+	if err = prov.run(ctx); err != nil {
+		// Don't use the passed context for the cleanup because it could be cancelled.
+		if errDel := iotClient.DeviceDelete(context.Background(), dev.Id); errDel != nil {
 			return nil, fmt.Errorf(
 				"device was NOT successfully provisioned but " +
 					"now we can't delete it from the cloud - please check " +

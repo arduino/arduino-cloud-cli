@@ -38,7 +38,7 @@ func (c compileHandler) Compile() error {
 
 // Upload executes the 'arduino-cli upload -i' command
 // and returns its result.
-func (c compileHandler) UploadBin(fqbn, bin, address, protocol string) error {
+func (c compileHandler) UploadBin(ctx context.Context, fqbn, bin, address, protocol string) error {
 	stream, err := c.serviceClient.Upload(context.Background(),
 		&rpc.UploadRequest{
 			Instance:   c.instance,

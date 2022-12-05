@@ -18,6 +18,7 @@
 package dashboard
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -76,7 +77,7 @@ func runCreateCommand(flags *createFlags) error {
 		params.Name = &flags.name
 	}
 
-	dashboard, err := dashboard.Create(params, cred)
+	dashboard, err := dashboard.Create(context.TODO(), params, cred)
 	if err != nil {
 		return err
 	}

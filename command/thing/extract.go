@@ -18,6 +18,7 @@
 package thing
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/arduino/arduino-cloud-cli/config"
@@ -33,13 +34,13 @@ type ExtractParams struct {
 
 // Extract command is used to extract a thing template
 // from a thing on Arduino IoT Cloud.
-func Extract(params *ExtractParams, cred *config.Credentials) (map[string]interface{}, error) {
+func Extract(ctx context.Context, params *ExtractParams, cred *config.Credentials) (map[string]interface{}, error) {
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
 	}
 
-	thing, err := iotClient.ThingShow(params.ID)
+	thing, err := iotClient.ThingShow(ctx, params.ID)
 	if err != nil {
 		err = fmt.Errorf("%s: %w", "cannot extract thing: ", err)
 		return nil, err

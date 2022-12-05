@@ -44,9 +44,11 @@ type commander struct {
 func NewCommander() (arduino.Commander, error) {
 	// Discard arduino-cli log info messages
 	logrus.SetLevel(logrus.ErrorLevel)
-	// Initialize arduino-cli configuration
+
+	// Initialize arduino-cli configuration.
 	configuration.Settings = configuration.Init(configuration.FindConfigFileInArgsOrWorkingDirectory(os.Args))
-	// Create arduino-cli instance, needed to execute arduino-cli commands
+
+	// Create and init an arduino-cli instance, needed to execute arduino-cli commands.
 	inst, err := instance.Create()
 	if err != nil {
 		err = fmt.Errorf("creating arduino-cli instance: %w", err)
@@ -61,34 +63,64 @@ func NewCommander() (arduino.Commander, error) {
 	return cmd, nil
 }
 
+func mergeErrors(err error, errs []error) error {
+	merr := errors.New("merged errors: ")
+	empty := true
+
+	if err != nil {
+		merr = fmt.Errorf("%w%v; ", merr, err)
+		empty = false
+	}
+
+	if len(errs) > 0 {
+		empty = false
+		for _, e := range errs {
+			merr = fmt.Errorf("%w%v; ", merr, e)
+		}
+	}
+
+	if !empty {
+		return merr
+	}
+	return nil
+}
+
 // BoardList executes the 'arduino-cli board list' command
 // and returns its result.
-func (c *commander) BoardList() ([]*rpc.DetectedPort, error) {
+func (c *commander) BoardList(ctx context.Context) ([]*rpc.DetectedPort, error) {
 	req := &rpc.BoardListRequest{
 		Instance: c.Instance,
 		Timeout:  time.Second.Milliseconds(),
 	}
 
-	ports, errs, err := board.List(req)
-	if err != nil {
-		err = fmt.Errorf("%s: %w", "detecting boards", err)
-		return nil, err
+	// There is no obvious way to cancel the execution of this command.
+	// So, we execute it in a goroutine and leave it running alone if ctx gets cancelled.
+	type resp struct {
+		err   error
+		ports []*rpc.DetectedPort
 	}
+	quit := make(chan resp, 1)
+	go func() {
+		ports, errs, err := board.List(req)
+		quit <- resp{err: mergeErrors(err, errs), ports: ports}
+		close(quit)
+	}()
 
-	if len(errs) > 0 {
-		err = errors.New("starting discovery procedure: received errors: ")
-		for _, e := range errs {
-			err = fmt.Errorf("%w%v; ", err, e)
+	// Wait for the command to complete or the context to be terminated.
+	select {
+	case <-ctx.Done():
+		return nil, errors.New("board list command cancelled")
+	case r := <-quit:
+		if r.err != nil {
+			return nil, fmt.Errorf("executing board list command: %w", r.err)
 		}
-		return nil, err
+		return r.ports, nil
 	}
-
-	return ports, nil
 }
 
 // UploadBin executes the 'arduino-cli upload -i' command
 // and returns its result.
-func (c *commander) UploadBin(fqbn, bin, address, protocol string) error {
+func (c *commander) UploadBin(ctx context.Context, fqbn, bin, address, protocol string) error {
 	req := &rpc.UploadRequest{
 		Instance:   c.Instance,
 		Fqbn:       fqbn,
@@ -97,11 +129,25 @@ func (c *commander) UploadBin(fqbn, bin, address, protocol string) error {
 		Port:       &rpc.Port{Address: address, Protocol: protocol},
 		Verbose:    false,
 	}
-
 	l := logrus.StandardLogger().WithField("source", "arduino-cli").Writer()
-	if _, err := upload.Upload(context.Background(), req, l, l); err != nil {
-		err = fmt.Errorf("%s: %w", "uploading binary", err)
-		return err
+
+	// There is no obvious way to cancel the execution of this command.
+	// So, we execute it in a goroutine and leave it running if ctx gets cancelled.
+	quit := make(chan error, 1)
+	go func() {
+		_, err := upload.Upload(ctx, req, l, l)
+		quit <- err
+		close(quit)
+	}()
+
+	// Wait for the upload to complete or the context to be terminated.
+	select {
+	case <-ctx.Done():
+		return errors.New("upload cancelled")
+	case err := <-quit:
+		if err != nil {
+			return fmt.Errorf("uploading binary: %w", err)
+		}
+		return nil
 	}
-	return nil
 }

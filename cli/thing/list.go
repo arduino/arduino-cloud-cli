@@ -18,6 +18,7 @@
 package thing
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -83,7 +84,7 @@ func runListCommand(flags *listFlags) error {
 		params.DeviceID = &flags.deviceID
 	}
 
-	things, err := thing.List(params, cred)
+	things, err := thing.List(context.TODO(), params, cred)
 	if err != nil {
 		return err
 	}

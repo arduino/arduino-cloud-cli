@@ -18,6 +18,7 @@
 package template
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -63,13 +64,13 @@ func (v *variableTemplate) MarshalJSON() ([]byte, error) {
 
 // ThingFetcher wraps the method to fetch a thing given its id.
 type ThingFetcher interface {
-	ThingShow(id string) (*iotclient.ArduinoThing, error)
+	ThingShow(ctx context.Context, id string) (*iotclient.ArduinoThing, error)
 }
 
 // getVariableID returns the id of a variable, given its name and its thing id.
 // If the variable is not found, an error is returned.
-func getVariableID(thingID string, variableName string, fetcher ThingFetcher) (string, error) {
-	thing, err := fetcher.ThingShow(thingID)
+func getVariableID(ctx context.Context, thingID string, variableName string, fetcher ThingFetcher) (string, error) {
+	thing, err := fetcher.ThingShow(ctx, thingID)
 	if err != nil {
 		return "", fmt.Errorf("getting variables of thing %s: %w", thingID, err)
 	}

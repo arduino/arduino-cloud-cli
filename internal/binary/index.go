@@ -19,6 +19,7 @@ package binary
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -56,8 +57,8 @@ type IndexBin struct {
 
 // LoadIndex downloads and verifies the index of binaries
 // contained in 'cloud-downloads'.
-func LoadIndex() (*Index, error) {
-	indexGZ, err := download(IndexGZURL)
+func LoadIndex(ctx context.Context) (*Index, error) {
+	indexGZ, err := download(ctx, IndexGZURL)
 	if err != nil {
 		return nil, fmt.Errorf("cannot download index: %w", err)
 	}
@@ -71,7 +72,7 @@ func LoadIndex() (*Index, error) {
 		return nil, fmt.Errorf("cannot read downloaded index: %w", err)
 	}
 
-	sig, err := download(IndexSigURL)
+	sig, err := download(ctx, IndexSigURL)
 	if err != nil {
 		return nil, fmt.Errorf("cannot download index signature: %w", err)
 	}
