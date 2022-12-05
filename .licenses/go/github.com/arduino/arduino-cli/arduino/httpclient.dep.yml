@@ -1,9 +1,9 @@
 ---
-name: github.com/arduino/arduino-cli/httpclient
+name: github.com/arduino/arduino-cli/arduino/httpclient
 version: v0.0.0-20221116144942-76251df9241a
 type: go
 summary: 
-homepage: https://pkg.go.dev/github.com/arduino/arduino-cli/httpclient
+homepage: https://pkg.go.dev/github.com/arduino/arduino-cli/arduino/httpclient
 license: gpl-3.0
 licenses:
 - sources: arduino-cli@v0.0.0-20221116144942-76251df9241a/LICENSE.txt
