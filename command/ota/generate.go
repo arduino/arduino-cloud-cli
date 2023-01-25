@@ -37,6 +37,7 @@ var (
 		"arduino:mbed_nano:nanorp2040connect": "005E",
 		"arduino:mbed_portenta:envie_m7":      "025B",
 		"arduino:mbed_nicla:nicla_vision":     "025F",
+		"arduino:mbed_opta:opta":              "0064",
 	}
 )
 
