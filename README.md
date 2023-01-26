@@ -110,6 +110,21 @@ Here are the FQBNs of the Arduino boards that can be provisioned with this comma
 * `arduino:samd:mkrgsm1400`
 * `arduino:samd:mkrnb1500`
 
+If the device supports more than one connectivity type (Eg: WiFi and Ethernet) the --connection flag can be used to set the desired connectivity
+
+```bash
+arduino-cloud-cli device create --name <deviceName> --port <port> --fqbn <deviceFqbn> --connection <deviceConnectivity>
+```
+
+Here the list of available connection values:
+
+* `wifi` to set WiFi connectivity
+* `eth` to set Ethernet connectivity
+* `wifiandsecret`
+* `gsm` to set Gsm connectivity
+* `nb` to set Narrowband connectivity
+* `lora` to set Lora connectivity
+
 ### Devices with LoRaWAN connectivity
 
 LoRaWAN devices should be provisioned using a specific command.
