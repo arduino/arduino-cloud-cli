@@ -32,9 +32,10 @@ import (
 )
 
 type createFlags struct {
-	port string
-	name string
-	fqbn string
+	port  string
+	name  string
+	fqbn  string
+	ctype string
 }
 
 func initCreateCommand() *cobra.Command {
@@ -53,6 +54,7 @@ func initCreateCommand() *cobra.Command {
 	createCommand.Flags().StringVarP(&flags.port, "port", "p", "", "Device port")
 	createCommand.Flags().StringVarP(&flags.name, "name", "n", "", "Device name")
 	createCommand.Flags().StringVarP(&flags.fqbn, "fqbn", "b", "", "Device fqbn")
+	createCommand.Flags().StringVarP(&flags.ctype, "connection", "c", "", "Device connection type")
 	createCommand.MarkFlagRequired("name")
 	return createCommand
 }
@@ -67,6 +69,9 @@ func runCreateCommand(flags *createFlags) error {
 
 	params := &device.CreateParams{
 		Name: flags.name,
+	}
+	if flags.ctype != "" {
+		params.ConnectionType = &flags.ctype
 	}
 	if flags.port != "" {
 		params.Port = &flags.port
