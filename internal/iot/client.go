@@ -48,7 +48,7 @@ func NewClient(cred *config.Credentials) (*Client, error) {
 
 // DeviceCreate allows to create a new device on Arduino IoT Cloud.
 // It returns the newly created device, and an error.
-func (cl *Client) DeviceCreate(ctx context.Context, fqbn, name, serial, dType string) (*iotclient.ArduinoDevicev2, error) {
+func (cl *Client) DeviceCreate(ctx context.Context, fqbn, name, serial, dType string, cType *string) (*iotclient.ArduinoDevicev2, error) {
 	ctx, err := ctxWithToken(ctx, cl.token)
 	if err != nil {
 		return nil, err
@@ -60,6 +60,11 @@ func (cl *Client) DeviceCreate(ctx context.Context, fqbn, name, serial, dType st
 		Serial: serial,
 		Type:   dType,
 	}
+
+	if cType != nil {
+		payload.ConnectionType = *cType
+	}
+
 	dev, _, err := cl.api.DevicesV2Api.DevicesV2Create(ctx, payload, nil)
 	if err != nil {
 		err = fmt.Errorf("creating device, %w", errorDetail(err))
@@ -85,7 +90,8 @@ func (cl *Client) DeviceLoraCreate(ctx context.Context, name, serial, devType, e
 		Type:          devType,
 		UserId:        "me",
 	}
-	dev, _, err := cl.api.LoraDevicesV1Api.LoraDevicesV1Create(ctx, payload)
+
+	dev, _, err := cl.api.LoraDevicesV1Api.LoraDevicesV1Create(ctx, payload, nil)
 	if err != nil {
 		err = fmt.Errorf("creating lora device: %w", errorDetail(err))
 		return nil, err

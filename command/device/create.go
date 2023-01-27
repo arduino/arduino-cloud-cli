@@ -31,9 +31,10 @@ import (
 // CreateParams contains the parameters needed
 // to find the device to be provisioned.
 type CreateParams struct {
-	Name string  // Device name
-	Port *string // Serial port - Optional - If omitted then each serial port is analyzed
-	FQBN *string // Board FQBN - Optional - If omitted then the first device found gets selected
+	Name           string  // Device name
+	Port           *string // Serial port - Optional - If omitted then each serial port is analyzed
+	FQBN           *string // Board FQBN - Optional - If omitted then the first device found gets selected
+	ConnectionType *string // Connection type - Optional - If omitted then the default connection type (depends on the board type) get selected
 }
 
 // Create command is used to provision a new arduino device
@@ -70,7 +71,7 @@ func Create(ctx context.Context, params *CreateParams, cred *config.Credentials)
 	}
 
 	logrus.Info("Creating a new device on the cloud")
-	dev, err := iotClient.DeviceCreate(ctx, board.fqbn, params.Name, board.serial, board.dType)
+	dev, err := iotClient.DeviceCreate(ctx, board.fqbn, params.Name, board.serial, board.dType, params.ConnectionType)
 	if err != nil {
 		return nil, err
 	}
