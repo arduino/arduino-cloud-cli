@@ -33,18 +33,18 @@ type Encoder struct {
 	w io.Writer
 
 	// vendorID is the ID of the board vendor.
-	vendorID string
+	magicNumberPart1 string
 
 	// productID is the ID of the board model.
-	productID string
+	magicNumberPart2 string
 }
 
 // NewEncoder creates a new ota encoder.
-func NewEncoder(w io.Writer, vendorID, productID string) *Encoder {
+func NewEncoder(w io.Writer, magicNumberPart1, magicNumberPart2 string) *Encoder {
 	return &Encoder{
-		w:         w,
-		vendorID:  vendorID,
-		productID: productID,
+		w:                w,
+		magicNumberPart1: magicNumberPart1,
+		magicNumberPart2: magicNumberPart2,
 	}
 }
 
@@ -53,17 +53,17 @@ func NewEncoder(w io.Writer, vendorID, productID string) *Encoder {
 func (e *Encoder) Encode(data []byte) error {
 	// Compute the magic number (VID/PID)
 	magicNumber := make([]byte, 4)
-	vid, err := strconv.ParseUint(e.vendorID, 16, 16)
+	magicNumberPart1, err := strconv.ParseUint(e.magicNumberPart1, 16, 16)
 	if err != nil {
 		return fmt.Errorf("cannot parse vendorID: %w", err)
 	}
-	pid, err := strconv.ParseUint(e.productID, 16, 16)
+	magicNumberPart2, err := strconv.ParseUint(e.magicNumberPart2, 16, 16)
 	if err != nil {
 		return fmt.Errorf("cannot parse productID: %w", err)
 	}
 
-	binary.LittleEndian.PutUint16(magicNumber[0:2], uint16(pid))
-	binary.LittleEndian.PutUint16(magicNumber[2:4], uint16(vid))
+	binary.LittleEndian.PutUint16(magicNumber[0:2], uint16(magicNumberPart2))
+	binary.LittleEndian.PutUint16(magicNumber[2:4], uint16(magicNumberPart1))
 
 	// Version field (byte array of size 8)
 	version := Version{
