@@ -109,6 +109,7 @@ Here are the FQBNs of the Arduino boards that can be provisioned with this comma
 * `arduino:samd:mkr1000`
 * `arduino:samd:mkrgsm1400`
 * `arduino:samd:mkrnb1500`
+* `arduino:mbed_opta:opta`
 
 If the device supports more than one connectivity type (Eg: WiFi and Ethernet) the --connection flag can be used to set the desired connectivity
 
