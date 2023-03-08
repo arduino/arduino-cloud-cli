@@ -27,9 +27,8 @@ require (
 	go.bug.st/cleanup v1.0.0
 	go.bug.st/serial v1.3.3
 	go.bug.st/serial.v1 v0.0.0-20191202182710-24a6610f0541 // indirect
-	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
+	golang.org/x/crypto v0.7.0
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
-	golang.org/x/text v0.4.0 // indirect
 	google.golang.org/grpc v1.43.0
 	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools v2.2.0+incompatible
