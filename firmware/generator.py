@@ -30,6 +30,7 @@ BOARDS = [
     {"type": "crypto", "ext": ".bin", "fqbn": "arduino:samd:mkrgsm1400"},
     {"type": "crypto", "ext": ".bin", "fqbn": "arduino:samd:mkrnb1500"},
     {"type": "crypto", "ext": ".bin", "fqbn": "arduino:mbed_opta:opta"},
+    {"type": "crypto", "ext": ".bin", "fqbn": "arduino:mbed_giga:giga"},
     {"type": "lora", "ext": ".bin", "fqbn": "arduino:samd:mkrwan1300"},
     {"type": "lora", "ext": ".bin", "fqbn": "arduino:samd:mkrwan1310"},
 ]

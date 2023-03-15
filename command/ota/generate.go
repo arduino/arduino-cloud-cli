@@ -39,6 +39,7 @@ var (
 		"arduino:mbed_portenta:envie_m7":      "025B",
 		"arduino:mbed_nicla:nicla_vision":     "025F",
 		"arduino:mbed_opta:opta":              "0064",
+		"arduino:mbed_giga:giga":              "0266",
 	}
 	esp32MagicNumberPart1 = "4553"
 	esp32MagicNumberPart2 = "5033"
