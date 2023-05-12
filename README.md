@@ -11,7 +11,7 @@ This code is licensed under the terms of the GNU Affero General Public License v
 * Install [the latest release](https://github.com/arduino/arduino-cloud-cli/releases).
 * A client ID and a secret ID, retrievable from the [cloud](https://cloud.arduino.cc/home/api-keys) by creating a new API key.
 * Optional: the command `arduino-cloud-cli device create` requires the `arduino-cli` tool installed on the system. 
-  So, if you plan to create a device on the Arduino Cloud via CLI, you need to install the `arduino-cli` following the instructions at [https://arduino.github.io/arduino-cli/0.32/](https://arduino.github.io/arduino-cli/0.32/)
+  So, if you plan to create a device on the Arduino Cloud via CLI, you need to install the `arduino-cli` following the instructions at [https://arduino.github.io/arduino-cli/latest/](https://arduino.github.io/arduino-cli/latest/)
 
 
 ## Usage
