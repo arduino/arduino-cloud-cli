@@ -30,16 +30,18 @@ import (
 var (
 	arduinoVendorID  = "2341"
 	arduinoFqbnToPID = map[string]string{
-		"arduino:samd:nano_33_iot":            "8057",
-		"arduino:samd:mkr1000":                "804E",
-		"arduino:samd:mkrgsm1400":             "8052",
-		"arduino:samd:mkrnb1500":              "8055",
-		"arduino:samd:mkrwifi1010":            "8054",
-		"arduino:mbed_nano:nanorp2040connect": "005E",
-		"arduino:mbed_portenta:envie_m7":      "025B",
-		"arduino:mbed_nicla:nicla_vision":     "025F",
-		"arduino:mbed_opta:opta":              "0064",
-		"arduino:mbed_giga:giga":              "0266",
+		"arduino:samd:nano_33_iot":              "8057",
+		"arduino:samd:mkr1000":                  "804E",
+		"arduino:samd:mkrgsm1400":               "8052",
+		"arduino:samd:mkrnb1500":                "8055",
+		"arduino:samd:mkrwifi1010":              "8054",
+		"arduino:mbed_nano:nanorp2040connect":   "005E",
+		"arduino:mbed_portenta:envie_m7":        "025B",
+		"arduino:mbed_nicla:nicla_vision":       "025F",
+		"arduino:mbed_opta:opta":                "0064",
+		"arduino:mbed_giga:giga":                "0266",
+		`arduino:renesas_portenta:portenta_c33`: "0068",
+		`arduino:renesas_uno:unor4wifi`:         "1002",
 	}
 	esp32MagicNumberPart1 = "4553"
 	esp32MagicNumberPart2 = "5033"

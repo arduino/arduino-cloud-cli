@@ -29,6 +29,8 @@ jobs:
           arduino-cli core install arduino:mbed_nicla
           arduino-cli core install arduino:mbed_opta
           arduino-cli core install arduino:mbed_giga
+          arduino-cli core install arduino:renesas_portenta
+          arduino-cli core install arduino:renesas_uno
           arduino-cli lib install ArduinoIotCloud
           arduino-cli lib install ArduinoECCX08
           arduino-cli lib install ArduinoSTL

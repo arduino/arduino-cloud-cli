@@ -31,6 +31,7 @@ BOARDS = [
     {"type": "crypto", "ext": ".bin", "fqbn": "arduino:samd:mkrnb1500"},
     {"type": "crypto", "ext": ".bin", "fqbn": "arduino:mbed_opta:opta"},
     {"type": "crypto", "ext": ".bin", "fqbn": "arduino:mbed_giga:giga"},
+    {"type": "crypto", "ext": ".bin", "fqbn": "arduino:renesas_portenta:portenta_c33"},
     {"type": "lora", "ext": ".bin", "fqbn": "arduino:samd:mkrwan1300"},
     {"type": "lora", "ext": ".bin", "fqbn": "arduino:samd:mkrwan1310"},
 ]
