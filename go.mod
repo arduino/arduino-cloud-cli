@@ -6,7 +6,7 @@ require (
 	github.com/antihax/optional v1.0.0
 	github.com/arduino/arduino-cli v0.0.0-20221116144942-76251df9241a
 	github.com/arduino/go-paths-helper v1.7.0
-	github.com/arduino/go-win32-utils v0.0.0-20180330194947-ed041402e83b
+	github.com/arduino/go-win32-utils v1.0.0
 	github.com/arduino/iot-client-go v1.4.4
 	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/google/go-cmp v0.5.6
@@ -78,7 +78,7 @@ require (
 	go.bug.st/serial.v1 v0.0.0-20191202182710-24a6610f0541 // indirect
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
+	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa // indirect
