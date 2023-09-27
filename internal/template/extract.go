@@ -32,6 +32,7 @@ import (
 func FromThing(thing *iotclient.ArduinoThing) map[string]interface{} {
 	template := make(map[string]interface{})
 	template["name"] = thing.Name
+	template["timezone"] = thing.Timezone
 
 	// Extract template from thing structure
 	var props []map[string]interface{}
