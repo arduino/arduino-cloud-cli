@@ -29,6 +29,9 @@ var (
 		"showLabels":    {},
 		"step":          {},
 		"vertical":      {},
+		"dateFormat":    {},
+		"timeFormat":    {},
+		"display":       {},
 	}
 )
 
