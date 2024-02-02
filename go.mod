@@ -1,6 +1,6 @@
 module github.com/arduino/arduino-cloud-cli
 
-go 1.19
+go 1.17
 
 require (
 	github.com/antihax/optional v1.0.0
