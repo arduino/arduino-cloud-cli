@@ -23,28 +23,17 @@ import (
 	"os"
 
 	"github.com/arduino/arduino-cloud-cli/config"
-	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
 
 type EncodeParams struct {
-	DeviceID string
+	FQBN 	 string
 	File     string
 }
 
 // Encode command is used to encode a firmware OTA
 func Encode(ctx context.Context, params *EncodeParams, cred *config.Credentials) (*string, error) {
-	iotClient, err := iot.NewClient(cred)
-	if err != nil {
-		return nil, err
-	}
-
-	dev, err := iotClient.DeviceShow(ctx, params.DeviceID)
-	if err != nil {
-		return nil, err
-	}
-
 	otaFile := fmt.Sprintf("%s.ota", params.File)
-	_, err = os.Stat(otaFile)
+	_, err := os.Stat(otaFile)
 	if err == nil {
 		// file already exists, we need to delete it
 		if err = os.Remove(otaFile); err != nil {
@@ -52,7 +41,7 @@ func Encode(ctx context.Context, params *EncodeParams, cred *config.Credentials)
 		}
 	}
 
-	err = Generate(params.File, otaFile, dev.Fqbn)
+	err = Generate(params.File, otaFile, params.FQBN)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "cannot generate .ota file", err)
 	}

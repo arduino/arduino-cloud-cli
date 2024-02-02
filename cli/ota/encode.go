@@ -31,8 +31,8 @@ import (
 )
 
 type encodeBinaryFlags struct {
-	deviceID string
-	file     string
+	FQBN 	string
+	file    string
 }
 
 func initEncodeBinaryCommand() *cobra.Command {
@@ -48,7 +48,7 @@ func initEncodeBinaryCommand() *cobra.Command {
 			}
 		},
 	}
-	uploadCommand.Flags().StringVarP(&flags.deviceID, "device-id", "d", "", "Device ID")
+	uploadCommand.Flags().StringVarP(&flags.FQBN, "fqbn", "b", "", "Device fqbn")
 	uploadCommand.Flags().StringVarP(&flags.file, "file", "", "", "Binary file (.bin) to be encoded")
 	uploadCommand.MarkFlagRequired("device-id")
 	uploadCommand.MarkFlagRequired("file")
@@ -64,8 +64,8 @@ func runEncodeCommand(flags *encodeBinaryFlags) error {
 	}
 
 	params := &ota.EncodeParams{
-		DeviceID: flags.deviceID,
-		File:     flags.file,
+		FQBN: 	flags.FQBN,
+		File:   flags.file,
 	}
 	otafile, err := ota.Encode(context.TODO(), params, cred)
 	if err != nil {
