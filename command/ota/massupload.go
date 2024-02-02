@@ -24,8 +24,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
+	"github.com/arduino/arduino-cloud-cli/internal/ota"
 	iotclient "github.com/arduino/iot-client-go"
 )
 
@@ -62,6 +64,15 @@ func MassUpload(ctx context.Context, params *MassUploadParams, cred *config.Cred
 	_, err := os.Stat(params.File)
 	if err != nil {
 		return nil, fmt.Errorf("file %s does not exists: %w", params.File, err)
+	}
+
+	if !params.DoNotApplyHeader {
+		//Verify if file has already an OTA header
+		header, _ := ota.DecodeOtaFirmwareHeader(params.File)
+		if header != nil {
+			feedback.Print("File contains a valid OTA header. Skip header generation.")
+			params.DoNotApplyHeader = true
+		}
 	}
 
 	// Generate .ota file

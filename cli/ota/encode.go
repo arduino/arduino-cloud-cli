@@ -18,12 +18,12 @@
 package ota
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/command/ota"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -53,8 +53,6 @@ func initEncodeBinaryCommand() *cobra.Command {
 }
 
 func runEncodeCommand(flags *encodeBinaryFlags) error {
-	logrus.Infof("Encoding binary %s", flags.file)
-	
 	params := &ota.EncodeParams{
 		FQBN: flags.FQBN,
 		File: flags.file,
@@ -64,6 +62,7 @@ func runEncodeCommand(flags *encodeBinaryFlags) error {
 		return err
 	}
 
-	logrus.Info("Encode successfully performed. OTA file: ", *otafile)
+	feedback.Print(fmt.Sprintf("Encode successfully performed. File: %s", *otafile))
+
 	return nil
 }

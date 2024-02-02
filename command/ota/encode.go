@@ -20,6 +20,8 @@ package ota
 import (
 	"fmt"
 	"os"
+
+	"github.com/arduino/arduino-cloud-cli/internal/ota"
 )
 
 type EncodeParams struct {
@@ -29,8 +31,19 @@ type EncodeParams struct {
 
 // Encode command is used to encode a firmware OTA
 func Encode(params *EncodeParams) (*string, error) {
+	_, err := os.Stat(params.File)
+	if err != nil {
+		return nil, fmt.Errorf("file %s does not exists: %w", params.File, err)
+	}
+
+	// Verify if file has already an OTA header
+	header, _ := ota.DecodeOtaFirmwareHeader(params.File)
+	if header != nil {
+		return nil, fmt.Errorf("file %s contains a valid OTA header. Skip header encoding", params.File)
+	}
+
 	otaFile := fmt.Sprintf("%s.ota", params.File)
-	_, err := os.Stat(otaFile)
+	_, err = os.Stat(otaFile)
 	if err == nil {
 		// file already exists, we need to delete it
 		if err = os.Remove(otaFile); err != nil {

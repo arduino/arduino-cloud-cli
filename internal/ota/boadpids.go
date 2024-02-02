@@ -44,8 +44,8 @@ var (
 		"0266": "arduino:mbed_giga:giga",
 	}
 
-	ArduinoVendorID  = "2341"
-	
+	ArduinoVendorID = "2341"
+
 	ArduinoFqbnToPID = map[string]string{
 		"arduino:samd:nano_33_iot":            "8057",
 		"arduino:samd:mkr1000":                "804E",

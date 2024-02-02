@@ -78,7 +78,6 @@ func extractXID(buff []byte) string {
 // DecodeOtaFirmwareHeader decodes the OTA firmware header from a binary file.
 // File is composed by an header and a payload (optionally lzss compressed).
 // Method is also checking CRC32 of the file, verifying that file is not corrupted.
-// See: https://arduino.atlassian.net/wiki/spaces/RFC/pages/1616871540/OTA+header+structure
 func DecodeOtaFirmwareHeader(binaryFilePath string) (*OtaFirmwareHeader, error) {
 	// Check if file exists
 	if _, err := os.Stat(binaryFilePath); err != nil {
