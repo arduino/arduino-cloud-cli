@@ -20,7 +20,6 @@ package ota
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -68,7 +67,7 @@ func Generate(binFile string, outFile string, fqbn string) error {
 		magicNumberPart2 = productID
 	}
 
-	data, err := ioutil.ReadFile(binFile)
+	data, err := os.ReadFile(binFile)
 	if err != nil {
 		return err
 	}

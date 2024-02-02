@@ -30,6 +30,7 @@ func NewCommand() *cobra.Command {
 
 	otaCommand.AddCommand(initUploadCommand())
 	otaCommand.AddCommand(initMassUploadCommand())
+	otaCommand.AddCommand(initEncodeBinaryCommand())
 
 	return otaCommand
 }
