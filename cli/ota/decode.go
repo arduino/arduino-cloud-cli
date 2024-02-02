@@ -18,7 +18,6 @@
 package ota
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
@@ -27,42 +26,35 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type encodeBinaryFlags struct {
-	FQBN string
+type decodeHeaderFlags struct {
 	file string
 }
 
-func initEncodeBinaryCommand() *cobra.Command {
-	flags := &encodeBinaryFlags{}
+func initDecodeHeaderCommand() *cobra.Command {
+	flags := &decodeHeaderFlags{}
 	uploadCommand := &cobra.Command{
-		Use:   "encode",
-		Short: "OTA firmware encode",
-		Long:  "encode binary firmware to make it compatible with OTA",
+		Use:   "decode",
+		Short: "OTA firmware header decoder",
+		Long:  "decode OTA firmware header of the given binary file",
 		Run: func(cmd *cobra.Command, args []string) {
-			if err := runEncodeCommand(flags); err != nil {
-				feedback.Errorf("Error during firmware encoding: %v", err)
+			if err := runDecodeHeaderCommand(flags); err != nil {
+				feedback.Errorf("Error during firmware decoding: %v", err)
 				os.Exit(errorcodes.ErrGeneric)
 			}
 		},
 	}
-	uploadCommand.Flags().StringVarP(&flags.FQBN, "fqbn", "b", "", "Device fqbn")
-	uploadCommand.Flags().StringVarP(&flags.file, "file", "", "", "Binary file (.bin) to be encoded")
-	uploadCommand.MarkFlagRequired("fqbn")
+	uploadCommand.Flags().StringVarP(&flags.file, "file", "", "", "Binary file (.ota)")
 	uploadCommand.MarkFlagRequired("file")
 	return uploadCommand
 }
 
-func runEncodeCommand(flags *encodeBinaryFlags) error {
-	params := &ota.EncodeParams{
-		FQBN: flags.FQBN,
+func runDecodeHeaderCommand(flags *decodeHeaderFlags) error {
+	params := &ota.ReadHeaderParams{
 		File: flags.file,
 	}
-	otafile, err := ota.Encode(params)
+	err := ota.ReadHeader(params)
 	if err != nil {
 		return err
 	}
-
-	feedback.Print(fmt.Sprintf("Encode successfully performed. File: %s", *otafile))
-
 	return nil
 }
