@@ -20,6 +20,7 @@ package ota
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/arduino/arduino-cloud-cli/internal/ota"
 )
@@ -42,7 +43,12 @@ func Encode(params *EncodeParams) (*string, error) {
 		return nil, fmt.Errorf("file %s contains a valid OTA header. Skip header encoding", params.File)
 	}
 
-	otaFile := fmt.Sprintf("%s.ota", params.File)
+	var otaFile string
+	if strings.HasSuffix(params.File, ".bin") {
+		otaFile = strings.Replace(params.File, ".bin", ".ota", 1)
+	} else {
+		otaFile = fmt.Sprintf("%s.ota", params.File)
+	}
 	_, err = os.Stat(otaFile)
 	if err == nil {
 		// file already exists, we need to delete it
