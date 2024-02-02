@@ -26,8 +26,8 @@ import (
 )
 
 type EncodeParams struct {
-	FQBN 	 string
-	File     string
+	FQBN string
+	File string
 }
 
 // Encode command is used to encode a firmware OTA

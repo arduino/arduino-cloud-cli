@@ -34,11 +34,12 @@ import (
 )
 
 type massUploadFlags struct {
-	deviceIDs []string
-	tags      map[string]string
-	file      string
-	deferred  bool
-	fqbn      string
+	deviceIDs        []string
+	tags             map[string]string
+	file             string
+	deferred         bool
+	fqbn             string
+	doNotApplyHeader bool
 }
 
 func initMassUploadCommand() *cobra.Command {
@@ -64,6 +65,7 @@ func initMassUploadCommand() *cobra.Command {
 	massUploadCommand.Flags().StringVarP(&flags.file, "file", "", "", "Binary file (.bin) to be uploaded")
 	massUploadCommand.Flags().BoolVar(&flags.deferred, "deferred", false, "Perform a deferred OTA. It can take up to 1 week.")
 	massUploadCommand.Flags().StringVarP(&flags.fqbn, "fqbn", "b", "", "FQBN of the devices to update")
+	massUploadCommand.Flags().BoolVar(&flags.doNotApplyHeader, "no-header", false, "Do not apply header and compression to binary file before upload.")
 	massUploadCommand.MarkFlagRequired("file")
 	massUploadCommand.MarkFlagRequired("fqbn")
 	return massUploadCommand
@@ -73,11 +75,12 @@ func runMassUploadCommand(flags *massUploadFlags) error {
 	logrus.Infof("Uploading binary %s", flags.file)
 
 	params := &ota.MassUploadParams{
-		DeviceIDs: flags.deviceIDs,
-		Tags:      flags.tags,
-		File:      flags.file,
-		Deferred:  flags.deferred,
-		FQBN:      flags.fqbn,
+		DeviceIDs:        flags.deviceIDs,
+		Tags:             flags.tags,
+		File:             flags.file,
+		Deferred:         flags.deferred,
+		FQBN:             flags.fqbn,
+		DoNotApplyHeader: flags.doNotApplyHeader,
 	}
 
 	cred, err := config.RetrieveCredentials()

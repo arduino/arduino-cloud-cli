@@ -31,8 +31,8 @@ import (
 )
 
 type encodeBinaryFlags struct {
-	FQBN 	string
-	file    string
+	FQBN string
+	file string
 }
 
 func initEncodeBinaryCommand() *cobra.Command {
@@ -64,8 +64,8 @@ func runEncodeCommand(flags *encodeBinaryFlags) error {
 	}
 
 	params := &ota.EncodeParams{
-		FQBN: 	flags.FQBN,
-		File:   flags.file,
+		FQBN: flags.FQBN,
+		File: flags.file,
 	}
 	otafile, err := ota.Encode(context.TODO(), params, cred)
 	if err != nil {
