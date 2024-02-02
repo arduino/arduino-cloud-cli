@@ -30,6 +30,15 @@ type ReadHeaderParams struct {
 	File string
 }
 
+type printableHeader struct {
+	CRC32       uint32
+	MagicNumber uint32
+	BoardType   string
+	FQBN        *string
+	VID         string
+	PID         string
+}
+
 // Encode command is used to encode a firmware OTA
 func ReadHeader(params *ReadHeaderParams) error {
 	_, err := os.Stat(params.File)
@@ -46,7 +55,14 @@ func ReadHeader(params *ReadHeaderParams) error {
 		return fmt.Errorf("file %s does not contains a valid OTA header", params.File)
 	}
 
-	out, _ := yaml.Marshal(header)
+	out, _ := yaml.Marshal(printableHeader{
+		CRC32:       header.CRC32,
+		MagicNumber: header.MagicNumber,
+		BoardType:   header.BoardType,
+		FQBN:        header.FQBN,
+		VID:         header.VID,
+		PID:         header.PID,
+	})
 	feedback.Print(string(out))
 
 	return nil

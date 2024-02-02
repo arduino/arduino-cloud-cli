@@ -52,8 +52,7 @@ func runDecodeHeaderCommand(flags *decodeHeaderFlags) error {
 	params := &ota.ReadHeaderParams{
 		File: flags.file,
 	}
-	err := ota.ReadHeader(params)
-	if err != nil {
+	if err := ota.ReadHeader(params); err != nil {
 		return err
 	}
 	return nil
