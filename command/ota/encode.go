@@ -18,11 +18,8 @@
 package ota
 
 import (
-	"context"
 	"fmt"
 	"os"
-
-	"github.com/arduino/arduino-cloud-cli/config"
 )
 
 type EncodeParams struct {
@@ -31,7 +28,7 @@ type EncodeParams struct {
 }
 
 // Encode command is used to encode a firmware OTA
-func Encode(ctx context.Context, params *EncodeParams, cred *config.Credentials) (*string, error) {
+func Encode(params *EncodeParams) (*string, error) {
 	otaFile := fmt.Sprintf("%s.ota", params.File)
 	_, err := os.Stat(otaFile)
 	if err == nil {

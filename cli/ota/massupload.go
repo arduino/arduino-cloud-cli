@@ -65,7 +65,7 @@ func initMassUploadCommand() *cobra.Command {
 	massUploadCommand.Flags().StringVarP(&flags.file, "file", "", "", "Binary file (.bin) to be uploaded")
 	massUploadCommand.Flags().BoolVar(&flags.deferred, "deferred", false, "Perform a deferred OTA. It can take up to 1 week.")
 	massUploadCommand.Flags().StringVarP(&flags.fqbn, "fqbn", "b", "", "FQBN of the devices to update")
-	massUploadCommand.Flags().BoolVar(&flags.doNotApplyHeader, "no-header", false, "Do not apply header and compression to binary file before upload.")
+	massUploadCommand.Flags().BoolVar(&flags.doNotApplyHeader, "no-header", false, "Do not apply header and compression to binary file before upload")
 	massUploadCommand.MarkFlagRequired("file")
 	massUploadCommand.MarkFlagRequired("fqbn")
 	return massUploadCommand

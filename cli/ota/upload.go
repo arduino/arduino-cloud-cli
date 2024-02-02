@@ -53,7 +53,7 @@ func initUploadCommand() *cobra.Command {
 	uploadCommand.Flags().StringVarP(&flags.deviceID, "device-id", "d", "", "Device ID")
 	uploadCommand.Flags().StringVarP(&flags.file, "file", "", "", "Binary file (.bin) to be uploaded")
 	uploadCommand.Flags().BoolVar(&flags.deferred, "deferred", false, "Perform a deferred OTA. It can take up to 1 week.")
-	uploadCommand.Flags().BoolVar(&flags.doNotApplyHeader, "no-header", false, "Do not apply header and compression to binary file before upload.")
+	uploadCommand.Flags().BoolVar(&flags.doNotApplyHeader, "no-header", false, "Do not apply header and compression to binary file before upload")
 	uploadCommand.MarkFlagRequired("device-id")
 	uploadCommand.MarkFlagRequired("file")
 	return uploadCommand
