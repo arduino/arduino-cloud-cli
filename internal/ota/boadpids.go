@@ -32,6 +32,8 @@ var (
 	}
 
 	ArduinoPidToFQBN = map[string]string{
+		"1002": "arduino:renesas_uno:unor4wifi",
+		"0070": "arduino:esp32:nano_nora",
 		"8057": "arduino:samd:nano_33_iot",
 		"804E": "arduino:samd:mkr1000",
 		"8052": "arduino:samd:mkrgsm1400",
@@ -44,8 +46,6 @@ var (
 		"0266": "arduino:mbed_giga:giga",
 	}
 
-	ArduinoVendorID = "2341"
-
 	ArduinoFqbnToPID = map[string]string{
 		"arduino:samd:nano_33_iot":            "8057",
 		"arduino:samd:mkr1000":                "804E",
@@ -57,7 +57,11 @@ var (
 		"arduino:mbed_nicla:nicla_vision":     "025F",
 		"arduino:mbed_opta:opta":              "0064",
 		"arduino:mbed_giga:giga":              "0266",
+		"arduino:renesas_uno:unor4wifi":       "1002",
+		"arduino:esp32:nano_nora":             "0070",
 	}
+
+	ArduinoVendorID = "2341"
 
 	Esp32MagicNumberPart1 = "4553"
 	Esp32MagicNumberPart2 = "5033"
