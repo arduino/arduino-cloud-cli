@@ -6,7 +6,7 @@ require (
 	github.com/antihax/optional v1.0.0
 	github.com/arduino/arduino-cli v0.0.0-20221116144942-76251df9241a
 	github.com/arduino/go-paths-helper v1.7.0
-	github.com/arduino/go-win32-utils v0.0.0-20180330194947-ed041402e83b
+	github.com/arduino/go-win32-utils v1.0.0
 	github.com/arduino/iot-client-go v1.4.4
 	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/google/go-cmp v0.5.6

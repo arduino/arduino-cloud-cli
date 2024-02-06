@@ -10,6 +10,9 @@ This code is licensed under the terms of the GNU Affero General Public License v
 
 * Install [the latest release](https://github.com/arduino/arduino-cloud-cli/releases).
 * A client ID and a secret ID, retrievable from the [cloud](https://cloud.arduino.cc/home/api-keys) by creating a new API key.
+* Optional: the command `arduino-cloud-cli device create` requires the `arduino-cli` tool installed on the system. 
+  So, if you plan to create a device on the Arduino Cloud via CLI, you need to install the `arduino-cli` following the instructions at [https://arduino.github.io/arduino-cli/latest/installation](https://arduino.github.io/arduino-cli/latest/installation)
+
 
 ## Usage
 
@@ -109,6 +112,8 @@ Here are the FQBNs of the Arduino boards that can be provisioned with this comma
 * `arduino:samd:mkr1000`
 * `arduino:samd:mkrgsm1400`
 * `arduino:samd:mkrnb1500`
+* `arduino:mbed_opta:opta`
+* `arduino:mbed_giga:giga`
 
 If the device supports more than one connectivity type (Eg: WiFi and Ethernet) the --connection flag can be used to set the desired connectivity
 

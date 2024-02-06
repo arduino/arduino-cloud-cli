@@ -99,7 +99,7 @@ func runInitCommand(flags *initFlags) error {
 	}
 
 	// Take needed credentials starting an interactive mode
-	feedback.Print("To obtain your API credentials visit https://create.arduino.cc/iot/integrations")
+	feedback.Print("To obtain your API credentials visit https://app.arduino.cc/api-keys")
 	id, key, org, err := paramsPrompt()
 	if err != nil {
 		return fmt.Errorf("cannot take credentials params: %w", err)

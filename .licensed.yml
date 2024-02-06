@@ -1,4 +1,8 @@
 # See: https://github.com/github/licensed/blob/master/docs/configuration.md
+reviewed:
+  go:
+    - golang.org/x/crypto/curve25519/internal/field
+    - golang.org/x/crypto/internal/poly1305
 
 # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/check-dependencies/AGPL-3.0/.licensed.yml
 allowed:

@@ -34,6 +34,7 @@ var (
 		"arduino:samd:mkrgsm1400",
 		"arduino:samd:mkrnb1500",
 		"arduino:mbed_opta:opta",
+		"arduino:mbed_giga:giga",
 	}
 	loraFQBN = []string{
 		"arduino:samd:mkrwan1310",
