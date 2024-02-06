@@ -23,8 +23,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/arduino/arduino-cli/cli/feedback"
-
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	"github.com/arduino/arduino-cloud-cli/internal/ota"
@@ -68,7 +66,6 @@ func Upload(ctx context.Context, params *UploadParams, cred *config.Credentials)
 		//Verify if file has already an OTA header
 		header, _ := ota.DecodeOtaFirmwareHeader(params.File)
 		if header != nil {
-			feedback.Print("File contains a valid OTA header. Skip header generation.")
 			params.DoNotApplyHeader = true
 		}
 	}
