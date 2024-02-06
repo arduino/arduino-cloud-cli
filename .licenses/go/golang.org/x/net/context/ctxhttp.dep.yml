@@ -1,15 +1,15 @@
 ---
-name: google.golang.org/protobuf/internal/pragma
-version: v1.27.1
+name: golang.org/x/net/context/ctxhttp
+version: v0.8.0
 type: go
-summary: Package pragma provides types that can be embedded into a struct to statically
-  enforce or prevent certain language properties.
-homepage: https://pkg.go.dev/google.golang.org/protobuf/internal/pragma
+summary: Package ctxhttp provides helper functions for performing context-aware HTTP
+  requests.
+homepage: https://pkg.go.dev/golang.org/x/net/context/ctxhttp
 license: bsd-3-clause
 licenses:
-- sources: protobuf@v1.27.1/LICENSE
+- sources: net@v0.8.0/LICENSE
   text: |
-    Copyright (c) 2018 The Go Authors. All rights reserved.
+    Copyright (c) 2009 The Go Authors. All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are
@@ -36,7 +36,7 @@ licenses:
     THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-- sources: protobuf@v1.27.1/PATENTS
+- sources: net@v0.8.0/PATENTS
   text: |
     Additional IP Rights Grant (Patents)
 
