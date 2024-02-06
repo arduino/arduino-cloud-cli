@@ -29,6 +29,7 @@ import (
 
 var (
 	ErrCRC32Mismatch = fmt.Errorf("CRC32 mismatch")
+	ErrNoHeader      = fmt.Errorf("no header found")
 )
 
 type OtaFirmwareHeader struct {
@@ -108,9 +109,6 @@ func DecodeOtaFirmwareHeader(binaryFilePath string) (*OtaFirmwareHeader, error) 
 		if err != nil {
 			return nil, err
 		}
-		if computedsum != readsum {
-			return nil, ErrCRC32Mismatch
-		}
 
 		// Get PID+VID (uint32)
 		buff, err = readBytes(otafileptr, 8, 8)
@@ -122,6 +120,15 @@ func DecodeOtaFirmwareHeader(binaryFilePath string) (*OtaFirmwareHeader, error) 
 		//Extract VID and PID
 		pid := extractXID(buff[:2])
 		vid := extractXID(buff[2:])
+
+		if vid != ArduinoVendorID && vid != Esp32MagicNumberPart1 {
+			return nil, ErrNoHeader
+		}
+
+		if computedsum != readsum {
+			// Check if CRC32 is matching, otherwise return error
+			return nil, ErrCRC32Mismatch
+		}
 
 		boardType, fqbn, isArduino := getBoardType(completeMagicNumber, pid)
 

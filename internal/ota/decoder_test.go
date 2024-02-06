@@ -29,6 +29,12 @@ func TestDecodeWithNoHeader(t *testing.T) {
 	header, err := DecodeOtaFirmwareHeader("testdata/cloud.bin")
 	assert.Nil(t, header)
 	assert.NotNil(t, err)
+	assert.Equal(t, ErrNoHeader, err)
+
+	header, err = DecodeOtaFirmwareHeader("testdata/blink.bin")
+	assert.Nil(t, header)
+	assert.NotNil(t, err)
+	assert.Equal(t, ErrNoHeader, err)
 
 }
 
