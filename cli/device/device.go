@@ -30,6 +30,7 @@ func NewCommand() *cobra.Command {
 	}
 
 	deviceCommand.AddCommand(initCreateCommand())
+	deviceCommand.AddCommand(initMassCreateCommand())
 	deviceCommand.AddCommand(initListCommand())
 	deviceCommand.AddCommand(initDeleteCommand())
 	deviceCommand.AddCommand(tag.InitCreateTagsCommand())
