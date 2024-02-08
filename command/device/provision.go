@@ -74,13 +74,13 @@ type provision struct {
 	arduino.Commander
 	cert  certificateCreator
 	ser   *serial.Serial
-	board *board
+	board *Board
 	id    string
 }
 
 // run provisioning procedure for boards with crypto-chip.
 func (p provision) run(ctx context.Context) error {
-	bin, err := downloadProvisioningFile(ctx, p.board.fqbn)
+	bin, err := downloadProvisioningFile(ctx, p.board.Fqbn)
 	if err != nil {
 		return err
 	}
@@ -93,7 +93,7 @@ func (p provision) run(ctx context.Context) error {
 	errMsg := "Error while uploading the provisioning sketch"
 	err = retry(ctx, 5, time.Millisecond*1000, errMsg, func() error {
 		//serialutils.Reset(dev.port, true, nil)
-		return p.UploadBin(ctx, p.board.fqbn, bin, p.board.address, p.board.protocol)
+		return p.UploadBin(ctx, p.board.Fqbn, bin, p.board.Address, p.board.Protocol)
 	})
 	if err != nil {
 		return err
@@ -107,7 +107,7 @@ func (p provision) run(ctx context.Context) error {
 	p.ser = serial.NewSerial()
 	errMsg = "Error while connecting to the board"
 	err = retry(ctx, 5, time.Millisecond*1000, errMsg, func() error {
-		return p.ser.Connect(p.board.address)
+		return p.ser.Connect(p.board.Address)
 	})
 	if err != nil {
 		return err

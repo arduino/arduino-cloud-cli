@@ -43,19 +43,19 @@ var (
 )
 
 // board contains details of a physical arduino board.
-type board struct {
-	fqbn     string
-	serial   string
-	dType    string
-	address  string
-	protocol string
+type Board struct {
+	Fqbn     string
+	Serial   string
+	DType    string
+	Address  string
+	Protocol string
 }
 
 // isCrypto checks if the board is a valid arduino board with a
 // supported crypto-chip.
-func (b *board) isCrypto() bool {
+func (b *Board) isCrypto() bool {
 	for _, f := range cryptoFQBN {
-		if b.fqbn == f {
+		if b.Fqbn == f {
 			return true
 		}
 	}
@@ -63,9 +63,9 @@ func (b *board) isCrypto() bool {
 }
 
 // isLora checks if the board is a valid LoRa arduino board.
-func (b *board) isLora() bool {
+func (b *Board) isLora() bool {
 	for _, f := range loraFQBN {
-		if b.fqbn == f {
+		if b.Fqbn == f {
 			return true
 		}
 	}
@@ -74,19 +74,19 @@ func (b *board) isLora() bool {
 
 // boardFromPorts returns a board that matches all the criteria
 // passed in. If no criteria are passed, it returns the first board found.
-func boardFromPorts(ports []*rpc.DetectedPort, params *CreateParams) *board {
+func boardFromPorts(ports []*rpc.DetectedPort, params *CreateParams) *Board {
 	for _, port := range ports {
 		if portFilter(port, params) {
 			continue
 		}
 		boardFound := boardFilter(port.MatchingBoards, params)
 		if boardFound != nil {
-			b := &board{
-				fqbn:     boardFound.Fqbn,
-				serial:   port.Port.Properties["serialNumber"],
-				dType:    strings.Split(boardFound.Fqbn, ":")[2],
-				address:  port.Port.Address,
-				protocol: port.Port.Protocol,
+			b := &Board{
+				Fqbn:     boardFound.Fqbn,
+				Serial:   port.Port.Properties["serialNumber"],
+				DType:    strings.Split(boardFound.Fqbn, ":")[2],
+				Address:  port.Port.Address,
+				Protocol: port.Port.Protocol,
 			}
 			return b
 		}

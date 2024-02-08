@@ -61,21 +61,21 @@ func TestBoardFromPorts(t *testing.T) {
 		name   string
 		filter *CreateParams
 		ports  []*rpc.DetectedPort
-		want   *board
+		want   *Board
 	}{
 
 		{
 			name:   "port-filter",
 			filter: &CreateParams{FQBN: nil, Port: stringPointer("ACM1")},
 			ports:  portsTwoBoards,
-			want:   &board{fqbn: "arduino:avr:uno", address: "ACM1"},
+			want:   &Board{Fqbn: "arduino:avr:uno", Address: "ACM1"},
 		},
 
 		{
 			name:   "fqbn-filter",
 			filter: &CreateParams{FQBN: stringPointer("arduino:avr:uno"), Port: nil},
 			ports:  portsTwoBoards,
-			want:   &board{fqbn: "arduino:avr:uno", address: "ACM1"},
+			want:   &Board{Fqbn: "arduino:avr:uno", Address: "ACM1"},
 		},
 
 		{
@@ -90,7 +90,7 @@ func TestBoardFromPorts(t *testing.T) {
 			filter: &CreateParams{FQBN: nil, Port: nil},
 			ports:  portsTwoBoards,
 			// first board found is selected
-			want: &board{fqbn: "arduino:samd:nano_33_iot", address: "ACM0"},
+			want: &Board{Fqbn: "arduino:samd:nano_33_iot", Address: "ACM0"},
 		},
 
 		{
@@ -104,7 +104,7 @@ func TestBoardFromPorts(t *testing.T) {
 			name:   "both-filter-found",
 			filter: &CreateParams{FQBN: stringPointer("arduino:avr:uno"), Port: stringPointer("ACM1")},
 			ports:  portsTwoBoards,
-			want:   &board{fqbn: "arduino:avr:uno", address: "ACM1"},
+			want:   &Board{Fqbn: "arduino:avr:uno", Address: "ACM1"},
 		},
 
 		{
@@ -123,14 +123,14 @@ func TestBoardFromPorts(t *testing.T) {
 				return
 
 			} else if got != nil && tt.want == nil {
-				t.Errorf("Expected nil board, received not nil board with port %s and fqbn %s", got.address, got.fqbn)
+				t.Errorf("Expected nil board, received not nil board with port %s and fqbn %s", got.Address, got.Fqbn)
 
 			} else if got == nil && tt.want != nil {
-				t.Errorf("Expected not nil board with port %s and fqbn %s, received a nil board", tt.want.address, tt.want.fqbn)
+				t.Errorf("Expected not nil board with port %s and fqbn %s, received a nil board", tt.want.Address, tt.want.Fqbn)
 
-			} else if got.address != tt.want.address || got.fqbn != tt.want.fqbn {
+			} else if got.Address != tt.want.Address || got.Fqbn != tt.want.Fqbn {
 				t.Errorf("Expected board with port %s and fqbn %s, received board with port %s and fqbn %s",
-					tt.want.address, tt.want.fqbn, got.address, got.fqbn)
+					tt.want.Address, tt.want.Fqbn, got.Address, got.Fqbn)
 			}
 		})
 	}

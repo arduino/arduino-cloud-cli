@@ -60,8 +60,8 @@ func Create(ctx context.Context, params *CreateParams, cred *config.Credentials)
 			"board with fqbn %s found at port %s is not a device with a supported crypto-chip.\n"+
 				"Try the 'create-lora' command instead if it's a LoRa device"+
 				" or 'create-generic' otherwise",
-			board.fqbn,
-			board.address,
+			board.Fqbn,
+			board.Address,
 		)
 	}
 
@@ -71,7 +71,7 @@ func Create(ctx context.Context, params *CreateParams, cred *config.Credentials)
 	}
 
 	logrus.Info("Creating a new device on the cloud")
-	dev, err := iotClient.DeviceCreate(ctx, board.fqbn, params.Name, board.serial, board.dType, params.ConnectionType)
+	dev, err := iotClient.DeviceCreate(ctx, board.Fqbn, params.Name, board.Serial, board.DType, params.ConnectionType)
 	if err != nil {
 		return nil, err
 	}

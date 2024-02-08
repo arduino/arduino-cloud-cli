@@ -84,12 +84,12 @@ func CreateLora(ctx context.Context, params *CreateLoraParams, cred *config.Cred
 			"board with fqbn %s found at port %s is not a LoRa device."+
 				" Try the 'create' command instead if it's a device with a supported crypto-chip"+
 				" or 'create-generic' otherwise",
-			board.fqbn,
-			board.address,
+			board.Fqbn,
+			board.Address,
 		)
 	}
 
-	bin, err := downloadProvisioningFile(ctx, board.fqbn)
+	bin, err := downloadProvisioningFile(ctx, board.Fqbn)
 	if err != nil {
 		return nil, err
 	}
@@ -97,13 +97,13 @@ func CreateLora(ctx context.Context, params *CreateLoraParams, cred *config.Cred
 	logrus.Infof("%s", "Uploading deveui sketch on the LoRa board")
 	errMsg := "Error while uploading the LoRa provisioning binary"
 	err = retry(ctx, deveuiUploadAttempts, deveuiUploadWait*time.Millisecond, errMsg, func() error {
-		return comm.UploadBin(ctx, board.fqbn, bin, board.address, board.protocol)
+		return comm.UploadBin(ctx, board.Fqbn, bin, board.Address, board.Protocol)
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload LoRa provisioning binary: %w", err)
 	}
 
-	eui, err := extractEUI(ctx, board.address)
+	eui, err := extractEUI(ctx, board.Address)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func CreateLora(ctx context.Context, params *CreateLoraParams, cred *config.Cred
 	}
 
 	logrus.Info("Creating a new device on the cloud")
-	dev, err := iotClient.DeviceLoraCreate(ctx, params.Name, board.serial, board.dType, eui, params.FrequencyPlan)
+	dev, err := iotClient.DeviceLoraCreate(ctx, params.Name, board.Serial, board.DType, eui, params.FrequencyPlan)
 	if err != nil {
 		return nil, err
 	}

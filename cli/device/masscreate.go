@@ -77,7 +77,7 @@ func runMassCreateCommand(flags *massCreateFlags) error {
 	for _, board := range boards {
 		params := &device.CreateParams{
 			Name: flags.name,
-			Port: &board.address,
+			Port: &board.Address,
 		}
 		if flags.ctype != "" {
 			params.ConnectionType = &flags.ctype

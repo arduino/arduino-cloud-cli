@@ -10,12 +10,12 @@ import (
 	"go.bug.st/cleanup"
 )
 
-func ListAllConnectedBoardsWithCrypto() ([]*board, error) {
+func ListAllConnectedBoardsWithCrypto() ([]*Board, error) {
 	comm, err := ListAllConnectedBoards()
 	if err != nil {
 		return nil, err
 	}
-	var withcrypto []*board
+	var withcrypto []*Board
 	for _, b := range comm {
 		if b.isCrypto() {
 			withcrypto = append(withcrypto, b)
@@ -24,7 +24,7 @@ func ListAllConnectedBoardsWithCrypto() ([]*board, error) {
 	return withcrypto, nil
 }
 
-func ListAllConnectedBoards() ([]*board, error) {
+func ListAllConnectedBoards() ([]*Board, error) {
 	comm, err := cli.NewCommander()
 	if err != nil {
 		return nil, err
@@ -48,18 +48,18 @@ func ListAllConnectedBoards() ([]*board, error) {
 }
 
 // boardsFromPorts returns boards that matches all the criteria
-func boardsFromPorts(ports []*rpc.DetectedPort, fqbn *string) []*board {
-	var boards []*board
+func boardsFromPorts(ports []*rpc.DetectedPort, fqbn *string) []*Board {
+	var boards []*Board
 	for _, port := range ports {
 		boardsFound := boardsFilter(port.MatchingBoards, fqbn)
 		if len(boardsFound) > 0 {
 			for _, boardFound := range boardsFound {
-				b := &board{
-					fqbn:     boardFound.Fqbn,
-					serial:   port.Port.Properties["serialNumber"],
-					dType:    strings.Split(boardFound.Fqbn, ":")[2],
-					address:  port.Port.Address,
-					protocol: port.Port.Protocol,
+				b := &Board{
+					Fqbn:     boardFound.Fqbn,
+					Serial:   port.Port.Properties["serialNumber"],
+					DType:    strings.Split(boardFound.Fqbn, ":")[2],
+					Address:  port.Port.Address,
+					Protocol: port.Port.Protocol,
 				}
 				b.isCrypto()
 				boards = append(boards, b)
