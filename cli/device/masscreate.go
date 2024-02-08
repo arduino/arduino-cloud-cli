@@ -34,15 +34,14 @@ import (
 type massCreateFlags struct {
 	name  string
 	fqbn  string
-	ctype string
 }
 
 func initMassCreateCommand() *cobra.Command {
 	flags := &massCreateFlags{}
 	createCommand := &cobra.Command{
 		Use:   "mass-create",
-		Short: "Mass create a device provisioning the onboard secure element with a valid certificate",
-		Long:  "Mass create a device for Arduino IoT Cloud provisioning the onboard secure element with a valid certificate",
+		Short: "Mass create a set of devices provisioning the onboard secure element with a valid certificate",
+		Long:  "Mass create a set of devices for Arduino IoT Cloud provisioning the onboard secure element with a valid certificate",
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := runMassCreateCommand(flags); err != nil {
 				feedback.Errorf("Error during device create: %v", err)
@@ -50,10 +49,10 @@ func initMassCreateCommand() *cobra.Command {
 			}
 		},
 	}
-	createCommand.Flags().StringVarP(&flags.name, "name", "n", "", "Device name")
+	createCommand.Flags().StringVarP(&flags.name, "name", "n", "", "Base device name")
 	createCommand.Flags().StringVarP(&flags.fqbn, "fqbn", "b", "", "Device fqbn")
-	createCommand.Flags().StringVarP(&flags.ctype, "connection", "c", "", "Device connection type")
-	//createCommand.MarkFlagRequired("name")
+	createCommand.MarkFlagRequired("name")
+	createCommand.MarkFlagRequired("fqbn")
 	return createCommand
 }
 
@@ -74,13 +73,11 @@ func runMassCreateCommand(flags *massCreateFlags) error {
 		return err
 	}
 
+	var results []*device.DeviceInfo
 	for _, board := range boards {
 		params := &device.CreateParams{
 			Name: flags.name,
 			Port: &board.Address,
-		}
-		if flags.ctype != "" {
-			params.ConnectionType = &flags.ctype
 		}
 		if flags.fqbn != "" {
 			params.FQBN = &flags.fqbn
@@ -90,28 +87,34 @@ func runMassCreateCommand(flags *massCreateFlags) error {
 		if err != nil {
 			return err
 		}
-	
-		feedback.PrintResult(createResult{dev})
+
+		results = append(results, dev)
 	}
+
+	feedback.PrintResult(massCreateResult{results})
 
 	return nil
 }
 
 type massCreateResult struct {
-	device *device.DeviceInfo
+	devices []*device.DeviceInfo
 }
 
 func (r massCreateResult) Data() interface{} {
-	return r.device
+	return r.devices
 }
 
 func (r massCreateResult) String() string {
-	return fmt.Sprintf(
-		"name: %s\nid: %s\nboard: %s\nserial_number: %s\nfqbn: %s",
-		r.device.Name,
-		r.device.ID,
-		r.device.Board,
-		r.device.Serial,
-		r.device.FQBN,
-	)
+	var result string
+	for _, device := range r.devices {
+		result += fmt.Sprintf(
+			"name: %s\nid: %s\nboard: %s\nserial_number: %s\nfqbn: %s\n-------------\n",
+			device.Name,
+			device.ID,
+			device.Board,
+			device.Serial,
+			device.FQBN,
+		)
+	}
+	return result
 }
