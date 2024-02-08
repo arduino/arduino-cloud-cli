@@ -58,7 +58,7 @@ func initMassCreateCommand() *cobra.Command {
 
 
 func runMassCreateCommand(flags *massCreateFlags) error {
-	logrus.Infof("Creating device with name %s", flags.name)
+	logrus.Infof("Mass provisioning devices. Base name: %s", flags.name)
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
@@ -72,15 +72,21 @@ func runMassCreateCommand(flags *massCreateFlags) error {
 	if err != nil {
 		return err
 	}
+	if len(boards) == 0 {
+		return fmt.Errorf("no boards of type %s detected", flags.fqbn)
+	}
 
 	var results []*device.DeviceInfo
-	for _, board := range boards {
-		params := &device.CreateParams{
-			Name: flags.name,
-			Port: &board.Address,
+	for idx, board := range boards {
+		if len(board.Address) == 0{
+			continue
 		}
-		if flags.fqbn != "" {
-			params.FQBN = &flags.fqbn
+		logrus.Infof("Provisioning board on port: %s", board.Address)
+		bname := fmt.Sprintf("%s-%d", flags.name, idx)
+		params := &device.CreateParams{
+			Name: bname,
+			Port: &board.Address,
+			FQBN: &flags.fqbn,
 		}
 	
 		dev, err := device.Create(ctx, params, cred)
