@@ -10,13 +10,17 @@ import (
 	"go.bug.st/cleanup"
 )
 
-func ListAllConnectedBoardsWithCrypto() ([]*Board, error) {
+func ListAllConnectedBoardsWithCrypto(fqbn *string) ([]*Board, error) {
 	comm, err := ListAllConnectedBoards()
 	if err != nil {
 		return nil, err
 	}
 	var withcrypto []*Board
 	for _, b := range comm {
+		if len(*fqbn) > 0 && b.Fqbn != *fqbn {
+			// Skipp not matching board
+			continue
+		}
 		if b.isCrypto() {
 			withcrypto = append(withcrypto, b)
 		}

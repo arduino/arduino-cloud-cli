@@ -52,7 +52,6 @@ func initMassCreateCommand() *cobra.Command {
 	createCommand.Flags().StringVarP(&flags.name, "name", "n", "", "Base device name")
 	createCommand.Flags().StringVarP(&flags.fqbn, "fqbn", "b", "", "Device fqbn")
 	createCommand.MarkFlagRequired("name")
-	createCommand.MarkFlagRequired("fqbn")
 	return createCommand
 }
 
@@ -68,7 +67,7 @@ func runMassCreateCommand(flags *massCreateFlags) error {
 	ctx, cancel := cleanup.InterruptableContext(context.Background())
 	defer cancel()
 
-	boards, err := device.ListAllConnectedBoardsWithCrypto()
+	boards, err := device.ListAllConnectedBoardsWithCrypto(&flags.fqbn)
 	if err != nil {
 		return err
 	}
@@ -86,7 +85,7 @@ func runMassCreateCommand(flags *massCreateFlags) error {
 		params := &device.CreateParams{
 			Name: bname,
 			Port: &board.Address,
-			FQBN: &flags.fqbn,
+			FQBN: &board.Fqbn,
 		}
 	
 		dev, err := device.Create(ctx, params, cred)
