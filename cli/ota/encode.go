@@ -36,8 +36,8 @@ func initEncodeBinaryCommand() *cobra.Command {
 	flags := &encodeBinaryFlags{}
 	uploadCommand := &cobra.Command{
 		Use:   "encode",
-		Short: "OTA firmware encode",
-		Long:  "encode binary firmware to make it compatible with OTA",
+		Short: "OTA firmware encoder",
+		Long:  "encode header firmware to make it compatible with Arduino OTA",
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := runEncodeCommand(flags); err != nil {
 				feedback.Errorf("Error during firmware encoding: %v", err)
