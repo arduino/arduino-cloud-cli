@@ -40,6 +40,7 @@ var (
 		"arduino:mbed_nicla:nicla_vision":     "025F",
 		"arduino:mbed_opta:opta":              "0064",
 		"arduino:mbed_giga:giga":              "0266",
+		"arduino:esp32:nano_nora":             "0070",
 	}
 	esp32MagicNumberPart1 = "4553"
 	esp32MagicNumberPart2 = "5033"
