@@ -198,7 +198,7 @@ tasks:
       #
       # Until there is a fix released we must use a recent gcc for Linux_ARMv6 build, so for this
       # build we select the debian10 based container.
-      CONTAINER_TAG: "{{.GO_VERSION}}-armel-debian10"
+      CONTAINER_TAG: "{{.GO_VERSION}}-armel-debian11"
       PACKAGE_PLATFORM: "Linux_ARMv6"
       PACKAGE_NAME: "{{.PROJECT_NAME}}_{{.VERSION}}_{{.PACKAGE_PLATFORM}}.tar.gz"
 
@@ -255,6 +255,6 @@ tasks:
       #
       # To compile it we need an SDK >=10.12 so we use the debian10 based container that
       # has the SDK 10.14 installed.
-      CONTAINER_TAG: "{{.GO_VERSION}}-darwin-debian10"
+      CONTAINER_TAG: "{{.GO_VERSION}}-darwin-debian11"
       PACKAGE_PLATFORM: "macOS_64bit"
       PACKAGE_NAME: "{{.PROJECT_NAME}}_{{.VERSION}}_{{.PACKAGE_PLATFORM}}.tar.gz"
