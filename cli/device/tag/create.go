@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
@@ -32,6 +33,7 @@ import (
 
 type createTagsFlags struct {
 	id   string
+	ids  string
 	tags map[string]string
 }
 
@@ -49,23 +51,45 @@ func InitCreateTagsCommand() *cobra.Command {
 		},
 	}
 	createTagsCommand.Flags().StringVarP(&flags.id, "id", "i", "", "Device ID")
+	createTagsCommand.Flags().StringVarP(&flags.ids, "ids", "", "", "Comma-separated list of Device IDs")
 	createTagsCommand.Flags().StringToStringVar(
 		&flags.tags,
 		"tags",
 		nil,
 		"Comma-separated list of tags with format <key>=<value>.",
 	)
-	createTagsCommand.MarkFlagRequired("id")
 	createTagsCommand.MarkFlagRequired("tags")
 	return createTagsCommand
 }
 
 func runCreateTagsCommand(flags *createTagsFlags) error {
-	logrus.Infof("Creating tags on device %s", flags.id)
+	if flags.id == "" && flags.ids == "" {
+		return fmt.Errorf("missing required flag(s) \"id\" or \"ids\"")
+	}
+
+	if flags.id != "" {
+		if err := creteTag(flags.id, flags.tags); err != nil {
+			return err
+		}
+	}
+	if flags.ids != "" {
+		idsArray := strings.Split(flags.ids, ",")
+		for _, id := range idsArray {
+			id = strings.TrimSpace(id)
+			if err := creteTag(id, flags.tags); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func creteTag(id string, tags map[string]string) error {
+	logrus.Infof("Creating tags on device %s", id)
 
 	params := &tag.CreateTagsParams{
-		ID:       flags.id,
-		Tags:     flags.tags,
+		ID:       id,
+		Tags:     tags,
 		Resource: tag.Device,
 	}
 

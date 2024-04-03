@@ -21,12 +21,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
+	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
 	iotclient "github.com/arduino/iot-client-go"
 )
 
@@ -46,8 +46,9 @@ type MassUploadParams struct {
 
 // Result of an ota upload on a device.
 type Result struct {
-	ID  string
-	Err error
+	ID        string
+	Err       error
+	OtaStatus otaapi.Ota
 }
 
 // MassUpload command is used to mass upload a firmware OTA,
@@ -60,7 +61,7 @@ func MassUpload(ctx context.Context, params *MassUploadParams, cred *config.Cred
 	}
 
 	// Generate .ota file
-	otaDir, err := ioutil.TempDir("", "")
+	otaDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "cannot create temporary folder", err)
 	}
@@ -76,6 +77,7 @@ func MassUpload(ctx context.Context, params *MassUploadParams, cred *config.Cred
 	if err != nil {
 		return nil, err
 	}
+	otapi := otaapi.NewClient(cred)
 
 	// Prepare the list of device-ids to update
 	d, err := idsGivenTags(ctx, iotClient, params.Tags)
@@ -96,7 +98,7 @@ func MassUpload(ctx context.Context, params *MassUploadParams, cred *config.Cred
 		expiration = otaDeferredExpirationMins
 	}
 
-	res := run(ctx, iotClient, valid, otaFile, expiration)
+	res := run(ctx, iotClient, otapi, valid, otaFile, expiration)
 	res = append(res, invalid...)
 	return res, nil
 }
@@ -155,7 +157,11 @@ type otaUploader interface {
 	DeviceOTA(ctx context.Context, id string, file *os.File, expireMins int) error
 }
 
-func run(ctx context.Context, uploader otaUploader, ids []string, otaFile string, expiration int) []Result {
+type otaStatusGetter interface {
+	GetOtaLastStatusByDeviceID(deviceID string) (*otaapi.OtaStatusList, error)
+}
+
+func run(ctx context.Context, uploader otaUploader, otapi otaStatusGetter, ids []string, otaFile string, expiration int) []Result {
 	type job struct {
 		id   string
 		file *os.File
@@ -181,7 +187,14 @@ func run(ctx context.Context, uploader otaUploader, ids []string, otaFile string
 		go func() {
 			for job := range jobs {
 				err := uploader.DeviceOTA(ctx, job.id, job.file, expiration)
-				resCh <- Result{ID: job.id, Err: err}
+				otaResult := Result{ID: job.id, Err: err}
+
+				otaID, otaapierr := otapi.GetOtaLastStatusByDeviceID(job.id)
+				if otaapierr == nil && otaID != nil && len(otaID.Ota) > 0 {
+					otaResult.OtaStatus = otaID.Ota[0]
+				}
+
+				resCh <- otaResult
 			}
 		}()
 	}

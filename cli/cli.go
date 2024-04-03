@@ -19,7 +19,7 @@ package cli
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 
@@ -83,7 +83,7 @@ func parseFormatString(arg string) (feedback.OutputFormat, bool) {
 }
 
 func preRun(flags *cliFlags) error {
-	logrus.SetOutput(ioutil.Discard)
+	logrus.SetOutput(io.Discard)
 	// enable log only if verbose flag is passed
 	if flags.verbose {
 		logrus.SetLevel(logrus.InfoLevel)

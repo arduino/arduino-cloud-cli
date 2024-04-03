@@ -7,7 +7,9 @@ import (
 	"strings"
 	"testing"
 
+	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
 	iotclient "github.com/arduino/iot-client-go"
+	"github.com/gofrs/uuid"
 )
 
 const testFilename = "testdata/empty.bin"
@@ -18,6 +20,20 @@ type deviceUploaderTest struct {
 
 func (d *deviceUploaderTest) DeviceOTA(ctx context.Context, id string, file *os.File, expireMins int) error {
 	return d.deviceOTA(ctx, id, file, expireMins)
+}
+
+type otaStatusGetterTest struct{}
+
+func (s *otaStatusGetterTest) GetOtaLastStatusByDeviceID(deviceID string) (*otaapi.OtaStatusList, error) {
+	ota := otaapi.Ota{
+		ID:        uuid.Must(uuid.NewV4()).String(),
+		Status:    "in_progress",
+		StartedAt: "2021-09-01T12:00:00Z",
+	}
+	response := &otaapi.OtaStatusList{
+		Ota: []otaapi.Ota{ota},
+	}
+	return response, nil
 }
 
 func TestRun(t *testing.T) {
@@ -38,9 +54,10 @@ func TestRun(t *testing.T) {
 			return nil
 		},
 	}
+	mockStatusClient := &otaStatusGetterTest{}
 
 	devs := []string{okID1, failID1, okID2, failID2, okID3}
-	res := run(context.TODO(), mockClient, devs, testFilename, 0)
+	res := run(context.TODO(), mockClient, mockStatusClient, devs, testFilename, 0)
 	if len(res) != len(devs) {
 		t.Errorf("expected %d results, got %d", len(devs), len(res))
 	}

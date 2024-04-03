@@ -20,12 +20,13 @@ package ota
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
+	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
+	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
 )
 
 const (
@@ -50,13 +51,14 @@ func Upload(ctx context.Context, params *UploadParams, cred *config.Credentials)
 	if err != nil {
 		return err
 	}
+	otapi := otaapi.NewClient(cred)
 
 	dev, err := iotClient.DeviceShow(ctx, params.DeviceID)
 	if err != nil {
 		return err
 	}
 
-	otaDir, err := ioutil.TempDir("", "")
+	otaDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		return fmt.Errorf("%s: %w", "cannot create temporary folder", err)
 	}
@@ -82,6 +84,14 @@ func Upload(ctx context.Context, params *UploadParams, cred *config.Credentials)
 	err = iotClient.DeviceOTA(ctx, params.DeviceID, file, expiration)
 	if err != nil {
 		return err
+	}
+	// Try to get ota-id from API
+	otaID, err := otapi.GetOtaLastStatusByDeviceID(params.DeviceID)
+	if err != nil {
+		return err
+	}
+	if otaID != nil && len(otaID.Ota) > 0 {
+		feedback.PrintResult(otaID.Ota[0])
 	}
 
 	return nil

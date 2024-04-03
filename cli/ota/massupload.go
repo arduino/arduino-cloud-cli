@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"os"
 	"sort"
-	"strings"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
@@ -96,22 +95,6 @@ func runMassUploadCommand(flags *massUploadFlags) error {
 	})
 
 	feedback.PrintResult(massUploadResult{resp})
-
-	var failed []string
-	for _, r := range resp {
-		if r.Err != nil {
-			failed = append(failed, r.ID)
-		}
-	}
-	if len(failed) == 0 {
-		return nil
-	}
-	failDevs := strings.Join(failed, ",")
-	feedback.Printf(
-		"You can try to perform the OTA again on the failed devices using the following command:\n"+
-			"$ arduino-cloud-cli ota mass-upload --file %s --fqbn %s -d %s",
-		params.File, params.FQBN, failDevs,
-	)
 	return nil
 }
 
@@ -128,17 +111,35 @@ func (r massUploadResult) String() string {
 		return "No OTA done."
 	}
 	t := table.New()
-	t.SetHeader("ID", "Result")
+	hasErrorReason := false
+	for _, r := range r.res {
+		if r.OtaStatus.ErrorReason != "" {
+			hasErrorReason = true
+			break
+		}
+	}
+
+	if hasErrorReason {
+		t.SetHeader("Device ID", "Ota ID", "Result", "Error Reason")
+	} else {
+		t.SetHeader("Device ID", "Ota ID", "Result")
+	}
+
+	// Now print the table
 	for _, r := range r.res {
 		outcome := "Success"
 		if r.Err != nil {
 			outcome = fmt.Sprintf("Fail: %s", r.Err.Error())
 		}
+		if r.OtaStatus.Status != "" {
+			outcome = r.OtaStatus.MapStatus()
+		}
 
-		t.AddRow(
-			r.ID,
-			outcome,
-		)
+		line := []interface{}{r.ID, r.OtaStatus.ID, outcome}
+		if hasErrorReason {
+			line = append(line, r.OtaStatus.ErrorReason)
+		}
+		t.AddRow(line...)
 	}
 	return t.Render()
 }
