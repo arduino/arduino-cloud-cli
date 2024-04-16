@@ -77,6 +77,8 @@ github.com/arduino/go-win32-utils v1.0.0 h1:/cXB86sOJxOsCHP7sQmXGLkdValwJt56mIwO
 github.com/arduino/go-win32-utils v1.0.0/go.mod h1:0jqM7doGEAs6DaJCxxhLBUDS5OawrqF48HqXkcEie/Q=
 github.com/arduino/iot-client-go v1.4.4 h1:FICCXD5uCZ0scGG6RioOlpZamDqgSD1l/fQlFwKR284=
 github.com/arduino/iot-client-go v1.4.4/go.mod h1:gYvpMt7Qw+OSScTLyIlCnpbvy9y96ey/2zhB4w6FoK0=
+github.com/arduino/iot-client-go v1.4.5-0.20240416140423-fb8fda8a47af h1:/dbu5I3q09kOePrWbBVMrKEPDM8KKUIGATQpwWc/wWo=
+github.com/arduino/iot-client-go v1.4.5-0.20240416140423-fb8fda8a47af/go.mod h1:aKaQRceeYIeMpyFyEUGJj4/5WFETZD1CrarYGn4v5Nc=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=
 github.com/armon/go-metrics v0.3.10/go.mod h1:4O98XIr/9W0sxpJ8UaYkvjk10Iff7SnFrb4QAOwNTFc=
