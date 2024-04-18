@@ -1,4 +1,4 @@
-# !/bin/bash
+#!/bin/bash
 
 # This script is used to upload the firmware to the device using the OTA service.
 
@@ -20,7 +20,7 @@ printHelp () {
     echo "  perform ota on devices with firmware=v1 tag"
     echo "    $0 -t firmware=v1 -f myfirmware.bin"
     echo "  perform ota on devices with firmware=v1 tag and apply new tag firmware=v2 to updated devices, waiting for 1200 seconds"
-    echo "    $0 -t firmware=v1 -f myfirmware.bin -v firmware=v2 -w 1200"
+    echo "    $0 -t firmware=v1 -f myfirmware.bin -v firmware=v2 -o 1200"
     echo "  perform ota on two specified devices"
     echo "    $0 -d 261ec96a-38ba-4520-96e6-2447c4163e9b,8b10acdb-b722-4068-8e4d-d1c1b7302df4 -f myfirmware.bin"    
     echo ""
