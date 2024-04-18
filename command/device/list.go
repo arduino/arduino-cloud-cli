@@ -20,7 +20,6 @@ package device
 import (
 	"context"
 	"fmt"
-	"slices"
 	"strings"
 
 	"github.com/arduino/arduino-cloud-cli/config"
@@ -56,7 +55,7 @@ func List(ctx context.Context, params *ListParams, cred *config.Credentials) ([]
 
 	var devices []DeviceInfo
 	for _, foundDev := range foundDevices {
-		if len(deviceIdFilter) > 0 && !slices.Contains(deviceIdFilter, foundDev.Id) {
+		if len(deviceIdFilter) > 0 && !sliceContains(deviceIdFilter, foundDev.Id) {
 			continue
 		}
 		dev, err := getDeviceInfo(&foundDev)
@@ -67,4 +66,13 @@ func List(ctx context.Context, params *ListParams, cred *config.Credentials) ([]
 	}
 
 	return devices, nil
+}
+
+func sliceContains(s []string, v string) bool {
+	for i := range s {
+		if v == s[i] {
+			return true
+		}
+	}
+	return false
 }
