@@ -116,7 +116,7 @@ func (r Ota) String() string {
 	}
 
 	// Now print the table
-	line := []any{r.DeviceID, r.DeviceID, r.MapStatus(), formatHumanReadableTs(r.StartedAt), formatHumanReadableTs(r.EndedAt)}
+	line := []any{r.DeviceID, r.ID, r.MapStatus(), formatHumanReadableTs(r.StartedAt), formatHumanReadableTs(r.EndedAt)}
 	if hasErrorReason {
 		line = append(line, r.ErrorReason)
 	}
