@@ -115,6 +115,14 @@ otaids=$(echo $otastartedout | jq -r '.[] | .OtaStatus | .id' | uniq | paste -sd
 
 if [ $otaids == "null" ]; then
     echo "No OTA processes to monitor. This could be due to an upgrade from previous ArduinoIotLibrary versions. Exiting..."
+    if [ "$newtagversion" != "" ]; then
+        otasucceeded=$(echo $devicelistjson | jq -r '.[] | .id' | uniq | paste -sd "," -)
+        echo ""
+        echo "Tag updated devices as \"$newtagversion\""
+        arduino-cloud-cli device create-tags --ids $otasucceeded --tags $newtagversion
+        echo ""
+        arduino-cloud-cli device list --tags $newtagversion
+    fi    
     exit 0
 fi
 
