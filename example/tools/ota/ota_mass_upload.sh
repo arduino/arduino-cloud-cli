@@ -138,16 +138,20 @@ echo ""
 echo "Status report:"
 arduino-cloud-cli ota status --ota-ids $otaids
 
+exitcode=0
 if [ $correctlyfinished -eq 0 ]; then
     echo "OTA process did not complete within the specified time for some boards"
-    exit 1
+    exitcode=1
 else 
     echo "OTA process completed successfully for all boards"
-    if [ "$newtagversion" != "" ]; then
-        echo "Tagging updated devices with tag: $newtagversion"
-        arduino-cloud-cli device create-tags --ids $otasucceeded --tags $newtagversion
-    fi
-    exit 0
 fi
 
-exit 0
+if [ "$newtagversion" != "" ]; then
+    echo ""
+    echo "Tag updated devices as \"$newtagversion\""
+    arduino-cloud-cli device create-tags --ids $otasucceeded --tags $newtagversion
+    echo ""
+    arduino-cloud-cli device list --tags $newtagversion
+fi
+
+exit $exitcode
