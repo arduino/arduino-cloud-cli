@@ -29,6 +29,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/arduino/arduino-cli/table"
 	"github.com/arduino/arduino-cloud-cli/internal/lzss"
 )
 
@@ -91,6 +92,32 @@ type OtaMetadata struct {
 	Compressed     bool
 	PayloadSHA256  string // SHA256 of the payload (decompressed if compressed). This is the SHA256 as seen ny the board.
 	OtaSHA256      string // SHA256 of the whole file (header + payload).
+}
+
+func (r OtaMetadata) Data() interface{} {
+	return r
+}
+
+func (r OtaMetadata) String() string {
+	t := table.New()
+
+	t.SetHeader("Entry", "Value")
+
+	t.AddRow([]interface{}{"Length", fmt.Sprintf("%d bytes", r.Length)}...)
+	t.AddRow([]interface{}{"CRC32", fmt.Sprintf("%d", r.CRC32)}...)
+	t.AddRow([]interface{}{"Magic Number", fmt.Sprintf("0x%08X", r.MagicNumber)}...)
+	t.AddRow([]interface{}{"Board Type", r.BoardType}...)
+	if r.FQBN != nil {
+		t.AddRow([]interface{}{"FQBN", *r.FQBN}...)
+	}
+	t.AddRow([]interface{}{"VID", r.VID}...)
+	t.AddRow([]interface{}{"PID", r.PID}...)
+	t.AddRow([]interface{}{"Is Arduino Board", strconv.FormatBool(r.IsArduinoBoard)}...)
+	t.AddRow([]interface{}{"Compressed", strconv.FormatBool(r.Compressed)}...)
+	t.AddRow([]interface{}{"Payload SHA256", r.PayloadSHA256}...)
+	t.AddRow([]interface{}{"OTA SHA256", r.OtaSHA256}...)
+
+	return t.Render()
 }
 
 // Read header starting from the first byte of the file
