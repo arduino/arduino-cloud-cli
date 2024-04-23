@@ -17,6 +17,8 @@
 
 package ota
 
+const compressionEnabledMagicNumber = 0x40
+
 // Version contains all the OTA header information
 // Check out https://arduino.atlassian.net/wiki/spaces/RFC/pages/1616871540/OTA+header+structure for more
 // information on the OTA header specs.
@@ -44,4 +46,16 @@ func (v *Version) Bytes() []byte {
 	// Other field are currently not implemented ¯\_(ツ)_/¯
 
 	return version
+}
+
+// Bytes builds a 8 byte length representation of the Version Struct for the OTA update.
+func decodeVersion(version []byte) Version {
+
+	compressed := (version[7] == compressionEnabledMagicNumber)
+
+	// Other field are currently not implemented ¯\_(ツ)_/¯
+
+	return Version{
+		Compression: compressed,
+	}
 }

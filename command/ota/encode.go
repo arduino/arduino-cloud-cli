@@ -38,7 +38,7 @@ func Encode(params *EncodeParams) (*string, error) {
 	}
 
 	// Verify if file has already an OTA header
-	header, _ := ota.DecodeOtaFirmwareHeader(params.File)
+	header, _ := ota.DecodeOtaFirmwareHeaderFromFile(params.File)
 	if header != nil {
 		return nil, fmt.Errorf("file %s contains a valid OTA header. Skip header encoding", params.File)
 	}

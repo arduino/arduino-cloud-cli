@@ -33,7 +33,7 @@ type decodeHeaderFlags struct {
 func initDecodeHeaderCommand() *cobra.Command {
 	flags := &decodeHeaderFlags{}
 	uploadCommand := &cobra.Command{
-		Use:   "decode",
+		Use:   "header-decode",
 		Short: "OTA firmware header decoder",
 		Long:  "decode OTA firmware header of the given binary file",
 		Run: func(cmd *cobra.Command, args []string) {

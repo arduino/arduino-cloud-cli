@@ -35,7 +35,7 @@ type encodeBinaryFlags struct {
 func initEncodeBinaryCommand() *cobra.Command {
 	flags := &encodeBinaryFlags{}
 	uploadCommand := &cobra.Command{
-		Use:   "encode",
+		Use:   "header-encode",
 		Short: "OTA firmware encoder",
 		Long:  "encode header firmware to make it compatible with Arduino OTA",
 		Run: func(cmd *cobra.Command, args []string) {

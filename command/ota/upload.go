@@ -64,7 +64,7 @@ func Upload(ctx context.Context, params *UploadParams, cred *config.Credentials)
 
 	if !params.DoNotApplyHeader {
 		//Verify if file has already an OTA header
-		header, _ := ota.DecodeOtaFirmwareHeader(params.File)
+		header, _ := ota.DecodeOtaFirmwareHeaderFromFile(params.File)
 		if header != nil {
 			params.DoNotApplyHeader = true
 		}

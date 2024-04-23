@@ -18,21 +18,68 @@
 package ota
 
 import (
+	"bytes"
+	"crypto/sha256"
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"hash/crc32"
 	"io"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/arduino/arduino-cloud-cli/internal/lzss"
 )
 
 var (
-	ErrCRC32Mismatch = fmt.Errorf("CRC32 mismatch")
-	ErrNoHeader      = fmt.Errorf("no header found")
+	ErrCRC32Mismatch  = fmt.Errorf("CRC32 mismatch")
+	ErrLengthMismatch = fmt.Errorf("file length mismatch")
+
+	boardTypes = map[uint32]string{
+		0x45535033: "ESP32",
+		0x23418054: "MKR_WIFI_1010",
+		0x23418057: "NANO_33_IOT",
+		0x2341025B: "PORTENTA_H7_M7",
+		0x2341005E: "NANO_RP2040_CONNECT",
+		0x2341025F: "NICLA_VISION",
+		0x23410064: "OPTA",
+		0x23410266: "GIGA",
+		0x23410070: "NANO_ESP32",
+		0x23411002: "UNOR4WIFI",
+	}
+
+	arduinoPidToFQBN = map[string]string{
+		"8057": "arduino:samd:nano_33_iot",
+		"804E": "arduino:samd:mkr1000",
+		"8052": "arduino:samd:mkrgsm1400",
+		"8055": "arduino:samd:mkrnb1500",
+		"8054": "arduino:samd:mkrwifi1010",
+		"005E": "arduino:mbed_nano:nanorp2040connect",
+		"025B": "arduino:mbed_portenta:envie_m7",
+		"025F": "arduino:mbed_nicla:nicla_vision",
+		"0064": "arduino:mbed_opta:opta",
+		"0266": "arduino:mbed_giga:giga",
+		"0070": "arduino:esp32:nano_nora",
+		"1002": "arduino:renesas_uno:unor4wifi",
+	}
 )
 
-type OtaFirmwareHeader struct {
+const (
+	OffsetLength      = 0
+	OffsetCRC32       = 4
+	OffsetMagicNumber = 8
+	OffsetVersion     = 12
+	OffsetPayload     = 20
+	HeaderSize        = 20
+)
+
+type OtaFileReader interface {
+	io.Reader
+	io.Closer
+}
+
+type OtaMetadata struct {
 	Length         uint32
 	CRC32          uint32
 	MagicNumber    uint32
@@ -41,34 +88,66 @@ type OtaFirmwareHeader struct {
 	VID            string
 	PID            string
 	IsArduinoBoard bool
+	Compressed     bool
+	PayloadSHA256  string // SHA256 of the payload (decompressed if compressed). This is the SHA256 as seen ny the board.
+	OtaSHA256      string // SHA256 of the whole file (header + payload).
 }
 
-func readBytes(file *os.File, length int, offset int64) ([]byte, error) {
-	bytes := make([]byte, length)
-	_, err := file.ReadAt(bytes, offset)
+// Read header starting from the first byte of the file
+func readHeader(file OtaFileReader) ([]byte, error) {
+	bytes := make([]byte, HeaderSize)
+	_, err := file.Read(bytes)
 	if err != nil {
 		return nil, err
 	}
 	return bytes, nil
 }
 
-func crc32Buffered(file *os.File) (uint32, error) {
-	h := crc32.NewIEEE()
-	// Discard first 8 bytes
-	file.Seek(8, 0)
-	// Read file in chunks and compute CRC32
+// Function will compute OTA CRC32 and file SHA256 hash, starting from a reader that has already extracted the header (so pointing to payload).
+func computeFileHashes(file OtaFileReader, compressed bool, otaHeader []byte) (uint32, string, string, uint32, error) {
+	crcSum := crc32.NewIEEE()
+	payload := bytes.Buffer{}
+	// Length of remaining header + payload excluding the fields LENGTH and CRC32.
+	computedLength := HeaderSize - OffsetMagicNumber
+
+	// Discard first 8 bytes (len + crc32) and read remaining header's bytes (12B - magic number + version)
+	crcSum.Write(otaHeader[8:HeaderSize])
+
+	// Read file in chunks and compute CRC32. Save payload in a buffer for next processing steps (SHA256)
 	buf := make([]byte, 4096)
 	for {
 		n, err := file.Read(buf)
 		if err != nil && err != io.EOF {
-			return 0, err
+			return 0, "", "", 0, err
 		}
 		if n == 0 {
 			break
 		}
-		h.Write(buf[:n])
+		computedLength += n
+		crcSum.Write(buf[:n])
+		payload.Write(buf[:n])
 	}
-	return h.Sum32(), nil
+
+	payloadSHA, otaSHA := computeBinarySha256(compressed, payload.Bytes(), otaHeader)
+
+	return crcSum.Sum32(), payloadSHA, otaSHA, uint32(computedLength), nil
+}
+
+func computeBinarySha256(compressed bool, payload []byte, otaHeader []byte) (string, string) {
+	var computedShaBytes [32]byte
+	if compressed {
+		decompressed := lzss.Decompress(payload)
+		computedShaBytes = sha256.Sum256(decompressed)
+	} else {
+		computedShaBytes = sha256.Sum256(payload)
+	}
+
+	// Whole file SHA256 (header + payload)
+	otaSHA := sha256.New()
+	otaSHA.Write(otaHeader)
+	otaSHA.Write(payload)
+
+	return hex.EncodeToString(computedShaBytes[:]), hex.EncodeToString(otaSHA.Sum(nil))
 }
 
 func extractXID(buff []byte) string {
@@ -79,80 +158,87 @@ func extractXID(buff []byte) string {
 // DecodeOtaFirmwareHeader decodes the OTA firmware header from a binary file.
 // File is composed by an header and a payload (optionally lzss compressed).
 // Method is also checking CRC32 of the file, verifying that file is not corrupted.
-func DecodeOtaFirmwareHeader(binaryFilePath string) (*OtaFirmwareHeader, error) {
+// OTA header layout: LENGTH (4 B) | CRC (4 B) | MAGIC NUMBER = VID + PID (4 B) | VERSION (8 B) | PAYLOAD (LENGTH - 12 B)
+// See https://arduino.atlassian.net/wiki/spaces/RFC/pages/1616871540/OTA+header+structure
+func DecodeOtaFirmwareHeaderFromFile(binaryFilePath string) (*OtaMetadata, error) {
 	// Check if file exists
 	if _, err := os.Stat(binaryFilePath); err != nil {
 		return nil, err
 	}
-	// Open file
 	if otafileptr, err := os.Open(binaryFilePath); err != nil {
 		return nil, err
 	} else {
 		defer otafileptr.Close()
-
-		// Get length (payload + header without lenght and CRC32 bytes)
-		buff, err := readBytes(otafileptr, 4, 0)
-		if err != nil {
-			return nil, err
-		}
-		lenghtInt := binary.LittleEndian.Uint32(buff)
-
-		// Get CRC32 (uint32)
-		buff, err = readBytes(otafileptr, 4, 4)
-		if err != nil {
-			return nil, err
-		}
-		readsum := binary.LittleEndian.Uint32(buff)
-
-		// Read full binary file (buffered), starting from 8th byte (magic number)
-		computedsum, err := crc32Buffered(otafileptr)
-		if err != nil {
-			return nil, err
-		}
-
-		// Get PID+VID (uint32)
-		buff, err = readBytes(otafileptr, 8, 8)
-		if err != nil {
-			return nil, err
-		}
-		completeMagicNumber := binary.LittleEndian.Uint32(buff)
-
-		//Extract VID and PID
-		pid := extractXID(buff[:2])
-		vid := extractXID(buff[2:])
-
-		if vid != ArduinoVendorID && vid != Esp32MagicNumberPart1 {
-			return nil, ErrNoHeader
-		}
-
-		if computedsum != readsum {
-			// Check if CRC32 is matching, otherwise return error
-			return nil, ErrCRC32Mismatch
-		}
-
-		boardType, fqbn, isArduino := getBoardType(completeMagicNumber, pid)
-
-		return &OtaFirmwareHeader{
-			Length:         lenghtInt,
-			CRC32:          computedsum,
-			BoardType:      boardType,
-			MagicNumber:    completeMagicNumber,
-			IsArduinoBoard: isArduino,
-			PID:            pid,
-			VID:            vid,
-			FQBN:           fqbn,
-		}, nil
+		return DecodeOtaFirmwareHeader(otafileptr)
 	}
+}
+
+// DecodeOtaFirmwareHeader decodes the OTA firmware header from a binary file.
+// File is composed by an header and a payload (optionally lzss compressed).
+// Method is also checking CRC32 of the file, verifying that file is not corrupted.
+// OTA header layout: LENGTH (4 B) | CRC (4 B) | MAGIC NUMBER = VID + PID (4 B) | VERSION (8 B) | PAYLOAD (LENGTH - 12 B)
+// See https://arduino.atlassian.net/wiki/spaces/RFC/pages/1616871540/OTA+header+structure
+func DecodeOtaFirmwareHeader(otafileptr OtaFileReader) (*OtaMetadata, error) {
+	header, err := readHeader(otafileptr) // Read all header.
+	if err != nil {
+		return nil, err
+	}
+
+	// Get length (payload + header without length and CRC32 bytes)
+	lengthInt := binary.LittleEndian.Uint32(header[OffsetLength:OffsetCRC32])
+
+	// Get CRC32 (uint32)
+	readsum := binary.LittleEndian.Uint32(header[OffsetCRC32:OffsetMagicNumber])
+
+	// Get PID+VID (uint32)
+	completeMagicNumber := binary.LittleEndian.Uint32(header[OffsetMagicNumber:OffsetVersion])
+
+	//Extract PID and VID. VID is in the last 2 bytes of the magic number, PID in the first 2 bytes.
+	pid := extractXID(header[OffsetMagicNumber : OffsetMagicNumber+2])
+	vid := extractXID(header[OffsetMagicNumber+2 : OffsetVersion])
+
+	boardType, fqbn, isArduino := getBoardType(completeMagicNumber, pid)
+
+	// Get Version (8B)
+	version := decodeVersion(header[OffsetVersion:OffsetPayload])
+
+	// Read full binary file (buffered), starting from 8th byte (magic number)
+	computedsum, fileSha, otaSha, computedLength, err := computeFileHashes(otafileptr, version.Compression, header)
+	if err != nil {
+		return nil, err
+	}
+
+	// File sanity check. Validate CRC32 and length declared in header with computed values.
+	if computedsum != readsum {
+		return nil, ErrCRC32Mismatch
+	}
+	if computedLength != lengthInt {
+		return nil, ErrLengthMismatch
+	}
+
+	return &OtaMetadata{
+		Length:         lengthInt,
+		CRC32:          computedsum,
+		BoardType:      boardType,
+		MagicNumber:    completeMagicNumber,
+		IsArduinoBoard: isArduino,
+		PID:            pid,
+		VID:            vid,
+		FQBN:           fqbn,
+		Compressed:     version.Compression,
+		PayloadSHA256:  fileSha,
+		OtaSHA256:      otaSha,
+	}, nil
 }
 
 func getBoardType(magicNumber uint32, pid string) (string, *string, bool) {
 	baordType := "UNKNOWN"
-	if t, ok := BoardTypes[magicNumber]; ok {
+	if t, ok := boardTypes[magicNumber]; ok {
 		baordType = t
 	}
 	isArduino := baordType != "UNKNOWN" && baordType != "ESP32"
 	var fqbn *string
-	if t, ok := ArduinoPidToFQBN[pid]; ok {
+	if t, ok := arduinoPidToFQBN[pid]; ok {
 		fqbn = &t
 	}
 

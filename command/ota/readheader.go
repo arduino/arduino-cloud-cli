@@ -47,7 +47,7 @@ func ReadHeader(params *ReadHeaderParams) error {
 	}
 
 	// Verify if file has already an OTA header
-	header, err := ota.DecodeOtaFirmwareHeader(params.File)
+	header, err := ota.DecodeOtaFirmwareHeaderFromFile(params.File)
 	if err != nil {
 		return fmt.Errorf("file %s does not contains a valid OTA header: %v", params.File, err)
 	}

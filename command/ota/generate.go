@@ -26,7 +26,6 @@ import (
 	inota "github.com/arduino/arduino-cloud-cli/internal/ota"
 )
 
-
 // Generate takes a .bin file and generates a .ota file.
 func Generate(binFile string, outFile string, fqbn string) error {
 
