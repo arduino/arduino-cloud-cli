@@ -26,8 +26,8 @@ import (
 
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
-	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
 	"github.com/arduino/arduino-cloud-cli/internal/ota"
+	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
 
 	iotclient "github.com/arduino/iot-client-go"
 )
@@ -64,11 +64,6 @@ func MassUpload(ctx context.Context, params *MassUploadParams, cred *config.Cred
 	}
 
 	// Generate .ota file
-	otaDir, err := os.MkdirTemp("", "")
-	if err != nil {
-		return nil, fmt.Errorf("error generating temp directory: %w", err)
-	}
-
 	_, err := os.Stat(params.File)
 	if err != nil {
 		return nil, fmt.Errorf("file %s does not exists: %w", params.File, err)

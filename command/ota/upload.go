@@ -26,8 +26,8 @@ import (
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
-	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
 	"github.com/arduino/arduino-cloud-cli/internal/ota"
+	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
 )
 
 const (
@@ -63,11 +63,6 @@ func Upload(ctx context.Context, params *UploadParams, cred *config.Credentials)
 	dev, err := iotClient.DeviceShow(ctx, params.DeviceID)
 	if err != nil {
 		return err
-	}
-
-	otaDir, err := os.MkdirTemp("", "")
-	if err != nil {
-		return fmt.Errorf("%s: %w", "cannot create temporary folder", err)
 	}
 
 	if !params.DoNotApplyHeader {
