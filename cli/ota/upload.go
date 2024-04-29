@@ -31,9 +31,10 @@ import (
 )
 
 type uploadFlags struct {
-	deviceID string
-	file     string
-	deferred bool
+	deviceID         string
+	file             string
+	deferred         bool
+	doNotApplyHeader bool
 }
 
 func initUploadCommand() *cobra.Command {
@@ -52,6 +53,7 @@ func initUploadCommand() *cobra.Command {
 	uploadCommand.Flags().StringVarP(&flags.deviceID, "device-id", "d", "", "Device ID")
 	uploadCommand.Flags().StringVarP(&flags.file, "file", "", "", "Binary file (.bin) to be uploaded")
 	uploadCommand.Flags().BoolVar(&flags.deferred, "deferred", false, "Perform a deferred OTA. It can take up to 1 week.")
+	uploadCommand.Flags().BoolVar(&flags.doNotApplyHeader, "no-header", false, "Do not apply header and compression to binary file before upload")
 	uploadCommand.MarkFlagRequired("device-id")
 	uploadCommand.MarkFlagRequired("file")
 	return uploadCommand
@@ -66,9 +68,10 @@ func runUploadCommand(flags *uploadFlags) error {
 	}
 
 	params := &ota.UploadParams{
-		DeviceID: flags.deviceID,
-		File:     flags.file,
-		Deferred: flags.deferred,
+		DeviceID:         flags.deviceID,
+		File:             flags.file,
+		Deferred:         flags.deferred,
+		DoNotApplyHeader: flags.doNotApplyHeader,
 	}
 	err = ota.Upload(context.TODO(), params, cred)
 	if err != nil {

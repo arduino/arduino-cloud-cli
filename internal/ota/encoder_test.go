@@ -20,7 +20,7 @@ package ota
 import (
 	"bytes"
 	"encoding/hex"
-	"io/ioutil"
+	"os"
 
 	"fmt"
 	"hash/crc32"
@@ -90,12 +90,12 @@ func TestEncodeFiles(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			input, err := ioutil.ReadFile(tt.infile)
+			input, err := os.ReadFile(tt.infile)
 			if err != nil {
 				t.Fatal("couldn't open test file")
 			}
 
-			want, err := ioutil.ReadFile(tt.outfile)
+			want, err := os.ReadFile(tt.outfile)
 			if err != nil {
 				t.Fatal("couldn't open test file")
 			}
