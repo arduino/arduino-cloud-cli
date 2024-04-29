@@ -27,6 +27,8 @@ import (
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
+	"github.com/arduino/arduino-cloud-cli/internal/ota"
+
 	iotclient "github.com/arduino/iot-client-go"
 )
 
@@ -37,11 +39,12 @@ const (
 // MassUploadParams contains the parameters needed to
 // perform a Mass OTA upload.
 type MassUploadParams struct {
-	DeviceIDs []string
-	Tags      map[string]string
-	File      string
-	Deferred  bool
-	FQBN      string
+	DeviceIDs        []string
+	Tags             map[string]string
+	File             string
+	Deferred         bool
+	DoNotApplyHeader bool
+	FQBN             string
 }
 
 // Result of an ota upload on a device.
@@ -63,14 +66,38 @@ func MassUpload(ctx context.Context, params *MassUploadParams, cred *config.Cred
 	// Generate .ota file
 	otaDir, err := os.MkdirTemp("", "")
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "cannot create temporary folder", err)
+		return nil, fmt.Errorf("error generating temp directory: %w", err)
 	}
-	otaFile := filepath.Join(otaDir, "temp.ota")
-	defer os.RemoveAll(otaDir)
 
-	err = Generate(params.File, otaFile, params.FQBN)
+	_, err := os.Stat(params.File)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "cannot generate .ota file", err)
+		return nil, fmt.Errorf("file %s does not exists: %w", params.File, err)
+	}
+
+	if !params.DoNotApplyHeader {
+		//Verify if file has already an OTA header
+		header, _ := ota.DecodeOtaFirmwareHeaderFromFile(params.File)
+		if header != nil {
+			params.DoNotApplyHeader = true
+		}
+	}
+
+	// Generate .ota file
+	var otaFile string
+	if params.DoNotApplyHeader {
+		otaFile = params.File
+	} else {
+		otaDir, err := os.MkdirTemp("", "")
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", "cannot create temporary folder", err)
+		}
+		otaFile := filepath.Join(otaDir, "temp.ota")
+		defer os.RemoveAll(otaDir)
+
+		err = Generate(params.File, otaFile, params.FQBN)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", "cannot generate .ota file", err)
+		}
 	}
 
 	iotClient, err := iot.NewClient(cred)

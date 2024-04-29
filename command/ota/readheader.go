@@ -18,21 +18,34 @@
 package ota
 
 import (
-	"github.com/spf13/cobra"
+	"fmt"
+	"os"
+
+	"github.com/arduino/arduino-cli/cli/feedback"
+	"github.com/arduino/arduino-cloud-cli/internal/ota"
 )
 
-func NewCommand() *cobra.Command {
-	otaCommand := &cobra.Command{
-		Use:   "ota",
-		Short: "Over The Air.",
-		Long:  "Over The Air firmware update.",
+type ReadHeaderParams struct {
+	File string
+}
+
+// Encode command is used to encode a firmware OTA
+func ReadHeader(params *ReadHeaderParams) error {
+	_, err := os.Stat(params.File)
+	if err != nil {
+		return fmt.Errorf("file %s does not exists: %w", params.File, err)
 	}
 
-	otaCommand.AddCommand(initUploadCommand())
-	otaCommand.AddCommand(initMassUploadCommand())
-	otaCommand.AddCommand(initOtaStatusCommand())
-	otaCommand.AddCommand(initEncodeBinaryCommand())
-	otaCommand.AddCommand(initDecodeHeaderCommand())
+	// Verify if file has already an OTA header
+	header, err := ota.DecodeOtaFirmwareHeaderFromFile(params.File)
+	if err != nil {
+		return fmt.Errorf("file %s does not contains a valid OTA header: %v", params.File, err)
+	}
+	if header == nil {
+		return fmt.Errorf("file %s does not contains a valid OTA header", params.File)
+	}
 
-	return otaCommand
+	feedback.PrintResult(header)
+
+	return nil
 }
