@@ -43,7 +43,6 @@ type (
 		StartedAt   string `json:"started_at" yaml:"started_at"`
 		EndedAt     string `json:"ended_at,omitempty" yaml:"ended_at,omitempty"`
 		ErrorReason string `json:"error_reason,omitempty" yaml:"error_reason,omitempty"`
-		Sha256      string `json:"sha256,omitempty" yaml:"sha256,omitempty"`
 	}
 
 	State struct {
