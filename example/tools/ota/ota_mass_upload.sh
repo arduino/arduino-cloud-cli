@@ -35,7 +35,7 @@ checkExecutable "uniq"
 checkExecutable "paste"
 
 # Default wait time for OTA process to complete
-waittime=600
+waittime=900
 newtagversion=""
 
 while getopts t:v:f:o:d: flag
