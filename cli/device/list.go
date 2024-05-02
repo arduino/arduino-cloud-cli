@@ -33,7 +33,8 @@ import (
 )
 
 type listFlags struct {
-	tags map[string]string
+	tags      map[string]string
+	deviceIds string
 }
 
 func initListCommand() *cobra.Command {
@@ -56,6 +57,7 @@ func initListCommand() *cobra.Command {
 		"Comma-separated list of tags with format <key>=<value>.\n"+
 			"List only devices that match the provided tags.",
 	)
+	listCommand.Flags().StringVarP(&flags.deviceIds, "device-ids", "d", "", "Comma separated list of Device IDs")
 	return listCommand
 }
 
@@ -67,7 +69,7 @@ func runListCommand(flags *listFlags) error {
 		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
-	params := &device.ListParams{Tags: flags.tags}
+	params := &device.ListParams{Tags: flags.tags, DeviceIds: flags.deviceIds}
 	devs, err := device.List(context.TODO(), params, cred)
 	if err != nil {
 		return err

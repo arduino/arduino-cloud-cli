@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"strings"
 
 	iotclient "github.com/arduino/iot-client-go"
@@ -29,7 +30,16 @@ import (
 	cc "golang.org/x/oauth2/clientcredentials"
 )
 
-func token(client, secret, baseURL string) oauth2.TokenSource {
+func GetArduinoAPIBaseURL() string {
+	baseURL := "https://api2.arduino.cc"
+	if url := os.Getenv("IOT_API_URL"); url != "" {
+		baseURL = url
+	}
+	return baseURL
+}
+
+// Build a new token source to forge api JWT tokens based on provided credentials
+func NewUserTokenSource(client, secret, baseURL string) oauth2.TokenSource {
 	// We need to pass the additional "audience" var to request an access token.
 	additionalValues := url.Values{}
 	additionalValues.Add("audience", "https://api2.arduino.cc/iot")

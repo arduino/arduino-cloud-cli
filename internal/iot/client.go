@@ -195,8 +195,8 @@ func (cl *Client) DeviceOTA(ctx context.Context, id string, file *os.File, expir
 		ExpireInMins: optional.NewInt32(int32(expireMins)),
 		Async:        optional.NewBool(true),
 	}
-	_, err = cl.api.DevicesV2OtaApi.DevicesV2OtaUpload(ctx, id, file, opt)
-	if err != nil {
+	resp, err := cl.api.DevicesV2OtaApi.DevicesV2OtaUpload(ctx, id, file, opt)
+	if err != nil && resp.StatusCode != 409 { // 409 (Conflict) is the status code for an already existing OTA for the same SHA/device, so ignoring it.
 		err = fmt.Errorf("uploading device ota: %w", errorDetail(err))
 		return err
 	}
@@ -471,13 +471,10 @@ func (cl *Client) DashboardDelete(ctx context.Context, id string) error {
 }
 
 func (cl *Client) setup(client, secret, organization string) error {
-	baseURL := "https://api2.arduino.cc"
-	if url := os.Getenv("IOT_API_URL"); url != "" {
-		baseURL = url
-	}
+	baseURL := GetArduinoAPIBaseURL()
 
 	// Configure a token source given the user's credentials.
-	cl.token = token(client, secret, baseURL)
+	cl.token = NewUserTokenSource(client, secret, baseURL)
 
 	config := iotclient.NewConfiguration()
 	if organization != "" {

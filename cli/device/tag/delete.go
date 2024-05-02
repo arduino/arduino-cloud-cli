@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
@@ -32,6 +33,7 @@ import (
 
 type deleteTagsFlags struct {
 	id   string
+	ids  string
 	keys []string
 }
 
@@ -49,14 +51,39 @@ func InitDeleteTagsCommand() *cobra.Command {
 		},
 	}
 	deleteTagsCommand.Flags().StringVarP(&flags.id, "id", "i", "", "Device ID")
+	deleteTagsCommand.Flags().StringVarP(&flags.id, "ids", "", "", "Comma-separated list of Device IDs")
 	deleteTagsCommand.Flags().StringSliceVarP(&flags.keys, "keys", "k", nil, "Comma-separated list of keys of tags to delete")
-	deleteTagsCommand.MarkFlagRequired("id")
 	deleteTagsCommand.MarkFlagRequired("keys")
 	return deleteTagsCommand
 }
 
 func runDeleteTagsCommand(flags *deleteTagsFlags) error {
-	logrus.Infof("Deleting tags with keys %s", flags.keys)
+	if flags.id == "" && flags.ids == "" {
+		return fmt.Errorf("missing required flag(s) \"id\" or \"ids\"")
+	}
+
+	if flags.id != "" {
+		err := deleteTags(flags.id, flags.keys)
+		if err != nil {
+			return err
+		}
+	}
+	if flags.ids != "" {
+		ids := strings.Split(flags.ids, ",")
+		for _, id := range ids {
+			id = strings.TrimSpace(id)
+			err := deleteTags(id, flags.keys)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func deleteTags(id string, keys []string) error {
+	logrus.Infof("Deleting tags with keys %s", keys)
 
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
@@ -64,8 +91,8 @@ func runDeleteTagsCommand(flags *deleteTagsFlags) error {
 	}
 
 	params := &tag.DeleteTagsParams{
-		ID:       flags.id,
-		Keys:     flags.keys,
+		ID:       id,
+		Keys:     keys,
 		Resource: tag.Device,
 	}
 

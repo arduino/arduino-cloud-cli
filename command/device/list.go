@@ -20,6 +20,7 @@ package device
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
@@ -28,7 +29,8 @@ import (
 // ListParams contains the optional parameters needed
 // to filter the devices to be listed.
 type ListParams struct {
-	Tags map[string]string // If tags are provided, only devices that have all these tags are listed.
+	Tags      map[string]string // If tags are provided, only devices that have all these tags are listed.
+	DeviceIds string            // If ids are provided, only devices with these ids are listed.
 }
 
 // List command is used to list
@@ -43,9 +45,19 @@ func List(ctx context.Context, params *ListParams, cred *config.Credentials) ([]
 	if err != nil {
 		return nil, err
 	}
+	var deviceIdFilter []string
+	if params.DeviceIds != "" {
+		deviceIdFilter = strings.Split(params.DeviceIds, ",")
+		for i := range deviceIdFilter {
+			deviceIdFilter[i] = strings.TrimSpace(deviceIdFilter[i])
+		}
+	}
 
 	var devices []DeviceInfo
 	for _, foundDev := range foundDevices {
+		if len(deviceIdFilter) > 0 && !sliceContains(deviceIdFilter, foundDev.Id) {
+			continue
+		}
 		dev, err := getDeviceInfo(&foundDev)
 		if err != nil {
 			return nil, fmt.Errorf("parsing device %s from cloud: %w", foundDev.Id, err)
@@ -54,4 +66,13 @@ func List(ctx context.Context, params *ListParams, cred *config.Credentials) ([]
 	}
 
 	return devices, nil
+}
+
+func sliceContains(s []string, v string) bool {
+	for i := range s {
+		if v == s[i] {
+			return true
+		}
+	}
+	return false
 }
