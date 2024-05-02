@@ -28,6 +28,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
+var ErrOtaAlreadyInProgress = fmt.Errorf("already in progress")
+
 // Client can perform actions on Arduino IoT Cloud.
 type Client struct {
 	api   *iotclient.APIClient
@@ -196,9 +198,12 @@ func (cl *Client) DeviceOTA(ctx context.Context, id string, file *os.File, expir
 		Async:        optional.NewBool(true),
 	}
 	resp, err := cl.api.DevicesV2OtaApi.DevicesV2OtaUpload(ctx, id, file, opt)
-	if err != nil && resp.StatusCode != 409 { // 409 (Conflict) is the status code for an already existing OTA for the same SHA/device, so ignoring it.
-		err = fmt.Errorf("uploading device ota: %w", errorDetail(err))
-		return err
+	if err != nil {
+		// 409 (Conflict) is the status code for an already existing OTA in progress for the same device. Handling it in a different way.
+		if resp.StatusCode == 409 {
+			return ErrOtaAlreadyInProgress
+		}
+		return fmt.Errorf("uploading device ota: %w", errorDetail(err))
 	}
 	return nil
 }

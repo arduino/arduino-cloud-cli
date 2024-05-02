@@ -101,8 +101,16 @@ func Upload(ctx context.Context, params *UploadParams, cred *config.Credentials)
 		expiration = otaDeferredExpirationMins
 	}
 
+	var conflictedOta *otaapi.Ota
 	err = iotClient.DeviceOTA(ctx, params.DeviceID, file, expiration)
 	if err != nil {
+		if err == iot.ErrOtaAlreadyInProgress {
+			conflictedOta = &otaapi.Ota{
+				DeviceID:    params.DeviceID,
+				Status:      "Failed",
+				ErrorReason: "OTA already in progress",
+			}
+		}
 		return err
 	}
 	// Try to get ota-id from API
@@ -111,7 +119,14 @@ func Upload(ctx context.Context, params *UploadParams, cred *config.Credentials)
 		return err
 	}
 	if otaID != nil && len(otaID.Ota) > 0 {
-		feedback.PrintResult(otaID.Ota[0])
+		if conflictedOta != nil {
+			toPrint := otaapi.OtaStatusList{
+				Ota: []otaapi.Ota{*conflictedOta, otaID.Ota[0]},
+			}
+			feedback.PrintResult(toPrint)
+		} else {
+			feedback.PrintResult(otaID.Ota[0])
+		}
 	}
 
 	return nil
