@@ -19,6 +19,7 @@ package ota
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -104,14 +105,15 @@ func Upload(ctx context.Context, params *UploadParams, cred *config.Credentials)
 	var conflictedOta *otaapi.Ota
 	err = iotClient.DeviceOTA(ctx, params.DeviceID, file, expiration)
 	if err != nil {
-		if err == iot.ErrOtaAlreadyInProgress {
+		if errors.Is(err, iot.ErrOtaAlreadyInProgress) {
 			conflictedOta = &otaapi.Ota{
 				DeviceID:    params.DeviceID,
-				Status:      "Failed",
+				Status:      "Skipped",
 				ErrorReason: "OTA already in progress",
 			}
+		} else {
+			return err
 		}
-		return err
 	}
 	// Try to get ota-id from API
 	otaID, err := otapi.GetOtaLastStatusByDeviceID(params.DeviceID)

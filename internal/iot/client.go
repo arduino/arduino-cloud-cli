@@ -28,7 +28,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var ErrOtaAlreadyInProgress = fmt.Errorf("already in progress")
+var ErrOtaAlreadyInProgress = fmt.Errorf("ota already in progress")
 
 // Client can perform actions on Arduino IoT Cloud.
 type Client struct {
