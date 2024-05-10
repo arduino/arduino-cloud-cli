@@ -124,7 +124,7 @@ func TestValidateDevices(t *testing.T) {
 
 func TestValidateBuildOtaFile(t *testing.T) {
 
-	file, err := buildOtaFile(&MassUploadParams{
+	file, tmp, err := buildOtaFile(&MassUploadParams{
 		File:             cloudFirmwareFilename,
 		DoNotApplyHeader: false,
 		FQBN:             "arduino:samd:nano_33_iot",
@@ -132,11 +132,13 @@ func TestValidateBuildOtaFile(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, file)
 	assert.True(t, strings.HasSuffix(file, "temp.ota"))
+	assert.NotEmpty(t, tmp)
+	defer os.RemoveAll(tmp)
 }
 
 func TestValidateBuildOtaFile_whenNoHeaderIsRequested(t *testing.T) {
 
-	file, err := buildOtaFile(&MassUploadParams{
+	file, tmp, err := buildOtaFile(&MassUploadParams{
 		File:             cloudFirmwareFilename,
 		DoNotApplyHeader: true,
 		FQBN:             "arduino:samd:nano_33_iot",
@@ -144,4 +146,5 @@ func TestValidateBuildOtaFile_whenNoHeaderIsRequested(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, file)
 	assert.Equal(t, cloudFirmwareFilename, file)
+	assert.Empty(t, tmp)
 }
