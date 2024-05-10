@@ -86,7 +86,7 @@ func MassUpload(ctx context.Context, params *MassUploadParams, cred *config.Cred
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", "cannot create temporary folder", err)
 		}
-		otaFile := filepath.Join(otaDir, "temp.ota")
+		otaFile = filepath.Join(otaDir, "temp.ota")
 		defer os.RemoveAll(otaDir)
 
 		err = Generate(params.File, otaFile, params.FQBN)
