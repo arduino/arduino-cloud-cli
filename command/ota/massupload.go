@@ -21,6 +21,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
 
@@ -54,6 +55,27 @@ type Result struct {
 	OtaStatus otaapi.Ota
 }
 
+func buildOtaFile(params *MassUploadParams) (string, string, error) {
+	var otaFile string
+	var otaDir string
+	var err error
+	if params.DoNotApplyHeader {
+		otaFile = params.File
+	} else {
+		otaDir, err = os.MkdirTemp("", "")
+		if err != nil {
+			return "", "", fmt.Errorf("%s: %w", "cannot create temporary folder", err)
+		}
+		otaFile = filepath.Join(otaDir, "temp.ota")
+
+		err = Generate(params.File, otaFile, params.FQBN)
+		if err != nil {
+			return "", "", fmt.Errorf("%s: %w", "cannot generate .ota file", err)
+		}
+	}
+	return otaFile, otaDir, nil
+}
+
 // MassUpload command is used to mass upload a firmware OTA,
 // on devices of Arduino IoT Cloud.
 func MassUpload(ctx context.Context, params *MassUploadParams, cred *config.Credentials) ([]Result, error) {
@@ -64,6 +86,7 @@ func MassUpload(ctx context.Context, params *MassUploadParams, cred *config.Cred
 	}
 
 	// Generate .ota file
+	logrus.Infoln("Uploading binary", params.File)
 	_, err := os.Stat(params.File)
 	if err != nil {
 		return nil, fmt.Errorf("file %s does not exists: %w", params.File, err)
@@ -78,21 +101,12 @@ func MassUpload(ctx context.Context, params *MassUploadParams, cred *config.Cred
 	}
 
 	// Generate .ota file
-	var otaFile string
-	if params.DoNotApplyHeader {
-		otaFile = params.File
-	} else {
-		otaDir, err := os.MkdirTemp("", "")
-		if err != nil {
-			return nil, fmt.Errorf("%s: %w", "cannot create temporary folder", err)
-		}
-		otaFile := filepath.Join(otaDir, "temp.ota")
+	otaFile, otaDir, err := buildOtaFile(params)
+	if err != nil {
+		return nil, err
+	}
+	if otaDir != "" {
 		defer os.RemoveAll(otaDir)
-
-		err = Generate(params.File, otaFile, params.FQBN)
-		if err != nil {
-			return nil, fmt.Errorf("%s: %w", "cannot generate .ota file", err)
-		}
 	}
 
 	iotClient, err := iot.NewClient(cred)
@@ -196,6 +210,7 @@ func run(ctx context.Context, uploader otaUploader, otapi otaStatusGetter, ids [
 	for _, id := range ids {
 		file, err := os.Open(otaFile)
 		if err != nil {
+			logrus.Error("cannot open ota file:", otaFile)
 			r := Result{ID: id, Err: fmt.Errorf("cannot open ota file")}
 			results = append(results, r)
 			continue
@@ -205,6 +220,7 @@ func run(ctx context.Context, uploader otaUploader, otapi otaStatusGetter, ids [
 	}
 	close(jobs)
 
+	logrus.Infoln("Uploading firmware to devices...")
 	for i := 0; i < numConcurrentUploads; i++ {
 		go func() {
 			for job := range jobs {
