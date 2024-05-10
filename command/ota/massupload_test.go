@@ -10,9 +10,11 @@ import (
 	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
 	iotclient "github.com/arduino/iot-client-go"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/assert"
 )
 
 const testFilename = "testdata/empty.bin"
+const cloudFirmwareFilename = "testdata/cloud.bin"
 
 type deviceUploaderTest struct {
 	deviceOTA func(ctx context.Context, id string, file *os.File, expireMins int) error
@@ -118,4 +120,16 @@ func TestValidateDevices(t *testing.T) {
 	if len(i) != 2 {
 		t.Errorf("expected 2 invalid devices, but found %d: %v", len(i), i)
 	}
+}
+
+func TestValidateBuildOtaFile(t *testing.T) {
+
+	file, err := buildOtaFile(&MassUploadParams{
+		File:             cloudFirmwareFilename,
+		DoNotApplyHeader: false,
+		FQBN:             "arduino:samd:nano_33_iot",
+	})
+	assert.Nil(t, err)
+	assert.NotNil(t, file)
+	assert.True(t, strings.HasSuffix(file, "temp.ota"))
 }

@@ -54,6 +54,26 @@ type Result struct {
 	OtaStatus otaapi.Ota
 }
 
+func buildOtaFile(params *MassUploadParams) (string, error) {
+	var otaFile string
+	if params.DoNotApplyHeader {
+		otaFile = params.File
+	} else {
+		otaDir, err := os.MkdirTemp("", "")
+		if err != nil {
+			return "", fmt.Errorf("%s: %w", "cannot create temporary folder", err)
+		}
+		otaFile = filepath.Join(otaDir, "temp.ota")
+		defer os.RemoveAll(otaDir)
+
+		err = Generate(params.File, otaFile, params.FQBN)
+		if err != nil {
+			return "", fmt.Errorf("%s: %w", "cannot generate .ota file", err)
+		}
+	}
+	return otaFile, nil
+}
+
 // MassUpload command is used to mass upload a firmware OTA,
 // on devices of Arduino IoT Cloud.
 func MassUpload(ctx context.Context, params *MassUploadParams, cred *config.Credentials) ([]Result, error) {
@@ -78,21 +98,9 @@ func MassUpload(ctx context.Context, params *MassUploadParams, cred *config.Cred
 	}
 
 	// Generate .ota file
-	var otaFile string
-	if params.DoNotApplyHeader {
-		otaFile = params.File
-	} else {
-		otaDir, err := os.MkdirTemp("", "")
-		if err != nil {
-			return nil, fmt.Errorf("%s: %w", "cannot create temporary folder", err)
-		}
-		otaFile = filepath.Join(otaDir, "temp.ota")
-		defer os.RemoveAll(otaDir)
-
-		err = Generate(params.File, otaFile, params.FQBN)
-		if err != nil {
-			return nil, fmt.Errorf("%s: %w", "cannot generate .ota file", err)
-		}
+	otaFile, err := buildOtaFile(params)
+	if err != nil {
+		return nil, err
 	}
 
 	iotClient, err := iot.NewClient(cred)
