@@ -133,3 +133,15 @@ func TestValidateBuildOtaFile(t *testing.T) {
 	assert.NotNil(t, file)
 	assert.True(t, strings.HasSuffix(file, "temp.ota"))
 }
+
+func TestValidateBuildOtaFile_whenNoHeaderIsRequested(t *testing.T) {
+
+	file, err := buildOtaFile(&MassUploadParams{
+		File:             cloudFirmwareFilename,
+		DoNotApplyHeader: true,
+		FQBN:             "arduino:samd:nano_33_iot",
+	})
+	assert.Nil(t, err)
+	assert.NotNil(t, file)
+	assert.Equal(t, cloudFirmwareFilename, file)
+}
