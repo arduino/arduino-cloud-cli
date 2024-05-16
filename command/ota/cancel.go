@@ -21,6 +21,15 @@ func CancelOta(otaid string, cred *config.Credentials) error {
 		if err != nil {
 			return err
 		}
+		// No error, get current status
+		res, err := otapi.GetOtaStatusByOtaID(otaid, 1, otaapi.OrderDesc)
+		if err != nil {
+			return err
+		}
+		if res != nil {
+			feedback.PrintResult(res.Ota)
+		}
+		return nil
 	}
 
 	return nil

@@ -38,6 +38,7 @@ const (
 )
 
 var ErrAlreadyInProgress = fmt.Errorf("already in progress")
+var ErrAlreadyCancelled = fmt.Errorf("already cancelled")
 
 type OtaApiClient struct {
 	client       *http.Client
@@ -236,7 +237,7 @@ func (c *OtaApiClient) CancelOta(otaid string) (bool, error) {
 	} else if res.StatusCode == 404 || res.StatusCode == 400 {
 		return false, fmt.Errorf("ota-id %s not found", otaid)
 	} else if res.StatusCode == 409 {
-		return false, ErrAlreadyInProgress
+		return false, ErrAlreadyCancelled
 	}
 
 	return false, err
