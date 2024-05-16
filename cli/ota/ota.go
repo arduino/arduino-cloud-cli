@@ -33,6 +33,7 @@ func NewCommand() *cobra.Command {
 	otaCommand.AddCommand(initOtaStatusCommand())
 	otaCommand.AddCommand(initEncodeBinaryCommand())
 	otaCommand.AddCommand(initDecodeHeaderCommand())
+	otaCommand.AddCommand(initOtaCancelCommand())
 
 	return otaCommand
 }

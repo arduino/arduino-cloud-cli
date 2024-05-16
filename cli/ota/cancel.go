@@ -28,39 +28,31 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type statusFlags struct {
-	otaID    string
-	otaIDs   string
-	deviceId string
-	limit    int16
-	sort     string
+type cancelFlags struct {
+	otaID string
 }
 
-func initOtaStatusCommand() *cobra.Command {
-	flags := &statusFlags{}
+func initOtaCancelCommand() *cobra.Command {
+	flags := &cancelFlags{}
 	uploadCommand := &cobra.Command{
-		Use:   "status",
-		Short: "OTA status",
-		Long:  "Get OTA status by OTA or device ID",
+		Use:   "cancel",
+		Short: "OTA cancel",
+		Long:  "Cancel OTA by OTA ID",
 		Run: func(cmd *cobra.Command, args []string) {
-			if err := runPrintOtaStatusCommand(flags); err != nil {
-				feedback.Errorf("Error during ota get status: %v", err)
+			if err := runOtaCancelCommand(flags); err != nil {
+				feedback.Errorf("Error during ota cancel: %v", err)
 				os.Exit(errorcodes.ErrGeneric)
 			}
 		},
 	}
 	uploadCommand.Flags().StringVarP(&flags.otaID, "ota-id", "o", "", "OTA ID")
-	uploadCommand.Flags().StringVarP(&flags.otaIDs, "ota-ids", "", "", "OTA IDs (comma separated)")
-	uploadCommand.Flags().StringVarP(&flags.deviceId, "device-id", "d", "", "Device ID")
-	uploadCommand.Flags().Int16VarP(&flags.limit, "limit", "l", 10, "Output limit (default: 10)")
-	uploadCommand.Flags().StringVarP(&flags.sort, "sort", "s", "desc", "Sorting (default: desc)")
 
 	return uploadCommand
 }
 
-func runPrintOtaStatusCommand(flags *statusFlags) error {
-	if flags.otaID == "" && flags.deviceId == "" && flags.otaIDs == "" {
-		return fmt.Errorf("required flag(s) \"ota-id\" or \"device-id\" or \"ota-ids\" not set")
+func runOtaCancelCommand(flags *cancelFlags) error {
+	if flags.otaID == "" {
+		return fmt.Errorf("required flag \"ota-id\" not set")
 	}
 
 	cred, err := config.RetrieveCredentials()
@@ -68,5 +60,5 @@ func runPrintOtaStatusCommand(flags *statusFlags) error {
 		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
-	return ota.PrintOtaStatus(flags.otaID, flags.otaIDs, flags.deviceId, cred, int(flags.limit), flags.sort)
+	return ota.CancelOta(flags.otaID, cred)
 }

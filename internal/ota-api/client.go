@@ -58,7 +58,11 @@ func NewClient(credentials *config.Credentials) *OtaApiClient {
 }
 
 func (c *OtaApiClient) performGetRequest(endpoint, token string) (*http.Response, error) {
-	req, err := http.NewRequest("GET", endpoint, nil)
+	return c.performRequest(endpoint, "GET", token)
+}
+
+func (c *OtaApiClient) performRequest(endpoint, method, token string) (*http.Response, error) {
+	req, err := http.NewRequest(method, endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -204,4 +208,36 @@ func (c *OtaApiClient) GetOtaStatusByDeviceID(deviceID string, limit int, order 
 	}
 
 	return nil, err
+}
+
+func (c *OtaApiClient) CancelOta(otaid string) (bool, error) {
+
+	if otaid == "" {
+		return false, fmt.Errorf("invalid ota-id: empty")
+	}
+
+	userRequestToken, err := c.src.Token()
+	if err != nil {
+		if strings.Contains(err.Error(), "401") {
+			return false, errors.New("wrong credentials")
+		}
+		return false, fmt.Errorf("cannot retrieve a valid token: %w", err)
+	}
+
+	endpoint := c.host + "/ota/v1/ota/" + otaid + "/cancel"
+	res, err := c.performRequest(endpoint, "PUT", userRequestToken.AccessToken)
+	if err != nil {
+		return false, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode == 200 {
+		return true, nil
+	} else if res.StatusCode == 404 || res.StatusCode == 400 {
+		return false, fmt.Errorf("ota-id %s not found", otaid)
+	} else if res.StatusCode == 409 {
+		return false, ErrAlreadyInProgress
+	}
+
+	return false, err
 }
