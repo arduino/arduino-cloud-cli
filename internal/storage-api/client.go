@@ -42,9 +42,18 @@ type StorageApiClient struct {
 	organization string
 }
 
+func getArduinoAPIBaseURL() string {
+	baseURL := "https://api-media.arduino.cc"
+	if url := os.Getenv("IOT_API_MEDIA_URL"); url != "" {
+		baseURL = url
+	}
+	return baseURL
+}
+
 func NewClient(credentials *config.Credentials) *StorageApiClient {
-	host := iot.GetArduinoAPIBaseURL()
-	tokenSource := iot.NewUserTokenSource(credentials.Client, credentials.Secret, host)
+	host := getArduinoAPIBaseURL()
+	iothost := iot.GetArduinoAPIBaseURL()
+	tokenSource := iot.NewUserTokenSource(credentials.Client, credentials.Secret, iothost)
 	return &StorageApiClient{
 		client:       &http.Client{},
 		src:          tokenSource,

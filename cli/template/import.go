@@ -34,7 +34,7 @@ type importFlags struct {
 
 func initTemplateImportCommand() *cobra.Command {
 	flags := &importFlags{}
-	uploadCommand := &cobra.Command{
+	downloadCommand := &cobra.Command{
 		Use:   "import",
 		Short: "Import template",
 		Long:  "Import a template from a file",
@@ -46,9 +46,11 @@ func initTemplateImportCommand() *cobra.Command {
 		},
 	}
 
-	uploadCommand.Flags().StringVarP(&flags.templateFile, "file", "f", "", "Template file to import")
+	downloadCommand.Flags().StringVarP(&flags.templateFile, "file", "f", "", "Template file to import")
 
-	return uploadCommand
+	downloadCommand.MarkFlagRequired("file")
+
+	return downloadCommand
 }
 
 func runTemplateImportCommand(flags *importFlags) error {

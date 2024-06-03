@@ -46,7 +46,9 @@ func initTemplateExportCommand() *cobra.Command {
 		},
 	}
 
-	uploadCommand.Flags().StringVarP(&flags.templateId, "id", "t", "", "Template file id")
+	uploadCommand.Flags().StringVarP(&flags.templateId, "template-id", "t", "", "Template file id")
+
+	uploadCommand.MarkFlagRequired("template-id")
 
 	return uploadCommand
 }
