@@ -33,6 +33,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const TemplateFileExtension = ".tino"
+
 type StorageApiClient struct {
 	client       *http.Client
 	host         string
@@ -95,6 +97,22 @@ func (c *StorageApiClient) performMultipartRequest(endpoint, method, token, file
 	return res, nil
 }
 
+func (c *StorageApiClient) performBinaryGetRequest(endpoint, token string) (*http.Response, error) {
+	req, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "Bearer "+token)
+	if c.organization != "" {
+		req.Header.Add("X-Organization", c.organization)
+	}
+	res, err := c.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 func (c *StorageApiClient) ImportCustomTemplate(templateFile string) (*ImportCustomTemplateResponse, error) {
 
 	if templateFile == "" {
@@ -140,4 +158,98 @@ func (c *StorageApiClient) ImportCustomTemplate(templateFile string) (*ImportCus
 	}
 
 	return nil, err
+}
+
+func (c *StorageApiClient) ExportCustomTemplate(templateId string) (*string, error) {
+
+	if templateId == "" {
+		return nil, fmt.Errorf("invalid template id: no id provided")
+	}
+
+	userRequestToken, err := c.src.Token()
+	if err != nil {
+		if strings.Contains(err.Error(), "401") {
+			return nil, errors.New("wrong credentials")
+		}
+		return nil, fmt.Errorf("cannot retrieve a valid token: %w", err)
+	}
+
+	endpoint := c.host + "/storage/template/archive/v1/" + templateId
+	res, err := c.performBinaryGetRequest(endpoint, userRequestToken.AccessToken)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	
+
+	if res.StatusCode == 200 {
+		outfile, fileExportPath, err := createNewLocalFile(templateId, res)
+		if err != nil {
+			return nil, err
+		}
+		defer outfile.Close()
+		io.Copy(outfile, res.Body)
+		return &fileExportPath, nil
+	} else if res.StatusCode == 400 {
+		bodyb, _ := io.ReadAll(res.Body)
+		return nil, fmt.Errorf("bad request: %s", string(bodyb))
+	} else if res.StatusCode == 401 {
+		return nil, errors.New("unauthorized request")
+	} else if res.StatusCode == 403 {
+		return nil, errors.New("forbidden request")
+	} else if res.StatusCode == 500 {
+		return nil, errors.New("internal server error")
+	}
+
+	return nil, err
+}
+
+func createNewLocalFile(templateId string, res *http.Response) (*os.File, string, error) {
+	fileExportPath, err := composeNewLocalFileName(templateId, res)
+	if err != nil {
+		return nil, "", err
+	}
+	outfile, err := os.Create(fileExportPath)
+	if err != nil {
+		return nil, "", err
+	}
+	return outfile, fileExportPath, nil
+}
+
+func composeNewLocalFileName(templateId string, res *http.Response) (string, error) {
+	fileExportPath := extractFileNameFromHeader(res)
+	originalFileExportName := fileExportPath
+	if fileExportPath == "" {
+		fileExportPath = templateId + TemplateFileExtension
+	}
+	
+	i := 1
+	for ; i < 51 ; i++ {
+		_, err := os.Stat(fileExportPath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				break
+			} else {
+				newbase := strings.TrimSuffix(originalFileExportName, TemplateFileExtension)
+				newbase = newbase + "_" + string(i) + TemplateFileExtension
+				fileExportPath = newbase
+			}
+		}
+	}
+	if i >=50 {
+		return "", errors.New("cannot create a new file name. Max number of copy reached.")
+	}
+
+	return fileExportPath, nil
+}
+
+func extractFileNameFromHeader(res *http.Response) string {
+	content := res.Header.Get("Content-Disposition")
+	if strings.HasPrefix(content, "attachment;") {
+		content = strings.TrimPrefix(content, "attachment;")
+		content = strings.TrimSpace(content)
+		content = strings.TrimPrefix(content, "filename=")
+		return strings.Trim(content, "\"")
+	}
+	return ""
 }
