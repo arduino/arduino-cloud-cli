@@ -28,33 +28,33 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type importFlags struct {
-	templateFile string
+type exportFlags struct {
+	templateId string
 }
 
-func initTemplateImportCommand() *cobra.Command {
-	flags := &importFlags{}
+func initTemplateExportCommand() *cobra.Command {
+	flags := &exportFlags{}
 	uploadCommand := &cobra.Command{
-		Use:   "import",
-		Short: "Import template",
-		Long:  "Import a template from a file",
+		Use:   "export",
+		Short: "Export template",
+		Long:  "Export template to a file",
 		Run: func(cmd *cobra.Command, args []string) {
-			if err := runTemplateImportCommand(flags); err != nil {
-				feedback.Errorf("Error during template status: %v", err)
+			if err := runTemplateExportCommand(flags); err != nil {
+				feedback.Errorf("Error during template export status: %v", err)
 				os.Exit(errorcodes.ErrGeneric)
 			}
 		},
 	}
 
-	uploadCommand.Flags().StringVarP(&flags.templateFile, "file", "f", "", "Template file to import")
+	uploadCommand.Flags().StringVarP(&flags.templateId, "id", "t", "", "Template file id")
 
 	return uploadCommand
 }
 
-func runTemplateImportCommand(flags *importFlags) error {
+func runTemplateExportCommand(flags *exportFlags) error {
 	cred, err := config.RetrieveCredentials()
 	if err != nil {
 		return fmt.Errorf("retrieving credentials: %w", err)
 	}
-	return template.ImportCustomTemplate(cred, flags.templateFile)
+	return template.ExportCustomTemplate(cred, flags.templateId)
 }

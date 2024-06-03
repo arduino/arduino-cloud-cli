@@ -15,39 +15,31 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package ota
+package template
 
 import (
 	"fmt"
 
-	"github.com/arduino/arduino-cli/cli/feedback"
+	"github.com/sirupsen/logrus"
+
 	"github.com/arduino/arduino-cloud-cli/config"
-	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
+	storageapi "github.com/arduino/arduino-cloud-cli/internal/storage-api"
 )
 
-func CancelOta(otaid string, cred *config.Credentials) error {
+func ExportCustomTemplate(cred *config.Credentials, templateId string) error {
 
-	if feedback.GetFormat() == feedback.JSONMini {
-		return fmt.Errorf("jsonmini format is not supported for this command")
+	apiclient := storageapi.NewClient(cred)
+
+	filecreaed, err := apiclient.ExportCustomTemplate(templateId)
+	if err != nil {
+		return err
 	}
 
-	otapi := otaapi.NewClient(cred)
-
-	if otaid != "" {
-		_, err := otapi.CancelOta(otaid)
-		if err != nil {
-			return err
-		}
-		// No error, get current status
-		res, err := otapi.GetOtaStatusByOtaID(otaid, 1, otaapi.OrderDesc)
-		if err != nil {
-			return err
-		}
-		if res != nil {
-			feedback.PrintResult(res.Ota)
-		}
-		return nil
+	outf := ""
+	if filecreaed != nil {
+		outf = *filecreaed
 	}
+	logrus.Infof(fmt.Sprintf("Template %s exported to file: %s", templateId, outf))
 
 	return nil
 }

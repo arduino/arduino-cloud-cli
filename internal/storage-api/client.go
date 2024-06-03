@@ -180,7 +180,6 @@ func (c *StorageApiClient) ExportCustomTemplate(templateId string) (*string, err
 		return nil, err
 	}
 	defer res.Body.Close()
-	
 
 	if res.StatusCode == 200 {
 		outfile, fileExportPath, err := createNewLocalFile(templateId, res)
@@ -222,9 +221,9 @@ func composeNewLocalFileName(templateId string, res *http.Response) (string, err
 	if fileExportPath == "" {
 		fileExportPath = templateId + TemplateFileExtension
 	}
-	
+
 	i := 1
-	for ; i < 51 ; i++ {
+	for ; i < 51; i++ {
 		_, err := os.Stat(fileExportPath)
 		if err != nil {
 			if os.IsNotExist(err) {
@@ -236,7 +235,7 @@ func composeNewLocalFileName(templateId string, res *http.Response) (string, err
 			}
 		}
 	}
-	if i >=50 {
+	if i >= 50 {
 		return "", errors.New("cannot create a new file name. Max number of copy reached.")
 	}
 
