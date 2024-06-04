@@ -18,8 +18,7 @@
 package template
 
 import (
-	"github.com/sirupsen/logrus"
-
+	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/config"
 	storageapi "github.com/arduino/arduino-cloud-cli/internal/storage-api"
 )
@@ -28,12 +27,14 @@ func ImportCustomTemplate(cred *config.Credentials, filePath string) error {
 
 	apiclient := storageapi.NewClient(cred)
 
-	_, err := apiclient.ImportCustomTemplate(filePath)
+	feedback.Printf("Importing template %s", filePath)
+
+	templateImported, err := apiclient.ImportCustomTemplate(filePath)
 	if err != nil {
 		return err
 	}
 
-	logrus.Infof("Template imported")
+	feedback.Printf("Template '%s' (%s) imported successfully", templateImported.Name, templateImported.TemplateId)
 
 	return nil
 }

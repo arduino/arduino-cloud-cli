@@ -19,6 +19,8 @@ package storageapi
 
 type (
 	ImportCustomTemplateResponse struct {
-		TemplateID string `json:"template_id"`
+		Message    string `json:"message"`
+		Name       string `json:"name"`
+		TemplateId string `json:"template_id"`
 	}
 )
