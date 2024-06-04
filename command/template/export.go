@@ -20,8 +20,7 @@ package template
 import (
 	"fmt"
 
-	"github.com/sirupsen/logrus"
-
+	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/config"
 	storageapi "github.com/arduino/arduino-cloud-cli/internal/storage-api"
 )
@@ -29,6 +28,8 @@ import (
 func ExportCustomTemplate(cred *config.Credentials, templateId string) error {
 
 	apiclient := storageapi.NewClient(cred)
+
+	feedback.Printf("Exporting template %s", templateId)
 
 	filecreaed, err := apiclient.ExportCustomTemplate(templateId)
 	if err != nil {
@@ -39,7 +40,7 @@ func ExportCustomTemplate(cred *config.Credentials, templateId string) error {
 	if filecreaed != nil {
 		outf = *filecreaed
 	}
-	logrus.Infof(fmt.Sprintf("Template %s exported to file: %s", templateId, outf))
+	feedback.Printf(fmt.Sprintf("Template %s exported to file: %s", templateId, outf))
 
 	return nil
 }

@@ -26,10 +26,12 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
@@ -190,13 +192,18 @@ func (c *StorageApiClient) ExportCustomTemplate(templateId string) (*string, err
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode == 200 {
+	logrus.Debugf("Export API call status: %d", res.StatusCode)
+
+	if res.StatusCode == 200 || res.StatusCode == 201 {
 		outfile, fileExportPath, err := createNewLocalFile(templateId, res)
 		if err != nil {
 			return nil, err
 		}
 		defer outfile.Close()
-		io.Copy(outfile, res.Body)
+		_, err = io.Copy(outfile, res.Body)
+		if err != nil {
+			return nil, err
+		}
 		return &fileExportPath, nil
 	} else if res.StatusCode == 400 {
 		bodyb, _ := io.ReadAll(res.Body)
@@ -233,19 +240,20 @@ func composeNewLocalFileName(templateId string, res *http.Response) (string, err
 
 	i := 1
 	for ; i < 51; i++ {
-		_, err := os.Stat(fileExportPath)
+		fileE, err := os.Stat(fileExportPath)
 		if err != nil {
 			if os.IsNotExist(err) {
 				break
-			} else {
-				newbase := strings.TrimSuffix(originalFileExportName, TemplateFileExtension)
-				newbase = newbase + "_" + string(i) + TemplateFileExtension
-				fileExportPath = newbase
 			}
+		}
+		if fileE != nil {
+			newbase := strings.TrimSuffix(originalFileExportName, TemplateFileExtension)
+			newbase = newbase + "_" + strconv.Itoa(i) + TemplateFileExtension
+			fileExportPath = newbase
 		}
 	}
 	if i >= 50 {
-		return "", errors.New("cannot create a new file name. Max number of copy reached.")
+		return "", errors.New("cannot create a new file name. Max number of copy reached")
 	}
 
 	return fileExportPath, nil
