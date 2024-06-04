@@ -25,13 +25,13 @@ import (
 	storageapi "github.com/arduino/arduino-cloud-cli/internal/storage-api"
 )
 
-func ExportCustomTemplate(cred *config.Credentials, templateId string) error {
+func ExportCustomTemplate(cred *config.Credentials, templateId, path string) error {
 
 	apiclient := storageapi.NewClient(cred)
 
 	feedback.Printf("Exporting template %s", templateId)
 
-	filecreaed, err := apiclient.ExportCustomTemplate(templateId)
+	filecreaed, err := apiclient.ExportCustomTemplate(templateId, path)
 	if err != nil {
 		return err
 	}

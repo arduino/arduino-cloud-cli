@@ -30,6 +30,7 @@ import (
 
 type exportFlags struct {
 	templateId string
+	path 	   string
 }
 
 func initTemplateExportCommand() *cobra.Command {
@@ -46,7 +47,8 @@ func initTemplateExportCommand() *cobra.Command {
 		},
 	}
 
-	uploadCommand.Flags().StringVarP(&flags.templateId, "template-id", "t", "", "Template file id")
+	uploadCommand.Flags().StringVarP(&flags.templateId, "template-id", "t", "", "Template id")
+	uploadCommand.Flags().StringVarP(&flags.path, "directory", "d", "", "Output directory")
 
 	uploadCommand.MarkFlagRequired("template-id")
 
@@ -58,5 +60,5 @@ func runTemplateExportCommand(flags *exportFlags) error {
 	if err != nil {
 		return fmt.Errorf("retrieving credentials: %w", err)
 	}
-	return template.ExportCustomTemplate(cred, flags.templateId)
+	return template.ExportCustomTemplate(cred, flags.templateId, flags.path)
 }

@@ -26,6 +26,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -171,7 +172,7 @@ func (c *StorageApiClient) ImportCustomTemplate(templateFile string) (*ImportCus
 	return nil, err
 }
 
-func (c *StorageApiClient) ExportCustomTemplate(templateId string) (*string, error) {
+func (c *StorageApiClient) ExportCustomTemplate(templateId, path string) (*string, error) {
 
 	if templateId == "" {
 		return nil, fmt.Errorf("invalid template id: no id provided")
@@ -195,7 +196,7 @@ func (c *StorageApiClient) ExportCustomTemplate(templateId string) (*string, err
 	logrus.Debugf("Export API call status: %d", res.StatusCode)
 
 	if res.StatusCode == 200 || res.StatusCode == 201 {
-		outfile, fileExportPath, err := createNewLocalFile(templateId, res)
+		outfile, fileExportPath, err := createNewLocalFile(templateId, path, res)
 		if err != nil {
 			return nil, err
 		}
@@ -219,8 +220,8 @@ func (c *StorageApiClient) ExportCustomTemplate(templateId string) (*string, err
 	return nil, err
 }
 
-func createNewLocalFile(templateId string, res *http.Response) (*os.File, string, error) {
-	fileExportPath, err := composeNewLocalFileName(templateId, res)
+func createNewLocalFile(templateId, path string, res *http.Response) (*os.File, string, error) {
+	fileExportPath, err := composeNewLocalFileName(templateId, path, res)
 	if err != nil {
 		return nil, "", err
 	}
@@ -231,8 +232,11 @@ func createNewLocalFile(templateId string, res *http.Response) (*os.File, string
 	return outfile, fileExportPath, nil
 }
 
-func composeNewLocalFileName(templateId string, res *http.Response) (string, error) {
+func composeNewLocalFileName(templateId, path string, res *http.Response) (string, error) {
 	fileExportPath := extractFileNameFromHeader(res)
+	if path != "" {
+		fileExportPath = filepath.Join(path, fileExportPath)
+	}
 	originalFileExportName := fileExportPath
 	if fileExportPath == "" {
 		fileExportPath = templateId + TemplateFileExtension
