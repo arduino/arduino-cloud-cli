@@ -96,9 +96,9 @@ func TestValidateDevices(t *testing.T) {
 
 	mockDeviceList := deviceListerTest{
 		list: []iotclient.ArduinoDevicev2{
-			{Id: idCorrect1, Fqbn: correctFQBN},
-			{Id: idCorrect2, Fqbn: correctFQBN},
-			{Id: idNotValid, Fqbn: wrongFQBN},
+			{Id: idCorrect1, Fqbn: &correctFQBN},
+			{Id: idCorrect2, Fqbn: &correctFQBN},
+			{Id: idNotValid, Fqbn: &wrongFQBN},
 		},
 	}
 

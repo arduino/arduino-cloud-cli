@@ -42,7 +42,7 @@ func Bind(ctx context.Context, params *BindParams, cred *config.Credentials) err
 	}
 
 	thing := &iotclient.ThingUpdate{
-		DeviceId: params.DeviceID,
+		DeviceId: &params.DeviceID,
 	}
 
 	err = iotClient.ThingUpdate(ctx, params.ID, thing, true)
@@ -51,4 +51,11 @@ func Bind(ctx context.Context, params *BindParams, cred *config.Credentials) err
 	}
 
 	return nil
+}
+
+func dereferenceString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }

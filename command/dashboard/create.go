@@ -47,10 +47,10 @@ func Create(ctx context.Context, params *CreateParams, cred *config.Credentials)
 
 	// Name passed as parameter has priority over name from template
 	if params.Name != nil {
-		dashboard.Name = *params.Name
+		dashboard.Name = params.Name
 	}
 	// If name is not specified in the template, it should be passed as parameter
-	if dashboard.Name == "" {
+	if dashboard.Name == nil || *dashboard.Name == "" {
 		return nil, errors.New("dashboard name not specified")
 	}
 

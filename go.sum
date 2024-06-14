@@ -75,8 +75,8 @@ github.com/arduino/go-properties-orderedmap v1.7.1 h1:HQ9Pn/mk3+XyfrE39EEvaZwJkr
 github.com/arduino/go-properties-orderedmap v1.7.1/go.mod h1:DKjD2VXY/NZmlingh4lSFMEYCVubfeArCsGPGDwb2yk=
 github.com/arduino/go-win32-utils v1.0.0 h1:/cXB86sOJxOsCHP7sQmXGLkdValwJt56mIwOHYxgQjQ=
 github.com/arduino/go-win32-utils v1.0.0/go.mod h1:0jqM7doGEAs6DaJCxxhLBUDS5OawrqF48HqXkcEie/Q=
-github.com/arduino/iot-client-go v1.4.4 h1:FICCXD5uCZ0scGG6RioOlpZamDqgSD1l/fQlFwKR284=
-github.com/arduino/iot-client-go v1.4.4/go.mod h1:gYvpMt7Qw+OSScTLyIlCnpbvy9y96ey/2zhB4w6FoK0=
+github.com/arduino/iot-client-go v1.4.5-0.20240416140423-fb8fda8a47af h1:/dbu5I3q09kOePrWbBVMrKEPDM8KKUIGATQpwWc/wWo=
+github.com/arduino/iot-client-go v1.4.5-0.20240416140423-fb8fda8a47af/go.mod h1:aKaQRceeYIeMpyFyEUGJj4/5WFETZD1CrarYGn4v5Nc=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=
 github.com/armon/go-metrics v0.3.10/go.mod h1:4O98XIr/9W0sxpJ8UaYkvjk10Iff7SnFrb4QAOwNTFc=
@@ -287,6 +287,7 @@ github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:
 github.com/ianlancetaylor/demangle v0.0.0-20200824232613-28f6c0f3b639/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/icza/bitio v1.1.0 h1:ysX4vtldjdi3Ygai5m1cWy4oLkhWTAi+SyO6HC8L9T0=
 github.com/icza/bitio v1.1.0/go.mod h1:0jGnlLAx8MKMr9VGnn/4YrvZiprkvBelsVIbA9Jjr9A=
+github.com/icza/mighty v0.0.0-20180919140131-cfd07d671de6 h1:8UsGZ2rr2ksmEru6lToqnXgA8Mz1DP11X4zSJ159C3k=
 github.com/icza/mighty v0.0.0-20180919140131-cfd07d671de6/go.mod h1:xQig96I1VNBDIWGCdTt54nHt6EeI639SmHycLYL7FkA=
 github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=

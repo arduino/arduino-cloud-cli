@@ -185,7 +185,7 @@ func (p provision) configBoard(ctx context.Context) error {
 	}
 
 	logrus.Info("Sending certificate authority key")
-	b, err = hex.DecodeString(cert.AuthorityKeyIdentifier)
+	b, err = hex.DecodeString(dereferenceString(cert.AuthorityKeyIdentifier))
 	if err != nil {
 		return fmt.Errorf("decoding certificate authority key id: %w", err)
 	}

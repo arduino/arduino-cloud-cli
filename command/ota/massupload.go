@@ -21,9 +21,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
@@ -179,8 +180,8 @@ func validateDevices(ctx context.Context, lister deviceLister, ids []string, fqb
 			continue
 		}
 		// Device FQBN doesn't match the passed one
-		if found.Fqbn != fqbn {
-			inv := Result{ID: id, Err: fmt.Errorf("has FQBN '%s' instead of '%s'", found.Fqbn, fqbn)}
+		if dereferenceString(found.Fqbn) != fqbn {
+			inv := Result{ID: id, Err: fmt.Errorf("has FQBN '%s' instead of '%s'", dereferenceString(found.Fqbn), fqbn)}
 			invalid = append(invalid, inv)
 			continue
 		}

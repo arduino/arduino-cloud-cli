@@ -7,10 +7,11 @@ require (
 	github.com/arduino/arduino-cli v0.0.0-20221116144942-76251df9241a
 	github.com/arduino/go-paths-helper v1.7.0
 	github.com/arduino/go-win32-utils v1.0.0
-	github.com/arduino/iot-client-go v1.4.4
+	github.com/arduino/iot-client-go v1.4.5-0.20240416140423-fb8fda8a47af
 	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/google/go-cmp v0.6.0
 	github.com/howeyc/crc16 v0.0.0-20171223171357-2b2a61e366a6
+	github.com/icza/bitio v1.1.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.3.0
@@ -43,7 +44,6 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/h2non/filetype v1.1.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/icza/bitio v1.1.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/josharian/intern v1.0.0 // indirect

@@ -48,6 +48,10 @@ func NewClient(cred *config.Credentials) (*Client, error) {
 	return cl, nil
 }
 
+func toStringPointer(s string) *string {
+	return &s
+}
+
 // DeviceCreate allows to create a new device on Arduino IoT Cloud.
 // It returns the newly created device, and an error.
 func (cl *Client) DeviceCreate(ctx context.Context, fqbn, name, serial, dType string, cType *string) (*iotclient.ArduinoDevicev2, error) {
@@ -57,22 +61,24 @@ func (cl *Client) DeviceCreate(ctx context.Context, fqbn, name, serial, dType st
 	}
 
 	payload := iotclient.CreateDevicesV2Payload{
-		Fqbn:   fqbn,
-		Name:   name,
-		Serial: serial,
+		Fqbn:   toStringPointer(fqbn),
+		Name:   toStringPointer(name),
+		Serial: toStringPointer(serial),
 		Type:   dType,
 	}
 
 	if cType != nil {
-		payload.ConnectionType = *cType
+		payload.ConnectionType = cType
 	}
 
-	dev, _, err := cl.api.DevicesV2Api.DevicesV2Create(ctx, payload, nil)
+	req := cl.api.DevicesV2Api.DevicesV2Create(ctx)
+	req = req.CreateDevicesV2Payload(payload)
+	dev, _, err := cl.api.DevicesV2Api.DevicesV2CreateExecute(req)
 	if err != nil {
 		err = fmt.Errorf("creating device, %w", errorDetail(err))
 		return nil, err
 	}
-	return &dev, nil
+	return dev, nil
 }
 
 // DeviceLoraCreate allows to create a new LoRa device on Arduino IoT Cloud.
@@ -88,17 +94,19 @@ func (cl *Client) DeviceLoraCreate(ctx context.Context, name, serial, devType, e
 		Eui:           eui,
 		FrequencyPlan: freq,
 		Name:          name,
-		Serial:        serial,
+		Serial:        toStringPointer(serial),
 		Type:          devType,
 		UserId:        "me",
 	}
 
-	dev, _, err := cl.api.LoraDevicesV1Api.LoraDevicesV1Create(ctx, payload, nil)
+	req := cl.api.LoraDevicesV1Api.LoraDevicesV1Create(ctx)
+	req = req.CreateLoraDevicesV1Payload(payload)
+	dev, _, err := cl.api.LoraDevicesV1Api.LoraDevicesV1CreateExecute(req)
 	if err != nil {
 		err = fmt.Errorf("creating lora device: %w", errorDetail(err))
 		return nil, err
 	}
-	return &dev, nil
+	return dev, nil
 }
 
 // DevicePassSet sets the device password to the one suggested by Arduino IoT Cloud.
@@ -135,7 +143,8 @@ func (cl *Client) DeviceDelete(ctx context.Context, id string) error {
 		return err
 	}
 
-	_, err = cl.api.DevicesV2Api.DevicesV2Delete(ctx, id, nil)
+	req := cl.api.DevicesV2Api.DevicesV2Delete(ctx, id)
+	_, err = cl.api.DevicesV2Api.DevicesV2DeleteExecute(req)
 	if err != nil {
 		err = fmt.Errorf("deleting device: %w", errorDetail(err))
 		return err

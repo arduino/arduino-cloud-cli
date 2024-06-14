@@ -33,7 +33,9 @@ type DashboardInfo struct {
 func getDashboardInfo(dashboard *iotclient.ArduinoDashboardv2) *DashboardInfo {
 	var widgets []string
 	for _, w := range dashboard.Widgets {
-		widgets = append(widgets, w.Name)
+		if w.Name != nil {
+			widgets = append(widgets, *w.Name)
+		}
 	}
 	info := &DashboardInfo{
 		Name:      dashboard.Name,

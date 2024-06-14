@@ -44,7 +44,7 @@ func Clone(ctx context.Context, params *CloneParams, cred *config.Credentials) (
 		return nil, err
 	}
 
-	thing.Name = params.Name
+	thing.Name = &params.Name
 	force := true
 	newThing, err := iotClient.ThingCreate(ctx, thing, force)
 	if err != nil {

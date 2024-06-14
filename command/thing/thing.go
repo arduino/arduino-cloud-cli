@@ -47,7 +47,7 @@ func getThingInfo(thing *iotclient.ArduinoThing) (*ThingInfo, error) {
 	info := &ThingInfo{
 		Name:      thing.Name,
 		ID:        thing.Id,
-		DeviceID:  thing.DeviceId,
+		DeviceID:  dereferenceString(thing.DeviceId),
 		Variables: vars,
 		Tags:      tags,
 	}

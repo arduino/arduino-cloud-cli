@@ -45,7 +45,7 @@ func getDeviceInfo(device *iotclient.ArduinoDevicev2) (*DeviceInfo, error) {
 		ID:     device.Id,
 		Board:  device.Type,
 		Serial: device.Serial,
-		FQBN:   device.Fqbn,
+		FQBN:   dereferenceString(device.Fqbn),
 		Tags:   tags,
 	}
 	return dev, nil

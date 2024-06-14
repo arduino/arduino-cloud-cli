@@ -181,7 +181,7 @@ func getDeviceLoraInfo(ctx context.Context, iotClient *iot.Client, loraDev *iotc
 			ID:     dev.Id,
 			Board:  dev.Type,
 			Serial: dev.Serial,
-			FQBN:   dev.Fqbn,
+			FQBN:   dereferenceString(dev.Fqbn),
 		},
 		AppEUI: loraDev.AppEui,
 		AppKey: loraDev.AppKey,

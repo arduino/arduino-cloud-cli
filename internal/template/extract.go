@@ -67,7 +67,7 @@ func FromDashboard(dashboard *iotclient.ArduinoDashboardv2) map[string]interface
 		widget["x"] = w.X
 		widget["y"] = w.Y
 
-		if w.WidthMobile != 0 && w.HeightMobile != 0 {
+		if w.WidthMobile != nil && w.HeightMobile != nil && *w.WidthMobile != 0 && *w.HeightMobile != 0 {
 			widget["width_mobile"] = w.WidthMobile
 			widget["height_mobile"] = w.HeightMobile
 			widget["x_mobile"] = w.XMobile

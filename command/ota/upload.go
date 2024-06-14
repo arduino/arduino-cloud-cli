@@ -85,7 +85,7 @@ func Upload(ctx context.Context, params *UploadParams, cred *config.Credentials)
 		otaFile = filepath.Join(otaDir, "temp.ota")
 		defer os.RemoveAll(otaDir)
 
-		err = Generate(params.File, otaFile, dev.Fqbn)
+		err = Generate(params.File, otaFile, dereferenceString(dev.Fqbn))
 		if err != nil {
 			return fmt.Errorf("%s: %w", "cannot generate .ota file", err)
 		}
