@@ -65,5 +65,5 @@ func ctxWithToken(ctx context.Context, src oauth2.TokenSource) (context.Context,
 		}
 		return nil, fmt.Errorf("cannot retrieve a valid token: %w", err)
 	}
-	return context.WithValue(ctx, iotclient.ContextAccessToken, tok.AccessToken), nil
+	return context.WithValue(ctx, iotclient.ContextOAuth2, tok.AccessToken), nil
 }

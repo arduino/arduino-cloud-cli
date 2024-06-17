@@ -509,11 +509,10 @@ func (cl *Client) setup(client, secret, organization string) error {
 	if organization != "" {
 		config.AddDefaultHeader("X-Organization", organization)
 	}
-	config.Host = baseURL + "/iot"
 	config.Servers = iotclient.ServerConfigurations{
 		{
-			URL: config.Host,
-			Description: "No description provided",
+			URL: fmt.Sprintf("%s/iot", baseURL),
+			Description: "IoT API endpoint",
 		},
 	}
 	cl.api = iotclient.NewAPIClient(config)
