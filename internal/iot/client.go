@@ -473,7 +473,7 @@ func (cl *Client) DashboardList(ctx context.Context) ([]iotclient.ArduinoDashboa
 	if err != nil {
 		return nil, err
 	}
-	
+
 	req := cl.api.DashboardsV2Api.DashboardsV2List(ctx)
 	dashboards, _, err := cl.api.DashboardsV2Api.DashboardsV2ListExecute(req)
 	if err != nil {
@@ -511,7 +511,7 @@ func (cl *Client) setup(client, secret, organization string) error {
 	}
 	config.Servers = iotclient.ServerConfigurations{
 		{
-			URL: fmt.Sprintf("%s/iot", baseURL),
+			URL:         fmt.Sprintf("%s/iot", baseURL),
 			Description: "IoT API endpoint",
 		},
 	}
