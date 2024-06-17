@@ -58,12 +58,12 @@ func NewUserTokenSource(client, secret, baseURL string) oauth2.TokenSource {
 
 func ctxWithToken(ctx context.Context, src oauth2.TokenSource) (context.Context, error) {
 	// Retrieve a valid token from the src.
-	tok, err := src.Token()
+	_, err := src.Token()
 	if err != nil {
 		if strings.Contains(err.Error(), "401") {
 			return nil, errors.New("wrong credentials")
 		}
 		return nil, fmt.Errorf("cannot retrieve a valid token: %w", err)
 	}
-	return context.WithValue(ctx, iotclient.ContextOAuth2, tok.AccessToken), nil
+	return context.WithValue(ctx, iotclient.ContextOAuth2, src), nil
 }
