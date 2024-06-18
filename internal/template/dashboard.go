@@ -76,17 +76,10 @@ func getVariableID(ctx context.Context, thingID string, variableName string, fet
 	}
 
 	for _, v := range thing.Properties {
-		if v.VariableName == &variableName {
+		if v.VariableName != nil && *v.VariableName == variableName {
 			return v.Id, nil
 		}
 	}
 
 	return "", fmt.Errorf("thing with id %s doesn't have variable with name %s : %w", thingID, variableName, err)
-}
-
-func dereferenceString(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
 }

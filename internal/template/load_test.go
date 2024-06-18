@@ -185,28 +185,24 @@ func TestLoadDashboard(t *testing.T) {
 			override: nil,
 			want:     dashboardDetailed,
 		},
-
 		{
 			name:     "dashboard with wrong options to be filtered out",
 			file:     "testdata/dashboard-wrong-options.yaml",
 			override: nil,
 			want:     dashboardDetailed,
 		},
-
 		{
 			name:     "dashboard without options, should have a not nil map",
 			file:     "testdata/dashboard-no-options.yaml",
 			override: nil,
 			want:     dashboardNoOptions,
 		},
-
 		{
 			name:     "dashboard with variable, mocked variable id is concatenation of thing_id and variable_id",
 			file:     "testdata/dashboard-with-variable.yaml",
 			override: nil,
 			want:     dashboardWithVariable,
 		},
-
 		{
 			name:     "dashboard with variable, thing is overridden",
 			file:     "testdata/dashboard-with-variable.yaml",
