@@ -206,10 +206,11 @@ func (cl *Client) DeviceOTA(ctx context.Context, id string, file *os.File, expir
 	req := cl.api.DevicesV2OtaApi.DevicesV2OtaUpload(ctx, id)
 	req = req.ExpireInMins(int32(expireMins))
 	req = req.Async(true)
+	req = req.OtaFile(file)
 	_, resp, err := cl.api.DevicesV2OtaApi.DevicesV2OtaUploadExecute(req)
 	if err != nil {
 		// 409 (Conflict) is the status code for an already existing OTA in progress for the same device. Handling it in a different way.
-		if resp.StatusCode == 409 {
+		if resp != nil && resp.StatusCode == 409 {
 			return ErrOtaAlreadyInProgress
 		}
 		return fmt.Errorf("uploading device ota: %w", errorDetail(err))
