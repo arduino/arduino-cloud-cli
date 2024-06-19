@@ -92,7 +92,7 @@ func (r listResult) String() string {
 		return "No devices found."
 	}
 	t := table.New()
-	t.SetHeader("Name", "ID", "Board", "FQBN", "SerialNumber", "Tags")
+	t.SetHeader("Name", "ID", "Board", "FQBN", "SerialNumber", "Status", "Tags")
 	for _, device := range r.devices {
 		t.AddRow(
 			device.Name,
@@ -100,8 +100,16 @@ func (r listResult) String() string {
 			device.Board,
 			device.FQBN,
 			device.Serial,
+			dereferenceString(device.Status),
 			strings.Join(device.Tags, ","),
 		)
 	}
 	return t.Render()
+}
+
+func dereferenceString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }

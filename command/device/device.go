@@ -31,6 +31,7 @@ type DeviceInfo struct {
 	Serial string   `json:"serial_number"`
 	FQBN   string   `json:"fqbn"`
 	Tags   []string `json:"tags,omitempty"`
+	Status *string  `json:"status,omitempty"`
 }
 
 func getDeviceInfo(device *iotclient.ArduinoDevicev2) (*DeviceInfo, error) {
@@ -47,6 +48,7 @@ func getDeviceInfo(device *iotclient.ArduinoDevicev2) (*DeviceInfo, error) {
 		Serial: device.Serial,
 		FQBN:   dereferenceString(device.Fqbn),
 		Tags:   tags,
+		Status: device.DeviceStatus,
 	}
 	return dev, nil
 }
