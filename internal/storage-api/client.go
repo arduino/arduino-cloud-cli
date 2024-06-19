@@ -125,6 +125,22 @@ func (c *StorageApiClient) performBinaryGetRequest(endpoint, token string) (*htt
 	return res, nil
 }
 
+func (c *StorageApiClient) performBinaryPostRequest(endpoint, token string, body io.Reader) (*http.Response, error) {
+	req, err := http.NewRequest("POST", endpoint, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "Bearer "+token)
+	if c.organization != "" {
+		req.Header.Add("X-Organization", c.organization)
+	}
+	res, err := c.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 func (c *StorageApiClient) ImportCustomTemplate(templateFile string) (*ImportCustomTemplateResponse, error) {
 
 	if templateFile == "" {
@@ -272,4 +288,59 @@ func extractFileNameFromHeader(res *http.Response) string {
 		return strings.Trim(content, "\"")
 	}
 	return ""
+}
+
+type listPostRequest struct {
+	Sort string `json:"sort"`
+}
+
+func (c *StorageApiClient) ListCustomTemplate() (*TemplatesListResponse, error) {
+	userRequestToken, err := c.src.Token()
+	if err != nil {
+		if strings.Contains(err.Error(), "401") {
+			return nil, errors.New("wrong credentials")
+		}
+		return nil, fmt.Errorf("cannot retrieve a valid token: %w", err)
+	}
+
+	request := listPostRequest{
+		Sort: "asc",
+	}
+	jsonRequest, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
+
+	endpoint := c.host + "/storage/template/v1/list"
+	res, err := c.performBinaryPostRequest(endpoint, userRequestToken.AccessToken, bytes.NewReader(jsonRequest))
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	logrus.Debugf("List templates API call status: %d", res.StatusCode)
+
+	if res.StatusCode == 200 || res.StatusCode == 201 {
+		var templatesListResponse TemplatesListResponse
+		respBytes, err := io.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(respBytes, &templatesListResponse)
+		if err != nil {
+			return nil, err
+		}
+		return &templatesListResponse, nil
+	} else if res.StatusCode == 400 {
+		bodyb, _ := io.ReadAll(res.Body)
+		return nil, fmt.Errorf("bad request: %s", string(bodyb))
+	} else if res.StatusCode == 401 {
+		return nil, errors.New("unauthorized request")
+	} else if res.StatusCode == 403 {
+		return nil, errors.New("forbidden request")
+	} else if res.StatusCode == 500 {
+		return nil, errors.New("internal server error")
+	}
+
+	return nil, err
 }

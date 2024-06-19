@@ -17,10 +17,55 @@
 
 package storageapi
 
+import (
+	"time"
+
+	"github.com/arduino/arduino-cli/table"
+)
+
 type (
 	ImportCustomTemplateResponse struct {
 		Message    string `json:"message"`
 		Name       string `json:"name"`
 		TemplateId string `json:"template_id"`
 	}
+	TemplateEntry struct {
+		TemplateId string `json:"template_id"`
+		Name       string `json:"name"`
+		CreatedAt  string `json:"created_at"`
+	}
+	TemplatesListResponse struct {
+		Templates []TemplateEntry `json:"templates"`
+	}
 )
+
+func (r *TemplatesListResponse) Data() interface{} {
+	return r.Templates
+}
+
+func (r *TemplatesListResponse) String() string {
+	if len(r.Templates) == 0 {
+		return ""
+	}
+	t := table.New()
+	t.SetHeader("Template ID", "Name", "Created At")
+
+	// Now print the table
+	for _, tem := range r.Templates {
+		line := []any{tem.TemplateId, tem.Name, formatHumanReadableTs(tem.CreatedAt)}
+		t.AddRow(line...)
+	}
+
+	return t.Render()
+}
+
+func formatHumanReadableTs(ts string) string {
+	if ts == "" {
+		return ""
+	}
+	parsed, err := time.Parse(time.RFC3339Nano, ts)
+	if err != nil {
+		return ts
+	}
+	return parsed.Format(time.RFC3339)
+}

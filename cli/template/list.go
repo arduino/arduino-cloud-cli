@@ -18,19 +18,36 @@
 package template
 
 import (
+	"fmt"
+	"os"
+
+	"github.com/arduino/arduino-cli/cli/errorcodes"
+	"github.com/arduino/arduino-cli/cli/feedback"
+	"github.com/arduino/arduino-cloud-cli/command/template"
+	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/spf13/cobra"
 )
 
-func NewCommand() *cobra.Command {
-	templateCommand := &cobra.Command{
-		Use:   "template",
-		Short: "Custom templates",
-		Long:  "Commands to manage custom templates lifecycle, like import, export and apply.",
+func initTemplateListCommand() *cobra.Command {
+	listCommand := &cobra.Command{
+		Use:   "list",
+		Short: "List templates",
+		Long:  "List available templates",
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runTemplateListCommand(); err != nil {
+				feedback.Errorf("Error during template list: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
 
-	templateCommand.AddCommand(initTemplateImportCommand())
-	templateCommand.AddCommand(initTemplateExportCommand())
-	templateCommand.AddCommand(initTemplateListCommand())
+	return listCommand
+}
 
-	return templateCommand
+func runTemplateListCommand() error {
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		return fmt.Errorf("retrieving credentials: %w", err)
+	}
+	return template.ListustomTemplate(cred)
 }

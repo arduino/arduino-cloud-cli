@@ -18,19 +18,21 @@
 package template
 
 import (
-	"github.com/spf13/cobra"
+	"github.com/arduino/arduino-cli/cli/feedback"
+	"github.com/arduino/arduino-cloud-cli/config"
+	storageapi "github.com/arduino/arduino-cloud-cli/internal/storage-api"
 )
 
-func NewCommand() *cobra.Command {
-	templateCommand := &cobra.Command{
-		Use:   "template",
-		Short: "Custom templates",
-		Long:  "Commands to manage custom templates lifecycle, like import, export and apply.",
+func ListustomTemplate(cred *config.Credentials) error {
+
+	apiclient := storageapi.NewClient(cred)
+
+	templates, err := apiclient.ListCustomTemplate()
+	if err != nil {
+		return err
 	}
 
-	templateCommand.AddCommand(initTemplateImportCommand())
-	templateCommand.AddCommand(initTemplateExportCommand())
-	templateCommand.AddCommand(initTemplateListCommand())
+	feedback.PrintResult(templates)
 
-	return templateCommand
+	return nil
 }
