@@ -348,18 +348,17 @@ func (cl *Client) ThingDelete(ctx context.Context, id string) error {
 	return nil
 }
 
-// ThingShow allows to retrieve a specific thing, given its id,
-// from Arduino IoT Cloud.
+// ThingShow allows to retrieve a specific thing, given its id from Arduino IoT Cloud.
 func (cl *Client) ThingShow(ctx context.Context, id string) (*iotclient.ArduinoThing, error) {
 	ctx, err := ctxWithToken(ctx, cl.token)
 	if err != nil {
 		return nil, err
 	}
 
-	thing, _, err := cl.api.ThingsV2Api.ThingsV2ShowExecute(cl.api.ThingsV2Api.ThingsV2Show(ctx, id))
+	req := cl.api.ThingsV2Api.ThingsV2Show(ctx, id)
+	thing, _, err := cl.api.ThingsV2Api.ThingsV2ShowExecute(req)
 	if err != nil {
-		err = fmt.Errorf("retrieving thing, %w", errorDetail(err))
-		return nil, err
+		return nil, fmt.Errorf("retrieving thing, %w", errorDetail(err))
 	}
 	return thing, nil
 }
