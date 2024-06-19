@@ -363,6 +363,23 @@ func (cl *Client) ThingShow(ctx context.Context, id string) (*iotclient.ArduinoT
 	return thing, nil
 }
 
+// ThingClone allows to clone a specific thing, given its id from Arduino IoT Cloud.
+func (cl *Client) ThingClone(ctx context.Context, id, newName string) (*iotclient.ArduinoThing, error) {
+	ctx, err := ctxWithToken(ctx, cl.token)
+	if err != nil {
+		return nil, err
+	}
+
+	req := cl.api.ThingsV2Api.ThingsV2Clone(ctx, id)
+	includeTags := true
+	req = req.ThingClone(iotclient.ThingClone{Name: newName, IncludeTags: &includeTags})
+	thing, _, err := cl.api.ThingsV2Api.ThingsV2CloneExecute(req)
+	if err != nil {
+		return nil, fmt.Errorf("cloning thing thing, %w", errorDetail(err))
+	}
+	return thing, nil
+}
+
 // ThingList returns a list of things on Arduino IoT Cloud.
 func (cl *Client) ThingList(ctx context.Context, ids []string, device *string, props bool, tags map[string]string) ([]iotclient.ArduinoThing, error) {
 	ctx, err := ctxWithToken(ctx, cl.token)
