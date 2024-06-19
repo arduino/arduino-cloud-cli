@@ -33,8 +33,9 @@ const (
 	relayID      = "relay-id"
 	blinkSpeedID = "blink_speed-id"
 
-	thingOverriddenID   = "thing-overridden-id"
-	switchyOverriddenID = "switchy-overridden-id"
+	thingOverriddenID              = "thing-overridden-id"
+	thingRemoteControlOverriddenID = "remote-controlled-lights-overridden-id"
+	switchyOverriddenID            = "switchy-overridden-id"
 )
 
 func toStringPointer(s string) *string {
@@ -200,8 +201,8 @@ func TestLoadDashboard(t *testing.T) {
 		{
 			name:     "dashboard with variable, mocked variable id is concatenation of thing_id and variable_id",
 			file:     "testdata/dashboard-with-variable.yaml",
-			override: nil,
-			want:     dashboardWithVariable,
+			override: map[string]string{"thing": thingOverriddenID},
+			want:     dashboardVariableOverride,
 		},
 		{
 			name:     "dashboard with variable, thing is overridden",
@@ -209,11 +210,10 @@ func TestLoadDashboard(t *testing.T) {
 			override: map[string]string{"thing": thingOverriddenID},
 			want:     dashboardVariableOverride,
 		},
-
 		{
 			name:     "dashboard with two widgets",
 			file:     "testdata/dashboard-two-widgets.yaml",
-			override: nil,
+			override: map[string]string{"remote-controlled-lights": thingRemoteControlOverriddenID},
 			want:     dashboardTwoWidgets,
 		},
 	}
