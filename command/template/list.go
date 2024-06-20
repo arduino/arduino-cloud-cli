@@ -23,16 +23,21 @@ import (
 	storageapi "github.com/arduino/arduino-cloud-cli/internal/storage-api"
 )
 
-func ListustomTemplate(cred *config.Credentials) error {
+func ListCustomTemplates(cred *config.Credentials) error {
 
 	apiclient := storageapi.NewClient(cred)
 
-	templates, err := apiclient.ListCustomTemplate()
+	templates, err := apiclient.ListCustomTemplates()
 	if err != nil {
 		return err
 	}
 
-	feedback.PrintResult(templates)
+	if templates == nil {
+		feedback.Print("No templates found")
+	} else {
+		feedback.PrintResult(templates)
+	}
+
 
 	return nil
 }

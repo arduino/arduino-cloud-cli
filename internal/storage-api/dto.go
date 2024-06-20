@@ -33,6 +33,7 @@ type (
 		TemplateId string `json:"template_id"`
 		Name       string `json:"name"`
 		CreatedAt  string `json:"created_at"`
+		UpdatedAt  string `json:"updated_at"`
 	}
 	TemplatesListResponse struct {
 		Templates []TemplateEntry `json:"templates"`
@@ -48,11 +49,11 @@ func (r *TemplatesListResponse) String() string {
 		return ""
 	}
 	t := table.New()
-	t.SetHeader("Template ID", "Name", "Created At")
+	t.SetHeader("Template ID", "Name", "Created At", "Updated At")
 
 	// Now print the table
 	for _, tem := range r.Templates {
-		line := []any{tem.TemplateId, tem.Name, formatHumanReadableTs(tem.CreatedAt)}
+		line := []any{tem.TemplateId, tem.Name, formatHumanReadableTs(tem.CreatedAt), formatHumanReadableTs(tem.UpdatedAt)}
 		t.AddRow(line...)
 	}
 

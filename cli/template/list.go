@@ -49,5 +49,5 @@ func runTemplateListCommand() error {
 	if err != nil {
 		return fmt.Errorf("retrieving credentials: %w", err)
 	}
-	return template.ListustomTemplate(cred)
+	return template.ListCustomTemplates(cred)
 }

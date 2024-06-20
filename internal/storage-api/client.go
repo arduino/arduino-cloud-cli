@@ -131,6 +131,7 @@ func (c *StorageApiClient) performBinaryPostRequest(endpoint, token string, body
 		return nil, err
 	}
 	req.Header.Add("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
 	if c.organization != "" {
 		req.Header.Add("X-Organization", c.organization)
 	}
@@ -294,7 +295,7 @@ type listPostRequest struct {
 	Sort string `json:"sort"`
 }
 
-func (c *StorageApiClient) ListCustomTemplate() (*TemplatesListResponse, error) {
+func (c *StorageApiClient) ListCustomTemplates() (*TemplatesListResponse, error) {
 	userRequestToken, err := c.src.Token()
 	if err != nil {
 		if strings.Contains(err.Error(), "401") {
