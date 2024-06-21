@@ -19,7 +19,7 @@ package device
 
 import (
 	"github.com/arduino/arduino-cloud-cli/command/tag"
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 )
 
 // DeviceInfo contains the most interesting
@@ -31,6 +31,7 @@ type DeviceInfo struct {
 	Serial string   `json:"serial_number"`
 	FQBN   string   `json:"fqbn"`
 	Tags   []string `json:"tags,omitempty"`
+	Status *string  `json:"status,omitempty"`
 }
 
 func getDeviceInfo(device *iotclient.ArduinoDevicev2) (*DeviceInfo, error) {
@@ -45,8 +46,9 @@ func getDeviceInfo(device *iotclient.ArduinoDevicev2) (*DeviceInfo, error) {
 		ID:     device.Id,
 		Board:  device.Type,
 		Serial: device.Serial,
-		FQBN:   device.Fqbn,
+		FQBN:   dereferenceString(device.Fqbn),
 		Tags:   tags,
+		Status: device.DeviceStatus,
 	}
 	return dev, nil
 }

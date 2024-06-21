@@ -100,7 +100,14 @@ func Create(ctx context.Context, params *CreateParams, cred *config.Credentials)
 		ID:     dev.Id,
 		Board:  dev.Type,
 		Serial: dev.Serial,
-		FQBN:   dev.Fqbn,
+		FQBN:   dereferenceString(dev.Fqbn),
 	}
 	return devInfo, nil
+}
+
+func dereferenceString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }

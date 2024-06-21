@@ -23,7 +23,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/config"
 
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 )
 
 // BindParams contains the parameters needed to
@@ -42,7 +42,7 @@ func Bind(ctx context.Context, params *BindParams, cred *config.Credentials) err
 	}
 
 	thing := &iotclient.ThingUpdate{
-		DeviceId: params.DeviceID,
+		DeviceId: &params.DeviceID,
 	}
 
 	err = iotClient.ThingUpdate(ctx, params.ID, thing, true)
@@ -51,4 +51,11 @@ func Bind(ctx context.Context, params *BindParams, cred *config.Credentials) err
 	}
 
 	return nil
+}
+
+func dereferenceString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }

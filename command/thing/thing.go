@@ -19,7 +19,7 @@ package thing
 
 import (
 	"github.com/arduino/arduino-cloud-cli/command/tag"
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 )
 
 // ThingInfo contains the main parameters of
@@ -47,7 +47,7 @@ func getThingInfo(thing *iotclient.ArduinoThing) (*ThingInfo, error) {
 	info := &ThingInfo{
 		Name:      thing.Name,
 		ID:        thing.Id,
-		DeviceID:  thing.DeviceId,
+		DeviceID:  dereferenceString(thing.DeviceId),
 		Variables: vars,
 		Tags:      tags,
 	}

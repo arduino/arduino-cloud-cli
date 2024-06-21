@@ -21,7 +21,7 @@ import (
 	"context"
 	"testing"
 
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 	"github.com/gofrs/uuid"
 	"github.com/google/go-cmp/cmp"
 )
@@ -33,9 +33,18 @@ const (
 	relayID      = "relay-id"
 	blinkSpeedID = "blink_speed-id"
 
-	thingOverriddenID   = "thing-overridden-id"
-	switchyOverriddenID = "switchy-overridden-id"
+	thingOverriddenID              = "thing-overridden-id"
+	thingRemoteControlOverriddenID = "remote-controlled-lights-overridden-id"
+	switchyOverriddenID            = "switchy-overridden-id"
 )
+
+func toStringPointer(s string) *string {
+	return &s
+}
+
+func toInt64Pointer(i int64) *int64 {
+	return &i
+}
 
 var (
 	dashboardTemplateTest = map[string]interface{}{
@@ -55,53 +64,53 @@ var (
 	}
 
 	dashboardDetailed = &iotclient.Dashboardv2{
-		Name: "dashboard",
+		Name: toStringPointer("dashboard"),
 		Widgets: []iotclient.Widget{
-			{Name: "Switch-name", Height: 1, HeightMobile: 2, Width: 3, WidthMobile: 4,
-				X: 5, XMobile: 6, Y: 7, YMobile: 8, Options: map[string]interface{}{"showLabels": true},
+			{Name: toStringPointer("Switch-name"), Height: 1, HeightMobile: toInt64Pointer(2), Width: 3, WidthMobile: toInt64Pointer(4),
+				X: 5, XMobile: toInt64Pointer(6), Y: 7, YMobile: toInt64Pointer(8), Options: map[string]interface{}{"showLabels": true},
 				Type: "Switch",
 			},
 		},
 	}
 
 	dashboardNoOptions = &iotclient.Dashboardv2{
-		Name: "dashboard-no-options",
+		Name: toStringPointer("dashboard-no-options"),
 		Widgets: []iotclient.Widget{
-			{Name: "Switch-name", Height: 1, HeightMobile: 2, Width: 3, WidthMobile: 4,
-				X: 5, XMobile: 6, Y: 7, YMobile: 8, Options: map[string]interface{}{},
+			{Name: toStringPointer("Switch-name"), Height: 1, HeightMobile: toInt64Pointer(2), Width: 3, WidthMobile: toInt64Pointer(4),
+				X: 5, XMobile: toInt64Pointer(6), Y: 7, YMobile: toInt64Pointer(8), Options: map[string]interface{}{},
 				Type: "Switch",
 			},
 		},
 	}
 
 	dashboardWithVariable = &iotclient.Dashboardv2{
-		Name: "dashboard-with-variable",
+		Name: toStringPointer("dashboard-with-variable"),
 		Widgets: []iotclient.Widget{
-			{Name: "Switch-name", Height: 1, HeightMobile: 2, Width: 3, WidthMobile: 4,
-				X: 5, XMobile: 6, Y: 7, YMobile: 8, Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
+			{Name: toStringPointer("Switch-name"), Height: 1, HeightMobile: toInt64Pointer(2), Width: 3, WidthMobile: toInt64Pointer(4),
+				X: 5, XMobile: toInt64Pointer(6), Y: 7, YMobile: toInt64Pointer(8), Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
 				Variables: []string{switchyID},
 			},
 		},
 	}
 
 	dashboardVariableOverride = &iotclient.Dashboardv2{
-		Name: "dashboard-with-variable",
+		Name: toStringPointer("dashboard-with-variable"),
 		Widgets: []iotclient.Widget{
-			{Name: "Switch-name", Height: 1, HeightMobile: 2, Width: 3, WidthMobile: 4,
-				X: 5, XMobile: 6, Y: 7, YMobile: 8, Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
+			{Name: toStringPointer("Switch-name"), Height: 1, HeightMobile: toInt64Pointer(2), Width: 3, WidthMobile: toInt64Pointer(4),
+				X: 5, XMobile: toInt64Pointer(6), Y: 7, YMobile: toInt64Pointer(8), Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
 				Variables: []string{switchyOverriddenID},
 			},
 		},
 	}
 
 	dashboardTwoWidgets = &iotclient.Dashboardv2{
-		Name: "dashboard-two-widgets",
+		Name: toStringPointer("dashboard-two-widgets"),
 		Widgets: []iotclient.Widget{
-			{Name: "blink_speed", Height: 7, Width: 8,
+			{Name: toStringPointer("blink_speed"), Height: 7, Width: 8,
 				X: 7, Y: 5, Options: map[string]interface{}{"min": float64(0), "max": float64(5000)}, Type: "Slider",
 				Variables: []string{blinkSpeedID},
 			},
-			{Name: "relay_2", Height: 5, Width: 5,
+			{Name: toStringPointer("relay_2"), Height: 5, Width: 5,
 				X: 5, Y: 0, Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
 				Variables: []string{relayID},
 			},
@@ -150,15 +159,15 @@ func (t *thingShowTest) ThingShow(ctx context.Context, thingID string) (*iotclie
 	if thingID == thingOverriddenID {
 		return &iotclient.ArduinoThing{
 			Properties: []iotclient.ArduinoProperty{
-				{Id: switchyOverriddenID, VariableName: "switchy"},
+				{Id: switchyOverriddenID, VariableName: toStringPointer("switchy")},
 			},
 		}, nil
 	}
 	return &iotclient.ArduinoThing{
 		Properties: []iotclient.ArduinoProperty{
-			{Id: switchyID, VariableName: "switchy"},
-			{Id: relayID, VariableName: "relay_2"},
-			{Id: blinkSpeedID, VariableName: "blink_speed"},
+			{Id: switchyID, VariableName: toStringPointer("switchy")},
+			{Id: relayID, VariableName: toStringPointer("relay_2")},
+			{Id: blinkSpeedID, VariableName: toStringPointer("blink_speed")},
 		},
 	}, nil
 }
@@ -177,39 +186,34 @@ func TestLoadDashboard(t *testing.T) {
 			override: nil,
 			want:     dashboardDetailed,
 		},
-
 		{
 			name:     "dashboard with wrong options to be filtered out",
 			file:     "testdata/dashboard-wrong-options.yaml",
 			override: nil,
 			want:     dashboardDetailed,
 		},
-
 		{
 			name:     "dashboard without options, should have a not nil map",
 			file:     "testdata/dashboard-no-options.yaml",
 			override: nil,
 			want:     dashboardNoOptions,
 		},
-
 		{
 			name:     "dashboard with variable, mocked variable id is concatenation of thing_id and variable_id",
 			file:     "testdata/dashboard-with-variable.yaml",
-			override: nil,
-			want:     dashboardWithVariable,
+			override: map[string]string{"thing": thingOverriddenID},
+			want:     dashboardVariableOverride,
 		},
-
 		{
 			name:     "dashboard with variable, thing is overridden",
 			file:     "testdata/dashboard-with-variable.yaml",
 			override: map[string]string{"thing": thingOverriddenID},
 			want:     dashboardVariableOverride,
 		},
-
 		{
 			name:     "dashboard with two widgets",
 			file:     "testdata/dashboard-two-widgets.yaml",
-			override: nil,
+			override: map[string]string{"remote-controlled-lights": thingRemoteControlOverriddenID},
 			want:     dashboardTwoWidgets,
 		},
 	}

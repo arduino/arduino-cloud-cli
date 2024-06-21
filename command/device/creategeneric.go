@@ -75,9 +75,9 @@ func CreateGeneric(ctx context.Context, params *CreateGenericParams, cred *confi
 			ID:     dev.Id,
 			Board:  dev.Type,
 			Serial: dev.Serial,
-			FQBN:   dev.Fqbn,
+			FQBN:   dereferenceString(dev.Fqbn),
 		},
-		Password: pass.SuggestedPassword,
+		Password: dereferenceString(pass.SuggestedPassword),
 	}
 	return devInfo, nil
 }

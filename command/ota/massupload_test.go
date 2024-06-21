@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -96,9 +96,9 @@ func TestValidateDevices(t *testing.T) {
 
 	mockDeviceList := deviceListerTest{
 		list: []iotclient.ArduinoDevicev2{
-			{Id: idCorrect1, Fqbn: correctFQBN},
-			{Id: idCorrect2, Fqbn: correctFQBN},
-			{Id: idNotValid, Fqbn: wrongFQBN},
+			{Id: idCorrect1, Fqbn: &correctFQBN},
+			{Id: idCorrect2, Fqbn: &correctFQBN},
+			{Id: idNotValid, Fqbn: &wrongFQBN},
 		},
 	}
 

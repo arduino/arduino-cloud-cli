@@ -22,7 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 )
 
 type dashboardTemplate struct {
@@ -76,7 +76,7 @@ func getVariableID(ctx context.Context, thingID string, variableName string, fet
 	}
 
 	for _, v := range thing.Properties {
-		if v.VariableName == variableName {
+		if v.VariableName != nil && *v.VariableName == variableName {
 			return v.Id, nil
 		}
 	}
