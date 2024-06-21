@@ -23,7 +23,6 @@ import (
 
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
-	iotclient "github.com/arduino/iot-client-go"
 )
 
 // CloneParams contains the parameters needed to clone a thing.
@@ -39,16 +38,9 @@ func Clone(ctx context.Context, params *CloneParams, cred *config.Credentials) (
 		return nil, err
 	}
 
-	thing, err := retrieve(ctx, iotClient, params.CloneID)
+	newThing, err := iotClient.ThingClone(ctx, params.CloneID, params.Name)
 	if err != nil {
-		return nil, err
-	}
-
-	thing.Name = params.Name
-	force := true
-	newThing, err := iotClient.ThingCreate(ctx, thing, force)
-	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cloning thing %s: %w", params.CloneID, err)
 	}
 
 	t, err := getThingInfo(newThing)
@@ -56,31 +48,4 @@ func Clone(ctx context.Context, params *CloneParams, cred *config.Credentials) (
 		return nil, fmt.Errorf("parsing thing %s from cloud: %w", newThing.Id, err)
 	}
 	return t, nil
-}
-
-type thingFetcher interface {
-	ThingShow(ctx context.Context, id string) (*iotclient.ArduinoThing, error)
-}
-
-func retrieve(ctx context.Context, fetcher thingFetcher, thingID string) (*iotclient.ThingCreate, error) {
-	clone, err := fetcher.ThingShow(ctx, thingID)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "retrieving the thing to be cloned", err)
-	}
-
-	thing := &iotclient.ThingCreate{}
-
-	// Copy variables
-	for _, p := range clone.Properties {
-		thing.Properties = append(thing.Properties, iotclient.Property{
-			Name:            p.Name,
-			Permission:      p.Permission,
-			UpdateParameter: p.UpdateParameter,
-			UpdateStrategy:  p.UpdateStrategy,
-			Type:            p.Type,
-			VariableName:    p.VariableName,
-		})
-	}
-
-	return thing, nil
 }

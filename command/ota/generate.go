@@ -68,3 +68,10 @@ func Generate(binFile string, outFile string, fqbn string) error {
 
 	return nil
 }
+
+func dereferenceString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}

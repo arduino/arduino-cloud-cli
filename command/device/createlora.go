@@ -26,7 +26,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/arduino/cli"
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 	"github.com/sirupsen/logrus"
 	"go.bug.st/serial"
 )
@@ -181,7 +181,7 @@ func getDeviceLoraInfo(ctx context.Context, iotClient *iot.Client, loraDev *iotc
 			ID:     dev.Id,
 			Board:  dev.Type,
 			Serial: dev.Serial,
-			FQBN:   dev.Fqbn,
+			FQBN:   dereferenceString(dev.Fqbn),
 		},
 		AppEUI: loraDev.AppEui,
 		AppKey: loraDev.AppKey,

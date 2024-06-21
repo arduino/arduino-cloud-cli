@@ -22,10 +22,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 	"github.com/gofrs/uuid"
 	"gopkg.in/yaml.v3"
 )
@@ -41,7 +41,7 @@ func loadTemplate(file string, template interface{}) error {
 	}
 	defer templateFile.Close()
 
-	templateBytes, err := ioutil.ReadAll(templateFile)
+	templateBytes, err := io.ReadAll(templateFile)
 	if err != nil {
 		return err
 	}
@@ -111,8 +111,12 @@ func LoadDashboard(ctx context.Context, file string, override map[string]string,
 		// Set the correct variable id, given the thing id and the variable name
 		for j, variable := range widget.Variables {
 			// Check if thing name should be overridden
+			precheck := variable.ThingID
 			if id, ok := override[variable.ThingID]; ok {
 				variable.ThingID = id
+			}
+			if variable.ThingID == "" || variable.ThingID == precheck {
+				return nil, fmt.Errorf("no override provided for thing %s", precheck)
 			}
 			variable.VariableID, err = getVariableID(ctx, variable.ThingID, variable.VariableName, thinger)
 			if err != nil {

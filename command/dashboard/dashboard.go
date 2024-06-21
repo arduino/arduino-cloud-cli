@@ -18,7 +18,7 @@
 package dashboard
 
 import (
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 )
 
 // DashboardInfo contains the most interesting
@@ -33,7 +33,9 @@ type DashboardInfo struct {
 func getDashboardInfo(dashboard *iotclient.ArduinoDashboardv2) *DashboardInfo {
 	var widgets []string
 	for _, w := range dashboard.Widgets {
-		widgets = append(widgets, w.Name)
+		if w.Name != nil {
+			widgets = append(widgets, *w.Name)
+		}
 	}
 	info := &DashboardInfo{
 		Name:      dashboard.Name,

@@ -47,10 +47,10 @@ func Create(ctx context.Context, params *CreateParams, cred *config.Credentials)
 
 	// Name passed as parameter has priority over name from template
 	if params.Name != nil {
-		thing.Name = *params.Name
+		thing.Name = params.Name
 	}
 	// If name is not specified in the template, it should be passed as parameter
-	if thing.Name == "" {
+	if dereferenceString(thing.Name) == "" {
 		return nil, errors.New("thing name not specified")
 	}
 
