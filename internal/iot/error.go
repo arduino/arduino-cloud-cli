@@ -21,7 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 )
 
 // errorDetail takes a generic iot-client-go error

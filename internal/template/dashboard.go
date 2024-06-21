@@ -22,7 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 )
 
 type dashboardTemplate struct {

@@ -25,7 +25,7 @@ import (
 	"os"
 	"strings"
 
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 	"golang.org/x/oauth2"
 	cc "golang.org/x/oauth2/clientcredentials"
 )

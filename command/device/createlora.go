@@ -26,7 +26,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/arduino/cli"
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 	"github.com/sirupsen/logrus"
 	"go.bug.st/serial"
 )

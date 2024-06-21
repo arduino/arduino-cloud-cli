@@ -22,10 +22,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 	"github.com/gofrs/uuid"
 	"gopkg.in/yaml.v3"
 )
@@ -41,7 +41,7 @@ func loadTemplate(file string, template interface{}) error {
 	}
 	defer templateFile.Close()
 
-	templateBytes, err := ioutil.ReadAll(templateFile)
+	templateBytes, err := io.ReadAll(templateFile)
 	if err != nil {
 		return err
 	}

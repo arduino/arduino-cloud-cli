@@ -18,7 +18,7 @@
 package dashboard
 
 import (
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 )
 
 // DashboardInfo contains the most interesting

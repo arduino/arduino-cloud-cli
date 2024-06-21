@@ -24,7 +24,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 	"gopkg.in/yaml.v3"
 )
 

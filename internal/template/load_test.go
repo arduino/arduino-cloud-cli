@@ -21,7 +21,7 @@ import (
 	"context"
 	"testing"
 
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 	"github.com/gofrs/uuid"
 	"github.com/google/go-cmp/cmp"
 )

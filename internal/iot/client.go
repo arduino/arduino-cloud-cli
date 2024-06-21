@@ -23,7 +23,7 @@ import (
 	"os"
 
 	"github.com/arduino/arduino-cloud-cli/config"
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 	"golang.org/x/oauth2"
 )
 

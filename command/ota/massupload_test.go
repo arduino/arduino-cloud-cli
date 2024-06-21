@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
-	iotclient "github.com/arduino/iot-client-go"
+	iotclient "github.com/arduino/iot-client-go/v2"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/assert"
 )
