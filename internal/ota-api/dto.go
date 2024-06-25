@@ -18,6 +18,7 @@
 package otaapi
 
 import (
+	"strconv"
 	"strings"
 	"time"
 
@@ -28,8 +29,9 @@ import (
 
 type (
 	OtaStatusResponse struct {
-		Ota    Ota     `json:"ota"`
-		States []State `json:"states,omitempty"`
+		FirmwareSize *int64  `json:"firmware_size,omitempty"`
+		Ota          Ota     `json:"ota"`
+		States       []State `json:"states,omitempty"`
 	}
 
 	OtaStatusList struct {
@@ -53,8 +55,9 @@ type (
 	}
 
 	OtaStatusDetail struct {
-		Ota     Ota     `json:"ota"`
-		Details []State `json:"details,omitempty"`
+		FirmwareSize *int64  `json:"firmware_size,omitempty"`
+		Ota          Ota     `json:"ota"`
+		Details      []State `json:"details,omitempty"`
 	}
 )
 
@@ -155,12 +158,38 @@ func (r OtaStatusDetail) String() string {
 		t = table.New()
 		t.SetHeader("Time", "Status", "Detail")
 		for _, s := range r.Details {
-			t.AddRow(formatHumanReadableTs(s.Timestamp), upperCaseFirst(s.State), s.StateData)
+			stateData := formatStateData(s.State, s.StateData, r.FirmwareSize, hasReachedFlashState(r.Details))
+			t.AddRow(formatHumanReadableTs(s.Timestamp), upperCaseFirst(s.State), stateData)
 		}
 		output += "\nDetails:\n" + t.Render()
 	}
 
 	return output
+}
+
+func hasReachedFlashState(states []State) bool {
+	for _, s := range states {
+		if s.State == "flash" {
+			return true
+		}
+	}
+	return false
+}
+
+func formatStateData(state, data string, firmware_size *int64, hasReceivedFlashState bool) string {
+	if state == "fetch" {
+		// This is the state 'fetch' of OTA progress. This contains a numer that represents the number of bytes fetched
+		if hasReceivedFlashState {
+			return "100%"
+		}
+		actualDownloadedData, err := strconv.Atoi(data)
+		if err != nil || firmware_size == nil || actualDownloadedData <= 0 || *firmware_size <= 0 { // Sanitize and avoid division by zero
+			return data
+		}
+		percentage := (float64(actualDownloadedData) / float64(*firmware_size)) * 100
+		return strconv.FormatFloat(percentage, 'f', 2, 64) + "%"
+	}
+	return data
 }
 
 func upperCaseFirst(s string) string {
