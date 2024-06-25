@@ -180,16 +180,25 @@ func formatStateData(state, data string, firmware_size *int64, hasReceivedFlashS
 	if state == "fetch" {
 		// This is the state 'fetch' of OTA progress. This contains a numer that represents the number of bytes fetched
 		if hasReceivedFlashState {
-			return "100%"
+			return buildSimpleProgressBar(float64(100))
 		}
 		actualDownloadedData, err := strconv.Atoi(data)
 		if err != nil || firmware_size == nil || actualDownloadedData <= 0 || *firmware_size <= 0 { // Sanitize and avoid division by zero
 			return data
 		}
 		percentage := (float64(actualDownloadedData) / float64(*firmware_size)) * 100
-		return strconv.FormatFloat(percentage, 'f', 2, 64) + "%"
+		return buildSimpleProgressBar(percentage)
 	}
 	return data
+}
+
+func buildSimpleProgressBar(progress float64) string {
+	progressInt := int(progress) / 10
+	bar := "["
+	bar = bar + strings.Repeat("=", progressInt)
+	bar = bar + strings.Repeat(" ", 10-progressInt)
+	bar = bar + "] " + strconv.FormatFloat(progress, 'f', 2, 64) + "%"
+	return bar
 }
 
 func upperCaseFirst(s string) string {
