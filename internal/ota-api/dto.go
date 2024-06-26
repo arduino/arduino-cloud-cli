@@ -183,14 +183,11 @@ func hasReachedFlashState(states []State) bool {
 }
 
 func formatStateData(state, data string, firmware_size int64, hasReceivedFlashState bool) string {
-	if data == "" {
+	if data == "" || data == "Unknown" {
 		return ""
 	}
 	if state == "fetch" {
 		// This is the state 'fetch' of OTA progress. This contains a number that represents the number of bytes fetched
-		if data == "Unknown" {
-			return ""
-		}
 		actualDownloadedData, err := strconv.Atoi(data)
 		if err != nil || actualDownloadedData <= 0 || firmware_size <= 0 { // Sanitize and avoid division by zero
 			return data
@@ -200,9 +197,6 @@ func formatStateData(state, data string, firmware_size int64, hasReceivedFlashSt
 		}
 		percentage := (float64(actualDownloadedData) / float64(firmware_size)) * 100
 		return buildSimpleProgressBar(percentage)
-	}
-	if data == "Unknown" {
-		return ""
 	}
 	return data
 }
