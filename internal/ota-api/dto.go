@@ -177,6 +177,9 @@ func hasReachedFlashState(states []State) bool {
 }
 
 func formatStateData(state, data string, firmware_size *int64, hasReceivedFlashState bool) string {
+	if data == "" || strings.ToLower(data) == "unknown" {
+		return ""
+	}
 	if state == "fetch" {
 		// This is the state 'fetch' of OTA progress. This contains a numer that represents the number of bytes fetched
 		if hasReceivedFlashState {
