@@ -17,3 +17,9 @@ func TestProgressBar_ifFlashState_goTo100Pct(t *testing.T) {
 	bar := formatStateData("fetch", "25665", &firmwareSize, true) // If in flash status, go to 100%
 	assert.Equal(t, "[==========] 100.00%", bar)
 }
+
+func TestProgressBar_ifFlashStateAndUnknown_goTo100Pct(t *testing.T) {
+	firmwareSize := int64(25665 * 2)
+	bar := formatStateData("fetch", "Unknown", &firmwareSize, true) // If in flash status, go to 100%
+	assert.Equal(t, "[==========] 100.00%", bar)
+}
