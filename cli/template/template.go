@@ -31,6 +31,7 @@ func NewCommand() *cobra.Command {
 	templateCommand.AddCommand(initTemplateImportCommand())
 	templateCommand.AddCommand(initTemplateExportCommand())
 	templateCommand.AddCommand(initTemplateListCommand())
+	templateCommand.AddCommand(initTemplateApplyCommand())
 
 	return templateCommand
 }

@@ -18,25 +18,12 @@
 package template
 
 import (
-	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/config"
-	storageapi "github.com/arduino/arduino-cloud-cli/internal/storage-api"
 )
 
-func ListCustomTemplates(cred *config.Credentials) error {
+func ApplyCustomTemplates(cred *config.Credentials, templateId string) error {
 
-	apiclient := storageapi.NewClient(cred)
-
-	templates, err := apiclient.ListCustomTemplates()
-	if err != nil {
-		return err
-	}
-
-	if templates == nil {
-		feedback.Print("No templates found")
-	} else {
-		feedback.PrintResult(templates)
-	}
+	// TODO
 
 	return nil
 }

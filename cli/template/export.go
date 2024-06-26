@@ -30,7 +30,7 @@ import (
 
 type exportFlags struct {
 	templateId string
-	path 	   string
+	path       string
 }
 
 func initTemplateExportCommand() *cobra.Command {
