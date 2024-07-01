@@ -72,15 +72,15 @@ func formatHumanReadableTs(ts string) string {
 	return parsed.Format(time.RFC3339)
 }
 
-type TemplateDescribeResponse struct {
+type DescribeTemplateResponse struct {
 	// CompatibleBoards List of devices compatible with the template
-	CompatibleBoards *[]string `json:"compatible_boards,omitempty"`
+	CompatibleBoards []string `json:"compatible_boards,omitempty"`
 
 	// CreatedAt Template creation date/time
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 
 	// DashboardTemplates List of dashboard templates
-	DashboardTemplates *[]DashboardTemplate `json:"dashboard_templates,omitempty"`
+	DashboardTemplates []DashboardTemplate `json:"dashboard_templates,omitempty"`
 
 	// DeletedAt Template soft deletion date/time
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
@@ -89,7 +89,7 @@ type TemplateDescribeResponse struct {
 	Description string `json:"description"`
 
 	// ImageLinks Optional list of images to be included in the template
-	ImageLinks *[]string `json:"image_links,omitempty"`
+	ImageLinks []string `json:"image_links,omitempty"`
 
 	// Name Template name
 	Name string `json:"name" validate:"required,max=128"`
@@ -99,10 +99,10 @@ type TemplateDescribeResponse struct {
 	TemplateId     uuid.UUID  `json:"template_id" validate:"required,uuid"`
 
 	// ThingTemplates List of thing templates
-	ThingTemplates *[]ThingTemplate `json:"thing_templates,omitempty"`
+	ThingTemplates []ThingTemplate `json:"thing_templates,omitempty"`
 
 	// TriggerTemplates List of trigger templates
-	TriggerTemplates *[]TriggerTemplate `json:"trigger_templates,omitempty"`
+	TriggerTemplates []TriggerTemplate `json:"trigger_templates,omitempty"`
 
 	// UpdatedAt Template update date/time
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
@@ -119,10 +119,10 @@ type ThingTemplate struct {
 	Name string `json:"name"`
 
 	// Tags Tags
-	Tags *[]Tag `json:"tags,omitempty"`
+	Tags []Tag `json:"tags,omitempty"`
 
 	// Variables Thing variables
-	Variables *[]Variable `json:"variables,omitempty"`
+	Variables []Variable `json:"variables,omitempty"`
 
 	// WebhookUri Webhook URI
 	WebhookUri *string `json:"webhook_uri,omitempty"`
@@ -181,13 +181,13 @@ type Widget struct {
 	Name string `json:"name"`
 
 	// Options Widget options
-	Options *map[string]interface{} `json:"options,omitempty"`
+	Options map[string]interface{} `json:"options,omitempty"`
 
 	// Type Widget type
 	Type string `json:"type"`
 
 	// Variables Widget variables
-	Variables *[]WidgetVariable `json:"variables,omitempty"`
+	Variables []WidgetVariable `json:"variables,omitempty"`
 
 	// Width Width
 	Width *float32 `json:"width,omitempty"`
@@ -227,7 +227,7 @@ type WidgetVariable struct {
 
 type TriggerTemplate struct {
 	// Actions Actions
-	Actions *[]TriggerAction `json:"actions,omitempty"`
+	Actions []TriggerAction `json:"actions,omitempty"`
 
 	// Active Active
 	Active *bool `json:"active,omitempty"`

@@ -18,12 +18,34 @@
 package template
 
 import (
+	"fmt"
+
+	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/config"
+	storageapi "github.com/arduino/arduino-cloud-cli/internal/storage-api"
+	"github.com/gofrs/uuid"
+	"github.com/sirupsen/logrus"
 )
 
 func ApplyCustomTemplates(cred *config.Credentials, templateId string) error {
 
-	// TODO
+	apiclient := storageapi.NewClient(cred)
+
+	feedback.Printf("Applying template %s", templateId)
+
+	templateIdUUID, err := uuid.FromString(templateId)
+	if err != nil {
+		return fmt.Errorf("invalid template id: %s", templateId)
+	}
+	cstTemplate, err := apiclient.GetCustomTemplate(templateIdUUID)
+	if err != nil {
+		return err
+	}
+	if len(cstTemplate.ThingTemplates) > 0 {
+		mainThing := cstTemplate.ThingTemplates[0]
+		logrus.Debug("Main thing template - id: ", mainThing.Id)
+		//TODO check thing ID proceed
+	}
 
 	return nil
 }

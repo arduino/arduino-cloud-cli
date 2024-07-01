@@ -32,6 +32,7 @@ import (
 
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
+	"github.com/gofrs/uuid"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
@@ -125,8 +126,8 @@ func (c *StorageApiClient) performBinaryGetRequest(endpoint, token string) (*htt
 	return res, nil
 }
 
-func (c *StorageApiClient) performBinaryPostRequest(endpoint, token string, body io.Reader) (*http.Response, error) {
-	req, err := http.NewRequest("POST", endpoint, body)
+func (c *StorageApiClient) performRequest(method, endpoint, token string, body io.Reader) (*http.Response, error) {
+	req, err := http.NewRequest(method, endpoint, body)
 	if err != nil {
 		return nil, err
 	}
@@ -313,7 +314,7 @@ func (c *StorageApiClient) ListCustomTemplates() (*TemplatesListResponse, error)
 	}
 
 	endpoint := c.host + "/storage/template/v1/list"
-	res, err := c.performBinaryPostRequest(endpoint, userRequestToken.AccessToken, bytes.NewReader(jsonRequest))
+	res, err := c.performRequest("POST", endpoint, userRequestToken.AccessToken, bytes.NewReader(jsonRequest))
 	if err != nil {
 		return nil, err
 	}
@@ -332,6 +333,49 @@ func (c *StorageApiClient) ListCustomTemplates() (*TemplatesListResponse, error)
 			return nil, err
 		}
 		return &templatesListResponse, nil
+	} else if res.StatusCode == 400 {
+		bodyb, _ := io.ReadAll(res.Body)
+		return nil, fmt.Errorf("bad request: %s", string(bodyb))
+	} else if res.StatusCode == 401 {
+		return nil, errors.New("unauthorized request")
+	} else if res.StatusCode == 403 {
+		return nil, errors.New("forbidden request")
+	} else if res.StatusCode == 500 {
+		return nil, errors.New("internal server error")
+	}
+
+	return nil, err
+}
+
+func (c *StorageApiClient) GetCustomTemplate(templateID uuid.UUID) (*DescribeTemplateResponse, error) {
+	userRequestToken, err := c.src.Token()
+	if err != nil {
+		if strings.Contains(err.Error(), "401") {
+			return nil, errors.New("wrong credentials")
+		}
+		return nil, fmt.Errorf("cannot retrieve a valid token: %w", err)
+	}
+
+	endpoint := c.host + fmt.Sprintf("/storage/template/v1/%s", templateID.String())
+	res, err := c.performRequest("GET", endpoint, userRequestToken.AccessToken, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	logrus.Debugf("Get template %s API call status: %d", templateID.String(), res.StatusCode)
+
+	if res.StatusCode == 200 || res.StatusCode == 201 {
+		var getTemplateResponse DescribeTemplateResponse
+		respBytes, err := io.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(respBytes, &getTemplateResponse)
+		if err != nil {
+			return nil, err
+		}
+		return &getTemplateResponse, nil
 	} else if res.StatusCode == 400 {
 		bodyb, _ := io.ReadAll(res.Body)
 		return nil, fmt.Errorf("bad request: %s", string(bodyb))
