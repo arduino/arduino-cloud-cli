@@ -195,6 +195,23 @@ func (cl *Client) DeviceShow(ctx context.Context, id string) (*iotclient.Arduino
 	return dev, nil
 }
 
+// DeviceNetworkCredentials allows to retrieve a specific device network credentials configuration options
+func (cl *Client) DeviceNetworkCredentials(ctx context.Context, deviceType, connection string) ([]iotclient.ArduinoCredentialsv1, error) {
+	ctx, err := ctxWithToken(ctx, cl.token)
+	if err != nil {
+		return nil, err
+	}
+
+	req := cl.api.NetworkCredentialsV1Api.NetworkCredentialsV1Show(ctx, deviceType)
+	req = req.Connection(connection)
+	dev, _, err := cl.api.NetworkCredentialsV1Api.NetworkCredentialsV1ShowExecute(req)
+	if err != nil {
+		err = fmt.Errorf("retrieving device network configuration, %w", errorDetail(err))
+		return nil, err
+	}
+	return dev, nil
+}
+
 // DeviceOTA performs an OTA upload request to Arduino IoT Cloud, passing
 // the ID of the device to be updated and the actual file containing the OTA firmware.
 func (cl *Client) DeviceOTA(ctx context.Context, id string, file *os.File, expireMins int) error {

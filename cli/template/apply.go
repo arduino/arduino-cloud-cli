@@ -1,6 +1,6 @@
 // This file is part of arduino-cloud-cli.
 //
-// Copyright (C) 2021 ARDUINO SA (http://www.arduino.cc/)
+// Copyright (C) 2024 ARDUINO SA (http://www.arduino.cc/)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -20,6 +20,7 @@ package template
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
@@ -29,8 +30,10 @@ import (
 )
 
 type applyFlags struct {
-	templateId   string
-	templateName string
+	templateId     string
+	templatePrefix string
+	deviceId       string
+	netCredentials string
 }
 
 func initTemplateApplyCommand() *cobra.Command {
@@ -47,11 +50,14 @@ func initTemplateApplyCommand() *cobra.Command {
 		},
 	}
 
-	applyCommand.Flags().StringVarP(&flags.templateId, "template-id", "t", "", "Template id")
-	applyCommand.Flags().StringVarP(&flags.templateName, "name", "n", "", "Name")
+	applyCommand.Flags().StringVarP(&flags.templateId, "template-id", "t", "", "Template ID")
+	applyCommand.Flags().StringVarP(&flags.templatePrefix, "prefix", "p", "", "Prefix to apply to the name of created resources")
+	applyCommand.Flags().StringVarP(&flags.deviceId, "device-id", "d", "", "Device ID")
+	applyCommand.Flags().StringVarP(&flags.netCredentials, "network-credentials", "n", "", "Network credentials")
 
 	applyCommand.MarkFlagRequired("template-id")
-	applyCommand.MarkFlagRequired("name")
+	applyCommand.MarkFlagRequired("prefix")
+	applyCommand.MarkFlagRequired("device-id")
 
 	return applyCommand
 }
@@ -61,27 +67,18 @@ func runTemplateApplyCommand(flags *applyFlags) error {
 	if err != nil {
 		return fmt.Errorf("retrieving credentials: %w", err)
 	}
-	return template.ApplyCustomTemplates(cred, flags.templateId)
+
+	deviceNetCredentials := make(map[string]string)
+	if flags.netCredentials != "" {
+		configNetArray := strings.Split(strings.Trim(flags.netCredentials, " "), ",")
+		for _, netConfig := range configNetArray {
+			netConfigArray := strings.Split(netConfig, "=")
+			if len(netConfigArray) != 2 {
+				return fmt.Errorf("invalid network configuration: %s", netConfig)
+			}
+			deviceNetCredentials[netConfigArray[0]] = netConfigArray[1]
+		}
+	}
+
+	return template.ApplyCustomTemplates(cred, flags.templateId, flags.deviceId, flags.templatePrefix, deviceNetCredentials)
 }
-
-/*
-
-curl --location --request PUT 'http://localhost:9000/iot/v1/templates' \
---header 'Accept: application/yaml' \
---header 'Content-Type: application/json' \
---header 'Authorization: ' \
---data '{
-    "template_name": "home",
-    "custom_template_id": "d864f20e-dcf4-4c8a-b3e7-f1bfffe86f60",
-    "things_options": {
-        "home-3a06e": {
-            "device_id": "08d75172-335e-4cb9-b401-83eb4db213fb",
-            "secrets": {
-                "SECRET_SSID": "asdas",
-                "SECRET_OPTIONAL_PASS": "asdsad"
-            }
-        }
-    }
-}'
-
-*/
