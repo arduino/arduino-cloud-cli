@@ -20,6 +20,7 @@ package template
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/config"
@@ -92,7 +93,7 @@ func resolveDeviceNetworkConfigurations(ctx context.Context, cl *iot.Client, dev
 		discoveredCredentials[credential.GetSecretName()] = credential
 		if credential.Required {
 			if _, ok := networkCredentials[credential.GetSecretName()]; !ok {
-				return nil, fmt.Errorf("missing mandatory network credential: %s", credential.GetSecretName())
+				return nil, fmt.Errorf("missing mandatory network credential: %s. Available: %s", credential.GetSecretName(), humanReadableCredentials(credentials))
 			}
 		}
 	}
@@ -104,4 +105,16 @@ func resolveDeviceNetworkConfigurations(ctx context.Context, cl *iot.Client, dev
 	}
 
 	return networkCredentials, nil
+}
+
+func humanReadableCredentials(cred []iotclient.ArduinoCredentialsv1) string {
+	var buf strings.Builder
+	for _, c := range cred {
+		if c.Required {
+			buf.WriteString(fmt.Sprintf("  - %s (required)", c.GetSecretName()))
+		} else {
+			buf.WriteString(fmt.Sprintf("  - %s", c.GetSecretName()))
+		}
+	}
+	return buf.String()
 }
