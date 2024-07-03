@@ -27,8 +27,9 @@ func PrintOtaStatus(otaid, otaids, device string, cred *config.Credentials, limi
 		res, err := otapi.GetOtaStatusByOtaID(otaid, limit, order)
 		if err == nil && res != nil {
 			feedback.PrintResult(otaapi.OtaStatusDetail{
-				Ota:     res.Ota,
-				Details: res.States,
+				FirmwareSize: res.FirmwareSize,
+				Ota:          res.Ota,
+				Details:      res.States,
 			})
 		} else if err != nil {
 			return err
