@@ -18,6 +18,7 @@
 package otaapi
 
 import (
+	"strconv"
 	"strings"
 	"time"
 
@@ -26,10 +27,13 @@ import (
 	"github.com/arduino/arduino-cli/table"
 )
 
+const progressBarMultiplier = 2
+
 type (
 	OtaStatusResponse struct {
-		Ota    Ota     `json:"ota"`
-		States []State `json:"states,omitempty"`
+		FirmwareSize *int64  `json:"firmware_size,omitempty"`
+		Ota          Ota     `json:"ota"`
+		States       []State `json:"states,omitempty"`
 	}
 
 	OtaStatusList struct {
@@ -53,8 +57,9 @@ type (
 	}
 
 	OtaStatusDetail struct {
-		Ota     Ota     `json:"ota"`
-		Details []State `json:"details,omitempty"`
+		FirmwareSize *int64  `json:"firmware_size,omitempty"`
+		Ota          Ota     `json:"ota"`
+		Details      []State `json:"details,omitempty"`
 	}
 )
 
@@ -154,13 +159,60 @@ func (r OtaStatusDetail) String() string {
 	if len(r.Details) > 0 {
 		t = table.New()
 		t.SetHeader("Time", "Status", "Detail")
+		fwSize := int64(0)
+		if r.FirmwareSize != nil {
+			fwSize = *r.FirmwareSize
+		}
 		for _, s := range r.Details {
-			t.AddRow(formatHumanReadableTs(s.Timestamp), upperCaseFirst(s.State), s.StateData)
+			stateData := formatStateData(s.State, s.StateData, fwSize, hasReachedFlashState(r.Details))
+			t.AddRow(formatHumanReadableTs(s.Timestamp), upperCaseFirst(s.State), stateData)
 		}
 		output += "\nDetails:\n" + t.Render()
 	}
 
 	return output
+}
+
+func hasReachedFlashState(states []State) bool {
+	for _, s := range states {
+		if s.State == "flash" || s.State == "reboot" {
+			return true
+		}
+	}
+	return false
+}
+
+func formatStateData(state, data string, firmware_size int64, hasReceivedFlashState bool) string {
+	if data == "" || data == "Unknown" {
+		return ""
+	}
+	if state == "fetch" {
+		// This is the state 'fetch' of OTA progress. This contains a number that represents the number of bytes fetched
+		actualDownloadedData, err := strconv.Atoi(data)
+		if err != nil || actualDownloadedData <= 0 || firmware_size <= 0 { // Sanitize and avoid division by zero
+			return data
+		}
+		if hasReceivedFlashState {
+			return buildSimpleProgressBar(float64(100))
+		}
+		percentage := (float64(actualDownloadedData) / float64(firmware_size)) * 100
+		return buildSimpleProgressBar(percentage)
+	}
+	return data
+}
+
+func buildSimpleProgressBar(progress float64) string {
+	progressInt := int(progress) / 10
+	progressInt = progressInt * progressBarMultiplier
+	maxProgress := 10 * progressBarMultiplier
+	var bar strings.Builder
+	bar.WriteString("[")
+	bar.WriteString(strings.Repeat("=", progressInt))
+	bar.WriteString(strings.Repeat(" ", maxProgress-progressInt))
+	bar.WriteString("] ")
+	bar.WriteString(strconv.FormatFloat(progress, 'f', 2, 64))
+	bar.WriteString("%")
+	return bar.String()
 }
 
 func upperCaseFirst(s string) string {

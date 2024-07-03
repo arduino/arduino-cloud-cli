@@ -38,28 +38,29 @@ type statusFlags struct {
 
 func initOtaStatusCommand() *cobra.Command {
 	flags := &statusFlags{}
-	uploadCommand := &cobra.Command{
+	statusCommand := &cobra.Command{
 		Use:   "status",
 		Short: "OTA status",
 		Long:  "Get OTA status by OTA or device ID",
 		Run: func(cmd *cobra.Command, args []string) {
-			if err := runPrintOtaStatusCommand(flags); err != nil {
-				feedback.Errorf("Error during ota get status: %v", err)
+			if err := runPrintOtaStatusCommand(flags, cmd); err != nil {
+				feedback.Errorf("\nError during ota get status: %v", err)
 				os.Exit(errorcodes.ErrGeneric)
 			}
 		},
 	}
-	uploadCommand.Flags().StringVarP(&flags.otaID, "ota-id", "o", "", "OTA ID")
-	uploadCommand.Flags().StringVarP(&flags.otaIDs, "ota-ids", "", "", "OTA IDs (comma separated)")
-	uploadCommand.Flags().StringVarP(&flags.deviceId, "device-id", "d", "", "Device ID")
-	uploadCommand.Flags().Int16VarP(&flags.limit, "limit", "l", 10, "Output limit (default: 10)")
-	uploadCommand.Flags().StringVarP(&flags.sort, "sort", "s", "desc", "Sorting (default: desc)")
+	statusCommand.Flags().StringVarP(&flags.otaID, "ota-id", "o", "", "OTA ID")
+	statusCommand.Flags().StringVarP(&flags.otaIDs, "ota-ids", "", "", "OTA IDs (comma separated)")
+	statusCommand.Flags().StringVarP(&flags.deviceId, "device-id", "d", "", "Device ID")
+	statusCommand.Flags().Int16VarP(&flags.limit, "limit", "l", 10, "Output limit (default: 10)")
+	statusCommand.Flags().StringVarP(&flags.sort, "sort", "s", "desc", "Sorting (default: desc)")
 
-	return uploadCommand
+	return statusCommand
 }
 
-func runPrintOtaStatusCommand(flags *statusFlags) error {
+func runPrintOtaStatusCommand(flags *statusFlags, command *cobra.Command) error {
 	if flags.otaID == "" && flags.deviceId == "" && flags.otaIDs == "" {
+		command.Help()
 		return fmt.Errorf("required flag(s) \"ota-id\" or \"device-id\" or \"ota-ids\" not set")
 	}
 
