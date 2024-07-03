@@ -68,17 +68,26 @@ func runTemplateApplyCommand(flags *applyFlags) error {
 		return fmt.Errorf("retrieving credentials: %w", err)
 	}
 
-	deviceNetCredentials := make(map[string]string)
-	if flags.netCredentials != "" {
-		configNetArray := strings.Split(strings.Trim(flags.netCredentials, " "), ",")
-		for _, netConfig := range configNetArray {
-			netConfigArray := strings.Split(netConfig, "=")
-			if len(netConfigArray) != 2 {
-				return fmt.Errorf("invalid network configuration: %s", netConfig)
-			}
-			deviceNetCredentials[netConfigArray[0]] = netConfigArray[1]
-		}
+	deviceNetCredentials, err := parseCredentials(flags.netCredentials)
+	if err != nil {
+		return fmt.Errorf("parsing network credentials: %w", err)
 	}
-
+	
 	return template.ApplyCustomTemplates(cred, flags.templateId, flags.deviceId, flags.templatePrefix, deviceNetCredentials)
+}
+
+func parseCredentials(credentials string) (map[string]string, error) {
+	credentialsMap := make(map[string]string)
+	if credentials == "" {
+		return credentialsMap, nil
+	}
+	credentialsArray := strings.Split(credentials, ",")
+	for _, credential := range credentialsArray {
+		credentialArray := strings.Split(credential, "=")
+		if len(credentialArray) != 2 {
+			return nil, fmt.Errorf("invalid network credential: %s", credential)
+		}
+		credentialsMap[credentialArray[0]] = credentialArray[1]
+	}
+	return credentialsMap, nil
 }

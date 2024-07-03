@@ -534,18 +534,22 @@ func (cl *Client) DashboardDelete(ctx context.Context, id string) error {
 }
 
 // TemplateApply apply a given template, creating associated resources like things and dashboards.
-func (cl *Client) TemplateApply(ctx context.Context, id, thingId, prefix string, credentials map[string]string) (*iotclient.ArduinoTemplate, error) {
+func (cl *Client) TemplateApply(ctx context.Context, id, thingId, prefix, deviceId string, credentials map[string]string) (*iotclient.ArduinoTemplate, error) {
 	ctx, err := ctxWithToken(ctx, cl.token)
 	if err != nil {
 		return nil, err
 	}
+
+	thingOption := make(map[string]any)
+	thingOption["device_id"] = deviceId
+	thingOption["secrets"] = credentials
 
 	req := cl.api.TemplatesApi.TemplatesApply(ctx)
 	req = req.Template(iotclient.Template{
 		PrefixName:       toStringPointer(prefix),
 		CustomTemplateId: toStringPointer(id),
 		ThingsOptions: map[string]interface{}{
-			thingId: credentials,
+			thingId: thingOption,
 		},
 	})
 	dev, _, err := cl.api.TemplatesApi.TemplatesApplyExecute(req)

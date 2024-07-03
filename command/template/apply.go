@@ -57,17 +57,22 @@ func ApplyCustomTemplates(cred *config.Credentials, templateId, deviceId, prefix
 	if len(cstTemplate.ThingTemplates) <= 0 {
 		return fmt.Errorf("template %s has no thing template", templateId)
 	}
-	mainThing := cstTemplate.ThingTemplates[0]
-	logrus.Debug("Main thing template - id: ", mainThing.Id)
+	thingTemplateIdentifier := cstTemplate.ThingTemplates[0]
+	logrus.Debug("Main thing template - id: ", thingTemplateIdentifier.Id)
 
 	// Get device and check its connectivity
 	secrets, err := resolveDeviceNetworkConfigurations(ctx, iotClient, deviceId, networkCredentials)
 	if err != nil {
 		return err
 	}
-	for key, value := range secrets {
-		logrus.Info(fmt.Sprintf("Secret %s: %s", key, value))
+
+	// Apply the template
+	_, err = iotClient.TemplateApply(ctx, templateId, thingTemplateIdentifier.Id, prefix, deviceId, secrets)
+	if err != nil {
+		return err
 	}
+	feedback.Printf("Template applied successfully to device %s", deviceId)
+
 	return nil
 }
 
