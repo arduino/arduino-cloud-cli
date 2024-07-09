@@ -18,11 +18,16 @@
 package template
 
 import (
+	"archive/zip"
 	"context"
+	"errors"
 	"fmt"
+	"io"
+	"os"
 	"strings"
 
 	"github.com/arduino/arduino-cli/cli/feedback"
+	"github.com/arduino/arduino-cloud-cli/command/ota"
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	storageapi "github.com/arduino/arduino-cloud-cli/internal/storage-api"
@@ -31,7 +36,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func ApplyCustomTemplates(cred *config.Credentials, templateId, deviceId, prefix string, networkCredentials map[string]string) error {
+var errNoBinaryFound = errors.New("no binary found in the template")
+
+func ApplyCustomTemplates(cred *config.Credentials, templateId, deviceId, prefix string, networkCredentials map[string]string, applyOta bool) error {
 
 	ctx := context.Background()
 
@@ -73,6 +80,17 @@ func ApplyCustomTemplates(cred *config.Credentials, templateId, deviceId, prefix
 	}
 	feedback.Printf("Template applied successfully to device %s", deviceId)
 
+	if applyOta {
+		// Now, start OTA with binary available in the template
+		done, err := runOTAForTemplate(ctx, cred, templateId, deviceId, apiclient)
+		if err != nil {
+			return err
+		}
+		if done {
+			feedback.Printf("OTA started successfully on device %s", deviceId)
+		}
+	}
+
 	return nil
 }
 
@@ -86,6 +104,11 @@ func resolveDeviceNetworkConfigurations(ctx context.Context, cl *iot.Client, dev
 		return nil, nil // cannot take a decision on this device, try to proceed
 	}
 	logrus.Infof("Device %s - type: %s - connection-type: %s", deviceId, device.Type, *device.ConnectionType)
+
+	// Check if device is linked to a thing. In such case, block the operation.
+	if device.Thing != nil && device.Thing.Id != "" {
+		return nil, fmt.Errorf("device %s is already linked to a thing (thing_id: %s)", deviceId, device.Thing.Id)
+	}
 
 	credentials, err := cl.DeviceNetworkCredentials(ctx, device.Type, *device.ConnectionType)
 	if err != nil {
@@ -122,4 +145,93 @@ func humanReadableCredentials(cred []iotclient.ArduinoCredentialsv1) string {
 		}
 	}
 	return buf.String()
+}
+
+func runOTAForTemplate(ctx context.Context, cred *config.Credentials, templateId, deviceId string, apiclient *storageapi.StorageApiClient) (bool, error) {
+	otaTempDir, err := os.MkdirTemp("cli-template-ota", "")
+	if err != nil {
+		return false, fmt.Errorf("%s: %w", "cannot create temporary folder", err)
+	}
+	defer func() {
+		err := os.RemoveAll(otaTempDir)
+		if err != nil {
+			logrus.Warnf("Failed to remove temp directory: %v", err)
+		}
+	}()
+
+	filecreaed, err := apiclient.ExportCustomTemplate(templateId, otaTempDir)
+	if err != nil {
+		return false, err
+	}
+
+	// open the file and be ready to send it to the device
+	otaFile, err := extractBinary(filecreaed, otaTempDir)
+	if err != nil {
+		return false, err
+	}
+	if otaFile == "" {
+		feedback.Printf("No binary OTA file found in the template")
+		return false, nil
+	}
+
+	// Upload the OTA file to the device
+	err = ota.Upload(ctx, &ota.UploadParams{
+		DeviceID: deviceId,
+		File:     otaFile,
+	}, cred)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func extractBinary(filepath *string, tempDir string) (string, error) {
+	zipFile, err := os.Open(*filepath)
+	if err != nil {
+		return "", err
+	}
+	defer zipFile.Close()
+
+	fileInfo, err := zipFile.Stat()
+	if err != nil {
+		return "", fmt.Errorf("failed to get file info: %w", err)
+	}
+
+	zipReader, err := zip.NewReader(zipFile, fileInfo.Size())
+	if err != nil {
+		return "", fmt.Errorf("failed to open archive reader: %w", err)
+	}
+
+	var binaryFile *zip.File
+	for _, file := range zipReader.File {
+		if strings.Contains(file.Name, "resources/binaries") {
+			logrus.Debugf("binary OTA file from template: %s", file.Name)
+			binaryFile = file
+			break
+		}
+	}
+
+	if binaryFile != nil {
+		// Extract content to a temporary file
+		tempFile, err := os.CreateTemp(tempDir, "tmpl_bin_*.bin")
+		if err != nil {
+			return "", fmt.Errorf("failed to create temporary file: %w", err)
+		}
+		defer tempFile.Close()
+		inputF, err := binaryFile.Open()
+		if err != nil {
+			return "", fmt.Errorf("failed to open file in archive: %w", err)
+		}
+		defer inputF.Close()
+
+		_, err = io.Copy(tempFile, inputF)
+		if err != nil {
+			return "", fmt.Errorf("failed to copy file content: %w", err)
+		}
+
+		return tempFile.Name(), nil
+	}
+
+	return "", errNoBinaryFound
 }

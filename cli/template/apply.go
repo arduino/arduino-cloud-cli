@@ -34,6 +34,7 @@ type applyFlags struct {
 	templatePrefix string
 	deviceId       string
 	netCredentials string
+	applyOta       bool
 }
 
 func initTemplateApplyCommand() *cobra.Command {
@@ -53,11 +54,13 @@ func initTemplateApplyCommand() *cobra.Command {
 	applyCommand.Flags().StringVarP(&flags.templateId, "template-id", "t", "", "Template ID")
 	applyCommand.Flags().StringVarP(&flags.templatePrefix, "prefix", "p", "", "Prefix to apply to the name of created resources")
 	applyCommand.Flags().StringVarP(&flags.deviceId, "device-id", "d", "", "Device ID")
-	applyCommand.Flags().StringVarP(&flags.netCredentials, "network-credentials", "n", "", "Network credentials")
+	applyCommand.Flags().StringVarP(&flags.netCredentials, "network-credentials", "n", "", "Network credentials used to configure device (e.g. WiFi credentials). Supported values: SECRET_SSID | SECRET_OPTIONAL_PASS | SECRET_DEVICE_KEY")
 
 	applyCommand.MarkFlagRequired("template-id")
 	applyCommand.MarkFlagRequired("prefix")
 	applyCommand.MarkFlagRequired("device-id")
+
+	flags.applyOta = false
 
 	return applyCommand
 }
@@ -72,8 +75,8 @@ func runTemplateApplyCommand(flags *applyFlags) error {
 	if err != nil {
 		return fmt.Errorf("parsing network credentials: %w", err)
 	}
-	
-	return template.ApplyCustomTemplates(cred, flags.templateId, flags.deviceId, flags.templatePrefix, deviceNetCredentials)
+
+	return template.ApplyCustomTemplates(cred, flags.templateId, flags.deviceId, flags.templatePrefix, deviceNetCredentials, flags.applyOta)
 }
 
 func parseCredentials(credentials string) (map[string]string, error) {
