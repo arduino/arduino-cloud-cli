@@ -54,7 +54,7 @@ func initTemplateApplyCommand() *cobra.Command {
 	applyCommand.Flags().StringVarP(&flags.templateId, "template-id", "t", "", "Template ID")
 	applyCommand.Flags().StringVarP(&flags.templatePrefix, "prefix", "p", "", "Prefix to apply to the name of created resources")
 	applyCommand.Flags().StringVarP(&flags.deviceId, "device-id", "d", "", "Device ID")
-	applyCommand.Flags().StringVarP(&flags.netCredentials, "network-credentials", "n", "", "Network credentials used to configure device (e.g. WiFi credentials). Supported values: SECRET_SSID | SECRET_OPTIONAL_PASS | SECRET_DEVICE_KEY")
+	applyCommand.Flags().StringVarP(&flags.netCredentials, "network-credentials", "n", "", "Comma separated network credentials used to configure device with format <key>=<value>. Supported values: SECRET_SSID | SECRET_OPTIONAL_PASS | SECRET_DEVICE_KEY")
 
 	applyCommand.MarkFlagRequired("template-id")
 	applyCommand.MarkFlagRequired("prefix")

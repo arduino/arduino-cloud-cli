@@ -41,7 +41,7 @@ func initTemplateExportCommand() *cobra.Command {
 		Long:  "Export template to a file",
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := runTemplateExportCommand(flags); err != nil {
-				feedback.Errorf("Error during template export status: %v", err)
+				feedback.Errorf("Error during template export: %v", err)
 				os.Exit(errorcodes.ErrGeneric)
 			}
 		},

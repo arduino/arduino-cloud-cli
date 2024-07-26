@@ -148,6 +148,9 @@ func (c *StorageApiClient) ImportCustomTemplate(templateFile string) (*ImportCus
 	if templateFile == "" {
 		return nil, fmt.Errorf("invalid template: no file provided")
 	}
+	if !strings.HasSuffix(templateFile, TemplateFileExtension) {
+		return nil, fmt.Errorf("invalid template: file must have extension %s", TemplateFileExtension)
+	}
 
 	userRequestToken, err := c.src.Token()
 	if err != nil {

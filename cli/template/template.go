@@ -24,7 +24,7 @@ import (
 func NewCommand() *cobra.Command {
 	templateCommand := &cobra.Command{
 		Use:   "template",
-		Short: "Custom templates",
+		Short: "Custom templates.",
 		Long:  "Commands to manage custom templates lifecycle, like import, export and apply.",
 	}
 

@@ -40,7 +40,7 @@ func initTemplateImportCommand() *cobra.Command {
 		Long:  "Import a template from a file",
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := runTemplateImportCommand(flags); err != nil {
-				feedback.Errorf("Error during template status: %v", err)
+				feedback.Errorf("Error during template import: %v", err)
 				os.Exit(errorcodes.ErrGeneric)
 			}
 		},
