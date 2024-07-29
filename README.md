@@ -114,6 +114,8 @@ Here are the FQBNs of the Arduino boards that can be provisioned with this comma
 * `arduino:samd:mkrnb1500`
 * `arduino:mbed_opta:opta`
 * `arduino:mbed_giga:giga`
+* `arduino:esp32:nano_nora`
+* `arduino:renesas_uno:unor4wifi`
 
 If the device supports more than one connectivity type (Eg: WiFi and Ethernet) the --connection flag can be used to set the desired connectivity
 
@@ -327,10 +329,17 @@ Note that the binary file (`.bin`) should be compiled using an arduino core that
 arduino-cloud-cli ota upload --device-id <deviceID> --file <sketch-file.ino.bin>
 ```
 
-The default OTA upload should complete in 10 minutes. Use `--deferred` flag to extend this time to one week (see an example sketch [here](https://github.com/arduino-libraries/ArduinoIoTCloud/blob/ab0af75a5666f875929029ac6df59e04789269c5/examples/ArduinoIoTCloud-DeferredOTA/ArduinoIoTCloud-DeferredOTA.ino)):
+This schedule a new OTA. Its ID is printed as output.
+It is possible to check status for scheduled/executed OTAs using status command.
 
 ```bash
-arduino-cloud-cli ota upload --device-id <deviceID> --file <sketch-file.ino.bin> --deferred
+arduino-cloud-cli ota status --ota-id <otaID>
+```
+
+or by device
+
+```bash
+arduino-cloud-cli ota status --device-id <deviceID>
 ```
 
 ### Mass upload
@@ -382,4 +391,40 @@ Create a dashboard: dashboards can be created only starting from a template. Sup
 
 ```bash
 arduino-cloud-cli dashboard create --name <dashboardName> --template <template.(json|yaml)> --override <thing-0>=<actualThingID>,<thing-1>=<otherActualThingID>
+```
+
+## Custom templates
+
+### List custom templates
+
+Use following command to list available custom templates
+
+```bash
+arduino-cloud-cli template list
+```
+
+### Export custom template
+
+Given list command, it is possible to get custom template ID. Given its ID, use following command to export it as '.tino' archive:
+
+```bash
+arduino-cloud-cli template export -t <templateID>
+```
+
+it is possible to specify output directory with '-d' flag
+
+### Import custom template
+
+To import a custom template, use command:
+
+```bash
+arduino-cloud-cli template import -f <template .tino archive>
+```
+
+### Template apply
+
+It is possible to apply a given template to a device. Apply will generate required resources. Configure device connectivity using '-n' option (see --help for further details).
+
+```bash
+arduino-cloud-cli template apply -d <deviceID> -t <templateID> -p "<name prefix>" -n SECRET_SSID=<ssid>,SECRET_OPTIONAL_PASS=<pwd>
 ```

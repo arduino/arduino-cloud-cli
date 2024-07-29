@@ -195,6 +195,23 @@ func (cl *Client) DeviceShow(ctx context.Context, id string) (*iotclient.Arduino
 	return dev, nil
 }
 
+// DeviceNetworkCredentials allows to retrieve a specific device network credentials configuration options
+func (cl *Client) DeviceNetworkCredentials(ctx context.Context, deviceType, connection string) ([]iotclient.ArduinoCredentialsv1, error) {
+	ctx, err := ctxWithToken(ctx, cl.token)
+	if err != nil {
+		return nil, err
+	}
+
+	req := cl.api.NetworkCredentialsV1Api.NetworkCredentialsV1Show(ctx, deviceType)
+	req = req.Connection(connection)
+	dev, _, err := cl.api.NetworkCredentialsV1Api.NetworkCredentialsV1ShowExecute(req)
+	if err != nil {
+		err = fmt.Errorf("retrieving device network configuration, %w", errorDetail(err))
+		return nil, err
+	}
+	return dev, nil
+}
+
 // DeviceOTA performs an OTA upload request to Arduino IoT Cloud, passing
 // the ID of the device to be updated and the actual file containing the OTA firmware.
 func (cl *Client) DeviceOTA(ctx context.Context, id string, file *os.File, expireMins int) error {
@@ -514,6 +531,33 @@ func (cl *Client) DashboardDelete(ctx context.Context, id string) error {
 		return err
 	}
 	return nil
+}
+
+// TemplateApply apply a given template, creating associated resources like things and dashboards.
+func (cl *Client) TemplateApply(ctx context.Context, id, thingId, prefix, deviceId string, credentials map[string]string) (*iotclient.ArduinoTemplate, error) {
+	ctx, err := ctxWithToken(ctx, cl.token)
+	if err != nil {
+		return nil, err
+	}
+
+	thingOption := make(map[string]any)
+	thingOption["device_id"] = deviceId
+	thingOption["secrets"] = credentials
+
+	req := cl.api.TemplatesApi.TemplatesApply(ctx)
+	req = req.Template(iotclient.Template{
+		PrefixName:       toStringPointer(prefix),
+		CustomTemplateId: toStringPointer(id),
+		ThingsOptions: map[string]interface{}{
+			thingId: thingOption,
+		},
+	})
+	dev, _, err := cl.api.TemplatesApi.TemplatesApplyExecute(req)
+	if err != nil {
+		err = fmt.Errorf("retrieving device, %w", errorDetail(err))
+		return nil, err
+	}
+	return dev, nil
 }
 
 func (cl *Client) setup(client, secret, organization string) error {

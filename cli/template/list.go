@@ -15,39 +15,39 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package ota
+package template
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
+	"github.com/arduino/arduino-cloud-cli/command/template"
 	"github.com/arduino/arduino-cloud-cli/config"
-	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
+	"github.com/spf13/cobra"
 )
 
-func CancelOta(otaid string, cred *config.Credentials) error {
-
-	if feedback.GetFormat() == feedback.JSONMini {
-		return fmt.Errorf("jsonmini format is not supported for this command")
+func initTemplateListCommand() *cobra.Command {
+	listCommand := &cobra.Command{
+		Use:   "list",
+		Short: "List templates",
+		Long:  "List available templates",
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := runTemplateListCommand(); err != nil {
+				feedback.Errorf("Error during template list: %v", err)
+				os.Exit(errorcodes.ErrGeneric)
+			}
+		},
 	}
 
-	otapi := otaapi.NewClient(cred)
+	return listCommand
+}
 
-	if otaid != "" {
-		_, err := otapi.CancelOta(otaid)
-		if err != nil {
-			return err
-		}
-		// No error, get current status
-		res, err := otapi.GetOtaStatusByOtaID(otaid, 1, otaapi.OrderDesc)
-		if err != nil {
-			return err
-		}
-		if res != nil {
-			feedback.PrintResult(res.Ota)
-		}
-		return nil
+func runTemplateListCommand() error {
+	cred, err := config.RetrieveCredentials()
+	if err != nil {
+		return fmt.Errorf("retrieving credentials: %w", err)
 	}
-
-	return nil
+	return template.ListCustomTemplates(cred)
 }

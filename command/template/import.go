@@ -15,39 +15,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package ota
+package template
 
 import (
-	"fmt"
-
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/config"
-	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
+	storageapi "github.com/arduino/arduino-cloud-cli/internal/storage-api"
 )
 
-func CancelOta(otaid string, cred *config.Credentials) error {
+func ImportCustomTemplate(cred *config.Credentials, filePath string) error {
 
-	if feedback.GetFormat() == feedback.JSONMini {
-		return fmt.Errorf("jsonmini format is not supported for this command")
+	apiclient := storageapi.NewClient(cred)
+
+	feedback.Printf("Importing template %s", filePath)
+
+	templateImported, err := apiclient.ImportCustomTemplate(filePath)
+	if err != nil {
+		return err
 	}
 
-	otapi := otaapi.NewClient(cred)
-
-	if otaid != "" {
-		_, err := otapi.CancelOta(otaid)
-		if err != nil {
-			return err
-		}
-		// No error, get current status
-		res, err := otapi.GetOtaStatusByOtaID(otaid, 1, otaapi.OrderDesc)
-		if err != nil {
-			return err
-		}
-		if res != nil {
-			feedback.PrintResult(res.Ota)
-		}
-		return nil
-	}
+	feedback.Printf("Template '%s' (%s) imported successfully", templateImported.Name, templateImported.TemplateId)
 
 	return nil
 }
