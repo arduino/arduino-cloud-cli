@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	iotclient "github.com/arduino/iot-client-go/v2"
@@ -47,6 +46,16 @@ func FromThing(thing *iotclient.ArduinoThing) map[string]interface{} {
 		props = append(props, prop)
 	}
 	template["variables"] = props
+
+	if thing.Tags != nil {
+		tags := []map[string]any{}
+		for k, v := range thing.Tags {
+			tag := make(map[string]any)
+			tag[k] = v
+			tags = append(tags, tag)
+		}
+		template["tags"] = tags
+	}
 
 	return template
 }
@@ -119,7 +128,7 @@ func ToFile(template map[string]interface{}, outfile string, format string) erro
 		return errors.New("format is not valid: only 'json' and 'yaml' are supported")
 	}
 
-	err = ioutil.WriteFile(outfile, file, os.FileMode(0644))
+	err = os.WriteFile(outfile, file, os.FileMode(0644))
 	if err != nil {
 		return fmt.Errorf("%s: %w", "cannot write outfile: ", err)
 	}
