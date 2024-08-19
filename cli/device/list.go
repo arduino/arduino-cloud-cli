@@ -34,6 +34,7 @@ import (
 
 type listFlags struct {
 	tags      map[string]string
+	status    string
 	deviceIds string
 }
 
@@ -58,6 +59,7 @@ func initListCommand() *cobra.Command {
 			"List only devices that match the provided tags.",
 	)
 	listCommand.Flags().StringVarP(&flags.deviceIds, "device-ids", "d", "", "Comma separated list of Device IDs")
+	listCommand.Flags().StringVarP(&flags.status, "device-status", "s", "", "List only devices according to the provided status [ONLINE|OFFLINE|UNKNOWN]")
 	return listCommand
 }
 
@@ -68,8 +70,11 @@ func runListCommand(flags *listFlags) error {
 	if err != nil {
 		return fmt.Errorf("retrieving credentials: %w", err)
 	}
+	if flags.status != "" && flags.status != "ONLINE" && flags.status != "OFFLINE" && flags.status != "UNKNOWN" {
+		return fmt.Errorf("invalid status: %s", flags.status)
+	}
 
-	params := &device.ListParams{Tags: flags.tags, DeviceIds: flags.deviceIds}
+	params := &device.ListParams{Tags: flags.tags, DeviceIds: flags.deviceIds, Status: flags.status}
 	devs, err := device.List(context.TODO(), params, cred)
 	if err != nil {
 		return err
