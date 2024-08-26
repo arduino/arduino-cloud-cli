@@ -31,6 +31,7 @@ import (
 type ListParams struct {
 	Tags      map[string]string // If tags are provided, only devices that have all these tags are listed.
 	DeviceIds string            // If ids are provided, only devices with these ids are listed.
+	Status    string            // If status is provided, only devices with this status are listed.
 }
 
 // List command is used to list
@@ -61,6 +62,9 @@ func List(ctx context.Context, params *ListParams, cred *config.Credentials) ([]
 		dev, err := getDeviceInfo(&foundDev)
 		if err != nil {
 			return nil, fmt.Errorf("parsing device %s from cloud: %w", foundDev.Id, err)
+		}
+		if params.Status != "" && dev.Status != nil && *dev.Status != params.Status {
+			continue
 		}
 		devices = append(devices, *dev)
 	}
