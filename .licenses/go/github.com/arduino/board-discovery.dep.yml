@@ -1,16 +1,9 @@
 ---
 name: github.com/arduino/board-discovery
-version: v0.0.0-20211020061712-fd83c2e3c908
+version: v0.0.0-20240827085220-72502b54d271
 type: go
-summary: 'Package discovery keeps an updated list of the devices connected to the
-  computer, via serial ports or found in the network Usage: monitor := discovery.New(time.Millisecond)
-  ctx, _ := context.WithTimeout(context.Background(), 10*time.Second) monitor.Start(ctx)
-  time.Sleep(10 * time.Second) fmt.Println(monitor.Serial()) fmt.Println(monitor.Network())
-  Output: map[/dev/ttyACM0:0x2341/0x8036] map[192.168.1.107:YunShield] You may also
-  decide to subscribe to the Events channel of the Monitor: monitor := discovery.New(time.Millisecond)
-  ctx, _ := context.WithTimeout(context.Background(), 10*time.Second) monitor.Start(ctx)
-  for ev := range monitor.Events { fmt.Println(ev) } Output: {add 0x2341/0x8036 <nil>}
-  {add <nil> YunShield}'
+summary: Package discovery keeps an updated list of the devices connected to the computer,
+  via serial ports or found in the network
 homepage: https://pkg.go.dev/github.com/arduino/board-discovery
 license: gpl-2.0-or-later
 licenses:

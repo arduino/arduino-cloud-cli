@@ -1,15 +1,16 @@
 ---
-name: go.bug.st/serial.v1
-version: v0.0.0-20191202182710-24a6610f0541
+name: go.bug.st/serial/enumerator
+version: v1.6.2
 type: go
-summary: Package serial is a cross-platform serial library for the go language.
-homepage: https://pkg.go.dev/go.bug.st/serial.v1
+summary: Package enumerator is a golang cross-platform library for USB serial port
+  discovery.
+homepage: https://pkg.go.dev/go.bug.st/serial/enumerator
 license: bsd-3-clause
 licenses:
-- sources: LICENSE
+- sources: serial@v1.6.2/LICENSE
   text: |2+
 
-    Copyright (c) 2014-2020, Cristian Maglie.
+    Copyright (c) 2014-2023, Cristian Maglie.
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -41,9 +42,10 @@ licenses:
     ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 
-- sources: README.md
+- sources: serial@v1.6.2/README.md
   text: |-
-    The software is release under a BSD 3-clause license
+    The software is release under a [BSD 3-clause license]
 
-    https://github.com/bugst/go-serial/blob/v1/LICENSE
+    [contributors]: https://github.com/bugst/go-serial/graphs/contributors
+    [BSD 3-clause license]: https://github.com/bugst/go-serial/blob/master/LICENSE
 notices: []
