@@ -28,6 +28,20 @@ func (_m *Port) Close() error {
 	return r0
 }
 
+// Drain provides a mock function with given fields:
+func (_m *Port) Drain() error {
+	ret := _m.Called()
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // GetModemStatusBits provides a mock function with given fields:
 func (_m *Port) GetModemStatusBits() (*go_bug_stserial.ModemStatusBits, error) {
 	ret := _m.Called()
@@ -175,4 +189,18 @@ func (_m *Port) Write(p []byte) (int, error) {
 	}
 
 	return r0, r1
+}
+
+// Break provides a mock function with given fields: t
+func (_m *Port) Break(t time.Duration) error {
+	ret := _m.Called(t)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(time.Duration) error); ok {
+		r0 = rf(t)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
