@@ -234,7 +234,7 @@ func buildSimpleProgressBar(progress float64, fw_size int64) string {
 	bar.WriteString(strings.Repeat("=", progressInt))
 	bar.WriteString(strings.Repeat(" ", maxProgress-progressInt))
 	bar.WriteString("] ")
-	bar.WriteString(strconv.FormatFloat(progress, 'f', 2, 64))
+	bar.WriteString(strconv.FormatFloat(progress, 'f', 0, 64))
 	bar.WriteString("% (firmware size: ")
 	bar.WriteString(strconv.FormatInt(fw_size, 10))
 	bar.WriteString(" bytes)")
