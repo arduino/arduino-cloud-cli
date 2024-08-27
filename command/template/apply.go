@@ -32,7 +32,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	storageapi "github.com/arduino/arduino-cloud-cli/internal/storage-api"
 	iotclient "github.com/arduino/iot-client-go/v2"
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -51,7 +51,7 @@ func ApplyCustomTemplates(cred *config.Credentials, templateId, deviceId, prefix
 
 	feedback.Printf("Applying template %s to device %s", templateId, deviceId)
 
-	templateIdUUID, err := uuid.FromString(templateId)
+	templateIdUUID, err := uuid.Parse(templateId)
 	if err != nil {
 		return fmt.Errorf("invalid template id: %s", templateId)
 	}

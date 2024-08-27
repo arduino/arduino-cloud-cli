@@ -1,14 +1,14 @@
 module github.com/arduino/arduino-cloud-cli
 
-go 1.19
+go 1.22
 
 require (
 	github.com/arduino/arduino-cli v0.0.0-20221116144942-76251df9241a
 	github.com/arduino/go-paths-helper v1.7.0
 	github.com/arduino/go-win32-utils v1.0.0
 	github.com/arduino/iot-client-go/v2 v2.0.3
-	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/google/go-cmp v0.6.0
+	github.com/google/uuid v1.6.0
 	github.com/howeyc/crc16 v0.0.0-20171223171357-2b2a61e366a6
 	github.com/icza/bitio v1.1.0
 	github.com/manifoldco/promptui v0.9.0

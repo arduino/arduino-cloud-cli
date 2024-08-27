@@ -26,8 +26,8 @@ import (
 
 	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
 	iotclient "github.com/arduino/iot-client-go/v2"
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/google/uuid"
 )
 
 const testFilename = "testdata/empty.bin"
@@ -45,7 +45,7 @@ type otaStatusGetterTest struct{}
 
 func (s *otaStatusGetterTest) GetOtaLastStatusByDeviceID(deviceID string) (*otaapi.OtaStatusList, error) {
 	ota := otaapi.Ota{
-		ID:        uuid.Must(uuid.NewV4()).String(),
+		ID:        uuid.New().String(),
 		Status:    "in_progress",
 		StartedAt: "2021-09-01T12:00:00Z",
 	}
