@@ -7,8 +7,8 @@ github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239 h1:kFOfPq6dUM1hTo
 github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239/go.mod h1:2FmKhYUyUczH0OGQWaF5ceTx0UBShxjsH6f8oGKYe2c=
 github.com/arduino/arduino-cli v0.0.0-20221116144942-76251df9241a h1:jbGxP4VJXFXJGYJgA9p5kcJweLNOcaz5tXTgFjaEiRE=
 github.com/arduino/arduino-cli v0.0.0-20221116144942-76251df9241a/go.mod h1:pIrqM9m4MCRyMUhguneLOkPxvNydFfup8qZqgjIFcTg=
-github.com/arduino/board-discovery v0.0.0-20240827085220-72502b54d271 h1:FdxnfTzvvZgxPoNnJF9iJsIcvl9unVtaDtdolEkYbJs=
-github.com/arduino/board-discovery v0.0.0-20240827085220-72502b54d271/go.mod h1:HK7SpkEax/3P+0w78iRQx1sz1vCDYYw9RXwHjQTB5i8=
+github.com/arduino/board-discovery v0.0.0-20240827103317-664e54f963fb h1:iVkeH73ZfoxMEe/YhaheYK+UbiKwIrnjrwYIYAuRKtQ=
+github.com/arduino/board-discovery v0.0.0-20240827103317-664e54f963fb/go.mod h1:HK7SpkEax/3P+0w78iRQx1sz1vCDYYw9RXwHjQTB5i8=
 github.com/arduino/go-paths-helper v1.0.1/go.mod h1:HpxtKph+g238EJHq4geEPv9p+gl3v5YYu35Yb+w31Ck=
 github.com/arduino/go-paths-helper v1.2.0/go.mod h1:HpxtKph+g238EJHq4geEPv9p+gl3v5YYu35Yb+w31Ck=
 github.com/arduino/go-paths-helper v1.7.0 h1:S9l5BP2aogz1CgyqqnncXt0PLpK4yvwOW/wu/LaR3tc=

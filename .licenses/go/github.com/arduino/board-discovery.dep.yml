@@ -1,6 +1,6 @@
 ---
 name: github.com/arduino/board-discovery
-version: v0.0.0-20240827085220-72502b54d271
+version: v0.0.0-20240827103317-664e54f963fb
 type: go
 summary: Package discovery keeps an updated list of the devices connected to the computer,
   via serial ports or found in the network

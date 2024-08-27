@@ -27,7 +27,7 @@ require (
 
 require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
-	github.com/arduino/board-discovery v0.0.0-20240827085220-72502b54d271 // indirect
+	github.com/arduino/board-discovery v0.0.0-20240827103317-664e54f963fb // indirect
 	github.com/arduino/go-properties-orderedmap v1.7.1 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/cmaglie/pb v1.0.27 // indirect
