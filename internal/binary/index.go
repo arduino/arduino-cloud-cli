@@ -22,7 +22,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 
 	"compress/gzip"
 
@@ -67,7 +67,7 @@ func LoadIndex(ctx context.Context) (*Index, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot decompress index: %w", err)
 	}
-	index, err := ioutil.ReadAll(indexReader)
+	index, err := io.ReadAll(indexReader)
 	if err != nil {
 		return nil, fmt.Errorf("cannot read downloaded index: %w", err)
 	}
