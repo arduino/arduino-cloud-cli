@@ -39,10 +39,13 @@ func GetArduinoAPIBaseURL() string {
 }
 
 // Build a new token source to forge api JWT tokens based on provided credentials
-func NewUserTokenSource(client, secret, baseURL string) oauth2.TokenSource {
+func NewUserTokenSource(client, secret, baseURL, organizationId string) oauth2.TokenSource {
 	// We need to pass the additional "audience" var to request an access token.
 	additionalValues := url.Values{}
 	additionalValues.Add("audience", "https://api2.arduino.cc/iot")
+	if organizationId != "" {
+		additionalValues.Add("organization_id", organizationId)
+	}
 	// Set up OAuth2 configuration.
 	config := cc.Config{
 		ClientID:       client,
