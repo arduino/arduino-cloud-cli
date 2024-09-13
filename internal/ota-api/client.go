@@ -49,7 +49,7 @@ type OtaApiClient struct {
 
 func NewClient(credentials *config.Credentials) *OtaApiClient {
 	host := iot.GetArduinoAPIBaseURL()
-	tokenSource := iot.NewUserTokenSource(credentials.Client, credentials.Secret, host)
+	tokenSource := iot.NewUserTokenSource(credentials.Client, credentials.Secret, host, credentials.Organization)
 	return &OtaApiClient{
 		client:       &http.Client{},
 		src:          tokenSource,
