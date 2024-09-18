@@ -92,6 +92,11 @@ func (r listResult) Data() interface{} {
 	return r.devices
 }
 
+func cleanStrings(serial string) string {
+	serial = strings.Trim(serial, "\n")
+	return strings.Trim(serial, " ")
+}
+
 func (r listResult) String() string {
 	if len(r.devices) == 0 {
 		return "No devices found."
@@ -100,11 +105,11 @@ func (r listResult) String() string {
 	t.SetHeader("Name", "ID", "Board", "FQBN", "SerialNumber", "Status", "Tags")
 	for _, device := range r.devices {
 		t.AddRow(
-			device.Name,
+			cleanStrings(device.Name),
 			device.ID,
 			device.Board,
 			device.FQBN,
-			device.Serial,
+			cleanStrings(device.Serial),
 			dereferenceString(device.Status),
 			strings.Join(device.Tags, ","),
 		)

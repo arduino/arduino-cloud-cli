@@ -43,7 +43,7 @@ jobs:
         run: task dist:all
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
           name: ${{ env.ARTIFACT_NAME }}
@@ -58,7 +58,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.DIST_DIR }}
@@ -104,7 +104,7 @@ jobs:
         # 1. Repackage the signed binary replaced in place by Gon (ignoring the output zip file)
         # 2. Recalculate package checksum and replace it in the nnnnnn-checksums.txt file
         run: |
-          # GitHub's upload/download-artifact@v2 actions don't preserve file permissions,
+          # GitHub's upload/download-artifact@v4 actions don't preserve file permissions,
           # so we need to add execution permission back until the action is made to do this.
           chmod +x ${{ env.DIST_DIR }}/${{ env.PROJECT_NAME }}_osx_darwin_amd64/${{ env.PROJECT_NAME }}
           TAG="${GITHUB_REF/refs\/tags\//}"
@@ -119,9 +119,10 @@ jobs:
             ${{ env.DIST_DIR }}/*-checksums.txt
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
+          overwrite: true
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.DIST_DIR }}
 
@@ -131,7 +132,7 @@ jobs:
 
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.DIST_DIR }}

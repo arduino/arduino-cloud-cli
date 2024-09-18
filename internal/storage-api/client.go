@@ -57,7 +57,7 @@ func getArduinoAPIBaseURL() string {
 func NewClient(credentials *config.Credentials) *StorageApiClient {
 	host := getArduinoAPIBaseURL()
 	iothost := iot.GetArduinoAPIBaseURL()
-	tokenSource := iot.NewUserTokenSource(credentials.Client, credentials.Secret, iothost)
+	tokenSource := iot.NewUserTokenSource(credentials.Client, credentials.Secret, iothost, credentials.Organization)
 	return &StorageApiClient{
 		client:       &http.Client{},
 		src:          tokenSource,
