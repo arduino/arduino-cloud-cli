@@ -26,7 +26,7 @@ import (
 	"os"
 
 	iotclient "github.com/arduino/iot-client-go/v2"
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 	"gopkg.in/yaml.v3"
 )
 
@@ -98,10 +98,7 @@ func LoadDashboard(ctx context.Context, file string, override map[string]string,
 	// Adapt the template to the dashboard struct
 	for i, widget := range template.Widgets {
 		// Generate and set a uuid for each widget
-		id, err := uuid.NewV4()
-		if err != nil {
-			return nil, fmt.Errorf("cannot create a uuid for new widget: %w", err)
-		}
+		id := uuid.New()
 		widget.Id = id.String()
 		filterWidgetOptions(widget.Options)
 		// Even if the widget has no options, its field should exist

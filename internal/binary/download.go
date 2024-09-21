@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"hash"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -75,7 +74,7 @@ func download(ctx context.Context, url string) ([]byte, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		err = fmt.Errorf("%s: %w", "read request body", err)
 		return nil, err

@@ -22,7 +22,7 @@ import (
 	"testing"
 
 	iotclient "github.com/arduino/iot-client-go/v2"
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -228,7 +228,7 @@ func TestLoadDashboard(t *testing.T) {
 			for i := range got.Widgets {
 				// check widget id generation
 				id := got.Widgets[i].Id
-				_, err := uuid.FromString(id)
+				_, err := uuid.Parse(id)
 				if err != nil {
 					t.Errorf("Widget ID is not a valid UUID: %s", id)
 				}

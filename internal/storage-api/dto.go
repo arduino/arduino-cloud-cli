@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/arduino/arduino-cli/table"
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 )
 
 type (

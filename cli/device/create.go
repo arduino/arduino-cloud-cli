@@ -54,7 +54,7 @@ func initCreateCommand() *cobra.Command {
 	createCommand.Flags().StringVarP(&flags.port, "port", "p", "", "Device port")
 	createCommand.Flags().StringVarP(&flags.name, "name", "n", "", "Device name")
 	createCommand.Flags().StringVarP(&flags.fqbn, "fqbn", "b", "", "Device fqbn")
-	createCommand.Flags().StringVarP(&flags.ctype, "connection", "c", "", "Device connection type")
+	createCommand.Flags().StringVarP(&flags.ctype, "connection", "c", "", "Device connection type (values: wifi, eth, wifiandsecret, gsm, nb, lora, catm1, cellular)")
 	createCommand.MarkFlagRequired("name")
 	return createCommand
 }
