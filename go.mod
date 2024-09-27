@@ -3,7 +3,7 @@ module github.com/arduino/arduino-cloud-cli
 go 1.23.0
 
 require (
-	github.com/arduino/arduino-cli v0.0.0-20240927132229-9bb6968332c9
+	github.com/arduino/arduino-cli v0.0.0-20240927141754-d9dd4ba1ed71
 	github.com/arduino/go-paths-helper v1.12.1
 	github.com/arduino/go-win32-utils v1.0.0
 	github.com/arduino/iot-client-go/v2 v2.0.3
@@ -27,18 +27,14 @@ require (
 
 require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
-	github.com/arduino/board-discovery v0.0.0-20211020061712-fd83c2e3c908 // indirect
 	github.com/arduino/go-properties-orderedmap v1.7.1 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/cmaglie/pb v1.0.27 // indirect
-	github.com/codeclysm/cc v1.2.2 // indirect
 	github.com/codeclysm/extract/v4 v4.0.0 // indirect
 	github.com/creack/goselect v0.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
-	github.com/fluxio/iohelpers v0.0.0-20160419043813-3a4dd67a94d2 // indirect
-	github.com/fluxio/multierror v0.0.0-20160419044231-9c68d39025e5 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/h2non/filetype v1.1.3 // indirect
@@ -55,17 +51,14 @@ require (
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
-	github.com/miekg/dns v1.1.43 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
-	github.com/oleksandr/bonjour v0.0.0-20210301155756-30f43c61b915 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/pmylund/sortutil v0.0.0-20120526081524-abeda66eb583 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/sergi/go-diff v1.3.1 // indirect
-	github.com/smartystreets/goconvey v1.7.2 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -77,7 +70,6 @@ require (
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	go.bug.st/downloader/v2 v2.1.1 // indirect
 	go.bug.st/relaxed-semver v0.9.0 // indirect
-	go.bug.st/serial.v1 v0.0.0-20191202182710-24a6610f0541 // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
