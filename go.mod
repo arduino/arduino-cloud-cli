@@ -1,10 +1,12 @@
 module github.com/arduino/arduino-cloud-cli
 
-go 1.19
+go 1.22
+
+toolchain go1.22.3
 
 require (
-	github.com/arduino/arduino-cli v0.0.0-20221116144942-76251df9241a
-	github.com/arduino/go-paths-helper v1.7.0
+	github.com/arduino/arduino-cli v0.0.0-20240927132229-9bb6968332c9
+	github.com/arduino/go-paths-helper v1.12.1
 	github.com/arduino/go-win32-utils v1.0.0
 	github.com/arduino/iot-client-go/v2 v2.0.3
 	github.com/gofrs/uuid v4.2.0+incompatible
@@ -32,7 +34,7 @@ require (
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/cmaglie/pb v1.0.27 // indirect
 	github.com/codeclysm/cc v1.2.2 // indirect
-	github.com/codeclysm/extract/v3 v3.0.2 // indirect
+	github.com/codeclysm/extract/v4 v4.0.0 // indirect
 	github.com/creack/goselect v0.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
@@ -48,6 +50,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/juju/errors v0.0.0-20210818161939-5560c4c073ff // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
+	github.com/klauspost/compress v1.15.13 // indirect
 	github.com/leonelquinteros/gotext v1.4.0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
@@ -72,6 +75,7 @@ require (
 	github.com/src-d/gcfg v1.4.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
+	github.com/ulikunitz/xz v0.5.12 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	go.bug.st/downloader/v2 v2.1.1 // indirect
 	go.bug.st/relaxed-semver v0.9.0 // indirect

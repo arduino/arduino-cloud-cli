@@ -1,12 +1,12 @@
 ---
 name: github.com/arduino/arduino-cli/arduino/cores/packagemanager
-version: v0.0.0-20221116144942-76251df9241a
+version: v0.0.0-20240927132229-9bb6968332c9
 type: go
 summary: 
 homepage: https://pkg.go.dev/github.com/arduino/arduino-cli/arduino/cores/packagemanager
 license: gpl-3.0
 licenses:
-- sources: arduino-cli@v0.0.0-20221116144942-76251df9241a/LICENSE.txt
+- sources: arduino-cli@v0.0.0-20240927132229-9bb6968332c9/LICENSE.txt
   text: |2
                         GNU GENERAL PUBLIC LICENSE
                            Version 3, 29 June 2007
@@ -682,7 +682,7 @@ licenses:
     the library.  If this is what you want to do, use the GNU Lesser General
     Public License instead of this License.  But first, please read
     <https://www.gnu.org/licenses/why-not-lgpl.html>.
-- sources: arduino-cli@v0.0.0-20221116144942-76251df9241a/README.md
+- sources: arduino-cli@v0.0.0-20240927132229-9bb6968332c9/README.md
   text: |-
     Arduino CLI is licensed under the [GPL 3.0] license.
 

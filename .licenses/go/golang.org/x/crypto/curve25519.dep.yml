@@ -1,9 +1,10 @@
 ---
-name: golang.org/x/crypto/internal/alias
+name: golang.org/x/crypto/curve25519
 version: v0.18.0
 type: go
-summary: Package alias implements memory aliasing tests.
-homepage: https://pkg.go.dev/golang.org/x/crypto/internal/alias
+summary: Package curve25519 provides an implementation of the X25519 function, which
+  performs scalar multiplication on the elliptic curve known as Curve25519.
+homepage: https://pkg.go.dev/golang.org/x/crypto/curve25519
 license: bsd-3-clause
 licenses:
 - sources: crypto@v0.18.0/LICENSE
