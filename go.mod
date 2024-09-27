@@ -1,8 +1,6 @@
 module github.com/arduino/arduino-cloud-cli
 
-go 1.22
-
-toolchain go1.22.3
+go 1.23.0
 
 require (
 	github.com/arduino/arduino-cli v0.0.0-20240927132229-9bb6968332c9
