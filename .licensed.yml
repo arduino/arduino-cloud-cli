@@ -6,6 +6,12 @@ reviewed:
     - golang.org/x/crypto/curve25519
     - google.golang.org/protobuf/encoding/protojson
     - google.golang.org/protobuf/internal/encoding/json
+    - github.com/klauspost/compress
+    - github.com/klauspost/compress/fse
+    - github.com/klauspost/compress/huff0
+    - github.com/klauspost/compress/internal/cpuinfo
+    - github.com/klauspost/compress/internal/snapref
+    - github.com/klauspost/compress/zstd
 
 # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/check-dependencies/AGPL-3.0/.licensed.yml
 allowed:
