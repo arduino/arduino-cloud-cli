@@ -2,6 +2,8 @@ module github.com/arduino/arduino-cloud-cli
 
 go 1.23.0
 
+replace github.com/arduino/iot-client-go/v2 => /home/macolomb/CODE/clients-iot-api/generated/iot-client-go
+
 require (
 	github.com/arduino/arduino-cli v0.0.0-20240927141754-d9dd4ba1ed71
 	github.com/arduino/go-paths-helper v1.12.1

@@ -28,6 +28,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/cli/credentials"
 	"github.com/arduino/arduino-cloud-cli/cli/dashboard"
 	"github.com/arduino/arduino-cloud-cli/cli/device"
+	"github.com/arduino/arduino-cloud-cli/cli/folders"
 	"github.com/arduino/arduino-cloud-cli/cli/ota"
 	"github.com/arduino/arduino-cloud-cli/cli/template"
 	"github.com/arduino/arduino-cloud-cli/cli/thing"
@@ -67,6 +68,7 @@ func Execute() {
 	cli.AddCommand(dashboard.NewCommand())
 	cli.AddCommand(ota.NewCommand())
 	cli.AddCommand(template.NewCommand())
+	cli.AddCommand(folders.NewCommand())
 
 	if err := cli.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)

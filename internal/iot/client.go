@@ -560,6 +560,22 @@ func (cl *Client) TemplateApply(ctx context.Context, id, thingId, prefix, device
 	return dev, nil
 }
 
+// List available folders
+func (cl *Client) FoldersList(ctx context.Context) ([]iotclient.Folder, error) {
+	ctx, err := ctxWithToken(ctx, cl.token)
+	if err != nil {
+		return nil, err
+	}
+
+	req := cl.api.FoldersApi.ListFolders(ctx)
+	folders, _, err := cl.api.FoldersApi.ListFoldersExecute(req)
+	if err != nil {
+		err = fmt.Errorf("listing folders: %w", errorDetail(err))
+		return nil, err
+	}
+	return folders, nil
+}
+
 func (cl *Client) setup(client, secret, organizationId string) error {
 	baseURL := GetArduinoAPIBaseURL()
 
@@ -572,7 +588,7 @@ func (cl *Client) setup(client, secret, organizationId string) error {
 	}
 	config.Servers = iotclient.ServerConfigurations{
 		{
-			URL:         fmt.Sprintf("%s/iot", baseURL),
+			URL:         baseURL,
 			Description: "IoT API endpoint",
 		},
 	}
