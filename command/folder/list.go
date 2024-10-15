@@ -31,15 +31,40 @@ func ListFolders(ctx context.Context, cred *config.Credentials) error {
 		return err
 	}
 
-	folders, err := iotClient.FoldersList(ctx)
+	fold, err := iotClient.FoldersList(ctx)
 	if err != nil {
 		return err
 	}
 
-	if folders == nil {
+	if fold == nil {
 		feedback.Print("No folders found")
 	} else {
-		//feedback.PrintResult(folders)
+		folders := &Folders{}
+		for _, f := range fold {
+			trFolder := Folder{
+				ID:        f.Id,
+				Name:      f.Name,
+				CreatedAt: f.CreatedAt,
+				UpdatedAt: f.UpdatedAt,
+			}
+			if f.Parent != nil {
+				trFolder.Parent = &PathNode{
+					FolderId:   f.Parent.FolderId,
+					FolderName: f.Parent.FolderName,
+				}
+			}
+			if f.Path != nil {
+				trFolder.Path = make([]PathNode, 0, len(f.Path))
+				for _, p := range f.Path {
+					trFolder.Path = append(trFolder.Path, PathNode{
+						FolderId:   p.FolderId,
+						FolderName: p.FolderName,
+					})
+				}
+			}
+			folders.Folders = append(folders.Folders, trFolder)
+		}
+		feedback.PrintResult(folders)
 	}
 
 	return nil
