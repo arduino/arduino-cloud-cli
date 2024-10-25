@@ -29,7 +29,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/internal/binary"
 	"github.com/arduino/arduino-cloud-cli/internal/serial"
 	"github.com/arduino/go-paths-helper"
-	iotclient "github.com/arduino/iot-client-go/v2"
+	iotclient "github.com/arduino/iot-client-go/v3"
 	"github.com/sirupsen/logrus"
 )
 

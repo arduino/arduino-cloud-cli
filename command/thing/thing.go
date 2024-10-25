@@ -19,7 +19,7 @@ package thing
 
 import (
 	"github.com/arduino/arduino-cloud-cli/command/tag"
-	iotclient "github.com/arduino/iot-client-go/v2"
+	iotclient "github.com/arduino/iot-client-go/v3"
 )
 
 // ThingInfo contains the main parameters of
