@@ -572,7 +572,7 @@ func (cl *Client) setup(client, secret, organizationId string) error {
 	}
 	config.Servers = iotclient.ServerConfigurations{
 		{
-			URL:         fmt.Sprintf("%s/iot", baseURL),
+			URL:         baseURL,
 			Description: "IoT API endpoint",
 		},
 	}
