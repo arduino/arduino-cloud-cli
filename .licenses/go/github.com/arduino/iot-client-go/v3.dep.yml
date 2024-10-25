@@ -1,9 +1,9 @@
 ---
-name: github.com/arduino/iot-client-go/v2
-version: v2.0.3
+name: github.com/arduino/iot-client-go/v3
+version: v3.0.0
 type: go
 summary: 
-homepage: https://pkg.go.dev/github.com/arduino/iot-client-go/v2
+homepage: https://pkg.go.dev/github.com/arduino/iot-client-go/v3
 license: apache-2.0
 licenses:
 - sources: LICENSE
