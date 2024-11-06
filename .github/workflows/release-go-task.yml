@@ -99,7 +99,7 @@ jobs:
         run: |
           gon gon.config.hcl
 
-      - name: Re-package binary and update checksum
+      - name: Re-package amd64 binary and update checksum
         # This step performs the following:
         # 1. Repackage the signed binary replaced in place by Gon (ignoring the output zip file)
         # 2. Recalculate package checksum and replace it in the nnnnnn-checksums.txt file
@@ -116,6 +116,25 @@ jobs:
             -pi \
             -w \
             -e "s/.*${{ env.PROJECT_NAME }}_${TAG}_macOS_64bit.tar.gz/${CHECKSUM}  ${{ env.PROJECT_NAME }}_${TAG}_macOS_64bit.tar.gz/g;" \
+            ${{ env.DIST_DIR }}/*-checksums.txt
+
+      - name: Re-package ARM64 binary and update checksum
+        # This step performs the following:
+        # 1. Repackage the signed binary replaced in place by Gon (ignoring the output zip file)
+        # 2. Recalculate package checksum and replace it in the nnnnnn-checksums.txt file
+        run: |
+          # GitHub's upload/download-artifact@v4 actions don't preserve file permissions,
+          # so we need to add execution permission back until the action is made to do this.
+          chmod +x ${{ env.DIST_DIR }}/${{ env.PROJECT_NAME }}_osx_darwin_arm64/${{ env.PROJECT_NAME }}
+          TAG="${GITHUB_REF/refs\/tags\//}"
+          tar -czvf "${{ env.DIST_DIR }}/${{ env.PROJECT_NAME }}_${TAG}_macOS_ARM64.tar.gz" \
+            -C ${{ env.DIST_DIR }}/${{ env.PROJECT_NAME }}_osx_darwin_arm64/ ${{ env.PROJECT_NAME }} \
+            -C ../../ LICENSE.txt
+          CHECKSUM="$(shasum -a 256 ${{ env.DIST_DIR }}/${{ env.PROJECT_NAME }}_${TAG}_macOS_ARM64.tar.gz | cut -d " " -f 1)"
+          perl \
+            -pi \
+            -w \
+            -e "s/.*${{ env.PROJECT_NAME }}_${TAG}_macOS_ARM64.tar.gz/${CHECKSUM}  ${{ env.PROJECT_NAME }}_${TAG}_macOS_ARM64.tar.gz/g;" \
             ${{ env.DIST_DIR }}/*-checksums.txt
 
       - name: Upload artifacts
@@ -156,14 +175,3 @@ jobs:
           # NOTE: "Artifact is a directory" warnings are expected and don't indicate a problem
           # (all the files we need are in the DIST_DIR root)
           artifacts: ${{ env.DIST_DIR }}/*
-
-      # TODO
-      # - name: Upload release files on Arduino downloads servers
-      #   uses: docker://plugins/s3
-      #   env:
-      #     PLUGIN_SOURCE: "${{ env.DIST_DIR }}/*"
-      #     PLUGIN_TARGET: ${{ env.AWS_PLUGIN_TARGET }}
-      #     PLUGIN_STRIP_PREFIX: "${{ env.DIST_DIR }}/"
-      #     PLUGIN_BUCKET: ${{ secrets.DOWNLOADS_BUCKET }}
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

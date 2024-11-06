@@ -1,6 +1,6 @@
 # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/general/gon.config.hcl
 # See: https://github.com/Bearer/gon#configuration-file
-source = ["dist/arduino-cloud-cli_osx_darwin_amd64/arduino-cloud-cli"]
+source = ["dist/arduino-cloud-cli_osx_darwin_amd64/arduino-cloud-cli", "dist/arduino-cloud-cli_osx_darwin_arm64/arduino-cloud-cli"]
 bundle_id = "cc.arduino.arduino-cloud-cli"
 
 sign {
