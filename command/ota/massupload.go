@@ -31,7 +31,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/internal/ota"
 	otaapi "github.com/arduino/arduino-cloud-cli/internal/ota-api"
 
-	iotclient "github.com/arduino/iot-client-go/v2"
+	iotclient "github.com/arduino/iot-client-go/v3"
 )
 
 const (

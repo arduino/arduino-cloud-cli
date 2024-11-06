@@ -31,7 +31,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	storageapi "github.com/arduino/arduino-cloud-cli/internal/storage-api"
-	iotclient "github.com/arduino/iot-client-go/v2"
+	iotclient "github.com/arduino/iot-client-go/v3"
 	"github.com/gofrs/uuid"
 	"github.com/sirupsen/logrus"
 )

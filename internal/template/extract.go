@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"os"
 
-	iotclient "github.com/arduino/iot-client-go/v2"
+	iotclient "github.com/arduino/iot-client-go/v3"
 	"gopkg.in/yaml.v3"
 )
 

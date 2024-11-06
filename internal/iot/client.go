@@ -23,7 +23,7 @@ import (
 	"os"
 
 	"github.com/arduino/arduino-cloud-cli/config"
-	iotclient "github.com/arduino/iot-client-go/v2"
+	iotclient "github.com/arduino/iot-client-go/v3"
 	"golang.org/x/oauth2"
 )
 
@@ -70,9 +70,9 @@ func (cl *Client) DeviceCreate(ctx context.Context, fqbn, name, serial, dType st
 		payload.ConnectionType = cType
 	}
 
-	req := cl.api.DevicesV2Api.DevicesV2Create(ctx)
+	req := cl.api.DevicesV2API.DevicesV2Create(ctx)
 	req = req.CreateDevicesV2Payload(payload)
-	dev, _, err := cl.api.DevicesV2Api.DevicesV2CreateExecute(req)
+	dev, _, err := cl.api.DevicesV2API.DevicesV2CreateExecute(req)
 	if err != nil {
 		err = fmt.Errorf("creating device, %w", errorDetail(err))
 		return nil, err
@@ -98,9 +98,9 @@ func (cl *Client) DeviceLoraCreate(ctx context.Context, name, serial, devType, e
 		UserId:        "me",
 	}
 
-	req := cl.api.LoraDevicesV1Api.LoraDevicesV1Create(ctx)
+	req := cl.api.LoraDevicesV1API.LoraDevicesV1Create(ctx)
 	req = req.CreateLoraDevicesV1Payload(payload)
-	dev, _, err := cl.api.LoraDevicesV1Api.LoraDevicesV1CreateExecute(req)
+	dev, _, err := cl.api.LoraDevicesV1API.LoraDevicesV1CreateExecute(req)
 	if err != nil {
 		err = fmt.Errorf("creating lora device: %w", errorDetail(err))
 		return nil, err
@@ -117,18 +117,18 @@ func (cl *Client) DevicePassSet(ctx context.Context, id string) (*iotclient.Ardu
 	}
 
 	// Fetch suggested password
-	req := cl.api.DevicesV2PassApi.DevicesV2PassGet(ctx, id)
+	req := cl.api.DevicesV2PassAPI.DevicesV2PassGet(ctx, id)
 	req = req.SuggestedPassword(true)
-	pass, _, err := cl.api.DevicesV2PassApi.DevicesV2PassGetExecute(req)
+	pass, _, err := cl.api.DevicesV2PassAPI.DevicesV2PassGetExecute(req)
 	if err != nil {
 		err = fmt.Errorf("fetching device suggested password: %w", errorDetail(err))
 		return nil, err
 	}
 
 	// Set password to the suggested one
-	reqSet := cl.api.DevicesV2PassApi.DevicesV2PassSet(ctx, id)
+	reqSet := cl.api.DevicesV2PassAPI.DevicesV2PassSet(ctx, id)
 	reqSet = reqSet.Devicev2Pass(iotclient.Devicev2Pass{Password: pass.SuggestedPassword})
-	pass, _, err = cl.api.DevicesV2PassApi.DevicesV2PassSetExecute(reqSet)
+	pass, _, err = cl.api.DevicesV2PassAPI.DevicesV2PassSetExecute(reqSet)
 	if err != nil {
 		err = fmt.Errorf("setting device password: %w", errorDetail(err))
 		return nil, err
@@ -144,8 +144,8 @@ func (cl *Client) DeviceDelete(ctx context.Context, id string) error {
 		return err
 	}
 
-	req := cl.api.DevicesV2Api.DevicesV2Delete(ctx, id)
-	_, err = cl.api.DevicesV2Api.DevicesV2DeleteExecute(req)
+	req := cl.api.DevicesV2API.DevicesV2Delete(ctx, id)
+	_, err = cl.api.DevicesV2API.DevicesV2DeleteExecute(req)
 	if err != nil {
 		err = fmt.Errorf("deleting device: %w", errorDetail(err))
 		return err
@@ -161,7 +161,7 @@ func (cl *Client) DeviceList(ctx context.Context, tags map[string]string) ([]iot
 		return nil, err
 	}
 
-	req := cl.api.DevicesV2Api.DevicesV2List(ctx)
+	req := cl.api.DevicesV2API.DevicesV2List(ctx)
 	if tags != nil {
 		t := make([]string, 0, len(tags))
 		for key, val := range tags {
@@ -170,7 +170,7 @@ func (cl *Client) DeviceList(ctx context.Context, tags map[string]string) ([]iot
 		}
 		req = req.Tags(t)
 	}
-	devices, _, err := cl.api.DevicesV2Api.DevicesV2ListExecute(req)
+	devices, _, err := cl.api.DevicesV2API.DevicesV2ListExecute(req)
 	if err != nil {
 		err = fmt.Errorf("listing devices: %w", errorDetail(err))
 		return nil, err
@@ -186,8 +186,8 @@ func (cl *Client) DeviceShow(ctx context.Context, id string) (*iotclient.Arduino
 		return nil, err
 	}
 
-	req := cl.api.DevicesV2Api.DevicesV2Show(ctx, id)
-	dev, _, err := cl.api.DevicesV2Api.DevicesV2ShowExecute(req)
+	req := cl.api.DevicesV2API.DevicesV2Show(ctx, id)
+	dev, _, err := cl.api.DevicesV2API.DevicesV2ShowExecute(req)
 	if err != nil {
 		err = fmt.Errorf("retrieving device, %w", errorDetail(err))
 		return nil, err
@@ -202,9 +202,9 @@ func (cl *Client) DeviceNetworkCredentials(ctx context.Context, deviceType, conn
 		return nil, err
 	}
 
-	req := cl.api.NetworkCredentialsV1Api.NetworkCredentialsV1Show(ctx, deviceType)
+	req := cl.api.NetworkCredentialsV1API.NetworkCredentialsV1Show(ctx, deviceType)
 	req = req.Connection(connection)
-	dev, _, err := cl.api.NetworkCredentialsV1Api.NetworkCredentialsV1ShowExecute(req)
+	dev, _, err := cl.api.NetworkCredentialsV1API.NetworkCredentialsV1ShowExecute(req)
 	if err != nil {
 		err = fmt.Errorf("retrieving device network configuration, %w", errorDetail(err))
 		return nil, err
@@ -220,11 +220,11 @@ func (cl *Client) DeviceOTA(ctx context.Context, id string, file *os.File, expir
 		return err
 	}
 
-	req := cl.api.DevicesV2OtaApi.DevicesV2OtaUpload(ctx, id)
+	req := cl.api.DevicesV2OtaAPI.DevicesV2OtaUpload(ctx, id)
 	req = req.ExpireInMins(int32(expireMins))
 	req = req.Async(true)
 	req = req.OtaFile(file)
-	_, resp, err := cl.api.DevicesV2OtaApi.DevicesV2OtaUploadExecute(req)
+	_, resp, err := cl.api.DevicesV2OtaAPI.DevicesV2OtaUploadExecute(req)
 	if err != nil {
 		// 409 (Conflict) is the status code for an already existing OTA in progress for the same device. Handling it in a different way.
 		if resp != nil && resp.StatusCode == 409 {
@@ -243,9 +243,9 @@ func (cl *Client) DeviceTagsCreate(ctx context.Context, id string, tags map[stri
 	}
 
 	for key, val := range tags {
-		req := cl.api.DevicesV2TagsApi.DevicesV2TagsUpsert(ctx, id)
+		req := cl.api.DevicesV2TagsAPI.DevicesV2TagsUpsert(ctx, id)
 		req = req.Tag(iotclient.Tag{Key: key, Value: val})
-		_, err := cl.api.DevicesV2TagsApi.DevicesV2TagsUpsertExecute(req)
+		_, err := cl.api.DevicesV2TagsAPI.DevicesV2TagsUpsertExecute(req)
 		if err != nil {
 			err = fmt.Errorf("cannot create tag %s: %w", key, errorDetail(err))
 			return err
@@ -263,8 +263,8 @@ func (cl *Client) DeviceTagsDelete(ctx context.Context, id string, keys []string
 	}
 
 	for _, key := range keys {
-		req := cl.api.DevicesV2TagsApi.DevicesV2TagsDelete(ctx, id, key)
-		_, err := cl.api.DevicesV2TagsApi.DevicesV2TagsDeleteExecute(req)
+		req := cl.api.DevicesV2TagsAPI.DevicesV2TagsDelete(ctx, id, key)
+		_, err := cl.api.DevicesV2TagsAPI.DevicesV2TagsDeleteExecute(req)
 		if err != nil {
 			err = fmt.Errorf("cannot delete tag %s: %w", key, errorDetail(err))
 			return err
@@ -281,8 +281,8 @@ func (cl *Client) LoraFrequencyPlansList(ctx context.Context) ([]iotclient.Ardui
 		return nil, err
 	}
 
-	req := cl.api.LoraFreqPlanV1Api.LoraFreqPlanV1List(ctx)
-	freqs, _, err := cl.api.LoraFreqPlanV1Api.LoraFreqPlanV1ListExecute(req)
+	req := cl.api.LoraFreqPlanV1API.LoraFreqPlanV1List(ctx)
+	freqs, _, err := cl.api.LoraFreqPlanV1API.LoraFreqPlanV1ListExecute(req)
 	if err != nil {
 		err = fmt.Errorf("listing lora frequency plans: %w", errorDetail(err))
 		return nil, err
@@ -304,9 +304,9 @@ func (cl *Client) CertificateCreate(ctx context.Context, id, csr string) (*iotcl
 		Enabled: true,
 	}
 
-	req := cl.api.DevicesV2CertsApi.DevicesV2CertsCreate(ctx, id)
+	req := cl.api.DevicesV2CertsAPI.DevicesV2CertsCreate(ctx, id)
 	req = req.CreateDevicesV2CertsPayload(cert)
-	newCert, _, err := cl.api.DevicesV2CertsApi.DevicesV2CertsCreateExecute(req)
+	newCert, _, err := cl.api.DevicesV2CertsAPI.DevicesV2CertsCreateExecute(req)
 	if err != nil {
 		err = fmt.Errorf("creating certificate, %w", errorDetail(err))
 		return nil, err
@@ -322,10 +322,10 @@ func (cl *Client) ThingCreate(ctx context.Context, thing *iotclient.ThingCreate,
 		return nil, err
 	}
 
-	req := cl.api.ThingsV2Api.ThingsV2Create(ctx)
+	req := cl.api.ThingsV2API.ThingsV2Create(ctx)
 	req = req.ThingCreate(*thing)
 	req = req.Force(force)
-	newThing, _, err := cl.api.ThingsV2Api.ThingsV2CreateExecute(req)
+	newThing, _, err := cl.api.ThingsV2API.ThingsV2CreateExecute(req)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "adding new thing", errorDetail(err))
 	}
@@ -339,10 +339,10 @@ func (cl *Client) ThingUpdate(ctx context.Context, id string, thing *iotclient.T
 		return err
 	}
 
-	req := cl.api.ThingsV2Api.ThingsV2Update(ctx, id)
+	req := cl.api.ThingsV2API.ThingsV2Update(ctx, id)
 	req = req.Force(force)
 	req = req.ThingUpdate(*thing)
-	_, _, err = cl.api.ThingsV2Api.ThingsV2UpdateExecute(req)
+	_, _, err = cl.api.ThingsV2API.ThingsV2UpdateExecute(req)
 	if err != nil {
 		return fmt.Errorf("%s: %v", "updating thing", errorDetail(err))
 	}
@@ -356,8 +356,8 @@ func (cl *Client) ThingDelete(ctx context.Context, id string) error {
 		return err
 	}
 
-	req := cl.api.ThingsV2Api.ThingsV2Delete(ctx, id)
-	_, err = cl.api.ThingsV2Api.ThingsV2DeleteExecute(req)
+	req := cl.api.ThingsV2API.ThingsV2Delete(ctx, id)
+	_, err = cl.api.ThingsV2API.ThingsV2DeleteExecute(req)
 	if err != nil {
 		err = fmt.Errorf("deleting thing: %w", errorDetail(err))
 		return err
@@ -372,8 +372,8 @@ func (cl *Client) ThingShow(ctx context.Context, id string) (*iotclient.ArduinoT
 		return nil, err
 	}
 
-	req := cl.api.ThingsV2Api.ThingsV2Show(ctx, id)
-	thing, _, err := cl.api.ThingsV2Api.ThingsV2ShowExecute(req)
+	req := cl.api.ThingsV2API.ThingsV2Show(ctx, id)
+	thing, _, err := cl.api.ThingsV2API.ThingsV2ShowExecute(req)
 	if err != nil {
 		return nil, fmt.Errorf("retrieving thing, %w", errorDetail(err))
 	}
@@ -387,10 +387,10 @@ func (cl *Client) ThingClone(ctx context.Context, id, newName string) (*iotclien
 		return nil, err
 	}
 
-	req := cl.api.ThingsV2Api.ThingsV2Clone(ctx, id)
+	req := cl.api.ThingsV2API.ThingsV2Clone(ctx, id)
 	includeTags := true
 	req = req.ThingClone(iotclient.ThingClone{Name: newName, IncludeTags: &includeTags})
-	thing, _, err := cl.api.ThingsV2Api.ThingsV2CloneExecute(req)
+	thing, _, err := cl.api.ThingsV2API.ThingsV2CloneExecute(req)
 	if err != nil {
 		return nil, fmt.Errorf("cloning thing thing, %w", errorDetail(err))
 	}
@@ -404,7 +404,7 @@ func (cl *Client) ThingList(ctx context.Context, ids []string, device *string, p
 		return nil, err
 	}
 
-	req := cl.api.ThingsV2Api.ThingsV2List(ctx)
+	req := cl.api.ThingsV2API.ThingsV2List(ctx)
 	req = req.ShowProperties(props)
 	if ids != nil {
 		req = req.Ids(ids)
@@ -422,7 +422,7 @@ func (cl *Client) ThingList(ctx context.Context, ids []string, device *string, p
 		}
 		req = req.Tags(t)
 	}
-	things, _, err := cl.api.ThingsV2Api.ThingsV2ListExecute(req)
+	things, _, err := cl.api.ThingsV2API.ThingsV2ListExecute(req)
 	if err != nil {
 		err = fmt.Errorf("retrieving things, %w", errorDetail(err))
 		return nil, err
@@ -438,9 +438,9 @@ func (cl *Client) ThingTagsCreate(ctx context.Context, id string, tags map[strin
 	}
 
 	for key, val := range tags {
-		req := cl.api.ThingsV2TagsApi.ThingsV2TagsUpsert(ctx, id)
+		req := cl.api.ThingsV2TagsAPI.ThingsV2TagsUpsert(ctx, id)
 		req = req.Tag(iotclient.Tag{Key: key, Value: val})
-		_, err := cl.api.ThingsV2TagsApi.ThingsV2TagsUpsertExecute(req)
+		_, err := cl.api.ThingsV2TagsAPI.ThingsV2TagsUpsertExecute(req)
 		if err != nil {
 			err = fmt.Errorf("cannot create tag %s: %w", key, errorDetail(err))
 			return err
@@ -458,8 +458,8 @@ func (cl *Client) ThingTagsDelete(ctx context.Context, id string, keys []string)
 	}
 
 	for _, key := range keys {
-		req := cl.api.ThingsV2TagsApi.ThingsV2TagsDelete(ctx, id, key)
-		_, err := cl.api.ThingsV2TagsApi.ThingsV2TagsDeleteExecute(req)
+		req := cl.api.ThingsV2TagsAPI.ThingsV2TagsDelete(ctx, id, key)
+		_, err := cl.api.ThingsV2TagsAPI.ThingsV2TagsDeleteExecute(req)
 		if err != nil {
 			err = fmt.Errorf("cannot delete tag %s: %w", key, errorDetail(err))
 			return err
@@ -475,9 +475,9 @@ func (cl *Client) DashboardCreate(ctx context.Context, dashboard *iotclient.Dash
 		return nil, err
 	}
 
-	req := cl.api.DashboardsV2Api.DashboardsV2Create(ctx)
+	req := cl.api.DashboardsV2API.DashboardsV2Create(ctx)
 	req = req.Dashboardv2(*dashboard)
-	newDashboard, _, err := cl.api.DashboardsV2Api.DashboardsV2CreateExecute(req)
+	newDashboard, _, err := cl.api.DashboardsV2API.DashboardsV2CreateExecute(req)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "adding new dashboard", errorDetail(err))
 	}
@@ -492,8 +492,8 @@ func (cl *Client) DashboardShow(ctx context.Context, id string) (*iotclient.Ardu
 		return nil, err
 	}
 
-	req := cl.api.DashboardsV2Api.DashboardsV2Show(ctx, id)
-	dashboard, _, err := cl.api.DashboardsV2Api.DashboardsV2ShowExecute(req)
+	req := cl.api.DashboardsV2API.DashboardsV2Show(ctx, id)
+	dashboard, _, err := cl.api.DashboardsV2API.DashboardsV2ShowExecute(req)
 	if err != nil {
 		err = fmt.Errorf("retrieving dashboard, %w", errorDetail(err))
 		return nil, err
@@ -508,8 +508,8 @@ func (cl *Client) DashboardList(ctx context.Context) ([]iotclient.ArduinoDashboa
 		return nil, err
 	}
 
-	req := cl.api.DashboardsV2Api.DashboardsV2List(ctx)
-	dashboards, _, err := cl.api.DashboardsV2Api.DashboardsV2ListExecute(req)
+	req := cl.api.DashboardsV2API.DashboardsV2List(ctx)
+	dashboards, _, err := cl.api.DashboardsV2API.DashboardsV2ListExecute(req)
 	if err != nil {
 		err = fmt.Errorf("listing dashboards: %w", errorDetail(err))
 		return nil, err
@@ -524,8 +524,8 @@ func (cl *Client) DashboardDelete(ctx context.Context, id string) error {
 		return err
 	}
 
-	req := cl.api.DashboardsV2Api.DashboardsV2Delete(ctx, id)
-	_, err = cl.api.DashboardsV2Api.DashboardsV2DeleteExecute(req)
+	req := cl.api.DashboardsV2API.DashboardsV2Delete(ctx, id)
+	_, err = cl.api.DashboardsV2API.DashboardsV2DeleteExecute(req)
 	if err != nil {
 		err = fmt.Errorf("deleting dashboard: %w", errorDetail(err))
 		return err
@@ -544,7 +544,7 @@ func (cl *Client) TemplateApply(ctx context.Context, id, thingId, prefix, device
 	thingOption["device_id"] = deviceId
 	thingOption["secrets"] = credentials
 
-	req := cl.api.TemplatesApi.TemplatesApply(ctx)
+	req := cl.api.TemplatesAPI.TemplatesApply(ctx)
 	req = req.Template(iotclient.Template{
 		PrefixName:       toStringPointer(prefix),
 		CustomTemplateId: toStringPointer(id),
@@ -552,7 +552,7 @@ func (cl *Client) TemplateApply(ctx context.Context, id, thingId, prefix, device
 			thingId: thingOption,
 		},
 	})
-	dev, _, err := cl.api.TemplatesApi.TemplatesApplyExecute(req)
+	dev, _, err := cl.api.TemplatesAPI.TemplatesApplyExecute(req)
 	if err != nil {
 		err = fmt.Errorf("retrieving device, %w", errorDetail(err))
 		return nil, err
@@ -572,7 +572,7 @@ func (cl *Client) setup(client, secret, organizationId string) error {
 	}
 	config.Servers = iotclient.ServerConfigurations{
 		{
-			URL:         fmt.Sprintf("%s/iot", baseURL),
+			URL:         baseURL,
 			Description: "IoT API endpoint",
 		},
 	}
