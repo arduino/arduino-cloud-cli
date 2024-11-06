@@ -71,8 +71,8 @@ github.com/arduino/go-properties-orderedmap v1.7.1 h1:HQ9Pn/mk3+XyfrE39EEvaZwJkr
 github.com/arduino/go-properties-orderedmap v1.7.1/go.mod h1:DKjD2VXY/NZmlingh4lSFMEYCVubfeArCsGPGDwb2yk=
 github.com/arduino/go-win32-utils v1.0.0 h1:/cXB86sOJxOsCHP7sQmXGLkdValwJt56mIwOHYxgQjQ=
 github.com/arduino/go-win32-utils v1.0.0/go.mod h1:0jqM7doGEAs6DaJCxxhLBUDS5OawrqF48HqXkcEie/Q=
-github.com/arduino/iot-client-go/v3 v3.0.0 h1:vZ4CWrHOSi2B8rRVzFY5l5fFSNYKYXWOyJ0V39E2JAs=
-github.com/arduino/iot-client-go/v3 v3.0.0/go.mod h1:r2QEAP5Jalkr0YWNPhFl0EJzFRQNy24wN5CVbn11f64=
+github.com/arduino/iot-client-go/v3 v3.0.1 h1:AwkctEtP7ilVXBOF2yZPJZpjpuUmKNGr/OdYxPx/4QQ=
+github.com/arduino/iot-client-go/v3 v3.0.1/go.mod h1:r2QEAP5Jalkr0YWNPhFl0EJzFRQNy24wN5CVbn11f64=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=
 github.com/armon/go-metrics v0.3.10/go.mod h1:4O98XIr/9W0sxpJ8UaYkvjk10Iff7SnFrb4QAOwNTFc=
