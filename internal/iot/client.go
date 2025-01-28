@@ -299,7 +299,7 @@ func (cl *Client) CertificateCreate(ctx context.Context, id, csr string) (*iotcl
 	}
 
 	cert := iotclient.CreateDevicesV2CertsPayload{
-		Ca:      toStringPointer("Arduino"),
+		Ca:      toStringPointer("Arduino_v2"),
 		Csr:     csr,
 		Enabled: true,
 	}
