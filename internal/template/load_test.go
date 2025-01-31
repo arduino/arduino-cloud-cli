@@ -68,7 +68,7 @@ var (
 		Widgets: []iotclient.Widget{
 			{Name: toStringPointer("Switch-name"), Height: 1, HeightMobile: toInt64Pointer(2), Width: 3, WidthMobile: toInt64Pointer(4),
 				X: 5, XMobile: toInt64Pointer(6), Y: 7, YMobile: toInt64Pointer(8), Options: map[string]interface{}{"showLabels": true},
-				Type: "Switch",
+				Type: "Switch", AdditionalProperties: map[string]any{},
 			},
 		},
 	}
@@ -78,7 +78,7 @@ var (
 		Widgets: []iotclient.Widget{
 			{Name: toStringPointer("Switch-name"), Height: 1, HeightMobile: toInt64Pointer(2), Width: 3, WidthMobile: toInt64Pointer(4),
 				X: 5, XMobile: toInt64Pointer(6), Y: 7, YMobile: toInt64Pointer(8), Options: map[string]interface{}{},
-				Type: "Switch",
+				Type: "Switch", AdditionalProperties: map[string]any{},
 			},
 		},
 	}
@@ -88,7 +88,7 @@ var (
 		Widgets: []iotclient.Widget{
 			{Name: toStringPointer("Switch-name"), Height: 1, HeightMobile: toInt64Pointer(2), Width: 3, WidthMobile: toInt64Pointer(4),
 				X: 5, XMobile: toInt64Pointer(6), Y: 7, YMobile: toInt64Pointer(8), Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
-				Variables: []string{switchyID},
+				Variables: []string{switchyID}, AdditionalProperties: map[string]any{},
 			},
 		},
 	}
@@ -98,7 +98,7 @@ var (
 		Widgets: []iotclient.Widget{
 			{Name: toStringPointer("Switch-name"), Height: 1, HeightMobile: toInt64Pointer(2), Width: 3, WidthMobile: toInt64Pointer(4),
 				X: 5, XMobile: toInt64Pointer(6), Y: 7, YMobile: toInt64Pointer(8), Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
-				Variables: []string{switchyOverriddenID},
+				Variables: []string{switchyOverriddenID}, AdditionalProperties: map[string]any{},
 			},
 		},
 	}
@@ -108,11 +108,11 @@ var (
 		Widgets: []iotclient.Widget{
 			{Name: toStringPointer("blink_speed"), Height: 7, Width: 8,
 				X: 7, Y: 5, Options: map[string]interface{}{"min": float64(0), "max": float64(5000)}, Type: "Slider",
-				Variables: []string{blinkSpeedID},
+				Variables: []string{blinkSpeedID}, AdditionalProperties: map[string]any{},
 			},
 			{Name: toStringPointer("relay_2"), Height: 5, Width: 5,
 				X: 5, Y: 0, Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
-				Variables: []string{relayID},
+				Variables: []string{relayID}, AdditionalProperties: map[string]any{},
 			},
 		},
 	}
