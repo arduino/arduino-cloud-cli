@@ -71,6 +71,7 @@ var (
 				Type: "Switch", AdditionalProperties: map[string]any{},
 			},
 		},
+		AdditionalProperties: map[string]any{},
 	}
 
 	dashboardNoOptions = &iotclient.Dashboardv2{
@@ -81,6 +82,7 @@ var (
 				Type: "Switch", AdditionalProperties: map[string]any{},
 			},
 		},
+		AdditionalProperties: map[string]any{},
 	}
 
 	dashboardWithVariable = &iotclient.Dashboardv2{
@@ -91,6 +93,7 @@ var (
 				Variables: []string{switchyID}, AdditionalProperties: map[string]any{},
 			},
 		},
+		AdditionalProperties: map[string]any{},
 	}
 
 	dashboardVariableOverride = &iotclient.Dashboardv2{
@@ -101,6 +104,7 @@ var (
 				Variables: []string{switchyOverriddenID}, AdditionalProperties: map[string]any{},
 			},
 		},
+		AdditionalProperties: map[string]any{},
 	}
 
 	dashboardTwoWidgets = &iotclient.Dashboardv2{
@@ -115,6 +119,7 @@ var (
 				Variables: []string{relayID}, AdditionalProperties: map[string]any{},
 			},
 		},
+		AdditionalProperties: map[string]any{},
 	}
 )
 
