@@ -1,6 +1,6 @@
 ---
 name: github.com/arduino/iot-client-go/v3
-version: v3.1.0
+version: v3.1.1
 type: go
 summary: 
 homepage: https://pkg.go.dev/github.com/arduino/iot-client-go/v3

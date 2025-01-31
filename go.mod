@@ -6,7 +6,7 @@ require (
 	github.com/arduino/arduino-cli v0.0.0-20240927141754-d9dd4ba1ed71
 	github.com/arduino/go-paths-helper v1.12.1
 	github.com/arduino/go-win32-utils v1.0.0
-	github.com/arduino/iot-client-go/v3 v3.1.0
+	github.com/arduino/iot-client-go/v3 v3.1.1
 	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/google/go-cmp v0.6.0
 	github.com/howeyc/crc16 v0.0.0-20171223171357-2b2a61e366a6

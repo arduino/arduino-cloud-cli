@@ -58,7 +58,12 @@ func Show(ctx context.Context, deviceId string, cred *config.Credentials) (*Devi
 			return nil, net, err
 		}
 		for _, netCred := range netCredentialsArray {
-			net = append(net, netCredentials(netCred))
+			var netCredToShow netCredentials
+			netCredToShow.FriendlyName = netCred.FriendlyName
+			netCredToShow.Required = netCred.Required
+			netCredToShow.SecretName = netCred.SecretName
+			netCredToShow.Sensitive = netCred.Sensitive
+			net = append(net, netCredToShow)
 		}
 	}
 
