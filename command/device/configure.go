@@ -64,6 +64,8 @@ func NetConfigure(ctx context.Context, boardFilters *CreateParams, NetConfig *Ne
 
 type ConfigStatus int
 
+// This enum represents the different states of the network configuration process
+// of the Arduino Board Configuration Protocol.
 const (
 	NoneState ConfigStatus = iota
 	WaitForConnection
@@ -177,6 +179,8 @@ func (nc *NetworkConfigure) waitingForInitialStatus() error {
 	return nil
 }
 
+// In this state the cli is waiting for the available network options as specified in the
+// Arduino Board Configuration Protocol.
 func (nc *NetworkConfigure) waitingForNetworkOptions() error {
 	logrus.Info("NetworkConfigure: waiting for network options from device")
 	res, err := nc.configProtocol.ReceiveData(30)
@@ -185,6 +189,8 @@ func (nc *NetworkConfigure) waitingForNetworkOptions() error {
 	}
 
 	if res != nil {
+		// At the moment of writing, the only type of message that can be received in this state is the
+		// WiFiNetworksType, which contains the available WiFi networks list.
 		if res.Type() == cborcoders.WiFiNetworksType {
 			nc.state = ConfigureNetwork
 		} else if res.Type() == cborcoders.ProvisioningStatusMessageType {
