@@ -27,6 +27,8 @@ import (
 
 	"github.com/arduino/arduino-cloud-cli/arduino"
 	"github.com/arduino/arduino-cloud-cli/internal/binary"
+	provisioningprotocol "github.com/arduino/arduino-cloud-cli/internal/board-protocols/provisioning-protocol"
+	"github.com/arduino/arduino-cloud-cli/internal/board-protocols/transport"
 	"github.com/arduino/arduino-cloud-cli/internal/serial"
 	"github.com/arduino/go-paths-helper"
 	iotclient "github.com/arduino/iot-client-go/v3"
@@ -72,10 +74,11 @@ type certificateCreator interface {
 // procedures for boards with crypto-chip.
 type provision struct {
 	arduino.Commander
-	cert  certificateCreator
-	ser   *serial.Serial
-	board *board
-	id    string
+	cert     certificateCreator
+	serial   transport.TransportInterface
+	provProt *provisioningprotocol.ProvisioningProtocol
+	board    *board
+	id       string
 }
 
 // run provisioning procedure for boards with crypto-chip.
@@ -104,15 +107,21 @@ func (p provision) run(ctx context.Context) error {
 	if err = sleepCtx(ctx, 1500*time.Millisecond); err != nil {
 		return err
 	}
-	p.ser = serial.NewSerial()
+	p.serial = serial.NewSerial()
+
+	p.provProt = provisioningprotocol.NewProvisioningProtocol(&p.serial)
 	errMsg = "Error while connecting to the board"
 	err = retry(ctx, 5, time.Millisecond*1000, errMsg, func() error {
-		return p.ser.Connect(p.board.address)
+		params := transport.TransportInterfaceParams{
+			Port:      p.board.address,
+			BoundRate: 57600,
+		}
+		return p.serial.Connect(params)
 	})
 	if err != nil {
 		return err
 	}
-	defer p.ser.Close()
+	defer p.serial.Close()
 	logrus.Infof("%s\n\n", "Connected to the board")
 
 	// Wait some time before using the serial port
@@ -131,7 +140,7 @@ func (p provision) run(ctx context.Context) error {
 
 func (p provision) configBoard(ctx context.Context) error {
 	logrus.Info("Receiving the certificate")
-	csr, err := p.ser.SendReceive(ctx, serial.CSR, []byte(p.id))
+	csr, err := p.provProt.SendReceive(ctx, provisioningprotocol.CSR, []byte(p.id))
 	if err != nil {
 		return err
 	}
@@ -141,37 +150,37 @@ func (p provision) configBoard(ctx context.Context) error {
 	}
 
 	logrus.Info("Requesting begin storage")
-	if err = p.ser.Send(ctx, serial.BeginStorage, nil); err != nil {
+	if err = p.provProt.Send(ctx, provisioningprotocol.BeginStorage, nil); err != nil {
 		return err
 	}
 
 	s := strconv.Itoa(cert.NotBefore.Year())
 	logrus.Info("Sending year: ", s)
-	if err = p.ser.Send(ctx, serial.SetYear, []byte(s)); err != nil {
+	if err = p.provProt.Send(ctx, provisioningprotocol.SetYear, []byte(s)); err != nil {
 		return err
 	}
 
 	s = fmt.Sprintf("%02d", int(cert.NotBefore.Month()))
 	logrus.Info("Sending month: ", s)
-	if err = p.ser.Send(ctx, serial.SetMonth, []byte(s)); err != nil {
+	if err = p.provProt.Send(ctx, provisioningprotocol.SetMonth, []byte(s)); err != nil {
 		return err
 	}
 
 	s = fmt.Sprintf("%02d", cert.NotBefore.Day())
 	logrus.Info("Sending day: ", s)
-	if err = p.ser.Send(ctx, serial.SetDay, []byte(s)); err != nil {
+	if err = p.provProt.Send(ctx, provisioningprotocol.SetDay, []byte(s)); err != nil {
 		return err
 	}
 
 	s = fmt.Sprintf("%02d", cert.NotBefore.Hour())
 	logrus.Info("Sending hour: ", s)
-	if err = p.ser.Send(ctx, serial.SetHour, []byte(s)); err != nil {
+	if err = p.provProt.Send(ctx, provisioningprotocol.SetHour, []byte(s)); err != nil {
 		return err
 	}
 
 	s = strconv.Itoa(31)
 	logrus.Info("Sending validity: ", s)
-	if err = p.ser.Send(ctx, serial.SetValidity, []byte(s)); err != nil {
+	if err = p.provProt.Send(ctx, provisioningprotocol.SetValidity, []byte(s)); err != nil {
 		return err
 	}
 
@@ -180,7 +189,7 @@ func (p provision) configBoard(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("decoding certificate serial: %w", err)
 	}
-	if err = p.ser.Send(ctx, serial.SetCertSerial, b); err != nil {
+	if err = p.provProt.Send(ctx, provisioningprotocol.SetCertSerial, b); err != nil {
 		return err
 	}
 
@@ -189,7 +198,7 @@ func (p provision) configBoard(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("decoding certificate authority key id: %w", err)
 	}
-	if err = p.ser.Send(ctx, serial.SetAuthKey, b); err != nil {
+	if err = p.provProt.Send(ctx, provisioningprotocol.SetAuthKey, b); err != nil {
 		return err
 	}
 
@@ -199,7 +208,7 @@ func (p provision) configBoard(ctx context.Context) error {
 		err = fmt.Errorf("decoding certificate signature: %w", err)
 		return err
 	}
-	if err = p.ser.Send(ctx, serial.SetSignature, b); err != nil {
+	if err = p.provProt.Send(ctx, provisioningprotocol.SetSignature, b); err != nil {
 		return err
 	}
 
@@ -208,7 +217,7 @@ func (p provision) configBoard(ctx context.Context) error {
 	}
 
 	logrus.Info("Requesting end storage")
-	if err = p.ser.Send(ctx, serial.EndStorage, nil); err != nil {
+	if err = p.provProt.Send(ctx, provisioningprotocol.EndStorage, nil); err != nil {
 		return err
 	}
 
@@ -217,7 +226,7 @@ func (p provision) configBoard(ctx context.Context) error {
 	}
 
 	logrus.Info("Requesting certificate reconstruction")
-	if err = p.ser.Send(ctx, serial.ReconstructCert, nil); err != nil {
+	if err = p.provProt.Send(ctx, provisioningprotocol.ReconstructCert, nil); err != nil {
 		return err
 	}
 
