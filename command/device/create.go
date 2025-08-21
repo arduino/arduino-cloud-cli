@@ -22,9 +22,11 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/arduino/arduino-cloud-cli/arduino"
 	"github.com/arduino/arduino-cloud-cli/arduino/cli"
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
+	provisioningapi "github.com/arduino/arduino-cloud-cli/internal/provisioning-api"
 	"github.com/sirupsen/logrus"
 )
 
@@ -70,6 +72,36 @@ func Create(ctx context.Context, params *CreateParams, cred *config.Credentials)
 		return nil, err
 	}
 
+	provisioningClient := provisioningapi.NewClient(cred)
+
+	boardsList, err := provisioningClient.GetBoardsDetail()
+	if err != nil {
+		return nil, err
+	}
+	var boardProvisioningDetails provisioningapi.BoardType
+	for _, b := range *boardsList {
+		if *b.FQBN == board.fqbn {
+			boardProvisioningDetails = b
+			break
+		}
+	}
+
+	if boardProvisioningDetails.FQBN == nil {
+		return nil, fmt.Errorf("board with fqbn %s not found in provisioning API", board.fqbn)
+	}
+
+	var devInfo *DeviceInfo
+	if boardProvisioningDetails.Provisioning != nil && *boardProvisioningDetails.Provisioning == "v2" {
+		//TODO ADD function for V2 provisioning
+	} else {
+		logrus.Info("Provisioning V1 started")
+		devInfo, err = runProvisioningV1(ctx, params, &comm, iotClient, board)
+	}
+
+	return devInfo, err
+}
+
+func runProvisioningV1(ctx context.Context, params *CreateParams, comm *arduino.Commander, iotClient *iot.Client, board *board) (*DeviceInfo, error) {
 	logrus.Info("Creating a new device on the cloud")
 	dev, err := iotClient.DeviceCreate(ctx, board.fqbn, params.Name, board.serial, board.dType, params.ConnectionType)
 	if err != nil {
@@ -77,7 +109,7 @@ func Create(ctx context.Context, params *CreateParams, cred *config.Credentials)
 	}
 
 	prov := &provision{
-		Commander: comm,
+		Commander: *comm,
 		cert:      iotClient,
 		board:     board,
 		id:        dev.Id,
@@ -94,7 +126,6 @@ func Create(ctx context.Context, params *CreateParams, cred *config.Credentials)
 		}
 		return nil, fmt.Errorf("cannot provision device: %w", err)
 	}
-
 	devInfo := &DeviceInfo{
 		Name:   dev.Name,
 		ID:     dev.Id,
