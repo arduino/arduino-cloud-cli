@@ -19,6 +19,7 @@ package configurationprotocol
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/arduino/arduino-cloud-cli/internal/board-protocols/configuration-protocol/cborcoders"
 	"github.com/arduino/arduino-cloud-cli/internal/board-protocols/frame"
@@ -111,6 +112,7 @@ func (ncp *NetworkConfigurationProtocol) Close() error {
 		if err != nil {
 			return fmt.Errorf("error sending end of transmission: %w", err)
 		}
+		time.Sleep(1 * time.Second)
 	}
 
 	err := (*ncp.transport).Close()
