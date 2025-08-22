@@ -38,7 +38,7 @@ type BadResponse struct {
 }
 
 type ClaimResponse struct {
-	BoardId string `json:"id"`
+	OnboardId string `json:"id"`
 }
 
 type BoardType struct {

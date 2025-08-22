@@ -93,6 +93,7 @@ func Create(ctx context.Context, params *CreateParams, cred *config.Credentials)
 	var devInfo *DeviceInfo
 	if boardProvisioningDetails.Provisioning != nil && *boardProvisioningDetails.Provisioning == "v2" {
 		//TODO ADD function for V2 provisioning
+		// TODO check if ConnectionType is null
 	} else {
 		logrus.Info("Provisioning V1 started")
 		devInfo, err = runProvisioningV1(ctx, params, &comm, iotClient, board)
