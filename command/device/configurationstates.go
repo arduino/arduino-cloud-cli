@@ -25,7 +25,6 @@ import (
 
 	configurationprotocol "github.com/arduino/arduino-cloud-cli/internal/board-protocols/configuration-protocol"
 	"github.com/arduino/arduino-cloud-cli/internal/board-protocols/configuration-protocol/cborcoders"
-	"github.com/arduino/arduino-cloud-cli/internal/board-protocols/transport"
 	"github.com/sirupsen/logrus"
 )
 
@@ -48,8 +47,8 @@ const (
 	WaitBLEMAC
 	SendInitialTS
 	MissingParameter
-	UUIDRequest
-	WaitingUUID
+	IDRequest
+	WaitingID
 	WaitingSignature
 	WaitingPublicKey
 	ClaimDevice
@@ -62,23 +61,23 @@ const (
 	SendConnectionRequest
 	WaitingForConnectionCommandResult
 	WaitingForNetworkConfigResult
+	WaitingForProvisioningResult
+	UnclaimDevice
 	End
 )
 
 type ConfigurationStates struct {
-	extInterface   transport.TransportInterface
 	configProtocol *configurationprotocol.NetworkConfigurationProtocol
 }
 
-func NewConfigurationStates(extInterface transport.TransportInterface, configProtocol *configurationprotocol.NetworkConfigurationProtocol) *ConfigurationStates {
+func NewConfigurationStates(configProtocol *configurationprotocol.NetworkConfigurationProtocol) *ConfigurationStates {
 	return &ConfigurationStates{
-		extInterface:   extInterface,
 		configProtocol: configProtocol,
 	}
 }
 
 func (c *ConfigurationStates) WaitForConnection() (ConfigStatus, error) {
-	if c.extInterface.Connected() {
+	if c.configProtocol.Connected() {
 		return WaitingForInitialStatus, nil
 	}
 	return NoneState, errors.New("impossible to connect with the device")

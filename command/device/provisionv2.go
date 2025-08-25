@@ -18,6 +18,7 @@
 package device
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strconv"
@@ -25,12 +26,26 @@ import (
 	"time"
 
 	"github.com/arduino/arduino-cloud-cli/arduino"
+	"github.com/arduino/arduino-cloud-cli/config"
 	configurationprotocol "github.com/arduino/arduino-cloud-cli/internal/board-protocols/configuration-protocol"
 	"github.com/arduino/arduino-cloud-cli/internal/board-protocols/configuration-protocol/cborcoders"
 	"github.com/arduino/arduino-cloud-cli/internal/board-protocols/transport"
+	"github.com/arduino/arduino-cloud-cli/internal/boardpids"
+	iotapiraw "github.com/arduino/arduino-cloud-cli/internal/iot-api-raw"
 	provisioningapi "github.com/arduino/arduino-cloud-cli/internal/provisioning-api"
+	"github.com/arduino/go-paths-helper"
 	"github.com/sirupsen/logrus"
 )
+
+var connectionTypeIDByName = map[string]int32{
+	"wifi":     1,
+	"eth":      2,
+	"nb":       3,
+	"gsm":      4,
+	"lora":     5,
+	"catm1":    6,
+	"cellular": 7,
+}
 
 type ConnectedBoardInfos struct {
 	UHWID         string
@@ -39,36 +54,60 @@ type ConnectedBoardInfos struct {
 	BLEMacAddress string
 }
 
+type ProvisioningV2BoardParams struct {
+	fqbn                 string
+	address              string
+	protocol             string
+	serial               string
+	minProvSketchVersion string
+	minWiFiVersion       *string
+	name                 string
+	connectionType       string
+	netConfig            NetConfig
+}
+
 type ProvisionV2 struct {
 	arduino.Commander
+	iotApiClient        *iotapiraw.IoTApiRawClient
 	provisioningClient  *provisioningapi.ProvisioningApiClient
-	extInterface        transport.TransportInterface
 	provProt            *configurationprotocol.NetworkConfigurationProtocol
-	board               *board
-	boardProvDetails    provisioningapi.BoardType
 	state               ConfigStatus
 	configStates        *ConfigurationStates
 	connectedBoardInfos ConnectedBoardInfos
-	provParams          *CreateParams
 	provisioningId      string
+	deviceId            string
 }
 
-func NewProvisionV2(provisioningClient *provisioningapi.ProvisioningApiClient, extInterface transport.TransportInterface, provProt *configurationprotocol.NetworkConfigurationProtocol, board *board, boardProvDetails provisioningapi.BoardType, provParams *CreateParams) *ProvisionV2 {
+func NewProvisionV2(iotClient *iotapiraw.IoTApiRawClient, credentials *config.Credentials, extInterface transport.TransportInterface) *ProvisionV2 {
+	provProt := configurationprotocol.NewNetworkConfigurationProtocol(&extInterface)
 	return &ProvisionV2{
-		provisioningClient: provisioningClient,
-		extInterface:       extInterface,
+		iotApiClient:       iotClient,
+		provisioningClient: provisioningapi.NewClient(credentials),
 		provProt:           provProt,
-		board:              board,
-		boardProvDetails:   boardProvDetails,
-		configStates:       NewConfigurationStates(extInterface, provProt),
-		provParams:         provParams,
+		configStates:       NewConfigurationStates(provProt),
+		deviceId:           "",
 	}
 }
 
-func (p *ProvisionV2) run() error {
+func (p *ProvisionV2) connectToBoard(address string) error {
+	err := p.provProt.Connect(address)
+	return err
+}
+
+/*
+ * The function return the Arduino Cloud Device ID of the new created board
+ * if the process ends successfully. Otherwise, an error
+ */
+func (p *ProvisionV2) GetProvisioningResult() (string, error) {
+	if p.deviceId == "" {
+		return "", errors.New("device not provisioned")
+	}
+	return p.deviceId, nil
+}
+
+func (p *ProvisionV2) Run(ctx context.Context, params ProvisioningV2BoardParams) error {
 	var err error
-	err = p.provProt.Connect(p.board.address)
-	if err != nil {
+	if err = p.connectToBoard(params.address); err != nil {
 		return err
 	}
 	p.state = WaitForConnection
@@ -97,35 +136,123 @@ func (p *ProvisionV2) run() error {
 			p.state = nextState
 		case BoardReady:
 			p.state = GetSketchVersionRequest
-			//TODO complete the FSM
 		case GetSketchVersionRequest:
 			err = p.getSketchVersionRequest()
-		case ConfigureNetwork:
-			nextState, err = p.configStates.ConfigureNetwork(ctx, netConfig)
 			if err != nil {
-				nextState = End
+				p.state = End
 			}
-			p.state = nextState
+		case WaitingSketchVersion:
+			err = p.waitingSketchVersion(params.minProvSketchVersion)
+			if err != nil {
+				p.state = End
+			}
+		case FlashProvisioningSketch:
+			err = p.flashProvisioningSketch(ctx, params.fqbn, params.address, params.protocol)
+			if err != nil {
+				p.state = End
+			}
+		case WiFiFWVersionRequest:
+			err = p.getWiFiFWVersionRequest()
+			if err != nil {
+				p.state = End
+			}
+		case WaitingWiFiFWVersion:
+			err = p.waitWiFiFWVersion(params.minWiFiVersion)
+			if err != nil {
+				p.state = End
+			}
+		case RequestBLEMAC:
+			err = p.getBLEMACRequest()
+			if err != nil {
+				p.state = End
+			}
+		case WaitBLEMAC:
+			err = p.waitBLEMac()
+			if err != nil {
+				p.state = End
+			}
+		case SendInitialTS:
+			err = p.sendInitialTS()
+			if err != nil {
+				p.state = End
+			}
+
+		case IDRequest:
+			err = p.getIDRequest()
+			if err != nil {
+				p.state = End
+			}
+		case WaitingPublicKey:
+			err = p.waitingPublicKey()
+			if err != nil {
+				p.state = End
+			}
+		case WaitingID:
+			err = p.waitingUHWID()
+			if err != nil {
+				p.state = End
+			}
+		case WaitingSignature:
+			err = p.waitingSignature()
+			if err != nil {
+				p.state = End
+			}
+		case ClaimDevice:
+			err = p.claimDevice(params.name, params.connectionType)
+			if err != nil {
+				p.state = End
+			}
+		case RegisterDevice:
+			err = p.registerDevice(params.fqbn, params.serial)
+			if err != nil {
+				p.state = End
+			}
+
+		case RequestReset:
+			err = p.resetBoardRequest()
+			if err != nil {
+				p.state = UnclaimDevice
+			}
+		case WaitResetResponse:
+			err = p.waitingForResetResult()
+			if err != nil {
+				p.state = UnclaimDevice
+			}
+		case ConfigureNetwork:
+			nextState, err = p.configStates.ConfigureNetwork(ctx, &params.netConfig)
+			if err != nil {
+				nextState = UnclaimDevice
+			}
 		case SendConnectionRequest:
 			nextState, err = p.configStates.SendConnectionRequest()
 			if err != nil {
-				nextState = End
+				nextState = UnclaimDevice
 			}
 			p.state = nextState
 		case WaitingForConnectionCommandResult:
 			nextState, err = p.configStates.WaitingForConnectionCommandResult()
 			if err != nil {
-				nextState = End
+				nextState = UnclaimDevice
+			}
+
+			if nextState == MissingParameter {
+				nextState = ConfigureNetwork
 			}
 			p.state = nextState
-		case MissingParameter:
-			p.state = ConfigureNetwork
 		case WaitingForNetworkConfigResult:
-			nextState, err = p.configStates.WaitingForNetworkConfigResult()
+			_, err = p.configStates.WaitingForNetworkConfigResult()
 			if err != nil {
-				nextState = End
+				nextState = UnclaimDevice
 			}
-			p.state = nextState
+			p.state = WaitingForProvisioningResult
+		case WaitingForProvisioningResult:
+			err = p.waitProvisioningResult(ctx)
+			if err != nil {
+				p.state = UnclaimDevice
+			}
+		case UnclaimDevice:
+			err = p.unclaimDevice()
+
 		}
 
 	}
@@ -147,9 +274,9 @@ func (p *ProvisionV2) getSketchVersionRequest() error {
 
 /*
  * This function returns
- * - <0 if version1 < version2
- * - 0 if version1 == version2
- * - >0 if version1 > version2
+ * - <0 if version1  < version2
+ * - =0 if version1 == version2
+ * - >0 if version1  > version2
  */
 func (p *ProvisionV2) compareVersions(version1, version2 string) int {
 	version1Tokens := strings.Split(version1, ".")
@@ -167,7 +294,7 @@ func (p *ProvisionV2) compareVersions(version1, version2 string) int {
 	return 0
 }
 
-func (p *ProvisionV2) waitingSketchVersion() error {
+func (p *ProvisionV2) waitingSketchVersion(minSketchVersion string) error {
 	res, err := p.provProt.ReceiveData(60)
 	if err != nil {
 		return err
@@ -183,9 +310,8 @@ func (p *ProvisionV2) waitingSketchVersion() error {
 		sketch_version := res.ToProvisioningSketchVersionMessage().ProvisioningSketchVersion
 		logrus.Info("Provisioning V2: Received Sketch Version %s", sketch_version)
 
-		if p.boardProvDetails.MinProvSketchVersion != nil &&
-			p.compareVersions(sketch_version, *p.boardProvDetails.MinProvSketchVersion) < 0 {
-			logrus.Info("Provisioning V2: Sketch version %s is lower than required minimum %s. Updating...", sketch_version, *p.boardProvDetails.MinProvSketchVersion)
+		if p.compareVersions(sketch_version, minSketchVersion) < 0 {
+			logrus.Info("Provisioning V2: Sketch version %s is lower than required minimum %s. Updating...", sketch_version, minSketchVersion)
 			p.state = FlashProvisioningSketch
 			return nil
 		}
@@ -206,6 +332,36 @@ func (p *ProvisionV2) waitingSketchVersion() error {
 	return nil
 }
 
+func (p *ProvisionV2) flashProvisioningSketch(ctx context.Context, fqbn, address, protocol string) error {
+	logrus.Info("Provisioning V2: Downloading provisioning sketch")
+	path := paths.TempDir().Join("cloud-cli").Join("provisioning_v2_sketch")
+
+	file, err := p.iotApiClient.DownloadProvisioningV2Sketch(fqbn, path, nil)
+	if err != nil {
+		logrus.Error("Provisioning V2: Downloading provisioning sketch failed")
+		return err
+	}
+
+	// Try to upload the provisioning sketch
+	logrus.Infof("%s\n", "Uploading provisioning sketch on the board")
+	errMsg := "Provisioning V2: error while uploading the provisioning sketch"
+	err = retry(ctx, 5, time.Millisecond*1000, errMsg, func() error {
+		return p.UploadBin(ctx, fqbn, file, address, protocol)
+	})
+	if err != nil {
+		return err
+	}
+
+	logrus.Info("Provisioning V2: Uploading provisioning sketch succeeded")
+	sleepCtx(ctx, 3*time.Second)
+	if err = p.connectToBoard(address); err != nil {
+		return err
+	}
+	p.state = WaitForConnection
+	return nil
+
+}
+
 func (p *ProvisionV2) getWiFiFWVersionRequest() error {
 	logrus.Info("Provisioning V2: Requesting WiFi FW Version")
 	getWiFiFWVersionMessage := cborcoders.From(cborcoders.ProvisioningCommandsMessage{Command: configurationprotocol.Commands["GetWiFiFWVersion"]})
@@ -218,7 +374,7 @@ func (p *ProvisionV2) getWiFiFWVersionRequest() error {
 	return nil
 }
 
-func (p *ProvisionV2) waitWiFiFWVersion() error {
+func (p *ProvisionV2) waitWiFiFWVersion(minWiFiVersion *string) error {
 	res, err := p.provProt.ReceiveData(60)
 	if err != nil {
 		return err
@@ -231,9 +387,9 @@ func (p *ProvisionV2) waitWiFiFWVersion() error {
 	if res.Type() == cborcoders.ProvisioningWiFiFWVersionMessageType {
 		wifi_version := res.ToProvisioningWiFiFWVersionMessage().WiFiFWVersion
 		fmt.Printf("Received WiFi FW Version: %s\n", wifi_version)
-		if p.boardProvDetails.MinWiFiVersion != nil &&
-			p.compareVersions(wifi_version, *p.boardProvDetails.MinWiFiVersion) < 0 {
-			return fmt.Errorf("Provisioning V2: WiFi FW version %s is lower than required minimum %s. Please update the board firmware using Arduino IDE or Arduino CLI", wifi_version, *p.boardProvDetails.MinWiFiVersion)
+		if minWiFiVersion != nil &&
+			p.compareVersions(wifi_version, *minWiFiVersion) < 0 {
+			return fmt.Errorf("Provisioning V2: WiFi FW version %s is lower than required minimum %s. Please update the board firmware using Arduino IDE or Arduino CLI", wifi_version, *minWiFiVersion)
 		}
 		p.state = RequestBLEMAC
 
@@ -251,7 +407,7 @@ func (p *ProvisionV2) waitWiFiFWVersion() error {
 	return errors.New("Provisioning V2: WiFi FW version not received")
 }
 
-func (p *ProvisionV2) BLEMacRequest() error {
+func (p *ProvisionV2) getBLEMACRequest() error {
 	logrus.Info("Provisioning V2: Requesting BLE MAC")
 	getblemacMessage := cborcoders.From(cborcoders.ProvisioningCommandsMessage{Command: configurationprotocol.Commands["GetBLEMac"]})
 	err := p.provProt.SendData(getblemacMessage)
@@ -302,12 +458,12 @@ func (p *ProvisionV2) sendInitialTS() error {
 	if err != nil {
 		return err
 	}
-	p.state = UUIDRequest
+	p.state = IDRequest
 	time.Sleep(1 * time.Second)
 	return nil
 }
 
-func (p *ProvisionV2) uidRequest() error {
+func (p *ProvisionV2) getIDRequest() error {
 	logrus.Info("Provisioning V2: Requesting UniqueID")
 	getuuidMessage := cborcoders.From(cborcoders.ProvisioningCommandsMessage{Command: configurationprotocol.Commands["GetID"]})
 	err := p.provProt.SendData(getuuidMessage)
@@ -332,7 +488,7 @@ func (p *ProvisionV2) waitingPublicKey() error {
 		pubKey := res.ToProvisioningPublicKeyMessage().ProvisioningPublicKey
 		logrus.Infof("Provisioning V2: Received Public Key\n")
 		p.connectedBoardInfos.PublicKey = pubKey
-		p.state = WaitingUUID
+		p.state = WaitingID
 	} else if res.Type() == cborcoders.ProvisioningStatusMessageType {
 		status := res.ToProvisioningStatusMessage()
 		newState, err := p.configStates.HandleStatusMessage(status.Status)
@@ -352,7 +508,7 @@ func (p *ProvisionV2) waitingPublicKey() error {
 	return errors.New("Provisioning V2: Public Key not received")
 }
 
-func (p *ProvisionV2) waitingUID() error {
+func (p *ProvisionV2) waitingUHWID() error {
 	res, err := p.provProt.ReceiveData(60)
 	if err != nil {
 		return err
@@ -363,20 +519,16 @@ func (p *ProvisionV2) waitingUID() error {
 	}
 
 	if res.Type() == cborcoders.ProvisioningUniqueIdMessageType {
-		uid := res.ToProvisioningUniqueIdMessage().UniqueId
+		uhwid := res.ToProvisioningUniqueIdMessage().UniqueId
 		logrus.Infof("Provisioning V2: Received UniqueID\n")
-		uidString := string(uid[:])
-		p.connectedBoardInfos.UHWID = uidString
+		uhwidString := string(uhwid[:])
+		p.connectedBoardInfos.UHWID = uhwidString
 		p.state = WaitingSignature
 	} else if res.Type() == cborcoders.ProvisioningStatusMessageType {
 		status := res.ToProvisioningStatusMessage()
 		newState, err := p.configStates.HandleStatusMessage(status.Status)
 		if err != nil {
 			return err
-		}
-		if newState == MissingParameter {
-			p.state = SendInitialTS
-			return nil
 		}
 
 		if newState != NoneState {
@@ -417,14 +569,14 @@ func (p *ProvisionV2) waitingSignature() error {
 	return errors.New("Provisioning V2: Signature was not received")
 }
 
-func (p *ProvisionV2) claimDevice() error {
+func (p *ProvisionV2) claimDevice(name, connectionType string) error {
 	logrus.Info("Provisioning V2: Claiming device...")
 
 	claimData := provisioningapi.ClaimData{
 		BLEMac:         p.connectedBoardInfos.BLEMacAddress,
 		BoardToken:     p.connectedBoardInfos.Signature,
-		ConnectionType: *p.provParams.ConnectionType,
-		DeviceName:     p.provParams.Name,
+		ConnectionType: connectionType,
+		DeviceName:     name,
 	}
 
 	provResp, provErr, err := p.provisioningClient.ClaimDevice(claimData)
@@ -453,15 +605,15 @@ func (p *ProvisionV2) claimDevice() error {
 	return errors.New("Provisioning V2: Device ID not received")
 }
 
-func (p *ProvisionV2) RegisterDevice() error {
+func (p *ProvisionV2) registerDevice(fqbn, serial string) error {
 	logrus.Info("Provisioning V2: Registering device...")
 
 	registerData := provisioningapi.RegisterBoardData{
-		PID:              p.boardProvDetails.Type,
+		PID:              boardpids.ArduinoFqbnToPID[fqbn],
 		PublicKey:        p.connectedBoardInfos.PublicKey,
-		Serial:           &p.board.serial,
+		Serial:           &serial,
 		UniqueHardwareID: p.connectedBoardInfos.UHWID,
-		VID:              p.board.dType, //TODO ask for sending fqbn
+		VID:              boardpids.ArduinoVendorID, //Only Arduino boards can support Provisioning 2.0
 	}
 
 	provErr, err := p.provisioningClient.RegisterDevice(registerData)
@@ -478,7 +630,7 @@ func (p *ProvisionV2) RegisterDevice() error {
 	return nil
 }
 
-func (p *ProvisionV2) ResetRequest() error {
+func (p *ProvisionV2) resetBoardRequest() error {
 	logrus.Info("Provisioning V2: Requesting Reset Stored Credentials")
 	resetMessage := cborcoders.From(cborcoders.ProvisioningCommandsMessage{Command: configurationprotocol.Commands["Reset"]})
 	err := p.provProt.SendData(resetMessage)
@@ -514,4 +666,28 @@ func (p *ProvisionV2) waitingForResetResult() error {
 	}
 
 	return errors.New("Provisioning V2: Reset Stored Credentials failed")
+}
+
+func (p *ProvisionV2) waitProvisioningResult(ctx context.Context) error {
+	logrus.Info("Provisioning V2: Waiting for provisioning result...")
+
+	for n := 0; n < 20; n++ {
+		res, err := p.provisioningClient.GetProvisioningDetail(p.provisioningId)
+		if err != nil {
+			return err
+		}
+		if res.DeviceID != nil {
+			p.deviceId = *res.DeviceID
+			p.state = End
+		}
+		sleepCtx(ctx, 10*time.Second)
+	}
+	return errors.New("Provisioning V2: Timeout expires for board provisioning. The board was not able to reach the Arduino IoT Cloud for completing the provisioning.")
+}
+
+func (p *ProvisionV2) unclaimDevice() error {
+	logrus.Warnf("Provisioning V2: Something went wrong, unclaiming device...")
+	_, err := p.provisioningClient.UnclaimDevice(p.provisioningId)
+	p.state = End
+	return err
 }
