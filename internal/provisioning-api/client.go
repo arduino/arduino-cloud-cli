@@ -155,7 +155,7 @@ func (c *ProvisioningApiClient) RegisterDevice(data RegisterBoardData) (*BadResp
 	return &badResponse, nil
 }
 
-func (c *ProvisioningApiClient) Unclaim(provisioningId string) (*BadResponse, error) {
+func (c *ProvisioningApiClient) UnclaimDevice(provisioningId string) (*BadResponse, error) {
 	endpoint := c.host + "provisioning/v1/onboarding/" + provisioningId
 	token, err := c.getToken()
 	if err != nil {
@@ -236,43 +236,4 @@ func (c *ProvisioningApiClient) GetProvisioningDetail(provID string) (*Onboardin
 	}
 
 	return nil, fmt.Errorf("onboarding with ID %s not found", provID)
-}
-
-func (c *ProvisioningApiClient) GetBoardsDetail() (*BoardTypeList, error) {
-	endpoint := c.host + "iot/v1/supported/devices"
-	token, err := c.getToken()
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := c.performRequest(endpoint, http.MethodGet, token.AccessToken, nil)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode == http.StatusOK {
-		var response BoardTypeList
-
-		respBytes, err := io.ReadAll(res.Body)
-		if err != nil {
-			return nil, err
-		}
-
-		err = json.Unmarshal(respBytes, &response)
-		if err != nil {
-			return nil, err
-		}
-		return &response, nil
-	} else if res.StatusCode == 400 {
-		return nil, errors.New(endpoint + " returned bad request")
-	} else if res.StatusCode == 401 {
-		return nil, errors.New(endpoint + " returned unauthorized request")
-	} else if res.StatusCode == 403 {
-		return nil, errors.New(endpoint + " returned forbidden request")
-	} else if res.StatusCode == 500 {
-		return nil, errors.New(endpoint + " returned internal server error")
-	}
-
-	return nil, err
 }
