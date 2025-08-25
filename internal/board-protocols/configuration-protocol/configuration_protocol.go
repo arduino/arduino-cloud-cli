@@ -100,6 +100,13 @@ func (ncp *NetworkConfigurationProtocol) Connect(address string) error {
 
 }
 
+func (ncp *NetworkConfigurationProtocol) Connected() bool {
+	if ncp.transport == nil || *ncp.transport == nil {
+		return false
+	}
+	return (*ncp.transport).Connected()
+}
+
 func (ncp *NetworkConfigurationProtocol) Close() error {
 	if ncp.transport == nil || *ncp.transport == nil {
 		return fmt.Errorf("NetworkConfigurationProtocol: transport interface is not initialized")
