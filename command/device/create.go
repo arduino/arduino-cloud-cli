@@ -26,7 +26,7 @@ import (
 	"github.com/arduino/arduino-cloud-cli/arduino/cli"
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
-	provisioningapi "github.com/arduino/arduino-cloud-cli/internal/provisioning-api"
+	iotapiraw "github.com/arduino/arduino-cloud-cli/internal/iot-api-raw"
 	"github.com/sirupsen/logrus"
 )
 
@@ -72,13 +72,13 @@ func Create(ctx context.Context, params *CreateParams, cred *config.Credentials)
 		return nil, err
 	}
 
-	provisioningClient := provisioningapi.NewClient(cred)
+	iotApiRawClient := iotapiraw.NewClient(cred)
 
-	boardsList, err := provisioningClient.GetBoardsDetail()
+	boardsList, err := iotApiRawClient.GetBoardsDetail()
 	if err != nil {
 		return nil, err
 	}
-	var boardProvisioningDetails provisioningapi.BoardType
+	var boardProvisioningDetails iotapiraw.BoardType
 	for _, b := range *boardsList {
 		if *b.FQBN == board.fqbn {
 			boardProvisioningDetails = b
@@ -92,14 +92,33 @@ func Create(ctx context.Context, params *CreateParams, cred *config.Credentials)
 
 	var devInfo *DeviceInfo
 	if boardProvisioningDetails.Provisioning != nil && *boardProvisioningDetails.Provisioning == "v2" {
-		//TODO ADD function for V2 provisioning
-		// TODO check if ConnectionType is null
+		logrus.Info("Provisioning V2 started")
+		devInfo, err = runProvisioningV2(ctx, params, &comm, iotClient, board)
 	} else {
 		logrus.Info("Provisioning V1 started")
 		devInfo, err = runProvisioningV1(ctx, params, &comm, iotClient, board)
 	}
 
 	return devInfo, err
+}
+
+func runProvisioningV2(ctx context.Context, params *CreateParams, comm *arduino.Commander, iotClient *iotapiraw.IoTApiRawClient, cred *config.Credentials) (*DeviceInfo, error) {
+	if params.ConnectionType == nil {
+		return nil, errors.New("connection type is required for Provisioning V2")
+	}
+
+	netConfig := NetConfig{
+		Type: connectionTypeIDByName[*params.ConnectionType],
+	}
+
+	err := GetInputFromMenu(&netConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	// func NewProvisionV2(iotClient *iotapiraw.IoTApiRawClient, credentials *config.Credentials, extInterface transport.TransportInterface)
+	prov := NewProvisionV2(iotClient, cred)
+
 }
 
 func runProvisioningV1(ctx context.Context, params *CreateParams, comm *arduino.Commander, iotClient *iot.Client, board *board) (*DeviceInfo, error) {
