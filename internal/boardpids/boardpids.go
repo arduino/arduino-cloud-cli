@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package ota
+package boardpids
 
 var (
 	BoardTypes = map[uint32]string{
@@ -44,21 +44,23 @@ var (
 		"025F": "arduino:mbed_nicla:nicla_vision",
 		"0064": "arduino:mbed_opta:opta",
 		"0266": "arduino:mbed_giga:giga",
+		"0068": "arduino:renesas_portenta:portenta_c33",
 	}
 
 	ArduinoFqbnToPID = map[string]string{
-		"arduino:samd:nano_33_iot":            "8057",
-		"arduino:samd:mkr1000":                "804E",
-		"arduino:samd:mkrgsm1400":             "8052",
-		"arduino:samd:mkrnb1500":              "8055",
-		"arduino:samd:mkrwifi1010":            "8054",
-		"arduino:mbed_nano:nanorp2040connect": "005E",
-		"arduino:mbed_portenta:envie_m7":      "025B",
-		"arduino:mbed_nicla:nicla_vision":     "025F",
-		"arduino:mbed_opta:opta":              "0064",
-		"arduino:mbed_giga:giga":              "0266",
-		"arduino:renesas_uno:unor4wifi":       "1002",
-		"arduino:esp32:nano_nora":             "0070",
+		"arduino:samd:nano_33_iot":              "8057",
+		"arduino:samd:mkr1000":                  "804E",
+		"arduino:samd:mkrgsm1400":               "8052",
+		"arduino:samd:mkrnb1500":                "8055",
+		"arduino:samd:mkrwifi1010":              "8054",
+		"arduino:mbed_nano:nanorp2040connect":   "005E",
+		"arduino:mbed_portenta:envie_m7":        "025B",
+		"arduino:mbed_nicla:nicla_vision":       "025F",
+		"arduino:mbed_opta:opta":                "0064",
+		"arduino:mbed_giga:giga":                "0266",
+		"arduino:renesas_uno:unor4wifi":         "1002",
+		"arduino:esp32:nano_nora":               "0070",
+		"arduino:renesas_portenta:portenta_c33": "0068",
 	}
 
 	ArduinoVendorID = "2341"
