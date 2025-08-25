@@ -20,6 +20,9 @@ package device
 import (
 	"context"
 	"errors"
+	"fmt"
+	"net"
+	"strings"
 
 	"github.com/arduino/arduino-cloud-cli/arduino/cli"
 	configurationprotocol "github.com/arduino/arduino-cloud-cli/internal/board-protocols/configuration-protocol"
@@ -58,9 +61,121 @@ func NetConfigure(ctx context.Context, boardFilters *CreateParams, NetConfig *Ne
 	return err
 }
 
+func GetInputFromMenu(config *NetConfig) error {
+
+	switch config.Type {
+	case 1:
+		config.WiFi = getWiFiSetting()
+	case 2:
+		config.Eth = getEthernetSetting()
+	case 3:
+		config.NB = getCellularSetting()
+	case 4:
+		config.GSM = getCellularSetting()
+	case 5:
+		config.Lora = getLoraSetting()
+	case 6:
+		config.CATM1 = getCatM1Setting()
+	case 7:
+		config.CellularSetting = getCellularSetting()
+	default:
+		return errors.New("invalid connection type, please try again")
+	}
+	return nil
+}
+
+func getWiFiSetting() WiFiSetting {
+	var wifi WiFiSetting
+	fmt.Print("Enter SSID: ")
+	fmt.Scanln(&wifi.SSID)
+	fmt.Print("Enter Password: ")
+	fmt.Scanln(&wifi.PWD)
+	return wifi
+}
+
+func getEthernetSetting() EthernetSetting {
+	var eth EthernetSetting
+	fmt.Println("Do you want to use DHCP? (yes/no): ")
+	var useDHCP string
+	fmt.Scanln(&useDHCP)
+	if useDHCP == "yes" || useDHCP == "y" {
+		eth.IP = IPAddr{Type: 0, Bytes: [16]byte{}}
+		eth.Gateway = IPAddr{Type: 0, Bytes: [16]byte{}}
+		eth.Netmask = IPAddr{Type: 0, Bytes: [16]byte{}}
+		eth.DNS = IPAddr{Type: 0, Bytes: [16]byte{}}
+	} else {
+		fmt.Println("Enter IP Address: ")
+		eth.IP = getIPAddr()
+		fmt.Println("Enter DNS: ")
+		eth.DNS = getIPAddr()
+		fmt.Println("Enter Gateway: ")
+		eth.Gateway = getIPAddr()
+		fmt.Println("Enter Netmask: ")
+		eth.Netmask = getIPAddr()
+	}
+
+	return eth
+}
+
+func getIPAddr() IPAddr {
+	var ip IPAddr
+	var ipString string
+	fmt.Scanln(&ipString)
+	if ipString == "" {
+		return ip
+	}
+	if strings.Count(ipString, ":") > 0 {
+		ip.Type = 1 // IPv6
+	} else {
+		ip.Type = 0 // IPv4
+	}
+	ip.Bytes = [16]byte(net.ParseIP(ipString).To16())
+	return ip
+}
+
+func getCellularSetting() CellularSetting {
+	var cellular CellularSetting
+	fmt.Println("Enter PIN: ")
+	fmt.Scanln(&cellular.PIN)
+	fmt.Print("Enter APN: ")
+	fmt.Scanln(&cellular.APN)
+	fmt.Print("Enter Login: ")
+	fmt.Scanln(&cellular.Login)
+	fmt.Print("Enter Password: ")
+	fmt.Scanln(&cellular.Pass)
+	return cellular
+}
+
+func getCatM1Setting() CATM1Setting {
+	var catm1 CATM1Setting
+	fmt.Print("Enter PIN: ")
+	fmt.Scanln(&catm1.PIN)
+	fmt.Print("Enter APN: ")
+	fmt.Scanln(&catm1.APN)
+	fmt.Print("Enter Login: ")
+	fmt.Scanln(&catm1.Login)
+	fmt.Print("Enter Password: ")
+	fmt.Scanln(&catm1.Pass)
+	return catm1
+}
+
+func getLoraSetting() LoraSetting {
+	var lora LoraSetting
+	fmt.Print("Enter AppEUI: ")
+	fmt.Scanln(&lora.AppEUI)
+	fmt.Print("Enter AppKey: ")
+	fmt.Scanln(&lora.AppKey)
+	fmt.Print("Enter Band (Byte hex format): ")
+	fmt.Scanln(&lora.Band)
+	fmt.Print("Enter Channel Mask: ")
+	fmt.Scanln(&lora.ChannelMask)
+	fmt.Print("Enter Device Class: ")
+	fmt.Scanln(&lora.DeviceClass)
+	return lora
+}
+
 type NetworkConfigure struct {
 	configStates   *ConfigurationStates
-	state          ConfigStatus
 	configProtocol *configurationprotocol.NetworkConfigurationProtocol
 }
 
@@ -72,59 +187,55 @@ func NewNetworkConfigure(extInterface transport.TransportInterface, configProtoc
 }
 
 func (nc *NetworkConfigure) Run(ctx context.Context, netConfig *NetConfig) error {
-	nc.state = WaitForConnection
+	state := WaitForConnection
+	nextState := state
 	var err error
-	var nextState ConfigStatus
-	for nc.state != End {
 
-		switch nc.state {
+	for state != End {
+
+		switch state {
 		case WaitForConnection:
 			nextState, err = nc.configStates.WaitForConnection()
 			if err != nil {
 				nextState = End
 			}
-			nc.state = nextState
 		case WaitingForInitialStatus:
 			nextState, err = nc.configStates.WaitingForInitialStatus()
 			if err != nil {
 				nextState = End
 			}
-			nc.state = nextState
 		case WaitingForNetworkOptions:
 			nextState, err = nc.configStates.WaitingForNetworkOptions()
 			if err != nil {
 				nextState = End
 			}
-			nc.state = nextState
 		case BoardReady:
-			nc.state = ConfigureNetwork
+			nextState = ConfigureNetwork
 		case ConfigureNetwork:
 			nextState, err = nc.configStates.ConfigureNetwork(ctx, netConfig)
 			if err != nil {
 				nextState = End
 			}
-			nc.state = nextState
 		case SendConnectionRequest:
 			nextState, err = nc.configStates.SendConnectionRequest()
 			if err != nil {
 				nextState = End
 			}
-			nc.state = nextState
 		case WaitingForConnectionCommandResult:
 			nextState, err = nc.configStates.WaitingForConnectionCommandResult()
 			if err != nil {
 				nextState = End
 			}
-			nc.state = nextState
 		case MissingParameter:
-			nc.state = ConfigureNetwork
+			nextState = ConfigureNetwork
 		case WaitingForNetworkConfigResult:
 			nextState, err = nc.configStates.WaitingForNetworkConfigResult()
 			if err != nil {
 				nextState = End
 			}
-			nc.state = nextState
 		}
+
+		state = nextState
 
 	}
 
