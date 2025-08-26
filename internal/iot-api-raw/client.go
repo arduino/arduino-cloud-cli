@@ -100,6 +100,20 @@ func (c *IoTApiRawClient) GetBoardsDetail() (*BoardTypeList, error) {
 	return nil, err
 }
 
+func (c *IoTApiRawClient) GetBoardDetailByFQBN(fqbn string) (*BoardType, error) {
+	boardsList, err := c.GetBoardsDetail()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, b := range *boardsList {
+		if *b.FQBN == fqbn {
+			return &b, nil
+		}
+	}
+	return nil, fmt.Errorf("board with fqbn %s not found", fqbn)
+}
+
 func (c *IoTApiRawClient) DownloadProvisioningV2Sketch(fqbn string, path *paths.Path, filename *string) (string, error) {
 	endpoint := c.host + "iot/v2/binaries/provisioningv2?fqbn=" + fqbn
 	token, err := c.getToken()

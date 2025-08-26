@@ -25,8 +25,10 @@ import (
 	"github.com/arduino/arduino-cloud-cli/arduino"
 	"github.com/arduino/arduino-cloud-cli/arduino/cli"
 	"github.com/arduino/arduino-cloud-cli/config"
+	"github.com/arduino/arduino-cloud-cli/internal/board-protocols/transport"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
 	iotapiraw "github.com/arduino/arduino-cloud-cli/internal/iot-api-raw"
+	"github.com/arduino/arduino-cloud-cli/internal/serial"
 	"github.com/sirupsen/logrus"
 )
 
@@ -67,42 +69,26 @@ func Create(ctx context.Context, params *CreateParams, cred *config.Credentials)
 		)
 	}
 
-	iotClient, err := iot.NewClient(cred)
-	if err != nil {
-		return nil, err
-	}
-
 	iotApiRawClient := iotapiraw.NewClient(cred)
 
-	boardsList, err := iotApiRawClient.GetBoardsDetail()
+	boardProvisioningDetails, err := iotApiRawClient.GetBoardDetailByFQBN(board.fqbn)
 	if err != nil {
 		return nil, err
-	}
-	var boardProvisioningDetails iotapiraw.BoardType
-	for _, b := range *boardsList {
-		if *b.FQBN == board.fqbn {
-			boardProvisioningDetails = b
-			break
-		}
-	}
-
-	if boardProvisioningDetails.FQBN == nil {
-		return nil, fmt.Errorf("board with fqbn %s not found in provisioning API", board.fqbn)
 	}
 
 	var devInfo *DeviceInfo
 	if boardProvisioningDetails.Provisioning != nil && *boardProvisioningDetails.Provisioning == "v2" {
 		logrus.Info("Provisioning V2 started")
-		devInfo, err = runProvisioningV2(ctx, params, &comm, iotClient, board)
+		devInfo, err = runProvisioningV2(ctx, params, &comm, iotApiRawClient, cred, board, boardProvisioningDetails)
 	} else {
 		logrus.Info("Provisioning V1 started")
-		devInfo, err = runProvisioningV1(ctx, params, &comm, iotClient, board)
+		devInfo, err = runProvisioningV1(ctx, params, &comm, cred, board)
 	}
 
 	return devInfo, err
 }
 
-func runProvisioningV2(ctx context.Context, params *CreateParams, comm *arduino.Commander, iotClient *iotapiraw.IoTApiRawClient, cred *config.Credentials) (*DeviceInfo, error) {
+func runProvisioningV2(ctx context.Context, params *CreateParams, comm *arduino.Commander, iotClient *iotapiraw.IoTApiRawClient, cred *config.Credentials, board *board, boardProvisioningDetails *iotapiraw.BoardType) (*DeviceInfo, error) {
 	if params.ConnectionType == nil {
 		return nil, errors.New("connection type is required for Provisioning V2")
 	}
@@ -116,13 +102,47 @@ func runProvisioningV2(ctx context.Context, params *CreateParams, comm *arduino.
 		return nil, err
 	}
 
-	// func NewProvisionV2(iotClient *iotapiraw.IoTApiRawClient, credentials *config.Credentials, extInterface transport.TransportInterface)
-	prov := NewProvisionV2(iotClient, cred)
+	var extInterface transport.TransportInterface
+	extInterface = &serial.Serial{}
 
+	prov := NewProvisionV2(comm, iotClient, cred, extInterface)
+	// Start the provisioning process
+	err = prov.Run(ctx, ProvisioningV2BoardParams{
+		fqbn:                 board.fqbn,
+		address:              board.address,
+		protocol:             board.protocol,
+		serial:               board.serial,
+		minProvSketchVersion: *boardProvisioningDetails.MinProvSketchVersion,
+		minWiFiVersion:       boardProvisioningDetails.MinWiFiVersion,
+		name:                 params.Name,
+		connectionType:       *params.ConnectionType,
+		netConfig:            netConfig,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	devId, err := prov.GetProvisioningResult()
+	if err != nil {
+		return nil, err
+	}
+
+	devInfo := &DeviceInfo{
+		Name:   params.Name,
+		ID:     devId,
+		Board:  *params.ConnectionType,
+		Serial: board.serial,
+		FQBN:   board.fqbn,
+	}
+	return devInfo, nil
 }
 
-func runProvisioningV1(ctx context.Context, params *CreateParams, comm *arduino.Commander, iotClient *iot.Client, board *board) (*DeviceInfo, error) {
+func runProvisioningV1(ctx context.Context, params *CreateParams, comm *arduino.Commander, cred *config.Credentials, board *board) (*DeviceInfo, error) {
 	logrus.Info("Creating a new device on the cloud")
+	iotClient, err := iot.NewClient(cred)
+	if err != nil {
+		return nil, err
+	}
 	dev, err := iotClient.DeviceCreate(ctx, board.fqbn, params.Name, board.serial, board.dType, params.ConnectionType)
 	if err != nil {
 		return nil, err
