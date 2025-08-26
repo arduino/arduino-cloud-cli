@@ -64,6 +64,13 @@ const (
 	WaitingForProvisioningResult
 	UnclaimDevice
 	End
+	ErrorState
+)
+
+const (
+	CommandResponseTimeoutLong_s  = 60
+	CommandResponseTimeoutShort_s = 30
+	ConnectResponseTimeout_s      = 200
 )
 
 type ConfigurationStates struct {
@@ -80,35 +87,33 @@ func (c *ConfigurationStates) WaitForConnection() (ConfigStatus, error) {
 	if c.configProtocol.Connected() {
 		return WaitingForInitialStatus, nil
 	}
-	return NoneState, errors.New("impossible to connect with the device")
+	return ErrorState, errors.New("impossible to connect with the device")
 }
 
 func (c *ConfigurationStates) WaitingForInitialStatus() (ConfigStatus, error) {
 	logrus.Info("NetworkConfigure: waiting for initial status from device")
-	res, err := c.configProtocol.ReceiveData(30)
+	res, err := c.configProtocol.ReceiveData(CommandResponseTimeoutShort_s)
 	if err != nil {
-		return NoneState, fmt.Errorf("communication error: %w, please check the NetworkConfigurator lib is activated in the sketch", err)
+		return ErrorState, fmt.Errorf("communication error: %w, please check the NetworkConfigurator lib is activated in the sketch", err)
 	}
 
 	if res == nil {
 		return WaitingForNetworkOptions, nil
-	} else if res.Type() == cborcoders.ProvisioningStatusMessageType {
+	}
+
+	if res.Type() == cborcoders.ProvisioningStatusMessageType {
 		status := res.ToProvisioningStatusMessage()
 		if status.Status == 1 {
 			return WaitingForInitialStatus, nil
-		} else if status.Status == -6 || status.Status <= -101 {
-			newState, err := c.HandleStatusMessage(status.Status)
-			if err != nil {
-				return NoneState, err
-			}
-			if newState != NoneState {
-				return newState, nil
-			}
-		} else {
-			return WaitingForNetworkOptions, nil
 		}
 
-	} else if res.Type() == cborcoders.WiFiNetworksType {
+		if status.Status == -6 || status.Status <= -101 {
+			return c.HandleStatusMessage(status.Status)
+		}
+		return WaitingForNetworkOptions, nil
+	}
+
+	if res.Type() == cborcoders.WiFiNetworksType {
 		return BoardReady, nil
 	}
 
@@ -119,9 +124,9 @@ func (c *ConfigurationStates) WaitingForInitialStatus() (ConfigStatus, error) {
 // Arduino Board Configuration Protocol.
 func (c *ConfigurationStates) WaitingForNetworkOptions() (ConfigStatus, error) {
 	logrus.Info("NetworkConfigure: waiting for network options from device")
-	res, err := c.configProtocol.ReceiveData(30)
+	res, err := c.configProtocol.ReceiveData(CommandResponseTimeoutShort_s)
 	if err != nil {
-		return NoneState, err
+		return ErrorState, err
 	}
 
 	if res != nil {
@@ -129,23 +134,19 @@ func (c *ConfigurationStates) WaitingForNetworkOptions() (ConfigStatus, error) {
 		// WiFiNetworksType, which contains the available WiFi networks list.
 		if res.Type() == cborcoders.WiFiNetworksType {
 			return BoardReady, nil
-		} else if res.Type() == cborcoders.ProvisioningStatusMessageType {
+		}
+
+		if res.Type() == cborcoders.ProvisioningStatusMessageType {
 			status := res.ToProvisioningStatusMessage()
 			if status.Status == 1 {
 				return WaitingForInitialStatus, nil
-			} else {
-				newState, err := c.HandleStatusMessage(status.Status)
-				if err != nil {
-					return NoneState, err
-				}
-				if newState != NoneState {
-					return newState, nil
-				}
 			}
+
+			return c.HandleStatusMessage(status.Status)
 		}
 	}
 
-	return NoneState, errors.New("timeout: no network options received from the device, please retry enabling the NetworkCofnigurator lib in the sketch")
+	return ErrorState, errors.New("timeout: no network options received from the device, please retry enabling the NetworkCofnigurator lib in the sketch")
 }
 
 func (cs *ConfigurationStates) ConfigureNetwork(ctx context.Context, c *NetConfig) (ConfigStatus, error) {
@@ -202,12 +203,12 @@ func (cs *ConfigurationStates) ConfigureNetwork(ctx context.Context, c *NetConfi
 			Pass:  c.CellularSetting.Pass,
 		})
 	} else {
-		return NoneState, errors.New("invalid configuration type")
+		return ErrorState, errors.New("invalid configuration type")
 	}
 
 	err := cs.configProtocol.SendData(cmd)
 	if err != nil {
-		return NoneState, err
+		return ErrorState, err
 	}
 
 	sleepCtx(ctx, 1*time.Second)
@@ -218,42 +219,39 @@ func (c *ConfigurationStates) SendConnectionRequest() (ConfigStatus, error) {
 	connectMessage := cborcoders.From(cborcoders.ProvisioningCommandsMessage{Command: configurationprotocol.Commands["Connect"]})
 	err := c.configProtocol.SendData(connectMessage)
 	if err != nil {
-		return NoneState, err
+		return ErrorState, err
 	}
 	return WaitingForConnectionCommandResult, nil
 
 }
 
 func (c *ConfigurationStates) WaitingForConnectionCommandResult() (ConfigStatus, error) {
-	res, err := c.configProtocol.ReceiveData(60)
+	res, err := c.configProtocol.ReceiveData(CommandResponseTimeoutLong_s)
 	if err != nil {
-		return NoneState, err
+		return ErrorState, err
 	}
 
 	if res != nil && res.Type() == cborcoders.ProvisioningStatusMessageType {
 		status := res.ToProvisioningStatusMessage()
 		if status.Status == 1 {
 			return WaitingForNetworkConfigResult, nil
-		} else if status.Status == -4 {
-			return ConfigureNetwork, nil
-		} else {
-			newState, err := c.HandleStatusMessage(status.Status)
-			if err != nil {
-				return NoneState, err
-			}
-			if newState != NoneState {
-				return newState, nil
-			}
 		}
+
+		if status.Status == -4 {
+			return ConfigureNetwork, nil
+		}
+
+		return c.HandleStatusMessage(status.Status)
+
 	}
 
-	return NoneState, errors.New("timeout: no confirmation of connection command received from the device, please retry")
+	return ErrorState, errors.New("timeout: no confirmation of connection command received from the device, please retry")
 }
 
 func (c *ConfigurationStates) WaitingForNetworkConfigResult() (ConfigStatus, error) {
-	res, err := c.configProtocol.ReceiveData(200)
+	res, err := c.configProtocol.ReceiveData(ConnectResponseTimeout_s)
 	if err != nil {
-		return NoneState, err
+		return ErrorState, err
 	}
 
 	if res != nil && res.Type() == cborcoders.ProvisioningStatusMessageType {
@@ -261,18 +259,12 @@ func (c *ConfigurationStates) WaitingForNetworkConfigResult() (ConfigStatus, err
 
 		if status.Status == 2 {
 			return End, nil
-		} else {
-			newState, err := c.HandleStatusMessage(status.Status)
-			if err != nil {
-				return NoneState, err
-			}
-			if newState != NoneState {
-				return newState, nil
-			}
 		}
+		return c.HandleStatusMessage(status.Status)
+
 	}
 
-	return NoneState, errors.New("timeout: no result received from the device for network configuration, please retry")
+	return ErrorState, errors.New("timeout: no result received from the device for network configuration, please retry")
 }
 
 // Keep for reference
@@ -301,39 +293,39 @@ func (c *ConfigurationStates) HandleStatusMessage(status int16) (ConfigStatus, e
 	case "Scanning for WiFi networks":
 		return WaitingForNetworkOptions, nil
 	case "Failed to connect":
-		return NoneState, errors.New("connection failed invalid credentials or network configuration")
+		return ErrorState, errors.New("connection failed invalid credentials or network configuration")
 	case "Disconnected":
 		return NoneState, nil
 	case "Parameters not provided":
 		return MissingParameter, nil
 	case "Invalid parameters":
-		return NoneState, errors.New("the provided parameters for network configuration are invalid")
+		return ErrorState, errors.New("the provided parameters for network configuration are invalid")
 	case "Cannot execute anew request while another is pending":
-		return NoneState, errors.New("board is busy, restart the board and try again")
+		return ErrorState, errors.New("board is busy, restart the board and try again")
 	case "Invalid request":
-		return NoneState, errors.New("invalid request sent to the board")
+		return ErrorState, errors.New("invalid request sent to the board")
 	case "Internet not available":
-		return NoneState, errors.New("internet not available, check your network connection")
+		return ErrorState, errors.New("internet not available, check your network connection")
 	case "HW Error connectivity module":
-		return NoneState, errors.New("hardware error in connectivity module, check the board")
+		return ErrorState, errors.New("hardware error in connectivity module, check the board")
 	case "HW Connectivity Module stopped":
-		return NoneState, errors.New("hardware connectivity module stopped, restart the board and check your sketch")
+		return ErrorState, errors.New("hardware connectivity module stopped, restart the board and check your sketch")
 	case "Error initializing secure element":
-		return NoneState, errors.New("error initializing secure element, check the board and try again")
+		return ErrorState, errors.New("error initializing secure element, check the board and try again")
 	case "Error configuring secure element":
-		return NoneState, errors.New("error configuring secure element, check the board and try again")
+		return ErrorState, errors.New("error configuring secure element, check the board and try again")
 	case "Error locking secure element":
-		return NoneState, errors.New("error locking secure element, check the board and try again")
+		return ErrorState, errors.New("error locking secure element, check the board and try again")
 	case "Error generating UHWID":
-		return NoneState, errors.New("error generating UHWID, check the board and try again")
+		return ErrorState, errors.New("error generating UHWID, check the board and try again")
 	case "Error storage begin module":
-		return NoneState, errors.New("error beginning storage module, check the board storage partitioning and try again")
+		return ErrorState, errors.New("error beginning storage module, check the board storage partitioning and try again")
 	case "Fail to partition the storage":
-		return NoneState, errors.New("failed to partition the storage, check the board storage and try again")
+		return ErrorState, errors.New("failed to partition the storage, check the board storage and try again")
 	case "Generic error":
-		return NoneState, errors.New("generic error, check the board and try again")
+		return ErrorState, errors.New("generic error, check the board and try again")
 	default:
-		return NoneState, errors.New("generic error, check the board and try again")
+		return ErrorState, errors.New("generic error, check the board and try again")
 	}
 
 }

@@ -55,7 +55,7 @@ func NetConfigure(ctx context.Context, boardFilters *CreateParams, NetConfig *Ne
 		return err
 	}
 
-	nc := NewNetworkConfigure(extInterface, configProtocol)
+	nc := NewNetworkConfigure(configProtocol)
 	err = nc.Run(ctx, NetConfig)
 
 	return err
@@ -179,9 +179,9 @@ type NetworkConfigure struct {
 	configProtocol *configurationprotocol.NetworkConfigurationProtocol
 }
 
-func NewNetworkConfigure(extInterface transport.TransportInterface, configProtocol *configurationprotocol.NetworkConfigurationProtocol) *NetworkConfigure {
+func NewNetworkConfigure(configProtocol *configurationprotocol.NetworkConfigurationProtocol) *NetworkConfigure {
 	return &NetworkConfigure{
-		configStates:   NewConfigurationStates(extInterface, configProtocol),
+		configStates:   NewConfigurationStates(configProtocol),
 		configProtocol: configProtocol,
 	}
 }
@@ -191,51 +191,32 @@ func (nc *NetworkConfigure) Run(ctx context.Context, netConfig *NetConfig) error
 	nextState := state
 	var err error
 
-	for state != End {
+	for state != End && state != ErrorState {
 
 		switch state {
 		case WaitForConnection:
 			nextState, err = nc.configStates.WaitForConnection()
-			if err != nil {
-				nextState = End
-			}
 		case WaitingForInitialStatus:
 			nextState, err = nc.configStates.WaitingForInitialStatus()
-			if err != nil {
-				nextState = End
-			}
 		case WaitingForNetworkOptions:
 			nextState, err = nc.configStates.WaitingForNetworkOptions()
-			if err != nil {
-				nextState = End
-			}
 		case BoardReady:
 			nextState = ConfigureNetwork
 		case ConfigureNetwork:
 			nextState, err = nc.configStates.ConfigureNetwork(ctx, netConfig)
-			if err != nil {
-				nextState = End
-			}
 		case SendConnectionRequest:
 			nextState, err = nc.configStates.SendConnectionRequest()
-			if err != nil {
-				nextState = End
-			}
 		case WaitingForConnectionCommandResult:
 			nextState, err = nc.configStates.WaitingForConnectionCommandResult()
-			if err != nil {
-				nextState = End
-			}
 		case MissingParameter:
 			nextState = ConfigureNetwork
 		case WaitingForNetworkConfigResult:
 			nextState, err = nc.configStates.WaitingForNetworkConfigResult()
-			if err != nil {
-				nextState = End
-			}
 		}
 
-		state = nextState
+		if nextState != NoneState {
+			state = nextState
+		}
 
 	}
 
