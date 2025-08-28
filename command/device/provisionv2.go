@@ -129,6 +129,9 @@ func (p *ProvisionV2) Run(ctx context.Context, params ProvisioningV2BoardParams)
 			nextState, err = p.configStates.WaitForConnection()
 		case WaitingForInitialStatus:
 			nextState, err = p.configStates.WaitingForInitialStatus()
+			if err != nil {
+				nextState = FlashProvisioningSketch
+			}
 		case WaitingForNetworkOptions:
 			nextState, err = p.configStates.WaitingForNetworkOptions()
 			if err != nil {
@@ -197,15 +200,16 @@ func (p *ProvisionV2) Run(ctx context.Context, params ProvisioningV2BoardParams)
 			_, err = p.configStates.WaitingForNetworkConfigResult()
 			if err != nil {
 				nextState = UnclaimDevice
+			} else {
+				nextState = WaitingForProvisioningResult
 			}
-			nextState = WaitingForProvisioningResult
 		case WaitingForProvisioningResult:
 			nextState, err = p.waitProvisioningResult(ctx)
 			if err != nil {
 				nextState = UnclaimDevice
 			}
 		case UnclaimDevice:
-			nextState, err = p.unclaimDevice()
+			nextState, _ = p.unclaimDevice()
 		}
 
 		if nextState != NoneState {
@@ -276,6 +280,9 @@ func (p *ProvisionV2) waitingSketchVersion(minSketchVersion string) (ConfigStatu
 
 	if res.Type() == cborcoders.ProvisioningStatusMessageType {
 		status := res.ToProvisioningStatusMessage()
+		if status.Status == -7 {
+			return FlashProvisioningSketch, nil
+		}
 		return p.configStates.HandleStatusMessage(status.Status)
 	}
 
@@ -294,6 +301,7 @@ func (p *ProvisionV2) flashProvisioningSketch(ctx context.Context, fqbn, address
 
 	// Try to upload the provisioning sketch
 	logrus.Info("Uploading provisioning sketch on the board")
+	p.provProt.Close()
 	errMsg := "Provisioning V2: error while uploading the provisioning sketch"
 	err = retry(ctx, MaxRetriesFlashProvSketch, time.Millisecond*1000, errMsg, func() error {
 		return p.UploadBin(ctx, fqbn, file, address, protocol)
