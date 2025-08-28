@@ -62,7 +62,7 @@ func (c *IoTApiRawClient) getToken() (*oauth2.Token, error) {
 }
 
 func (c *IoTApiRawClient) GetBoardsDetail() (*BoardTypeList, error) {
-	endpoint := c.host + "iot/v1/supported/devices"
+	endpoint := c.host + "/iot/v1/supported/devices"
 	token, err := c.getToken()
 	if err != nil {
 		return nil, err
@@ -107,7 +107,7 @@ func (c *IoTApiRawClient) GetBoardDetailByFQBN(fqbn string) (*BoardType, error) 
 	}
 
 	for _, b := range *boardsList {
-		if *b.FQBN == fqbn {
+		if b.FQBN != nil && *b.FQBN == fqbn {
 			return &b, nil
 		}
 	}
@@ -115,7 +115,7 @@ func (c *IoTApiRawClient) GetBoardDetailByFQBN(fqbn string) (*BoardType, error) 
 }
 
 func (c *IoTApiRawClient) DownloadProvisioningV2Sketch(fqbn string, path *paths.Path, filename *string) (string, error) {
-	endpoint := c.host + "iot/v2/binaries/provisioningv2?fqbn=" + fqbn
+	endpoint := c.host + "/iot/v2/binaries/provisioningv2?fqbn=" + fqbn
 	token, err := c.getToken()
 	if err != nil {
 		return "", err

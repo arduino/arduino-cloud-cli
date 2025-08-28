@@ -78,7 +78,7 @@ func (c *ProvisioningApiClient) getToken() (*oauth2.Token, error) {
 }
 
 func (c *ProvisioningApiClient) ClaimDevice(data ClaimData) (*ClaimResponse, *BadResponse, error) {
-	endpoint := c.host + "provisioning/v1/onboarding/claim"
+	endpoint := c.host + "/provisioning/v1/onboarding/claim"
 	token, err := c.getToken()
 	if err != nil {
 		return nil, nil, err
@@ -113,14 +113,14 @@ func (c *ProvisioningApiClient) ClaimDevice(data ClaimData) (*ClaimResponse, *Ba
 
 	err = json.Unmarshal(respBytes, &badResponse)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("failed to unmarshal bad response: %s", respBytes)
 	}
 
 	return nil, &badResponse, nil
 }
 
 func (c *ProvisioningApiClient) RegisterDevice(data RegisterBoardData) (*BadResponse, error) {
-	endpoint := c.host + "provisioning/v1/boards/register"
+	endpoint := c.host + "/provisioning/v1/boards/register"
 	token, err := c.getToken()
 	if err != nil {
 		return nil, err
@@ -156,7 +156,7 @@ func (c *ProvisioningApiClient) RegisterDevice(data RegisterBoardData) (*BadResp
 }
 
 func (c *ProvisioningApiClient) UnclaimDevice(provisioningId string) (*BadResponse, error) {
-	endpoint := c.host + "provisioning/v1/onboarding/" + provisioningId
+	endpoint := c.host + "/provisioning/v1/onboarding/" + provisioningId
 	token, err := c.getToken()
 	if err != nil {
 		return nil, err
@@ -185,7 +185,7 @@ func (c *ProvisioningApiClient) UnclaimDevice(provisioningId string) (*BadRespon
 }
 
 func (c *ProvisioningApiClient) GetProvisioningList() (*OnboardingsResponse, error) {
-	endpoint := c.host + "provisioning/v1/onboarding?all=true"
+	endpoint := c.host + "/provisioning/v1/onboarding?all=true"
 	token, err := c.getToken()
 	if err != nil {
 		return nil, err
