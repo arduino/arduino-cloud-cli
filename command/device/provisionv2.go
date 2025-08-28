@@ -36,6 +36,7 @@ import (
 	iotapiraw "github.com/arduino/arduino-cloud-cli/internal/iot-api-raw"
 	provisioningapi "github.com/arduino/arduino-cloud-cli/internal/provisioning-api"
 	"github.com/arduino/go-paths-helper"
+	"github.com/beevik/ntp"
 	"github.com/sirupsen/logrus"
 )
 
@@ -395,10 +396,18 @@ func (p *ProvisionV2) waitBLEMac() (ConfigStatus, error) {
 
 func (p *ProvisionV2) sendInitialTS(ctx context.Context) (ConfigStatus, error) {
 	logrus.Info("Provisioning V2: Sending initial timestamp")
-	ts := time.Now().Unix()
+	var ts int64
+	t, err := ntp.Time("time.arduino.cc")
+	if err == nil {
+		ts = t.Unix()
+	} else {
+		logrus.Warnf("Provisioning V2: Cannot get time from NTP server, using local time: %v", err)
+		ts = time.Now().Unix()
+	}
+
 	logrus.Infof("Provisioning V2: Sending timestamp: %d", ts)
 	tsMessage := cborcoders.From(cborcoders.ProvisioningTimestampMessage{Timestamp: uint64(ts)})
-	err := p.provProt.SendData(tsMessage)
+	err = p.provProt.SendData(tsMessage)
 	if err != nil {
 		return ErrorState, err
 	}
