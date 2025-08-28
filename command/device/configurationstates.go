@@ -150,6 +150,7 @@ func (c *ConfigurationStates) WaitingForNetworkOptions() (ConfigStatus, error) {
 }
 
 func (cs *ConfigurationStates) ConfigureNetwork(ctx context.Context, c *NetConfig) (ConfigStatus, error) {
+	logrus.Info("NetworkConfigure: Sending network configuration")
 	var cmd cborcoders.Cmd
 	if c.Type == 1 { // WiFi
 		cmd = cborcoders.From(cborcoders.ProvisioningWifiConfigMessage{
@@ -216,6 +217,7 @@ func (cs *ConfigurationStates) ConfigureNetwork(ctx context.Context, c *NetConfi
 }
 
 func (c *ConfigurationStates) SendConnectionRequest() (ConfigStatus, error) {
+	logrus.Info("NetworkConfigure: Sending connection request")
 	connectMessage := cborcoders.From(cborcoders.ProvisioningCommandsMessage{Command: configurationprotocol.Commands["Connect"]})
 	err := c.configProtocol.SendData(connectMessage)
 	if err != nil {
@@ -226,6 +228,7 @@ func (c *ConfigurationStates) SendConnectionRequest() (ConfigStatus, error) {
 }
 
 func (c *ConfigurationStates) WaitingForConnectionCommandResult() (ConfigStatus, error) {
+	logrus.Info("NetworkConfigure: Waiting for connection command result")
 	res, err := c.configProtocol.ReceiveData(CommandResponseTimeoutLong_s)
 	if err != nil {
 		return ErrorState, err
@@ -249,6 +252,7 @@ func (c *ConfigurationStates) WaitingForConnectionCommandResult() (ConfigStatus,
 }
 
 func (c *ConfigurationStates) WaitingForNetworkConfigResult() (ConfigStatus, error) {
+	logrus.Info("NetworkConfigure: Waiting for network configuration result")
 	res, err := c.configProtocol.ReceiveData(ConnectResponseTimeout_s)
 	if err != nil {
 		return ErrorState, err
