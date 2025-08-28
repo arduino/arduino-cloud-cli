@@ -25,6 +25,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/arduino/arduino-cloud-cli/arduino"
 	"github.com/arduino/arduino-cloud-cli/config"
@@ -291,7 +292,7 @@ func (p *ProvisionV2) flashProvisioningSketch(ctx context.Context, fqbn, address
 	}
 
 	// Try to upload the provisioning sketch
-	logrus.Infof("%s\n", "Uploading provisioning sketch on the board")
+	logrus.Info("Uploading provisioning sketch on the board")
 	errMsg := "Provisioning V2: error while uploading the provisioning sketch"
 	err = retry(ctx, MaxRetriesFlashProvSketch, time.Millisecond*1000, errMsg, func() error {
 		return p.UploadBin(ctx, fqbn, file, address, protocol)
@@ -338,7 +339,7 @@ func (p *ProvisionV2) waitWiFiFWVersion(minWiFiVersion *string) (ConfigStatus, e
 
 	if res.Type() == cborcoders.ProvisioningWiFiFWVersionMessageType {
 		wifi_version := res.ToProvisioningWiFiFWVersionMessage().WiFiFWVersion
-		fmt.Printf("Received WiFi FW Version: %s\n", wifi_version)
+		logrus.Infof("Received WiFi FW Version: %s", wifi_version)
 		if minWiFiVersion != nil &&
 			p.compareVersions(wifi_version, *minWiFiVersion) < 0 {
 			return ErrorState, fmt.Errorf("provisioning V2: WiFi FW version %s is lower than required minimum %s. Please update the board firmware using Arduino IDE or Arduino CLI", wifi_version, *minWiFiVersion)
@@ -378,7 +379,7 @@ func (p *ProvisionV2) waitBLEMac() (ConfigStatus, error) {
 
 	if res.Type() == cborcoders.ProvisioningBLEMacAddressMessageType {
 		mac := res.ToProvisioningBLEMacAddressMessage().BLEMacAddress
-		logrus.Infof("Provisioning V2: Received MAC in hex: %02X\n", mac)
+		logrus.Infof("Provisioning V2: Received MAC in hex: %02X", mac)
 		macStr := fmt.Sprintf("%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5])
 		p.connectedBoardInfos.BLEMacAddress = macStr
 		return SendInitialTS, nil
@@ -395,7 +396,7 @@ func (p *ProvisionV2) waitBLEMac() (ConfigStatus, error) {
 func (p *ProvisionV2) sendInitialTS(ctx context.Context) (ConfigStatus, error) {
 	logrus.Info("Provisioning V2: Sending initial timestamp")
 	ts := time.Now().Unix()
-	logrus.Infof("Provisioning V2: Sending timestamp: %d\n", ts)
+	logrus.Infof("Provisioning V2: Sending timestamp: %d", ts)
 	tsMessage := cborcoders.From(cborcoders.ProvisioningTimestampMessage{Timestamp: uint64(ts)})
 	err := p.provProt.SendData(tsMessage)
 	if err != nil {
@@ -428,7 +429,7 @@ func (p *ProvisionV2) waitingPublicKey() (ConfigStatus, error) {
 
 	if res.Type() == cborcoders.ProvisioningPublicKeyMessageType {
 		pubKey := res.ToProvisioningPublicKeyMessage().ProvisioningPublicKey
-		logrus.Infof("Provisioning V2: Received Public Key\n")
+		logrus.Info("Provisioning V2: Received Public Key")
 		p.connectedBoardInfos.PublicKey = pubKey
 		return WaitingID, nil
 	}
@@ -456,7 +457,7 @@ func (p *ProvisionV2) waitingUHWID() (ConfigStatus, error) {
 
 	if res.Type() == cborcoders.ProvisioningUniqueIdMessageType {
 		uhwid := res.ToProvisioningUniqueIdMessage().UniqueId
-		logrus.Infof("Provisioning V2: Received UniqueID\n")
+		logrus.Infof("Provisioning V2: Received UniqueID")
 		uhwidString := string(uhwid[:])
 		p.connectedBoardInfos.UHWID = uhwidString
 		return WaitingSignature, nil
@@ -482,8 +483,12 @@ func (p *ProvisionV2) waitingSignature() (ConfigStatus, error) {
 
 	if res.Type() == cborcoders.ProvisioningSignatureMessageType {
 		signature := res.ToProvisioningSignatureMessage().Signature
-		logrus.Infof("Provisioning V2: Received Signature\n")
-		p.connectedBoardInfos.Signature = string(signature[:])
+		logrus.Infof("Provisioning V2: Received Signature")
+
+		signatureString := strings.TrimRightFunc(fmt.Sprintf("%s", signature), func(r rune) bool {
+			return unicode.IsLetter(r) == false && unicode.IsNumber(r) == false
+		})
+		p.connectedBoardInfos.Signature = signatureString
 		return ClaimDevice, nil
 	}
 
@@ -507,7 +512,7 @@ func (p *ProvisionV2) claimDevice(name, connectionType string) (ConfigStatus, er
 
 	provResp, provErr, err := p.provisioningClient.ClaimDevice(claimData)
 	if err != nil {
-		return ErrorState, err
+		return ErrorState, fmt.Errorf("provisioning V2: failed to claim device: %w", err)
 	}
 
 	if provErr != nil {
@@ -545,7 +550,7 @@ func (p *ProvisionV2) registerDevice(fqbn, serial string) (ConfigStatus, error) 
 
 	provErr, err := p.provisioningClient.RegisterDevice(registerData)
 	if err != nil {
-		return ErrorState, err
+		return ErrorState, fmt.Errorf("provisioning V2: failed to register device: %w", err)
 	}
 
 	if provErr != nil {
