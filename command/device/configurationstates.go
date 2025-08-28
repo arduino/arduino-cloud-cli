@@ -107,7 +107,7 @@ func (c *ConfigurationStates) WaitingForInitialStatus() (ConfigStatus, error) {
 			return WaitingForInitialStatus, nil
 		}
 
-		if status.Status == -6 || status.Status <= -101 {
+		if status.Status == -6 || status.Status < -101 {
 			return c.HandleStatusMessage(status.Status)
 		}
 		return WaitingForNetworkOptions, nil
@@ -264,6 +264,11 @@ func (c *ConfigurationStates) WaitingForNetworkConfigResult() (ConfigStatus, err
 		if status.Status == 2 {
 			return End, nil
 		}
+		//For boards of type Cellular, CAT-M1, GSM e NB-IOT that
+		//returns -3 or -101 when the network configuration is invalid
+		if status.Status == -3 || status.Status == -101 {
+			return ErrorState, errors.New("connection failed: invalid network configuration")
+		}
 		return c.HandleStatusMessage(status.Status)
 
 	}
@@ -297,7 +302,7 @@ func (c *ConfigurationStates) HandleStatusMessage(status int16) (ConfigStatus, e
 	case "Scanning for WiFi networks":
 		return WaitingForNetworkOptions, nil
 	case "Failed to connect":
-		return ErrorState, errors.New("connection failed invalid credentials or network configuration")
+		return ErrorState, errors.New("connection failed: invalid network configuration")
 	case "Disconnected":
 		return NoneState, nil
 	case "Parameters not provided":
