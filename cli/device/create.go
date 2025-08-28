@@ -83,6 +83,8 @@ func runCreateCommand(flags *createFlags) error {
 	ctx, cancel := cleanup.InterruptableContext(context.Background())
 	defer cancel()
 
+	feedback.Printf("Creating device with name %s", flags.name)
+
 	dev, err := device.Create(ctx, params, cred)
 	if err != nil {
 		return err
