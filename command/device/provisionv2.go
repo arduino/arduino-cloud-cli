@@ -475,7 +475,7 @@ func (p *ProvisionV2) waitingUHWID() (ConfigStatus, error) {
 	if res.Type() == cborcoders.ProvisioningUniqueIdMessageType {
 		uhwid := res.ToProvisioningUniqueIdMessage().UniqueId
 		logrus.Infof("Provisioning V2: Received UniqueID")
-		uhwidString := string(uhwid[:])
+		uhwidString := fmt.Sprintf("%02x", uhwid)
 		p.connectedBoardInfos.UHWID = uhwidString
 		return WaitingSignature, nil
 	}
