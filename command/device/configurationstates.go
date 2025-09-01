@@ -194,7 +194,7 @@ func (cs *ConfigurationStates) ConfigureNetwork(ctx context.Context, c *NetConfi
 			Apn:   c.CATM1.APN,
 			Login: c.CATM1.Login,
 			Pass:  c.CATM1.Pass,
-			Band:  c.CATM1.Band,
+			Band:  nil,
 		})
 	} else if c.Type == 7 { // Cellular
 		cmd = cborcoders.From(cborcoders.ProvisioningCellularConfigMessage{
