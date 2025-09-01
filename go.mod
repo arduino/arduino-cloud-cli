@@ -3,10 +3,12 @@ module github.com/arduino/arduino-cloud-cli
 go 1.23
 
 require (
-	github.com/arduino/arduino-cli v0.0.0-20240927141754-d9dd4ba1ed71
+	github.com/arduino/arduino-cli v0.0.0-20250901123057-20dd7c932f59
 	github.com/arduino/go-paths-helper v1.12.1
 	github.com/arduino/go-win32-utils v1.0.0
 	github.com/arduino/iot-client-go/v3 v3.1.1
+	github.com/beevik/ntp v1.4.3
+	github.com/fxamacker/cbor/v2 v2.8.0
 	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/google/go-cmp v0.6.0
 	github.com/howeyc/crc16 v0.0.0-20171223171357-2b2a61e366a6
@@ -28,7 +30,6 @@ require (
 require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/arduino/go-properties-orderedmap v1.7.1 // indirect
-	github.com/beevik/ntp v1.4.3 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/cmaglie/pb v1.0.27 // indirect
 	github.com/codeclysm/extract/v4 v4.0.0 // indirect
@@ -37,7 +38,6 @@ require (
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
-	github.com/fxamacker/cbor/v2 v2.8.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/h2non/filetype v1.1.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -72,7 +72,7 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	go.bug.st/downloader/v2 v2.1.1 // indirect
-	go.bug.st/relaxed-semver v0.9.0 // indirect
+	go.bug.st/relaxed-semver v0.10.1 // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
