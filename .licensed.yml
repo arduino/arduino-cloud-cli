@@ -4,6 +4,10 @@ reviewed:
     - golang.org/x/crypto/curve25519/internal/field
     - golang.org/x/crypto/internal/poly1305
     - golang.org/x/crypto/curve25519
+    - golang.org/x/net/bpf
+    - golang.org/x/net/internal/iana
+    - golang.org/x/net/internal/socket
+    - golang.org/x/net/ipv4
     - google.golang.org/protobuf/encoding/protojson
     - google.golang.org/protobuf/internal/encoding/json
     - github.com/klauspost/compress
