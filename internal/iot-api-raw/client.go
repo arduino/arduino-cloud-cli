@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
@@ -50,20 +49,9 @@ func (c *IoTApiRawClient) performRequest(endpoint, method, token string, body io
 	return res, nil
 }
 
-func (c *IoTApiRawClient) getToken() (*oauth2.Token, error) {
-	token, err := c.src.Token()
-	if err != nil {
-		if strings.Contains(err.Error(), "401") {
-			return nil, errors.New("wrong credentials")
-		}
-		return nil, fmt.Errorf("cannot retrieve a valid token: %w", err)
-	}
-	return token, nil
-}
-
 func (c *IoTApiRawClient) GetBoardsDetail() (*BoardTypeList, error) {
 	endpoint := c.host + "/iot/v1/supported/devices"
-	token, err := c.getToken()
+	token, err := iot.GetToken(c.src)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +104,7 @@ func (c *IoTApiRawClient) GetBoardDetailByFQBN(fqbn string) (*BoardType, error) 
 
 func (c *IoTApiRawClient) DownloadProvisioningV2Sketch(fqbn string, path *paths.Path, filename *string) (string, error) {
 	endpoint := c.host + "/iot/v2/binaries/provisioningv2?fqbn=" + fqbn
-	token, err := c.getToken()
+	token, err := iot.GetToken(c.src)
 	if err != nil {
 		return "", err
 	}

@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
@@ -66,20 +65,9 @@ func (c *ProvisioningApiClient) performRequest(endpoint, method, token string, b
 	return res, nil
 }
 
-func (c *ProvisioningApiClient) getToken() (*oauth2.Token, error) {
-	token, err := c.src.Token()
-	if err != nil {
-		if strings.Contains(err.Error(), "401") {
-			return nil, errors.New("wrong credentials")
-		}
-		return nil, fmt.Errorf("cannot retrieve a valid token: %w", err)
-	}
-	return token, nil
-}
-
 func (c *ProvisioningApiClient) ClaimDevice(data ClaimData) (*ClaimResponse, *BadResponse, error) {
 	endpoint := c.host + "/provisioning/v1/onboarding/claim"
-	token, err := c.getToken()
+	token, err := iot.GetToken(c.src)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -121,7 +109,7 @@ func (c *ProvisioningApiClient) ClaimDevice(data ClaimData) (*ClaimResponse, *Ba
 
 func (c *ProvisioningApiClient) RegisterDevice(data RegisterBoardData) (*BadResponse, error) {
 	endpoint := c.host + "/provisioning/v1/boards/register"
-	token, err := c.getToken()
+	token, err := iot.GetToken(c.src)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +145,7 @@ func (c *ProvisioningApiClient) RegisterDevice(data RegisterBoardData) (*BadResp
 
 func (c *ProvisioningApiClient) UnclaimDevice(provisioningId string) (*BadResponse, error) {
 	endpoint := c.host + "/provisioning/v1/onboarding/" + provisioningId
-	token, err := c.getToken()
+	token, err := iot.GetToken(c.src)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +174,7 @@ func (c *ProvisioningApiClient) UnclaimDevice(provisioningId string) (*BadRespon
 
 func (c *ProvisioningApiClient) GetProvisioningList() (*OnboardingsResponse, error) {
 	endpoint := c.host + "/provisioning/v1/onboarding?all=true"
-	token, err := c.getToken()
+	token, err := iot.GetToken(c.src)
 	if err != nil {
 		return nil, err
 	}
