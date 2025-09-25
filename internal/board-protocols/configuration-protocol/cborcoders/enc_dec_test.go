@@ -185,12 +185,23 @@ func TestEncodeDecode(t *testing.T) {
 			name: "provisioning catm1 config",
 			in: From(ProvisioningCATM1ConfigMessage{
 				PIN:   "12345678",
-				Band:  [4]uint32{1, 2, 524288, 134217728},
+				Band:  []uint32{1, 2, 524288, 134217728},
 				Apn:   "apn.arduino.cc",
 				Login: "TESTUSER",
 				Pass:  "TESTPASSWORD",
 			}),
 			want: "DA00012008856831323334353637388401021A000800001A080000006E61706E2E61726475696E6F2E63636854455354555345526C5445535450415353574F5244",
+		},
+		{
+			name: "provisioning catm1 config no band",
+			in: From(ProvisioningCATM1ConfigMessage{
+				PIN:   "12345678",
+				Band:  []uint32{},
+				Apn:   "apn.arduino.cc",
+				Login: "TESTUSER",
+				Pass:  "TESTPASSWORD",
+			}),
+			want: "DA0001200885683132333435363738806E61706E2E61726475696E6F2E63636854455354555345526C5445535450415353574F5244",
 		},
 		{
 			name: "provisioning ethernet config ipv4",

@@ -133,7 +133,7 @@ func (t ProvisioningLoRaConfigMessage) String() string {
 type ProvisioningCATM1ConfigMessage struct {
 	_     struct{} `cbor:",toarray"`
 	PIN   string
-	Band  [4]uint32
+	Band  []uint32
 	Apn   string
 	Login string
 	Pass  string

@@ -20,11 +20,7 @@ package device
 import (
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
-	"net"
 	"os"
-	"strings"
 
 	"github.com/arduino/arduino-cli/cli/errorcodes"
 	"github.com/arduino/arduino-cli/cli/feedback"
@@ -83,7 +79,7 @@ func runConfigureCommand(flags *netConfigurationFlags) error {
 		}
 	} else {
 		feedback.Print("Insert network configuration")
-		getInputFromMenu(netParams)
+		device.GetInputFromMenu(netParams)
 	}
 
 	boardFilterParams := &device.CreateParams{}
@@ -104,117 +100,4 @@ func runConfigureCommand(flags *netConfigurationFlags) error {
 	}
 	feedback.Print("Network configuration successfully completed.")
 	return nil
-}
-
-func getInputFromMenu(config *device.NetConfig) error {
-
-	switch config.Type {
-	case 1:
-		config.WiFi = getWiFiSetting()
-	case 2:
-		config.Eth = getEthernetSetting()
-	case 3:
-		config.NB = getCellularSetting()
-	case 4:
-		config.GSM = getCellularSetting()
-	case 5:
-		config.Lora = getLoraSetting()
-	case 6:
-		config.CATM1 = getCatM1Setting()
-	case 7:
-		config.CellularSetting = getCellularSetting()
-	default:
-		return errors.New("invalid connection type, please try again")
-	}
-	return nil
-}
-
-func getWiFiSetting() device.WiFiSetting {
-	var wifi device.WiFiSetting
-	fmt.Print("Enter SSID: ")
-	fmt.Scanln(&wifi.SSID)
-	fmt.Print("Enter Password: ")
-	fmt.Scanln(&wifi.PWD)
-	return wifi
-}
-
-func getEthernetSetting() device.EthernetSetting {
-	var eth device.EthernetSetting
-	fmt.Println("Do you want to use DHCP? (yes/no): ")
-	var useDHCP string
-	fmt.Scanln(&useDHCP)
-	if useDHCP == "yes" || useDHCP == "y" {
-		eth.IP = device.IPAddr{Type: 0, Bytes: [16]byte{}}
-		eth.Gateway = device.IPAddr{Type: 0, Bytes: [16]byte{}}
-		eth.Netmask = device.IPAddr{Type: 0, Bytes: [16]byte{}}
-		eth.DNS = device.IPAddr{Type: 0, Bytes: [16]byte{}}
-	} else {
-		fmt.Println("Enter IP Address: ")
-		eth.IP = getIPAddr()
-		fmt.Println("Enter DNS: ")
-		eth.DNS = getIPAddr()
-		fmt.Println("Enter Gateway: ")
-		eth.Gateway = getIPAddr()
-		fmt.Println("Enter Netmask: ")
-		eth.Netmask = getIPAddr()
-	}
-
-	return eth
-}
-
-func getIPAddr() device.IPAddr {
-	var ip device.IPAddr
-	var ipString string
-	fmt.Scanln(&ipString)
-	if ipString == "" {
-		return ip
-	}
-	if strings.Count(ipString, ":") > 0 {
-		ip.Type = 1 // IPv6
-	} else {
-		ip.Type = 0 // IPv4
-	}
-	ip.Bytes = [16]byte(net.ParseIP(ipString).To16())
-	return ip
-}
-
-func getCellularSetting() device.CellularSetting {
-	var cellular device.CellularSetting
-	fmt.Println("Enter PIN: ")
-	fmt.Scanln(&cellular.PIN)
-	fmt.Print("Enter APN: ")
-	fmt.Scanln(&cellular.APN)
-	fmt.Print("Enter Login: ")
-	fmt.Scanln(&cellular.Login)
-	fmt.Print("Enter Password: ")
-	fmt.Scanln(&cellular.Pass)
-	return cellular
-}
-
-func getCatM1Setting() device.CATM1Setting {
-	var catm1 device.CATM1Setting
-	fmt.Print("Enter PIN: ")
-	fmt.Scanln(&catm1.PIN)
-	fmt.Print("Enter APN: ")
-	fmt.Scanln(&catm1.APN)
-	fmt.Print("Enter Login: ")
-	fmt.Scanln(&catm1.Login)
-	fmt.Print("Enter Password: ")
-	fmt.Scanln(&catm1.Pass)
-	return catm1
-}
-
-func getLoraSetting() device.LoraSetting {
-	var lora device.LoraSetting
-	fmt.Print("Enter AppEUI: ")
-	fmt.Scanln(&lora.AppEUI)
-	fmt.Print("Enter AppKey: ")
-	fmt.Scanln(&lora.AppKey)
-	fmt.Print("Enter Band (Byte hex format): ")
-	fmt.Scanln(&lora.Band)
-	fmt.Print("Enter Channel Mask: ")
-	fmt.Scanln(&lora.ChannelMask)
-	fmt.Print("Enter Device Class: ")
-	fmt.Scanln(&lora.DeviceClass)
-	return lora
 }

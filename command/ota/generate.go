@@ -23,6 +23,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/arduino/arduino-cloud-cli/internal/boardpids"
 	inota "github.com/arduino/arduino-cloud-cli/internal/ota"
 )
 
@@ -37,12 +38,12 @@ func Generate(binFile string, outFile string, fqbn string) error {
 	// Esp32 boards have a wide range of vid and pid, we don't map all of them
 	// If the fqbn is the one of an ESP32 board, we force a default magic number that matches the same default expected on the fw side
 	if !strings.HasPrefix(fqbn, "arduino:esp32") && strings.HasPrefix(fqbn, "esp32") {
-		magicNumberPart1 = inota.Esp32MagicNumberPart1
-		magicNumberPart2 = inota.Esp32MagicNumberPart2
+		magicNumberPart1 = boardpids.Esp32MagicNumberPart1
+		magicNumberPart2 = boardpids.Esp32MagicNumberPart2
 	} else {
 		//For Arduino Boards we use vendorId and productID to form the magic number
-		magicNumberPart1 = inota.ArduinoVendorID
-		productID, ok := inota.ArduinoFqbnToPID[fqbn]
+		magicNumberPart1 = boardpids.ArduinoVendorID
+		productID, ok := boardpids.ArduinoFqbnToPID[fqbn]
 		if !ok {
 			return errors.New("fqbn not valid")
 		}

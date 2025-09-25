@@ -35,6 +35,8 @@ var (
 		"arduino:samd:mkrnb1500",
 		"arduino:mbed_opta:opta",
 		"arduino:mbed_giga:giga",
+		"arduino:renesas_uno:unor4wifi",
+		"arduino:renesas_portenta:portenta_c33",
 	}
 	loraFQBN = []string{
 		"arduino:samd:mkrwan1310",

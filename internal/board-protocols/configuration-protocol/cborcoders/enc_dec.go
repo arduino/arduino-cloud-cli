@@ -79,7 +79,7 @@ func init() {
 		panic(err)
 	}
 
-	_em, err = cbor.EncOptions{IndefLength: 1}.EncModeWithTags(tags)
+	_em, err = cbor.EncOptions{IndefLength: 1, NilContainers: cbor.NilContainerAsEmpty}.EncModeWithTags(tags)
 
 	if err != nil {
 		panic(err)

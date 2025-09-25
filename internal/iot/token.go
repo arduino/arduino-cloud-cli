@@ -70,3 +70,14 @@ func ctxWithToken(ctx context.Context, src oauth2.TokenSource) (context.Context,
 	}
 	return context.WithValue(ctx, iotclient.ContextOAuth2, src), nil
 }
+
+func GetToken(src oauth2.TokenSource) (*oauth2.Token, error) {
+	token, err := src.Token()
+	if err != nil {
+		if strings.Contains(err.Error(), "401") {
+			return nil, errors.New("wrong credentials")
+		}
+		return nil, fmt.Errorf("cannot retrieve a valid token: %w", err)
+	}
+	return token, nil
+}
