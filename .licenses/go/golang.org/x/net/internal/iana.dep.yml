@@ -6,7 +6,7 @@ summary: Package iana provides protocol number resources managed by the Internet
   Numbers Authority (IANA).
 homepage: https://pkg.go.dev/golang.org/x/net/internal/iana
 license: bsd-3-clause
-review_changed_license: true
+review_changed_license: false
 licenses:
 - sources: net@v0.39.0/LICENSE
   text: |

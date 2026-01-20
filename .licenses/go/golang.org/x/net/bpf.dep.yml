@@ -6,7 +6,7 @@ summary: Package bpf implements marshaling and unmarshaling of programs for the 
   Packet Filter virtual machine, and provides a Go implementation of the virtual machine.
 homepage: https://pkg.go.dev/golang.org/x/net/bpf
 license: bsd-3-clause
-review_changed_license: true
+review_changed_license: false
 licenses:
 - sources: net@v0.39.0/LICENSE
   text: |

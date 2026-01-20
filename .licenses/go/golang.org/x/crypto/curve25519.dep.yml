@@ -6,7 +6,7 @@ summary: Package curve25519 provides an implementation of the X25519 function, w
   performs scalar multiplication on the elliptic curve known as Curve25519.
 homepage: https://pkg.go.dev/golang.org/x/crypto/curve25519
 license: bsd-3-clause
-review_changed_license: true
+review_changed_license: false
 licenses:
 - sources: crypto@v0.37.0/LICENSE
   text: |
