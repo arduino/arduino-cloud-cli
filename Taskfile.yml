@@ -70,7 +70,6 @@ tasks:
       - licensed cache
       # Restore license field to previous value when the new value is "other"
       - |
-        set -e
         for file in $(git diff --name-only -- .licenses/*.yml); do
           old_license=$(git show HEAD~1:$file | yq '.license')
           new_license=$(yq '.license' $file)
