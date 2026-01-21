@@ -62,8 +62,8 @@ func CreateGeneric(ctx context.Context, params *CreateGenericParams, cred *confi
 			return nil, fmt.Errorf(
 				"device was successfully created on IoT-API but " +
 					"now we can't set its secret key nor delete it - please check " +
-					"it on the web application.\n\nFetch error: " + err.Error() +
-					"\nDeletion error: " + errDel.Error(),
+					"it on the web application.\n\nFetch error: %s" +
+					"\nDeletion error: %s", err.Error(), errDel.Error(),
 			)
 		}
 		return nil, fmt.Errorf("cannot create generic device: %w", err)

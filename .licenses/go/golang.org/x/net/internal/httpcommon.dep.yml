@@ -1,10 +1,10 @@
 ---
-name: golang.org/x/net/internal/socket
+name: golang.org/x/net/internal/httpcommon
 version: v0.47.0
 type: go
-summary: Package socket provides a portable interface for socket system calls.
-homepage: https://pkg.go.dev/golang.org/x/net/internal/socket
-license: other
+summary:
+homepage: https://pkg.go.dev/golang.org/x/net/internal/httpcommon
+license: bsd-3-clause
 licenses:
 - sources: net@v0.47.0/LICENSE
   text: |

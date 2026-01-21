@@ -1,6 +1,6 @@
 module github.com/arduino/arduino-cloud-cli
 
-go 1.23
+go 1.24.0
 
 require (
 	github.com/arduino/arduino-cli v0.0.0-20250901123057-20dd7c932f59
@@ -20,7 +20,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	go.bug.st/cleanup v1.0.0
 	go.bug.st/serial v1.6.2
-	golang.org/x/crypto v0.23.0
+	golang.org/x/crypto v0.45.0
 	golang.org/x/oauth2 v0.25.0
 	google.golang.org/grpc v1.61.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -73,11 +73,12 @@ require (
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	go.bug.st/downloader/v2 v2.1.1 // indirect
 	go.bug.st/relaxed-semver v0.10.1 // indirect
-	golang.org/x/mod v0.14.0 // indirect
-	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
-	golang.org/x/text v0.15.0 // indirect
-	golang.org/x/tools v0.17.0 // indirect
+	golang.org/x/mod v0.29.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
+	golang.org/x/tools v0.38.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240205150955-31a09d347014 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect

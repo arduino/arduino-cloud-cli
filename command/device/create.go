@@ -160,8 +160,8 @@ func runProvisioningV1(ctx context.Context, params *CreateParams, comm *arduino.
 			return nil, fmt.Errorf(
 				"device was NOT successfully provisioned but " +
 					"now we can't delete it from the cloud - please check " +
-					"it on the web application.\n\nProvision error: " + err.Error() +
-					"\nDeletion error: " + errDel.Error(),
+					"it on the web application.\n\nProvision error: %s" +
+					"\nDeletion error: %s", err.Error(), errDel.Error(),
 			)
 		}
 		return nil, fmt.Errorf("cannot provision device: %w", err)

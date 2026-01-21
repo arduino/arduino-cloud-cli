@@ -68,6 +68,16 @@ tasks:
           exit 1
         fi
       - licensed cache
+      # Restore license field to previous value when the new value is "other"
+      - |
+        set -e
+        for file in $(git diff --name-only -- .licenses/*.yml); do
+          old_license=$(git show HEAD~1:$file | yq '.license')
+          new_license=$(yq '.license' $file)
+          if [ "$new_license" = "other" ] && [ "$old_license" != "$new_license" ]; then
+            yq -y -i ".license = $old_license" $file
+          fi
+        done
 
   # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/check-dependencies-task/Taskfile.yml
   general:check-dep-licenses:
