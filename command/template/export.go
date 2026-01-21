@@ -18,8 +18,6 @@
 package template
 
 import (
-	"fmt"
-
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/config"
 	storageapi "github.com/arduino/arduino-cloud-cli/internal/storage-api"
@@ -40,7 +38,7 @@ func ExportCustomTemplate(cred *config.Credentials, templateId, path string) err
 	if filecreaed != nil {
 		outf = *filecreaed
 	}
-	feedback.Printf(fmt.Sprintf("Template %s exported to file: %s", templateId, outf))
+	feedback.Printf("Template %s exported to file: %s", templateId, outf)
 
 	return nil
 }
