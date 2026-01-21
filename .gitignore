@@ -8,3 +8,6 @@ arduino-cloud-credentials.*
 # Provisioning binaries and metadata
 firmware/binaries
 firmware/provision/**/build
+
+# Temporary files
+coverage_unit.txt

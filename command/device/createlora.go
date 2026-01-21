@@ -127,8 +127,8 @@ func CreateLora(ctx context.Context, params *CreateLoraParams, cred *config.Cred
 			return nil, fmt.Errorf(
 				"device was successfully provisioned and configured on IoT-API but " +
 					"now we can't fetch its information nor delete it - please check " +
-					"it on the web application.\n\nFetch error: " + err.Error() +
-					"\nDeletion error: " + errDel.Error(),
+					"it on the web application.\n\nFetch error: %s" +
+					"\nDeletion error: %s", err.Error(), errDel.Error(),
 			)
 		}
 		return nil, fmt.Errorf("%s: %w", "cannot provision LoRa device", err)
