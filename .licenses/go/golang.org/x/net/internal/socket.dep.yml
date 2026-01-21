@@ -5,7 +5,6 @@ type: go
 summary: Package socket provides a portable interface for socket system calls.
 homepage: https://pkg.go.dev/golang.org/x/net/internal/socket
 license: other
-review_changed_license: false
 licenses:
 - sources: net@v0.47.0/LICENSE
   text: |

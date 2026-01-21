@@ -6,7 +6,6 @@ summary: Package ipv4 implements IP-level socket options for the Internet Protoc
   version 4.
 homepage: https://pkg.go.dev/golang.org/x/net/ipv4
 license: other
-review_changed_license: false
 licenses:
 - sources: net@v0.47.0/LICENSE
   text: |

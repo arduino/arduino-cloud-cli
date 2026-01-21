@@ -6,7 +6,6 @@ summary: Package curve25519 provides an implementation of the X25519 function, w
   to [RFC 7748].
 homepage: https://pkg.go.dev/golang.org/x/crypto/curve25519
 license: bsd-3-clause
-review_changed_license: false
 licenses:
   - sources: crypto@v0.45.0/LICENSE
     text: "Copyright 2009 The Go Authors.\n\nRedistribution and use in source and\
