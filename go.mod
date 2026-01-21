@@ -14,7 +14,7 @@ require (
 	github.com/howeyc/crc16 v0.0.0-20171223171357-2b2a61e366a6
 	github.com/icza/bitio v1.1.0
 	github.com/manifoldco/promptui v0.9.0
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.1
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
 	github.com/stretchr/testify v1.9.0
