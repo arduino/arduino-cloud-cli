@@ -1,12 +1,10 @@
 ---
-name: golang.org/x/net/bpf
+name: golang.org/x/net/internal/httpcommon
 version: v0.47.0
 type: go
-summary: Package bpf implements marshaling and unmarshaling of programs for the Berkeley
-  Packet Filter virtual machine, and provides a Go implementation of the virtual machine.
-homepage: https://pkg.go.dev/golang.org/x/net/bpf
-license: other
-review_changed_license: false
+summary:
+homepage: https://pkg.go.dev/golang.org/x/net/internal/httpcommon
+license: bsd-3-clause
 licenses:
 - sources: net@v0.47.0/LICENSE
   text: |
