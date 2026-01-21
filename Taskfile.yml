@@ -68,7 +68,7 @@ tasks:
           exit 1
         fi
       - licensed cache
-      # Restore license fields to previous values when the new value is "other"
+      # Restore license fields to previous value when the new value is "other"
       - |
         set -e
         for file in $(git diff --name-only -- .licenses/*.yml); do
