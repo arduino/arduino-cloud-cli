@@ -78,6 +78,7 @@ tasks:
             yq -y -i ".license = $old_license" $file
           fi
         done
+      - task: get:license-info
 
   # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/check-dependencies-task/Taskfile.yml
   general:check-dep-licenses:
@@ -86,3 +87,26 @@ tasks:
       - task: general:cache-dep-licenses
     cmds:
       - licensed status
+
+  get:license-info:
+    desc: Get license from website for dependencies with "other" license
+    cmds:
+      - |
+        mapfile -t files < <(find .licenses -type f -name '*.yml' -exec sh -c 'yq -e ".license == \"other\"" "$1" > /dev/null 2>&1 && echo "$1"' _ {} \;)
+        total=${#files[@]}
+        count=0
+        for file in "${files[@]}"; do
+          count=$((count + 1))
+          echo "Processing $file ($count/$total), remaining: $((total - count))"
+          homepage=$(yq -r '.homepage' "$file")
+          got=$(curl --max-time 10 -s "$homepage" | \
+          grep 'aria-describedby="license-description"' | \
+          sed -n 's/.*aria-describedby="license-description"[^>]*>\([^<]*\)<.*/\1/p')
+          if [ -n "$got" ]; then
+            yq -y -i ".license = \"$got\"" "$file"
+          else
+            echo "Could not fetch license info for $file from $homepage"
+          fi
+        done
+
+
