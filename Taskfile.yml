@@ -94,6 +94,10 @@ tasks:
       - |
         mapfile -t files < <(find .licenses -type f -name '*.yml' -exec sh -c 'yq -e ".license == \"other\"" "$1" > /dev/null 2>&1 && echo "$1"' _ {} \;)
         total=${#files[@]}
+        if (( total == 0 )); then
+          echo "No files to process."
+          exit 0
+        fi
         count=0
         for file in "${files[@]}"; do
           count=$((count + 1))
