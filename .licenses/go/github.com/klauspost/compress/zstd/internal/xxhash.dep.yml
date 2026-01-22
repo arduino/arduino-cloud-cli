@@ -4,7 +4,7 @@ version: v1.15.13
 type: go
 summary: 
 homepage: https://pkg.go.dev/github.com/klauspost/compress/zstd/internal/xxhash
-license: other
+license: mit
 licenses:
 - sources: compress@v1.15.13/LICENSE
   text: |
