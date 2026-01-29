@@ -4,7 +4,7 @@ version: v1.15.13
 type: go
 summary: Package cpuinfo gives runtime info about the current CPU.
 homepage: https://pkg.go.dev/github.com/klauspost/compress/internal/cpuinfo
-license: other
+license: mit
 licenses:
 - sources: compress@v1.15.13/LICENSE
   text: |
