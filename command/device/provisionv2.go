@@ -75,7 +75,7 @@ type ProvisioningV2BoardParams struct {
 }
 
 type ProvisionV2 struct {
-	arduino.Commander
+	FWFlasher           *ProvisioningV2SketchFlasher
 	iotApiClient        *iotapiraw.IoTApiRawClient
 	provisioningClient  *provisioningapi.ProvisioningApiClient
 	provProt            *configurationprotocol.NetworkConfigurationProtocol
@@ -88,7 +88,7 @@ type ProvisionV2 struct {
 func NewProvisionV2(comm *arduino.Commander, iotClient *iotapiraw.IoTApiRawClient, credentials *config.Credentials, extInterface transport.TransportInterface) *ProvisionV2 {
 	provProt := configurationprotocol.NewNetworkConfigurationProtocol(&extInterface)
 	return &ProvisionV2{
-		Commander:          *comm,
+		FWFlasher:          NewProvisioningV2SketchFlasher(comm, iotClient),
 		iotApiClient:       iotClient,
 		provisioningClient: provisioningapi.NewClient(credentials),
 		provProt:           provProt,
@@ -290,29 +290,9 @@ func (p *ProvisionV2) waitingSketchVersion(minSketchVersion string) (ConfigStatu
 }
 
 func (p *ProvisionV2) flashProvisioningSketch(ctx context.Context, fqbn, address, protocol string) (ConfigStatus, error) {
-	logrus.Info("Provisioning V2: Downloading provisioning sketch")
-	path := paths.TempDir().Join("cloud-cli").Join("provisioning_v2_sketch")
-
-	file, err := p.iotApiClient.DownloadProvisioningV2Sketch(fqbn, path, nil)
-	if err != nil {
-		logrus.Error("Provisioning V2: Downloading provisioning sketch failed")
-		return ErrorState, err
-	}
-
-	// Try to upload the provisioning sketch
-	logrus.Info("Uploading provisioning sketch on the board")
 	p.provProt.Close()
-	errMsg := "Provisioning V2: error while uploading the provisioning sketch"
-	err = retry(ctx, MaxRetriesFlashProvSketch, time.Millisecond*1000, errMsg, func() error {
-		return p.UploadBin(ctx, fqbn, file, address, protocol)
-	})
+	err := p.FWFlasher.FlashProvisioningV2Sketch(ctx, fqbn, address, protocol)
 	if err != nil {
-		return ErrorState, err
-	}
-
-	err = os.Remove(file)
-	if err != nil {
-		logrus.Error("Provisioning V2: Removing temporary file failed")
 		return ErrorState, err
 	}
 
@@ -628,4 +608,44 @@ func (p *ProvisionV2) unclaimDevice() (ConfigStatus, error) {
 	logrus.Warnf("Provisioning V2: Something went wrong, unclaiming device...")
 	_, err := p.provisioningClient.UnclaimDevice(p.provisioningId)
 	return End, err
+}
+
+type ProvisioningV2SketchFlasher struct {
+	arduino.Commander
+	iotApiClient *iotapiraw.IoTApiRawClient
+}
+
+func NewProvisioningV2SketchFlasher(comm *arduino.Commander, iotClient *iotapiraw.IoTApiRawClient) *ProvisioningV2SketchFlasher {
+	return &ProvisioningV2SketchFlasher{
+		Commander:    *comm,
+		iotApiClient: iotClient,
+	}
+}
+
+func (sf *ProvisioningV2SketchFlasher) FlashProvisioningV2Sketch(ctx context.Context, fqbn, address, protocol string) error {
+	logrus.Info("Provisioning V2: Downloading provisioning sketch")
+	path := paths.TempDir().Join("cloud-cli").Join("provisioning_v2_sketch")
+
+	file, err := sf.iotApiClient.DownloadProvisioningV2Sketch(fqbn, path, nil)
+	if err != nil {
+		logrus.Error("Provisioning V2: Downloading provisioning sketch failed")
+		return err
+	}
+
+	// Try to upload the provisioning sketch
+	logrus.Info("Provisioning V2: Uploading provisioning sketch on the board")
+	errMsg := "Provisioning V2: error while uploading the provisioning sketch"
+	err = retry(ctx, MaxRetriesFlashProvSketch, time.Millisecond*1000, errMsg, func() error {
+		return sf.UploadBin(ctx, fqbn, file, address, protocol)
+	})
+	if err != nil {
+		return err
+	}
+
+	err = os.Remove(file)
+	if err != nil {
+		logrus.Error("Provisioning V2: Removing temporary file failed")
+		return err
+	}
+	return nil
 }
