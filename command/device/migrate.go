@@ -93,7 +93,7 @@ func runMigrateCommand(ctx context.Context, comm *arduino.Commander, iotApiRawCl
 	}
 
 	logrus.Info("Uploading provisioning sketch succeeded, waiting for board to be ready")
-	sleepCtx(ctx, 10*time.Second)
+	sleepCtx(ctx, 3*time.Second)
 
 	err = provProt.Connect(board.address)
 	if err != nil {
@@ -108,7 +108,7 @@ func runMigrateCommand(ctx context.Context, comm *arduino.Commander, iotApiRawCl
 		case WaitForConnection:
 			nextState, err = confStates.WaitForConnection()
 		case WaitingForInitialStatus:
-			nextState, err = confStates.WaitingForInitialStatus()
+			nextState, err = confStates.WaitingForInitialStatus(true)
 		case WaitingForNetworkOptions:
 			nextState, err = confStates.WaitingForNetworkOptions()
 		case BoardReady:

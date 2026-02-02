@@ -127,7 +127,7 @@ func (p *ProvisionV2) Run(ctx context.Context, params ProvisioningV2BoardParams)
 		case WaitForConnection:
 			nextState, err = p.configStates.WaitForConnection()
 		case WaitingForInitialStatus:
-			nextState, err = p.configStates.WaitingForInitialStatus()
+			nextState, err = p.configStates.WaitingForInitialStatus(false)
 			if err != nil {
 				nextState = FlashProvisioningSketch
 			}
@@ -144,6 +144,8 @@ func (p *ProvisionV2) Run(ctx context.Context, params ProvisioningV2BoardParams)
 			nextState, err = p.waitingSketchVersion(params.minProvSketchVersion)
 		case FlashProvisioningSketch:
 			nextState, err = p.flashProvisioningSketch(ctx, params.fqbn, params.address, params.protocol)
+		case WaitingBoardAfterFlash:
+			nextState, err = p.configStates.WaitingForInitialStatus(true)
 		case WiFiFWVersionRequest:
 			nextState, err = p.configStates.GetWiFiFWVersionRequest(ctx)
 		case WaitingWiFiFWVersion:
@@ -279,7 +281,7 @@ func (p *ProvisionV2) flashProvisioningSketch(ctx context.Context, fqbn, address
 		return ErrorState, err
 	}
 
-	return WaitForConnection, nil
+	return WaitingBoardAfterFlash, nil
 }
 
 func (p *ProvisionV2) getBLEMACRequest(ctx context.Context) (ConfigStatus, error) {

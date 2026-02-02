@@ -41,6 +41,7 @@ const (
 	WaitingForNetworkOptions
 	BoardReady
 	FlashProvisioningSketch
+	WaitingBoardAfterFlash
 	GetSketchVersionRequest
 	WaitingSketchVersion
 	WiFiFWVersionRequest
@@ -92,9 +93,13 @@ func (c *ConfigurationStates) WaitForConnection() (ConfigStatus, error) {
 	return ErrorState, errors.New("impossible to connect with the device")
 }
 
-func (c *ConfigurationStates) WaitingForInitialStatus() (ConfigStatus, error) {
+func (c *ConfigurationStates) WaitingForInitialStatus(longWait bool) (ConfigStatus, error) {
 	logrus.Info("NetworkConfigure: waiting for initial status from device")
-	res, err := c.configProtocol.ReceiveData(CommandResponseTimeoutShort_s)
+	timeout := CommandResponseTimeoutShort_s
+	if longWait {
+		timeout = CommandResponseTimeoutLong_s
+	}
+	res, err := c.configProtocol.ReceiveData(timeout)
 	if err != nil {
 		return ErrorState, fmt.Errorf("communication error: %w, please check the NetworkConfigurator lib is activated in the sketch", err)
 	}
