@@ -101,23 +101,31 @@ func runMigrateCommand(ctx context.Context, comm *arduino.Commander, iotApiRawCl
 	}
 	defer provProt.Close()
 
-	_, err = confStates.WaitForConnection()
-	if err != nil {
-		logrus.Errorf("Board initialization failed: %s", err.Error())
-		return fmt.Errorf("Board initialization failed: %s", err.Error())
+	state := WaitForConnection
+	nextState := NoneState
+	for state != End && state != ErrorState {
+		switch state {
+		case WaitForConnection:
+			nextState, err = confStates.WaitForConnection()
+		case WaitingForInitialStatus:
+			nextState, err = confStates.WaitingForInitialStatus()
+		case WaitingForNetworkOptions:
+			nextState, err = confStates.WaitingForNetworkOptions()
+		case BoardReady:
+			nextState = WiFiFWVersionRequest
+		case WiFiFWVersionRequest:
+			nextState, err = confStates.GetWiFiFWVersionRequest(ctx)
+		case WaitingWiFiFWVersion:
+			_, err = confStates.WaitWiFiFWVersion(boardProvisioningDetails.MinWiFiVersion)
+			if err == nil {
+				nextState = End
+			}
+		}
+
+		if nextState != NoneState {
+			state = nextState
+		}
 	}
 
-	_, err = confStates.GetWiFiFWVersionRequest(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = confStates.WaitWiFiFWVersion(boardProvisioningDetails.MinWiFiVersion)
-	if err != nil {
-		logrus.Errorf("Board WiFi FW version check failed: %s", err.Error())
-		return fmt.Errorf("Board WiFi FW version check failed: %s", err.Error())
-	}
-
-	logrus.Info("Board ready for Bluetooth provisioning")
-	return nil
+	return err
 }
