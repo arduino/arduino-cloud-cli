@@ -83,6 +83,7 @@ func runMigrateCommand(ctx context.Context, comm *arduino.Commander, iotApiRawCl
 	var extInterface transport.TransportInterface
 	extInterface = &serial.Serial{}
 	provProt := configurationprotocol.NewNetworkConfigurationProtocol(&extInterface)
+	confStates := NewConfigurationStates(provProt)
 
 	logrus.Infof("Flashing provisioning sketch to enable Bluetooth provisioning")
 
@@ -99,6 +100,23 @@ func runMigrateCommand(ctx context.Context, comm *arduino.Commander, iotApiRawCl
 		return err
 	}
 	defer provProt.Close()
+
+	_, err = confStates.WaitForConnection()
+	if err != nil {
+		logrus.Errorf("Board initialization failed: %s", err.Error())
+		return fmt.Errorf("Board initialization failed: %s", err.Error())
+	}
+
+	_, err = confStates.GetWiFiFWVersionRequest(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = confStates.WaitWiFiFWVersion(boardProvisioningDetails.MinWiFiVersion)
+	if err != nil {
+		logrus.Errorf("Board WiFi FW version check failed: %s", err.Error())
+		return fmt.Errorf("Board WiFi FW version check failed: %s", err.Error())
+	}
 
 	logrus.Info("Board ready for Bluetooth provisioning")
 	return nil
