@@ -197,7 +197,7 @@ func (nc *NetworkConfigure) Run(ctx context.Context, netConfig *NetConfig) error
 		case WaitForConnection:
 			nextState, err = nc.configStates.WaitForConnection()
 		case WaitingForInitialStatus:
-			nextState, err = nc.configStates.WaitingForInitialStatus()
+			nextState, err = nc.configStates.WaitingForInitialStatus(false)
 		case WaitingForNetworkOptions:
 			nextState, err = nc.configStates.WaitingForNetworkOptions()
 		case BoardReady:

@@ -4,7 +4,7 @@ version: v1.15.13
 type: go
 summary: Package snapref implements the Snappy compression format.
 homepage: https://pkg.go.dev/github.com/klauspost/compress/internal/snapref
-license: other
+license: mit
 licenses:
 - sources: LICENSE
   text: |
