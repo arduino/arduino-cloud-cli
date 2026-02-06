@@ -32,36 +32,37 @@ import (
 )
 
 type migrateFlags struct {
-	migrate bool
-	port    string
-	fqbn    string
+	port string
+	fqbn string
 }
 
 func initProvisioningCommand() *cobra.Command {
-	flags := &migrateFlags{}
-	createCommand := &cobra.Command{
+	provisioningCommand := &cobra.Command{
 		Use:   "provisioning",
-		Short: "Provisioning related commands",
-		Long:  "Provisioning related commands",
+		Short: "Provisioning commands.",
+		Long:  "Provisioning commands.",
+	}
+
+	provisioningCommand.AddCommand(initMigrateCommand())
+	return provisioningCommand
+}
+
+func initMigrateCommand() *cobra.Command {
+	flags := &migrateFlags{}
+	migrateCommand := &cobra.Command{
+		Use:   "migrate",
+		Short: "Set up the device to enable Bluetooth provisioning",
+		Long:  "Set up the device to enable Bluetooth provisioning",
 		Run: func(cmd *cobra.Command, args []string) {
-			if err := runProvisioningCommand(flags); err != nil {
+			if err := runMigrateCommand(flags); err != nil {
 				feedback.Errorf("Error during device configuration: %v", err)
 				os.Exit(errorcodes.ErrGeneric)
 			}
 		},
 	}
-	createCommand.Flags().BoolVarP(&flags.migrate, "migrate", "m", false, "Set up the device to enable Bluetooth provisioning")
-	createCommand.Flags().StringVarP(&flags.port, "port", "p", "", "Device port")
-	createCommand.Flags().StringVarP(&flags.fqbn, "fqbn", "b", "", "Device fqbn")
-	return createCommand
-}
-
-func runProvisioningCommand(flags *migrateFlags) error {
-	if flags.migrate {
-		return runMigrateCommand(flags)
-	}
-	feedback.Print("No action provided, please use --help to see the available options.")
-	return fmt.Errorf("no valid subcommand provided")
+	migrateCommand.Flags().StringVarP(&flags.port, "port", "p", "", "Device port")
+	migrateCommand.Flags().StringVarP(&flags.fqbn, "fqbn", "b", "", "Device fqbn")
+	return migrateCommand
 }
 
 func runMigrateCommand(flags *migrateFlags) error {
