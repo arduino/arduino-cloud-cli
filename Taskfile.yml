@@ -97,7 +97,8 @@ tasks:
           grep 'aria-describedby="license-description"' | \
           sed -n 's/.*aria-describedby="license-description"[^>]*>\([^<]*\)<.*/\1/p')
           if [ -n "$got" ]; then
-            yq -y -i ".license = \"$got\"" "$file"
+            # Write license in lowercase and remove ", + 1 more" suffix if present
+            yq -y -i ".license = \"$(echo "$got" | sed 's/, + 1 more//' | tr '[:upper:]' '[:lower:]')\"" "$file"
           else
             echo "Could not fetch license info for $file from $homepage"
           fi
