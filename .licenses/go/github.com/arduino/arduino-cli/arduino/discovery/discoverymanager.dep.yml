@@ -1,12 +1,12 @@
 ---
 name: github.com/arduino/arduino-cli/arduino/discovery/discoverymanager
-version: v0.0.0-20250901123057-20dd7c932f59
+version: v0.0.0-20260209142031-fbb5448a5273
 type: go
-summary: 
+summary:
 homepage: https://pkg.go.dev/github.com/arduino/arduino-cli/arduino/discovery/discoverymanager
 license: gpl-3.0
 licenses:
-- sources: arduino-cli@v0.0.0-20250901123057-20dd7c932f59/LICENSE.txt
+- sources: arduino-cli@v0.0.0-20260209142031-fbb5448a5273/LICENSE.txt
   text: |2
                         GNU GENERAL PUBLIC LICENSE
                            Version 3, 29 June 2007
@@ -682,7 +682,7 @@ licenses:
     the library.  If this is what you want to do, use the GNU Lesser General
     Public License instead of this License.  But first, please read
     <https://www.gnu.org/licenses/why-not-lgpl.html>.
-- sources: arduino-cli@v0.0.0-20250901123057-20dd7c932f59/README.md
+- sources: arduino-cli@v0.0.0-20260209142031-fbb5448a5273/README.md
   text: |-
     Arduino CLI is licensed under the [GPL 3.0] license.
 
