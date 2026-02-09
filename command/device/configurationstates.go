@@ -153,7 +153,7 @@ func (c *ConfigurationStates) WaitingForNetworkOptions() (ConfigStatus, error) {
 		}
 	}
 
-	return ErrorState, errors.New("timeout: no network options received from the device, please retry enabling the NetworkCofnigurator lib in the sketch")
+	return ErrorState, errors.New("timeout: no network options received from the device, please retry enabling the NetworkConfigurator lib in the sketch")
 }
 
 func (c *ConfigurationStates) GetWiFiFWVersionRequest(ctx context.Context) (ConfigStatus, error) {
@@ -177,18 +177,17 @@ func (c *ConfigurationStates) WaitWiFiFWVersion(minWiFiVersion *string) (ConfigS
 		return ErrorState, errors.New("provisioning V2: Requesting WiFi FW Version failed")
 	}
 
-	if res.Type() == cborcoders.ProvisioningWiFiFWVersionMessageType {
-		wifi_version := res.ToProvisioningWiFiFWVersionMessage().WiFiFWVersion
-		logrus.Infof("Received WiFi FW Version: %s", wifi_version)
+	switch res.Type() {
+	case cborcoders.ProvisioningWiFiFWVersionMessageType:
+		wifiVersion := res.ToProvisioningWiFiFWVersionMessage().WiFiFWVersion
+		logrus.Infof("Received WiFi FW Version: %s", wifiVersion)
 		if minWiFiVersion != nil &&
-			c.CompareVersions(wifi_version, *minWiFiVersion) < 0 {
-			return ErrorState, fmt.Errorf("provisioning V2: WiFi FW version %s is lower than required minimum %s. Please update the board firmware using Arduino IDE or Arduino CLI", wifi_version, *minWiFiVersion)
+			c.CompareVersions(wifiVersion, *minWiFiVersion) < 0 {
+			return ErrorState, fmt.Errorf("provisioning V2: WiFi FW version %s is lower than required minimum %s. Please update the board firmware using Arduino IDE or Arduino CLI", wifiVersion, *minWiFiVersion)
 		}
 
 		return RequestBLEMAC, nil
-	}
-
-	if res.Type() == cborcoders.ProvisioningStatusMessageType {
+	case cborcoders.ProvisioningStatusMessageType:
 		status := res.ToProvisioningStatusMessage()
 		return c.HandleStatusMessage(status.Status)
 	}
