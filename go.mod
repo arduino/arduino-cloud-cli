@@ -2,8 +2,6 @@ module github.com/arduino/arduino-cloud-cli
 
 go 1.24.4
 
-toolchain go1.24.13
-
 require (
 	github.com/arduino/arduino-cli v0.0.0-20260209142031-fbb5448a5273
 	github.com/arduino/go-paths-helper v1.12.1
