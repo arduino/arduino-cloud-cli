@@ -1,6 +1,6 @@
 // This file is part of arduino-cloud-cli.
 //
-// Copyright (C) 2021 ARDUINO SA (http://www.arduino.cc/)
+// Copyright (C) ARDUINO SRL (http://www.arduino.cc/)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -158,9 +158,9 @@ func runProvisioningV1(ctx context.Context, params *CreateParams, comm *arduino.
 		// Don't use the passed context for the cleanup because it could be cancelled.
 		if errDel := iotClient.DeviceDelete(context.Background(), dev.Id); errDel != nil {
 			return nil, fmt.Errorf(
-				"device was NOT successfully provisioned but " +
-					"now we can't delete it from the cloud - please check " +
-					"it on the web application.\n\nProvision error: %s" +
+				"device was NOT successfully provisioned but "+
+					"now we can't delete it from the cloud - please check "+
+					"it on the web application.\n\nProvision error: %s"+
 					"\nDeletion error: %s", err.Error(), errDel.Error(),
 			)
 		}

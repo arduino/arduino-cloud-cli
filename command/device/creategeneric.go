@@ -1,6 +1,6 @@
 // This file is part of arduino-cloud-cli.
 //
-// Copyright (C) 2021 ARDUINO SA (http://www.arduino.cc/)
+// Copyright (C) ARDUINO SRL (http://www.arduino.cc/)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -60,9 +60,9 @@ func CreateGeneric(ctx context.Context, params *CreateGenericParams, cred *confi
 		// Don't use the passed context for the cleanup because it could be cancelled.
 		if errDel := iotClient.DeviceDelete(context.Background(), dev.Id); errDel != nil {
 			return nil, fmt.Errorf(
-				"device was successfully created on IoT-API but " +
-					"now we can't set its secret key nor delete it - please check " +
-					"it on the web application.\n\nFetch error: %s" +
+				"device was successfully created on IoT-API but "+
+					"now we can't set its secret key nor delete it - please check "+
+					"it on the web application.\n\nFetch error: %s"+
 					"\nDeletion error: %s", err.Error(), errDel.Error(),
 			)
 		}
