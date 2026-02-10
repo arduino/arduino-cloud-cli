@@ -4,7 +4,7 @@ source = ["dist/arduino-cloud-cli_osx_darwin_amd64/arduino-cloud-cli", "dist/ard
 bundle_id = "cc.arduino.arduino-cloud-cli"
 
 sign {
-  application_identity = "Developer ID Application: ARDUINO SA (7KT7ZWMCJT)"
+  application_identity = "Developer ID Application: ARDUINO SRL (7KT7ZWMCJT)"
 }
 
 # Ask Gon for zip output to force notarization process to take place.
