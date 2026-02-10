@@ -21,6 +21,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	configurationprotocol "github.com/arduino/arduino-cloud-cli/internal/board-protocols/configuration-protocol"
@@ -39,6 +41,7 @@ const (
 	WaitingForNetworkOptions
 	BoardReady
 	FlashProvisioningSketch
+	WaitingBoardAfterFlash
 	GetSketchVersionRequest
 	WaitingSketchVersion
 	WiFiFWVersionRequest
@@ -90,9 +93,13 @@ func (c *ConfigurationStates) WaitForConnection() (ConfigStatus, error) {
 	return ErrorState, errors.New("impossible to connect with the device")
 }
 
-func (c *ConfigurationStates) WaitingForInitialStatus() (ConfigStatus, error) {
+func (c *ConfigurationStates) WaitingForInitialStatus(longWait bool) (ConfigStatus, error) {
 	logrus.Info("NetworkConfigure: waiting for initial status from device")
-	res, err := c.configProtocol.ReceiveData(CommandResponseTimeoutShort_s)
+	timeout := CommandResponseTimeoutShort_s
+	if longWait {
+		timeout = CommandResponseTimeoutLong_s
+	}
+	res, err := c.configProtocol.ReceiveData(timeout)
 	if err != nil {
 		return ErrorState, fmt.Errorf("communication error: %w, please check the NetworkConfigurator lib is activated in the sketch", err)
 	}
@@ -146,7 +153,68 @@ func (c *ConfigurationStates) WaitingForNetworkOptions() (ConfigStatus, error) {
 		}
 	}
 
-	return ErrorState, errors.New("timeout: no network options received from the device, please retry enabling the NetworkCofnigurator lib in the sketch")
+	return ErrorState, errors.New("timeout: no network options received from the device, please retry enabling the NetworkConfigurator lib in the sketch")
+}
+
+func (c *ConfigurationStates) GetWiFiFWVersionRequest(ctx context.Context) (ConfigStatus, error) {
+	logrus.Info("Provisioning V2: Requesting WiFi FW Version")
+	getWiFiFWVersionMessage := cborcoders.From(cborcoders.ProvisioningCommandsMessage{Command: configurationprotocol.Commands["GetWiFiFWVersion"]})
+	err := c.configProtocol.SendData(getWiFiFWVersionMessage)
+	if err != nil {
+		return ErrorState, err
+	}
+	sleepCtx(ctx, 1*time.Second)
+	return WaitingWiFiFWVersion, nil
+}
+
+func (c *ConfigurationStates) WaitWiFiFWVersion(minWiFiVersion *string) (ConfigStatus, error) {
+	res, err := c.configProtocol.ReceiveData(CommandResponseTimeoutLong_s)
+	if err != nil {
+		return ErrorState, err
+	}
+
+	if res == nil {
+		return ErrorState, errors.New("provisioning V2: Requesting WiFi FW Version failed")
+	}
+
+	switch res.Type() {
+	case cborcoders.ProvisioningWiFiFWVersionMessageType:
+		wifiVersion := res.ToProvisioningWiFiFWVersionMessage().WiFiFWVersion
+		logrus.Infof("Received WiFi FW Version: %s", wifiVersion)
+		if minWiFiVersion != nil &&
+			c.CompareVersions(wifiVersion, *minWiFiVersion) < 0 {
+			return ErrorState, fmt.Errorf("provisioning V2: WiFi FW version %s is lower than required minimum %s. Please update the board firmware using Arduino IDE or Arduino CLI", wifiVersion, *minWiFiVersion)
+		}
+
+		return RequestBLEMAC, nil
+	case cborcoders.ProvisioningStatusMessageType:
+		status := res.ToProvisioningStatusMessage()
+		return c.HandleStatusMessage(status.Status)
+	}
+
+	return ErrorState, errors.New("provisioning V2: WiFi FW version not received")
+}
+
+/*
+ * This function returns
+ * - <0 if version1  < version2
+ * - =0 if version1 == version2
+ * - >0 if version1  > version2
+ */
+func (c *ConfigurationStates) CompareVersions(version1, version2 string) int {
+	version1Tokens := strings.Split(version1, ".")
+	version2Tokens := strings.Split(version2, ".")
+	if len(version1Tokens) != len(version2Tokens) {
+		return -1
+	}
+	for i := 0; i < len(version1Tokens) && i < len(version2Tokens); i++ {
+		version1Num, _ := strconv.Atoi(version1Tokens[i])
+		version2Num, _ := strconv.Atoi(version2Tokens[i])
+		if version1Num != version2Num {
+			return version1Num - version2Num
+		}
+	}
+	return 0
 }
 
 func (cs *ConfigurationStates) ConfigureNetwork(ctx context.Context, c *NetConfig) (ConfigStatus, error) {

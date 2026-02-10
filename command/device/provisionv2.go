@@ -22,7 +22,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 	"unicode"
@@ -75,7 +74,7 @@ type ProvisioningV2BoardParams struct {
 }
 
 type ProvisionV2 struct {
-	arduino.Commander
+	FWFlasher           *ProvisioningV2SketchFlasher
 	iotApiClient        *iotapiraw.IoTApiRawClient
 	provisioningClient  *provisioningapi.ProvisioningApiClient
 	provProt            *configurationprotocol.NetworkConfigurationProtocol
@@ -88,7 +87,7 @@ type ProvisionV2 struct {
 func NewProvisionV2(comm *arduino.Commander, iotClient *iotapiraw.IoTApiRawClient, credentials *config.Credentials, extInterface transport.TransportInterface) *ProvisionV2 {
 	provProt := configurationprotocol.NewNetworkConfigurationProtocol(&extInterface)
 	return &ProvisionV2{
-		Commander:          *comm,
+		FWFlasher:          NewProvisioningV2SketchFlasher(comm, iotClient),
 		iotApiClient:       iotClient,
 		provisioningClient: provisioningapi.NewClient(credentials),
 		provProt:           provProt,
@@ -128,7 +127,7 @@ func (p *ProvisionV2) Run(ctx context.Context, params ProvisioningV2BoardParams)
 		case WaitForConnection:
 			nextState, err = p.configStates.WaitForConnection()
 		case WaitingForInitialStatus:
-			nextState, err = p.configStates.WaitingForInitialStatus()
+			nextState, err = p.configStates.WaitingForInitialStatus(false)
 			if err != nil {
 				nextState = FlashProvisioningSketch
 			}
@@ -145,10 +144,12 @@ func (p *ProvisionV2) Run(ctx context.Context, params ProvisioningV2BoardParams)
 			nextState, err = p.waitingSketchVersion(params.minProvSketchVersion)
 		case FlashProvisioningSketch:
 			nextState, err = p.flashProvisioningSketch(ctx, params.fqbn, params.address, params.protocol)
+		case WaitingBoardAfterFlash:
+			nextState, err = p.configStates.WaitingForInitialStatus(true)
 		case WiFiFWVersionRequest:
-			nextState, err = p.getWiFiFWVersionRequest(ctx)
+			nextState, err = p.configStates.GetWiFiFWVersionRequest(ctx)
 		case WaitingWiFiFWVersion:
-			nextState, err = p.waitWiFiFWVersion(params.minWiFiVersion)
+			nextState, err = p.configStates.WaitWiFiFWVersion(params.minWiFiVersion)
 		case RequestBLEMAC:
 			nextState, err = p.getBLEMACRequest(ctx)
 		case WaitBLEMAC:
@@ -233,28 +234,6 @@ func (p *ProvisionV2) getSketchVersionRequest() (ConfigStatus, error) {
 	return WaitingSketchVersion, nil
 }
 
-/*
- * This function returns
- * - <0 if version1  < version2
- * - =0 if version1 == version2
- * - >0 if version1  > version2
- */
-func (p *ProvisionV2) compareVersions(version1, version2 string) int {
-	version1Tokens := strings.Split(version1, ".")
-	version2Tokens := strings.Split(version2, ".")
-	if len(version1Tokens) != len(version2Tokens) {
-		return -1
-	}
-	for i := 0; i < len(version1Tokens) && i < len(version2Tokens); i++ {
-		version1Num, _ := strconv.Atoi(version1Tokens[i])
-		version2Num, _ := strconv.Atoi(version2Tokens[i])
-		if version1Num != version2Num {
-			return version1Num - version2Num
-		}
-	}
-	return 0
-}
-
 func (p *ProvisionV2) waitingSketchVersion(minSketchVersion string) (ConfigStatus, error) {
 	res, err := p.provProt.ReceiveData(CommandResponseTimeoutLong_s)
 	if err != nil {
@@ -270,7 +249,7 @@ func (p *ProvisionV2) waitingSketchVersion(minSketchVersion string) (ConfigStatu
 		sketch_version := res.ToProvisioningSketchVersionMessage().ProvisioningSketchVersion
 		logrus.Infof("Provisioning V2: Received Sketch Version %s", sketch_version)
 
-		if p.compareVersions(sketch_version, minSketchVersion) < 0 {
+		if p.configStates.CompareVersions(sketch_version, minSketchVersion) < 0 {
 			logrus.Infof("Provisioning V2: Sketch version %s is lower than required minimum %s. Updating...", sketch_version, minSketchVersion)
 			return FlashProvisioningSketch, nil
 		}
@@ -290,29 +269,9 @@ func (p *ProvisionV2) waitingSketchVersion(minSketchVersion string) (ConfigStatu
 }
 
 func (p *ProvisionV2) flashProvisioningSketch(ctx context.Context, fqbn, address, protocol string) (ConfigStatus, error) {
-	logrus.Info("Provisioning V2: Downloading provisioning sketch")
-	path := paths.TempDir().Join("cloud-cli").Join("provisioning_v2_sketch")
-
-	file, err := p.iotApiClient.DownloadProvisioningV2Sketch(fqbn, path, nil)
-	if err != nil {
-		logrus.Error("Provisioning V2: Downloading provisioning sketch failed")
-		return ErrorState, err
-	}
-
-	// Try to upload the provisioning sketch
-	logrus.Info("Uploading provisioning sketch on the board")
 	p.provProt.Close()
-	errMsg := "Provisioning V2: error while uploading the provisioning sketch"
-	err = retry(ctx, MaxRetriesFlashProvSketch, time.Millisecond*1000, errMsg, func() error {
-		return p.UploadBin(ctx, fqbn, file, address, protocol)
-	})
+	err := p.FWFlasher.FlashProvisioningV2Sketch(ctx, fqbn, address, protocol)
 	if err != nil {
-		return ErrorState, err
-	}
-
-	err = os.Remove(file)
-	if err != nil {
-		logrus.Error("Provisioning V2: Removing temporary file failed")
 		return ErrorState, err
 	}
 
@@ -322,47 +281,7 @@ func (p *ProvisionV2) flashProvisioningSketch(ctx context.Context, fqbn, address
 		return ErrorState, err
 	}
 
-	return WaitForConnection, nil
-}
-
-func (p *ProvisionV2) getWiFiFWVersionRequest(ctx context.Context) (ConfigStatus, error) {
-	logrus.Info("Provisioning V2: Requesting WiFi FW Version")
-	getWiFiFWVersionMessage := cborcoders.From(cborcoders.ProvisioningCommandsMessage{Command: configurationprotocol.Commands["GetWiFiFWVersion"]})
-	err := p.provProt.SendData(getWiFiFWVersionMessage)
-	if err != nil {
-		return ErrorState, err
-	}
-	sleepCtx(ctx, 1*time.Second)
-	return WaitingWiFiFWVersion, nil
-}
-
-func (p *ProvisionV2) waitWiFiFWVersion(minWiFiVersion *string) (ConfigStatus, error) {
-	res, err := p.provProt.ReceiveData(CommandResponseTimeoutLong_s)
-	if err != nil {
-		return ErrorState, err
-	}
-
-	if res == nil {
-		return ErrorState, errors.New("provisioning V2: Requesting WiFi FW Version failed")
-	}
-
-	if res.Type() == cborcoders.ProvisioningWiFiFWVersionMessageType {
-		wifi_version := res.ToProvisioningWiFiFWVersionMessage().WiFiFWVersion
-		logrus.Infof("Received WiFi FW Version: %s", wifi_version)
-		if minWiFiVersion != nil &&
-			p.compareVersions(wifi_version, *minWiFiVersion) < 0 {
-			return ErrorState, fmt.Errorf("provisioning V2: WiFi FW version %s is lower than required minimum %s. Please update the board firmware using Arduino IDE or Arduino CLI", wifi_version, *minWiFiVersion)
-		}
-
-		return RequestBLEMAC, nil
-	}
-
-	if res.Type() == cborcoders.ProvisioningStatusMessageType {
-		status := res.ToProvisioningStatusMessage()
-		return p.configStates.HandleStatusMessage(status.Status)
-	}
-
-	return ErrorState, errors.New("provisioning V2: WiFi FW version not received")
+	return WaitingBoardAfterFlash, nil
 }
 
 func (p *ProvisionV2) getBLEMACRequest(ctx context.Context) (ConfigStatus, error) {
@@ -628,4 +547,44 @@ func (p *ProvisionV2) unclaimDevice() (ConfigStatus, error) {
 	logrus.Warnf("Provisioning V2: Something went wrong, unclaiming device...")
 	_, err := p.provisioningClient.UnclaimDevice(p.provisioningId)
 	return End, err
+}
+
+type ProvisioningV2SketchFlasher struct {
+	arduino.Commander
+	iotApiClient *iotapiraw.IoTApiRawClient
+}
+
+func NewProvisioningV2SketchFlasher(comm *arduino.Commander, iotClient *iotapiraw.IoTApiRawClient) *ProvisioningV2SketchFlasher {
+	return &ProvisioningV2SketchFlasher{
+		Commander:    *comm,
+		iotApiClient: iotClient,
+	}
+}
+
+func (sf *ProvisioningV2SketchFlasher) FlashProvisioningV2Sketch(ctx context.Context, fqbn, address, protocol string) error {
+	logrus.Info("Provisioning V2: Downloading provisioning sketch")
+	path := paths.TempDir().Join("cloud-cli").Join("provisioning_v2_sketch")
+
+	file, err := sf.iotApiClient.DownloadProvisioningV2Sketch(fqbn, path, nil)
+	if err != nil {
+		logrus.Error("Provisioning V2: Downloading provisioning sketch failed")
+		return err
+	}
+
+	// Try to upload the provisioning sketch
+	logrus.Info("Provisioning V2: Uploading provisioning sketch on the board")
+	errMsg := "Provisioning V2: error while uploading the provisioning sketch"
+	err = retry(ctx, MaxRetriesFlashProvSketch, time.Millisecond*1000, errMsg, func() error {
+		return sf.UploadBin(ctx, fqbn, file, address, protocol)
+	})
+	if err != nil {
+		return err
+	}
+
+	err = os.Remove(file)
+	if err != nil {
+		logrus.Error("Provisioning V2: Removing temporary file failed")
+		return err
+	}
+	return nil
 }
