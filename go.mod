@@ -3,7 +3,7 @@ module github.com/arduino/arduino-cloud-cli
 go 1.24.4
 
 require (
-	github.com/arduino/arduino-cli v0.0.0-20260209142031-fbb5448a5273
+	github.com/arduino/arduino-cli v0.0.0-20260210083104-362ae30edc98
 	github.com/arduino/go-paths-helper v1.12.1
 	github.com/arduino/go-win32-utils v1.0.0
 	github.com/arduino/iot-client-go/v3 v3.1.1
@@ -22,7 +22,7 @@ require (
 	go.bug.st/serial v1.6.2
 	golang.org/x/crypto v0.45.0
 	golang.org/x/oauth2 v0.27.0
-	google.golang.org/grpc v1.61.0
+	google.golang.org/grpc v1.64.1
 	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools v2.2.0+incompatible
 )
@@ -44,9 +44,8 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
 	github.com/go-git/go-billy/v5 v5.6.2 // indirect
-	github.com/go-git/go-git/v5 v5.16.4 // indirect
+	github.com/go-git/go-git/v5 v5.16.5 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
-	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/h2non/filetype v1.1.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
@@ -84,7 +83,7 @@ require (
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/text v0.31.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240205150955-31a09d347014 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240318140521-94a12d6c2237 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
