@@ -1,6 +1,6 @@
 // This file is part of arduino-cloud-cli.
 //
-// Copyright (C) 2024 ARDUINO SA (http://www.arduino.cc/)
+// Copyright (C) ARDUINO SRL (http://www.arduino.cc)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published

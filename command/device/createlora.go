@@ -1,6 +1,6 @@
 // This file is part of arduino-cloud-cli.
 //
-// Copyright (C) 2021 ARDUINO SA (http://www.arduino.cc/)
+// Copyright (C) ARDUINO SRL (http://www.arduino.cc)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -125,9 +125,9 @@ func CreateLora(ctx context.Context, params *CreateLoraParams, cred *config.Cred
 		errDel := iotClient.DeviceDelete(context.Background(), dev.DeviceId)
 		if errDel != nil { // Oh no
 			return nil, fmt.Errorf(
-				"device was successfully provisioned and configured on IoT-API but " +
-					"now we can't fetch its information nor delete it - please check " +
-					"it on the web application.\n\nFetch error: %s" +
+				"device was successfully provisioned and configured on IoT-API but "+
+					"now we can't fetch its information nor delete it - please check "+
+					"it on the web application.\n\nFetch error: %s"+
 					"\nDeletion error: %s", err.Error(), errDel.Error(),
 			)
 		}

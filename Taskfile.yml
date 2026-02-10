@@ -58,6 +58,12 @@ tasks:
           {{.TEST_LDFLAGS}} \
           {{default .DEFAULT_GO_PACKAGES .GO_PACKAGES}}
 
+  go:add-license-headers:
+    desc: Add missing go license headers
+    cmds:
+      - go install github.com/google/addlicense@v1.1.1
+      - addlicense -y "" -c "ARDUINO SRL (http://www.arduino.cc)" -f ./license_header.tpl $(find . -name "*.go" -type f -print0 | xargs -0)
+
   # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/check-dependencies-task/Taskfile.yml
   general:cache-dep-licenses:
     desc: Cache dependency license metadata
