@@ -517,6 +517,22 @@ func (cl *Client) DashboardList(ctx context.Context) ([]iotclient.ArduinoDashboa
 	return dashboards, nil
 }
 
+// DashboardTemplate retrieves the template of a specific dashboard, given its id.
+func (cl *Client) DashboardTemplate(ctx context.Context, id string) (*iotclient.ArduinoDashboardv2template, error) {
+	ctx, err := ctxWithToken(ctx, cl.token)
+	if err != nil {
+		return nil, err
+	}
+
+	req := cl.api.DashboardsV2API.DashboardsV2Template(ctx, id)
+	template, _, err := cl.api.DashboardsV2API.DashboardsV2TemplateExecute(req)
+	if err != nil {
+		err = fmt.Errorf("retrieving dashboard template, %w", errorDetail(err))
+		return nil, err
+	}
+	return template, nil
+}
+
 // DashboardDelete deletes a dashboard from Arduino IoT Cloud.
 func (cl *Client) DashboardDelete(ctx context.Context, id string) error {
 	ctx, err := ctxWithToken(ctx, cl.token)

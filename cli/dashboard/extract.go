@@ -26,6 +26,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/command/dashboard"
 	"github.com/arduino/arduino-cloud-cli/config"
+	iotclient "github.com/arduino/iot-client-go/v3"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -75,7 +76,7 @@ func runExtractCommand(flags *extractFlags) error {
 }
 
 type extractResult struct {
-	template map[string]interface{}
+	template *iotclient.ArduinoDashboardv2template
 }
 
 func (r extractResult) Data() interface{} {
