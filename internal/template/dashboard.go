@@ -26,30 +26,31 @@ import (
 )
 
 type dashboardTemplate struct {
+	ID      string           `json:"id" yaml:"id"`
 	Name    string           `json:"name,omitempty" yaml:"name,omitempty"`
 	Widgets []widgetTemplate `json:"widgets,omitempty" yaml:"widgets,omitempty"`
 }
 
 type widgetTemplate struct {
-	Height       int64                  `json:"height" yaml:"height"`
-	HeightMobile int64                  `json:"height_mobile,omitempty" yaml:"height_mobile,omitempty"`
-	Id           string                 `json:"id" yaml:"id"`
-	Name         string                 `json:"name,omitempty" yaml:"name,omitempty"`
-	Options      map[string]interface{} `json:"options" yaml:"options"`
+	Id           string                 `json:"id,omitempty" yaml:"id,omitempty"`
 	Type         string                 `json:"type" yaml:"type"`
-	Variables    []variableTemplate     `json:"variables,omitempty" yaml:"variables,omitempty"`
-	Width        int64                  `json:"width" yaml:"width"`
-	WidthMobile  int64                  `json:"width_mobile,omitempty" yaml:"width_mobile,omitempty"`
-	X            int64                  `json:"x" yaml:"x"`
-	XMobile      int64                  `json:"x_mobile,omitempty" yaml:"x_mobile,omitempty"`
-	Y            int64                  `json:"y" yaml:"y"`
-	YMobile      int64                  `json:"y_mobile,omitempty" yaml:"y_mobile,omitempty"`
+	Name         string                 `json:"name" yaml:"name"`
+	Width        int                    `json:"width" yaml:"width"`
+	Height       int                    `json:"height" yaml:"height"`
+	X            int                    `json:"x" yaml:"x"`
+	Y            int                    `json:"y" yaml:"y"`
+	WidthMobile  *int                   `json:"width_mobile" yaml:"width_mobile"`
+	HeightMobile *int                   `json:"height_mobile" yaml:"height_mobile"`
+	XMobile      *int                   `json:"x_mobile" yaml:"x_mobile"`
+	YMobile      *int                   `json:"y_mobile" yaml:"y_mobile"`
+	Variables    []variableTemplate     `json:"variables" yaml:"variables"`
+	Options      map[string]interface{} `json:"options" yaml:"options"`
 }
 
 type variableTemplate struct {
-	ThingID      string `json:"thing_id" yaml:"thing_id"`
-	VariableName string `json:"variable_id" yaml:"variable_id"`
-	VariableID   string
+	ThingID    string `json:"thing_id" yaml:"thing_id"`
+	VariableID string `json:"variable_id" yaml:"variable_id"`
+	Name       string `json:"name" yaml:"name"`
 }
 
 // MarshalJSON satisfies the Marshaler interface from json package.
@@ -65,6 +66,7 @@ func (v *variableTemplate) MarshalJSON() ([]byte, error) {
 // ThingFetcher wraps the method to fetch a thing given its id.
 type ThingFetcher interface {
 	ThingShow(ctx context.Context, id string) (*iotclient.ArduinoThing, error)
+	PropertyShow(ctx context.Context, thingId, variableId string) (*iotclient.ArduinoProperty, error)
 }
 
 // getVariableID returns the id of a variable, given its name and its thing id.

@@ -549,6 +549,21 @@ func (cl *Client) DashboardDelete(ctx context.Context, id string) error {
 	return nil
 }
 
+func (cl *Client) PropertyShow(ctx context.Context, thingId, variableId string) (*iotclient.ArduinoProperty, error) {
+	ctx, err := ctxWithToken(ctx, cl.token)
+	if err != nil {
+		return nil, err
+	}
+
+	req := cl.api.PropertiesV2API.PropertiesV2Show(ctx, thingId, variableId)
+	property, _, err := cl.api.PropertiesV2API.PropertiesV2ShowExecute(req)
+	if err != nil {
+		err = fmt.Errorf("retrieving property, %w", errorDetail(err))
+		return nil, err
+	}
+	return property, nil
+}
+
 // TemplateApply apply a given template, creating associated resources like things and dashboards.
 func (cl *Client) TemplateApply(ctx context.Context, id, thingId, prefix, deviceId string, credentials map[string]string) (*iotclient.ArduinoTemplate, error) {
 	ctx, err := ctxWithToken(ctx, cl.token)
