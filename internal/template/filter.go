@@ -18,26 +18,16 @@
 package template
 
 var (
-	widgetOptWhitelist = map[string]struct{}{
-		"showThing":     {},
-		"frameless":     {},
-		"interpolation": {},
-		"max":           {},
-		"min":           {},
-		"mode":          {},
-		"percentage":    {},
-		"showLabels":    {},
-		"step":          {},
-		"vertical":      {},
-		"dateFormat":    {},
-		"timeFormat":    {},
-		"display":       {},
+	WidgetOptBlacklist = map[string]struct{}{
+		"created_by": {},
+		"thingId":    {},
+		"properties": {},
 	}
 )
 
 func filterWidgetOptions(opts map[string]interface{}) {
 	for opt := range opts {
-		if _, ok := widgetOptWhitelist[opt]; !ok {
+		if _, ok := WidgetOptBlacklist[opt]; ok {
 			delete(opts, opt)
 		}
 	}
