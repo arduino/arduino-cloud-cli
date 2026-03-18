@@ -6,8 +6,8 @@ widgets:
     options:
         showLabels: true
         name: name-wrong
-        icon: wrong
-        section: section-wrong
+        created_by: wrong
+        thingId: section-wrong
     type: Switch
     width: 3
     width_mobile: 4
