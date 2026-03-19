@@ -120,6 +120,10 @@ func LoadDashboard(ctx context.Context, file string, override map[string]string,
 			widget.Variables[j] = variable
 		}
 
+		if widget.Options != nil {
+			filterWidgetOptions(widget.Options)
+		}
+
 		if widget.Type == "Image Map" && widget.Options != nil {
 			markersSettings, ok := widget.Options["markersSettings"].([]interface{})
 			if ok {
@@ -267,6 +271,7 @@ func LoadDashboard(ctx context.Context, file string, override map[string]string,
 
 	// Convert template into dashboard structure exploiting json marshalling/unmarshalling
 	dashboard := &iotclient.Dashboardv2{}
+
 	t, err := json.Marshal(template)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "extracting template", err)
@@ -275,6 +280,8 @@ func LoadDashboard(ctx context.Context, file string, override map[string]string,
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "creating dashboard structure from template", err)
 	}
+
+	dashboard.AdditionalProperties = map[string]any{}
 
 	return dashboard, nil
 }

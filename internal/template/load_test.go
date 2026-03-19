@@ -177,6 +177,12 @@ func (t *thingShowTest) ThingShow(ctx context.Context, thingID string) (*iotclie
 	}, nil
 }
 
+func (t *thingShowTest) PropertyShow(ctx context.Context, thingId, variableId string) (*iotclient.ArduinoProperty, error) {
+	return &iotclient.ArduinoProperty{
+		Id: variableId,
+	}, nil
+}
+
 func TestLoadDashboard(t *testing.T) {
 	mockThingShow := &thingShowTest{}
 	tests := []struct {

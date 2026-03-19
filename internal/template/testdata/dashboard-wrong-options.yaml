@@ -5,7 +5,6 @@ widgets:
     name: Switch-name
     options:
         showLabels: true
-        name: name-wrong
         created_by: wrong
         thingId: section-wrong
     type: Switch
