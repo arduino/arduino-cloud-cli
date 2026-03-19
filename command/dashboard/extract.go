@@ -23,7 +23,7 @@ import (
 
 	"github.com/arduino/arduino-cloud-cli/config"
 	"github.com/arduino/arduino-cloud-cli/internal/iot"
-	iotclient "github.com/arduino/iot-client-go/v3"
+	"github.com/arduino/arduino-cloud-cli/internal/template"
 )
 
 // ExtractParams contains the parameters needed to
@@ -34,7 +34,7 @@ type ExtractParams struct {
 
 // Extract command is used to extract a dashboard template
 // from a dashboard on Arduino IoT Cloud.
-func Extract(ctx context.Context, params *ExtractParams, cred *config.Credentials) (*iotclient.ArduinoDashboardv2template, error) {
+func Extract(ctx context.Context, params *ExtractParams, cred *config.Credentials) (*template.DashboardTemplate, error) {
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {
 		return nil, err
@@ -46,5 +46,5 @@ func Extract(ctx context.Context, params *ExtractParams, cred *config.Credential
 		return nil, err
 	}
 
-	return dashboard, nil
+	return template.FromDashboard(dashboard)
 }

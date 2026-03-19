@@ -60,6 +60,24 @@ func FromThing(thing *iotclient.ArduinoThing) map[string]interface{} {
 	return template
 }
 
+func FromDashboard(dashboard *iotclient.ArduinoDashboardv2template) (*DashboardTemplate, error) {
+	template := &DashboardTemplate{
+		Name: dashboard.Name,
+	}
+
+	jsonDashboard, err := json.Marshal(dashboard)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal dashboard: %w", err)
+	}
+
+	err = json.Unmarshal(jsonDashboard, &template)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal dashboard: %w", err)
+	}
+
+	return template, nil
+}
+
 // ToFile takes a generic template and saves it into a file,
 // in the specified format (yaml or json).
 func ToFile(template map[string]interface{}, outfile string, format string) error {

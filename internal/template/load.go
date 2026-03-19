@@ -90,7 +90,7 @@ func LoadThing(file string) (*iotclient.ThingCreate, error) {
 // It applies the thing overrides specified by the override parameter.
 // It requires a ThingFetcher to retrieve the actual variable ids.
 func LoadDashboard(ctx context.Context, file string, override map[string]string, thinger ThingFetcher) (*iotclient.Dashboardv2, error) {
-	template := dashboardTemplate{}
+	template := DashboardTemplate{}
 	err := loadTemplate(file, &template)
 	if err != nil {
 		return nil, err

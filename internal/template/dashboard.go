@@ -25,13 +25,13 @@ import (
 	iotclient "github.com/arduino/iot-client-go/v3"
 )
 
-type dashboardTemplate struct {
+type DashboardTemplate struct {
 	ID      string           `json:"id" yaml:"id"`
 	Name    string           `json:"name,omitempty" yaml:"name,omitempty"`
-	Widgets []widgetTemplate `json:"widgets,omitempty" yaml:"widgets,omitempty"`
+	Widgets []WidgetTemplate `json:"widgets,omitempty" yaml:"widgets,omitempty"`
 }
 
-type widgetTemplate struct {
+type WidgetTemplate struct {
 	Id           string                 `json:"id,omitempty" yaml:"id,omitempty"`
 	Type         string                 `json:"type" yaml:"type"`
 	Name         string                 `json:"name" yaml:"name"`
@@ -43,11 +43,11 @@ type widgetTemplate struct {
 	HeightMobile *int                   `json:"height_mobile" yaml:"height_mobile"`
 	XMobile      *int                   `json:"x_mobile" yaml:"x_mobile"`
 	YMobile      *int                   `json:"y_mobile" yaml:"y_mobile"`
-	Variables    []variableTemplate     `json:"variables" yaml:"variables"`
+	Variables    []VariableTemplate     `json:"variables" yaml:"variables"`
 	Options      map[string]interface{} `json:"options" yaml:"options"`
 }
 
-type variableTemplate struct {
+type VariableTemplate struct {
 	ThingID    string `json:"thing_id" yaml:"thing_id"`
 	VariableID string `json:"variable_id" yaml:"variable_id"`
 	Name       string `json:"name" yaml:"name"`
@@ -59,7 +59,7 @@ type variableTemplate struct {
 // marshaled and then unmarshaled into a iot.Widget struct.
 // In the same way, a dashboardTemplate can now be converted
 // into a iot.DashboardV2 leveraging the JSON marshal/unmarshal.
-func (v *variableTemplate) MarshalJSON() ([]byte, error) {
+func (v *VariableTemplate) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.VariableID)
 }
 
