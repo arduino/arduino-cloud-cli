@@ -29,6 +29,9 @@ on:
   workflow_dispatch:
   repository_dispatch:
 
+permissions:
+    contents: read
+
 jobs:
   run-determination:
     runs-on: ubuntu-latest
