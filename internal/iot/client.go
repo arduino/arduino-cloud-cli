@@ -517,6 +517,22 @@ func (cl *Client) DashboardList(ctx context.Context) ([]iotclient.ArduinoDashboa
 	return dashboards, nil
 }
 
+// DashboardTemplate retrieves the template of a specific dashboard, given its id.
+func (cl *Client) DashboardTemplate(ctx context.Context, id string) (*iotclient.ArduinoDashboardv2template, error) {
+	ctx, err := ctxWithToken(ctx, cl.token)
+	if err != nil {
+		return nil, err
+	}
+
+	req := cl.api.DashboardsV2API.DashboardsV2Template(ctx, id)
+	template, _, err := cl.api.DashboardsV2API.DashboardsV2TemplateExecute(req)
+	if err != nil {
+		err = fmt.Errorf("retrieving dashboard template, %w", errorDetail(err))
+		return nil, err
+	}
+	return template, nil
+}
+
 // DashboardDelete deletes a dashboard from Arduino IoT Cloud.
 func (cl *Client) DashboardDelete(ctx context.Context, id string) error {
 	ctx, err := ctxWithToken(ctx, cl.token)
@@ -531,6 +547,21 @@ func (cl *Client) DashboardDelete(ctx context.Context, id string) error {
 		return err
 	}
 	return nil
+}
+
+func (cl *Client) PropertyShow(ctx context.Context, thingId, variableId string) (*iotclient.ArduinoProperty, error) {
+	ctx, err := ctxWithToken(ctx, cl.token)
+	if err != nil {
+		return nil, err
+	}
+
+	req := cl.api.PropertiesV2API.PropertiesV2Show(ctx, thingId, variableId)
+	property, _, err := cl.api.PropertiesV2API.PropertiesV2ShowExecute(req)
+	if err != nil {
+		err = fmt.Errorf("retrieving property, %w", errorDetail(err))
+		return nil, err
+	}
+	return property, nil
 }
 
 // TemplateApply apply a given template, creating associated resources like things and dashboards.

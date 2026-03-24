@@ -26,6 +26,7 @@ import (
 	"github.com/arduino/arduino-cli/cli/feedback"
 	"github.com/arduino/arduino-cloud-cli/command/dashboard"
 	"github.com/arduino/arduino-cloud-cli/config"
+	"github.com/arduino/arduino-cloud-cli/internal/template"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -75,7 +76,7 @@ func runExtractCommand(flags *extractFlags) error {
 }
 
 type extractResult struct {
-	template map[string]interface{}
+	template *template.DashboardTemplate
 }
 
 func (r extractResult) Data() interface{} {

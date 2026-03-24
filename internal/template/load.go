@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	iotclient "github.com/arduino/iot-client-go/v3"
 	"github.com/gofrs/uuid"
@@ -89,25 +90,19 @@ func LoadThing(file string) (*iotclient.ThingCreate, error) {
 // It applies the thing overrides specified by the override parameter.
 // It requires a ThingFetcher to retrieve the actual variable ids.
 func LoadDashboard(ctx context.Context, file string, override map[string]string, thinger ThingFetcher) (*iotclient.Dashboardv2, error) {
-	template := dashboardTemplate{}
+	template := DashboardTemplate{}
 	err := loadTemplate(file, &template)
 	if err != nil {
 		return nil, err
 	}
 
-	// Adapt the template to the dashboard struct
 	for i, widget := range template.Widgets {
-		// Generate and set a uuid for each widget
 		id, err := uuid.NewV4()
 		if err != nil {
 			return nil, fmt.Errorf("cannot create a uuid for new widget: %w", err)
 		}
 		widget.Id = id.String()
-		filterWidgetOptions(widget.Options)
-		// Even if the widget has no options, its field should exist
-		if widget.Options == nil {
-			widget.Options = make(map[string]interface{})
-		}
+
 		// Set the correct variable id, given the thing id and the variable name
 		for j, variable := range widget.Variables {
 			// Check if thing name should be overridden
@@ -118,17 +113,165 @@ func LoadDashboard(ctx context.Context, file string, override map[string]string,
 			if variable.ThingID == "" || variable.ThingID == precheck {
 				return nil, fmt.Errorf("no override provided for thing %s", precheck)
 			}
-			variable.VariableID, err = getVariableID(ctx, variable.ThingID, variable.VariableName, thinger)
+			variable.VariableID, err = getVariableID(ctx, variable.ThingID, variable.VariableID, thinger)
 			if err != nil {
 				return nil, err
 			}
 			widget.Variables[j] = variable
 		}
+
+		if widget.Options != nil {
+			filterWidgetOptions(widget.Options)
+		}
+
+		if widget.Type == "Image Map" && widget.Options != nil {
+			markersSettings, ok := widget.Options["markersSettings"].([]interface{})
+			if ok {
+				updatedMarkersSettings := []interface{}{}
+				for _, marker := range markersSettings {
+					markerMap, isMap := marker.(map[string]interface{})
+					if isMap {
+						updatedMarker := make(map[string]interface{})
+						for key, value := range markerMap {
+							if key != "property" {
+								updatedMarker[key] = value
+							} else {
+								propertyPlaceholder, isString := value.(string)
+								if isString {
+									templateIDs := strings.Split(propertyPlaceholder, ":")
+									if len(templateIDs) >= 2 {
+										thingID := templateIDs[0]
+										variableName := templateIDs[1]
+										if id, ok := override[thingID]; ok {
+											thingID = id
+										} else {
+											return nil, fmt.Errorf("no override provided for thing %s", thingID)
+										}
+										propertyID, err := getVariableID(ctx, thingID, variableName, thinger)
+										if err != nil {
+											return nil, fmt.Errorf("resolving variable id for thing %s and variable %s: %w", thingID, variableName, err)
+										}
+										property, err := thinger.PropertyShow(ctx, thingID, propertyID)
+										if err == nil {
+											updatedMarker["property"] = *property
+										}
+
+									} else {
+										continue
+									}
+								}
+							}
+						}
+						updatedMarkersSettings = append(updatedMarkersSettings, updatedMarker)
+					}
+				}
+				widget.Options["markersSettings"] = updatedMarkersSettings
+			}
+		}
+
+		if widget.Type == "Advanced Chart" && widget.Options != nil {
+			aggregations, ok := widget.Options["aggregation"].(map[string]interface{})
+			if ok {
+				properties := []iotclient.ArduinoProperty{}
+				newAggregation := make(map[string]interface{})
+				for k, val := range aggregations {
+					templateIds := strings.Split(k, ":")
+					if len(templateIds) >= 2 {
+						thingID := templateIds[0]
+						variableName := templateIds[1]
+						if id, ok := override[thingID]; ok {
+							thingID = id
+						} else {
+							return nil, fmt.Errorf("no override provided for thing %s", thingID)
+						}
+
+						propertyID, err := getVariableID(ctx, thingID, variableName, thinger)
+						if err != nil {
+							return nil, fmt.Errorf("resolving variable id for thing %s and variable %s: %w", thingID, variableName, err)
+						}
+
+						if propertyID != "" {
+							newAggregation[propertyID] = val
+							prop, err := thinger.PropertyShow(ctx, thingID, propertyID)
+							if err == nil {
+								properties = append(properties, *prop)
+							}
+						}
+
+						widget.Options["aggregation"] = newAggregation
+
+					}
+
+				}
+				widget.Options["properties"] = properties
+			}
+
+			formats, ok := widget.Options["format"].(map[string]interface{})
+			if ok {
+				newFormat := make(map[string]interface{})
+				for k, val := range formats {
+					templateIds := strings.Split(k, ":")
+					if len(templateIds) >= 2 {
+						thingID := templateIds[0]
+						variableName := templateIds[1]
+						if id, ok := override[thingID]; ok {
+							thingID = id
+						} else {
+							return nil, fmt.Errorf("no override provided for thing %s", thingID)
+						}
+
+						propertyID, err := getVariableID(ctx, thingID, variableName, thinger)
+						if err != nil {
+							return nil, fmt.Errorf("resolving variable id for thing %s and variable %s: %w", thingID, variableName, err)
+						}
+
+						if propertyID != "" {
+							newFormat[propertyID] = val
+						}
+					}
+
+				}
+				widget.Options["format"] = newFormat
+			}
+			axes, ok := widget.Options["axes"].(map[string]interface{})
+			if ok {
+				newAxes := make(map[string]interface{})
+				for k, val := range axes {
+					templateIds := strings.Split(k, ":")
+					if len(templateIds) >= 2 {
+						thingID := templateIds[0]
+						variableName := templateIds[1]
+						if id, ok := override[thingID]; ok {
+							thingID = id
+						} else {
+							return nil, fmt.Errorf("no override provided for thing %s", thingID)
+						}
+
+						propertyID, err := getVariableID(ctx, thingID, variableName, thinger)
+						if err != nil {
+							return nil, fmt.Errorf("resolving variable id for thing %s and variable %s: %w", thingID, variableName, err)
+						}
+
+						if propertyID != "" {
+							newAxes[propertyID] = val
+						}
+					}
+
+				}
+				widget.Options["axes"] = newAxes
+			}
+		}
+
+		if widget.Options == nil {
+			widget.Options = make(map[string]interface{})
+		}
+
 		template.Widgets[i] = widget
 	}
 
 	// Convert template into dashboard structure exploiting json marshalling/unmarshalling
 	dashboard := &iotclient.Dashboardv2{}
+
 	t, err := json.Marshal(template)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "extracting template", err)
@@ -137,6 +280,8 @@ func LoadDashboard(ctx context.Context, file string, override map[string]string,
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "creating dashboard structure from template", err)
 	}
+
+	dashboard.AdditionalProperties = map[string]any{}
 
 	return dashboard, nil
 }
