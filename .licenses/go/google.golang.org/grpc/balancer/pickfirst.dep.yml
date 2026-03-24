@@ -1,13 +1,13 @@
 ---
-name: google.golang.org/grpc/internal/grpcrand
-version: v1.64.1
+name: google.golang.org/grpc/balancer/pickfirst
+version: v1.79.3
 type: go
-summary: Package grpcrand implements math/rand functions in a concurrent-safe way
-  with a global random source, independent of math/rand's global source.
-homepage: https://pkg.go.dev/google.golang.org/grpc/internal/grpcrand
+summary: Package pickfirst contains the pick_first load balancing policy which is
+  the universal leaf policy.
+homepage: https://pkg.go.dev/google.golang.org/grpc/balancer/pickfirst
 license: apache-2.0
 licenses:
-- sources: grpc@v1.64.1/LICENSE
+- sources: grpc@v1.79.3/LICENSE
   text: |2
 
                                      Apache License
