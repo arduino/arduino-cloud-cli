@@ -28,7 +28,15 @@ import (
 type DashboardTemplate struct {
 	ID      string           `json:"id" yaml:"id"`
 	Name    string           `json:"name,omitempty" yaml:"name,omitempty"`
+	Pages   []Page           `json:"pages,omitempty" yaml:"pages,omitempty"`
 	Widgets []WidgetTemplate `json:"widgets,omitempty" yaml:"widgets,omitempty"`
+}
+
+type Page struct {
+	Id       string  `json:"id" yaml:"id"`
+	Name     string  `json:"name" yaml:"name"`
+	Position int     `json:"position" yaml:"position"`
+	Icon     *string `json:"icon,omitempty" yaml:"icon,omitempty"`
 }
 
 type WidgetTemplate struct {
@@ -44,6 +52,7 @@ type WidgetTemplate struct {
 	XMobile      *int                   `json:"x_mobile" yaml:"x_mobile"`
 	YMobile      *int                   `json:"y_mobile" yaml:"y_mobile"`
 	Variables    []VariableTemplate     `json:"variables" yaml:"variables"`
+	PageID       string                 `json:"page_id" yaml:"page_id"`
 	Options      map[string]interface{} `json:"options" yaml:"options"`
 }
 
