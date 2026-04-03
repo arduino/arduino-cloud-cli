@@ -123,6 +123,9 @@ func LoadDashboard(ctx context.Context, file string, override map[string]string,
 				continue
 			}
 			widget.PageID = pageID.String()
+		} else {
+			// If no page is specified for the widget, assign it to the default page
+			widget.PageID = "0"
 		}
 
 		// Set the correct variable id, given the thing id and the variable name
