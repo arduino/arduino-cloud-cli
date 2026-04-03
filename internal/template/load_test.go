@@ -62,61 +62,61 @@ var (
 			},
 		},
 	}
-
-	dashboardDetailed = &iotclient.Dashboardv2{
+	pageID            = "0"
+	dashboardDetailed = &iotclient.Dashboardv3{
 		Name: toStringPointer("dashboard"),
-		Widgets: []iotclient.Widget{
+		Widgets: []iotclient.Widgetv3{
 			{Name: toStringPointer("Switch-name"), Height: 1, HeightMobile: toInt64Pointer(2), Width: 3, WidthMobile: toInt64Pointer(4),
 				X: 5, XMobile: toInt64Pointer(6), Y: 7, YMobile: toInt64Pointer(8), Options: map[string]interface{}{"showLabels": true},
-				Type: "Switch", AdditionalProperties: map[string]any{},
+				Type: "Switch", AdditionalProperties: map[string]any{}, PageId: &pageID,
 			},
 		},
 		AdditionalProperties: map[string]any{},
 	}
 
-	dashboardNoOptions = &iotclient.Dashboardv2{
+	dashboardNoOptions = &iotclient.Dashboardv3{
 		Name: toStringPointer("dashboard-no-options"),
-		Widgets: []iotclient.Widget{
+		Widgets: []iotclient.Widgetv3{
 			{Name: toStringPointer("Switch-name"), Height: 1, HeightMobile: toInt64Pointer(2), Width: 3, WidthMobile: toInt64Pointer(4),
 				X: 5, XMobile: toInt64Pointer(6), Y: 7, YMobile: toInt64Pointer(8), Options: map[string]interface{}{},
-				Type: "Switch", AdditionalProperties: map[string]any{},
+				Type: "Switch", AdditionalProperties: map[string]any{}, PageId: &pageID,
 			},
 		},
 		AdditionalProperties: map[string]any{},
 	}
 
-	dashboardWithVariable = &iotclient.Dashboardv2{
+	dashboardWithVariable = &iotclient.Dashboardv3{
 		Name: toStringPointer("dashboard-with-variable"),
-		Widgets: []iotclient.Widget{
+		Widgets: []iotclient.Widgetv3{
 			{Name: toStringPointer("Switch-name"), Height: 1, HeightMobile: toInt64Pointer(2), Width: 3, WidthMobile: toInt64Pointer(4),
 				X: 5, XMobile: toInt64Pointer(6), Y: 7, YMobile: toInt64Pointer(8), Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
-				Variables: []string{switchyID}, AdditionalProperties: map[string]any{},
+				Variables: []string{switchyID}, AdditionalProperties: map[string]any{}, PageId: &pageID,
 			},
 		},
 		AdditionalProperties: map[string]any{},
 	}
 
-	dashboardVariableOverride = &iotclient.Dashboardv2{
+	dashboardVariableOverride = &iotclient.Dashboardv3{
 		Name: toStringPointer("dashboard-with-variable"),
-		Widgets: []iotclient.Widget{
+		Widgets: []iotclient.Widgetv3{
 			{Name: toStringPointer("Switch-name"), Height: 1, HeightMobile: toInt64Pointer(2), Width: 3, WidthMobile: toInt64Pointer(4),
 				X: 5, XMobile: toInt64Pointer(6), Y: 7, YMobile: toInt64Pointer(8), Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
-				Variables: []string{switchyOverriddenID}, AdditionalProperties: map[string]any{},
+				Variables: []string{switchyOverriddenID}, AdditionalProperties: map[string]any{}, PageId: &pageID,
 			},
 		},
 		AdditionalProperties: map[string]any{},
 	}
 
-	dashboardTwoWidgets = &iotclient.Dashboardv2{
+	dashboardTwoWidgets = &iotclient.Dashboardv3{
 		Name: toStringPointer("dashboard-two-widgets"),
-		Widgets: []iotclient.Widget{
+		Widgets: []iotclient.Widgetv3{
 			{Name: toStringPointer("blink_speed"), Height: 7, Width: 8,
 				X: 7, Y: 5, Options: map[string]interface{}{"min": float64(0), "max": float64(5000)}, Type: "Slider",
-				Variables: []string{blinkSpeedID}, AdditionalProperties: map[string]any{},
+				Variables: []string{blinkSpeedID}, AdditionalProperties: map[string]any{}, PageId: &pageID,
 			},
 			{Name: toStringPointer("relay_2"), Height: 5, Width: 5,
 				X: 5, Y: 0, Options: map[string]interface{}{"showLabels": true}, Type: "Switch",
-				Variables: []string{relayID}, AdditionalProperties: map[string]any{},
+				Variables: []string{relayID}, AdditionalProperties: map[string]any{}, PageId: &pageID,
 			},
 		},
 		AdditionalProperties: map[string]any{},
@@ -189,7 +189,7 @@ func TestLoadDashboard(t *testing.T) {
 		name     string
 		file     string
 		override map[string]string
-		want     *iotclient.Dashboardv2
+		want     *iotclient.Dashboardv3
 	}{
 		{
 			name:     "dashboard detailed",
