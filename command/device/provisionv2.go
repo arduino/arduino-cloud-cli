@@ -452,7 +452,7 @@ func (p *ProvisionV2) claimDevice(name, connectionType string) (ConfigStatus, er
 	}
 
 	if provErr != nil {
-		if provErr.ErrCode == 1 || provErr.ErrCode == 2 {
+		if provErr.ErrCode == 1 || provErr.ErrCode == 2 || provErr.ErrCode == 15 {
 			logrus.Warn("Provisioning V2: Device claim failed. The board has to migrate")
 			return RegisterDevice, nil
 		}
