@@ -89,11 +89,25 @@ func LoadThing(file string) (*iotclient.ThingCreate, error) {
 // LoadDashboard loads a dashboard from a dashboard template file.
 // It applies the thing overrides specified by the override parameter.
 // It requires a ThingFetcher to retrieve the actual variable ids.
-func LoadDashboard(ctx context.Context, file string, override map[string]string, thinger ThingFetcher) (*iotclient.Dashboardv2, error) {
+func LoadDashboard(ctx context.Context, file string, override map[string]string, thinger ThingFetcher) (*iotclient.Dashboardv3, error) {
 	template := DashboardTemplate{}
 	err := loadTemplate(file, &template)
 	if err != nil {
 		return nil, err
+	}
+
+	pageIDs := make(map[string]uuid.UUID)
+	for i, p := range template.Pages {
+		pageID, err := uuid.NewV4()
+		if err != nil {
+			return nil, fmt.Errorf("cannot create a uuid for new page: %w", err)
+		}
+
+		if _, found := pageIDs[p.Id]; found {
+			return nil, errors.New("duplicate page IDs in dashboard template")
+		}
+		pageIDs[p.Id] = pageID
+		template.Pages[i].Id = pageID.String()
 	}
 
 	for i, widget := range template.Widgets {
@@ -102,6 +116,17 @@ func LoadDashboard(ctx context.Context, file string, override map[string]string,
 			return nil, fmt.Errorf("cannot create a uuid for new widget: %w", err)
 		}
 		widget.Id = id.String()
+
+		if widget.PageID != "" && widget.PageID != "0" {
+			pageID, found := pageIDs[widget.PageID]
+			if !found {
+				continue
+			}
+			widget.PageID = pageID.String()
+		} else {
+			// If no page is specified for the widget, assign it to the default page
+			widget.PageID = "0"
+		}
 
 		// Set the correct variable id, given the thing id and the variable name
 		for j, variable := range widget.Variables {
@@ -270,7 +295,7 @@ func LoadDashboard(ctx context.Context, file string, override map[string]string,
 	}
 
 	// Convert template into dashboard structure exploiting json marshalling/unmarshalling
-	dashboard := &iotclient.Dashboardv2{}
+	dashboard := &iotclient.Dashboardv3{}
 
 	t, err := json.Marshal(template)
 	if err != nil {
