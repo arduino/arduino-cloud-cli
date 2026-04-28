@@ -27,20 +27,28 @@ type DashboardInfo struct {
 	Name      string   `json:"name"`
 	ID        string   `json:"id"`
 	UpdatedAt string   `json:"updated_at"`
+	Pages     []string `json:"pages,omitempty"`
 	Widgets   []string `json:"widgets"`
 }
 
-func getDashboardInfo(dashboard *iotclient.ArduinoDashboardv2) *DashboardInfo {
+func getDashboardInfo(dashboard *iotclient.ArduinoDashboardv3) *DashboardInfo {
 	var widgets []string
 	for _, w := range dashboard.Widgets {
 		if w.Name != nil {
 			widgets = append(widgets, *w.Name)
 		}
 	}
+
+	var pages []string
+	for _, p := range dashboard.Pages {
+		pages = append(pages, p.Name)
+	}
+
 	info := &DashboardInfo{
 		Name:      dashboard.Name,
 		ID:        dashboard.Id,
 		UpdatedAt: dashboard.UpdatedAt.String(),
+		Pages:     pages,
 		Widgets:   widgets,
 	}
 	return info

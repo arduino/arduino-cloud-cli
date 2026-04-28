@@ -469,15 +469,14 @@ func (cl *Client) ThingTagsDelete(ctx context.Context, id string, keys []string)
 }
 
 // DashboardCreate adds a new dashboard on Arduino IoT Cloud.
-func (cl *Client) DashboardCreate(ctx context.Context, dashboard *iotclient.Dashboardv2) (*iotclient.ArduinoDashboardv2, error) {
+func (cl *Client) DashboardCreate(ctx context.Context, dashboard *iotclient.Dashboardv3) (*iotclient.ArduinoDashboardv3, error) {
 	ctx, err := ctxWithToken(ctx, cl.token)
 	if err != nil {
 		return nil, err
 	}
-
-	req := cl.api.DashboardsV2API.DashboardsV2Create(ctx)
-	req = req.Dashboardv2(*dashboard)
-	newDashboard, _, err := cl.api.DashboardsV2API.DashboardsV2CreateExecute(req)
+	req := cl.api.DashboardsV3API.DashboardsV3Create(ctx)
+	req = req.Dashboardv3(*dashboard)
+	newDashboard, _, err := cl.api.DashboardsV3API.DashboardsV3CreateExecute(req)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "adding new dashboard", errorDetail(err))
 	}
@@ -486,14 +485,14 @@ func (cl *Client) DashboardCreate(ctx context.Context, dashboard *iotclient.Dash
 
 // DashboardShow allows to retrieve a specific dashboard, given its id,
 // from Arduino IoT Cloud.
-func (cl *Client) DashboardShow(ctx context.Context, id string) (*iotclient.ArduinoDashboardv2, error) {
+func (cl *Client) DashboardShow(ctx context.Context, id string) (*iotclient.ArduinoDashboardv3, error) {
 	ctx, err := ctxWithToken(ctx, cl.token)
 	if err != nil {
 		return nil, err
 	}
 
-	req := cl.api.DashboardsV2API.DashboardsV2Show(ctx, id)
-	dashboard, _, err := cl.api.DashboardsV2API.DashboardsV2ShowExecute(req)
+	req := cl.api.DashboardsV3API.DashboardsV3Show(ctx, id)
+	dashboard, _, err := cl.api.DashboardsV3API.DashboardsV3ShowExecute(req)
 	if err != nil {
 		err = fmt.Errorf("retrieving dashboard, %w", errorDetail(err))
 		return nil, err
@@ -502,14 +501,14 @@ func (cl *Client) DashboardShow(ctx context.Context, id string) (*iotclient.Ardu
 }
 
 // DashboardList returns a list of dashboards on Arduino IoT Cloud.
-func (cl *Client) DashboardList(ctx context.Context) ([]iotclient.ArduinoDashboardv2, error) {
+func (cl *Client) DashboardList(ctx context.Context) ([]iotclient.ArduinoDashboardv3, error) {
 	ctx, err := ctxWithToken(ctx, cl.token)
 	if err != nil {
 		return nil, err
 	}
 
-	req := cl.api.DashboardsV2API.DashboardsV2List(ctx)
-	dashboards, _, err := cl.api.DashboardsV2API.DashboardsV2ListExecute(req)
+	req := cl.api.DashboardsV3API.DashboardsV3List(ctx)
+	dashboards, _, err := cl.api.DashboardsV3API.DashboardsV3ListExecute(req)
 	if err != nil {
 		err = fmt.Errorf("listing dashboards: %w", errorDetail(err))
 		return nil, err
@@ -518,14 +517,13 @@ func (cl *Client) DashboardList(ctx context.Context) ([]iotclient.ArduinoDashboa
 }
 
 // DashboardTemplate retrieves the template of a specific dashboard, given its id.
-func (cl *Client) DashboardTemplate(ctx context.Context, id string) (*iotclient.ArduinoDashboardv2template, error) {
+func (cl *Client) DashboardTemplate(ctx context.Context, id string) (*iotclient.ArduinoDashboardv3template, error) {
 	ctx, err := ctxWithToken(ctx, cl.token)
 	if err != nil {
 		return nil, err
 	}
-
-	req := cl.api.DashboardsV2API.DashboardsV2Template(ctx, id)
-	template, _, err := cl.api.DashboardsV2API.DashboardsV2TemplateExecute(req)
+	req := cl.api.DashboardsV3API.DashboardsV3Template(ctx, id)
+	template, _, err := cl.api.DashboardsV3API.DashboardsV3TemplateExecute(req)
 	if err != nil {
 		err = fmt.Errorf("retrieving dashboard template, %w", errorDetail(err))
 		return nil, err
