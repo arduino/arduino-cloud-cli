@@ -70,15 +70,24 @@ func LoadThing(file string) (*iotclient.ThingCreate, error) {
 	template["properties"] = template["variables"]
 	delete(template, "variables")
 
-	templatetags, ok := template["tags"]
+	templateTags, ok := template["tags"]
 	if ok {
-		tags := []map[string]string{}
-		for _, tagslist := range templatetags.([]interface{}) {
-			for k, v := range tagslist.(map[string]interface{}) {
-				tag := make(map[string]string)
-				tag["key"] = k
-				tag["value"] = fmt.Sprintf("%v", v)
-				tags = append(tags, tag)
+		tagList, ok := templateTags.([]interface{})
+		if !ok {
+			return nil, fmt.Errorf("invalid tags format")
+		}
+
+		tags := make([]map[string]string, 0, len(tagList))
+		for _, item := range tagList {
+			itemMap, ok := item.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			for k, v := range itemMap {
+				tags = append(tags, map[string]string{
+					"key":   k,
+					"value": fmt.Sprintf("%v", v),
+				})
 			}
 		}
 		template["tags"] = tags
