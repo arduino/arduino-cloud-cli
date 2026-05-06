@@ -60,7 +60,7 @@ func FromThing(thing *iotclient.ArduinoThing) map[string]interface{} {
 	return template
 }
 
-func FromDashboard(dashboard *iotclient.ArduinoDashboardv2template) (*DashboardTemplate, error) {
+func FromDashboard(dashboard *iotclient.ArduinoDashboardv3template) (*DashboardTemplate, error) {
 	template := &DashboardTemplate{
 		Name: dashboard.Name,
 	}

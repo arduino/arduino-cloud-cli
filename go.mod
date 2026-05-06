@@ -6,7 +6,7 @@ require (
 	github.com/arduino/arduino-cli v0.0.0-20260210083104-362ae30edc98
 	github.com/arduino/go-paths-helper v1.12.1
 	github.com/arduino/go-win32-utils v1.0.0
-	github.com/arduino/iot-client-go/v3 v3.1.1
+	github.com/arduino/iot-client-go/v3 v3.1.2
 	github.com/beevik/ntp v1.4.3
 	github.com/fxamacker/cbor/v2 v2.8.0
 	github.com/gofrs/uuid v4.2.0+incompatible
