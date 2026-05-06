@@ -70,6 +70,29 @@ func LoadThing(file string) (*iotclient.ThingCreate, error) {
 	template["properties"] = template["variables"]
 	delete(template, "variables")
 
+	templateTags, ok := template["tags"]
+	if ok {
+		tagList, ok := templateTags.([]interface{})
+		if !ok {
+			return nil, fmt.Errorf("invalid tags format")
+		}
+
+		tags := make([]map[string]string, 0, len(tagList))
+		for _, item := range tagList {
+			itemMap, ok := item.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			for k, v := range itemMap {
+				tags = append(tags, map[string]string{
+					"key":   k,
+					"value": fmt.Sprintf("%v", v),
+				})
+			}
+		}
+		template["tags"] = tags
+	}
+
 	// Convert template into thing structure exploiting json marshalling/unmarshalling
 	thing := &iotclient.ThingCreate{}
 
