@@ -25,16 +25,18 @@ import (
 // DeviceInfo contains the most interesting
 // parameters of an Arduino IoT Cloud device.
 type DeviceInfo struct {
-	Name           string   `json:"name"`
-	ID             string   `json:"id"`
-	Board          string   `json:"board"`
-	Serial         string   `json:"serial_number"`
-	FQBN           string   `json:"fqbn"`
-	Tags           []string `json:"tags,omitempty"`
-	Status         *string  `json:"status,omitempty"`
-	Type           string   `json:"type,omitempty"`
-	ConnectionType *string  `json:"connection_type,omitempty"`
-	ThingID        *string  `json:"thing_id,omitempty"`
+	Name             string   `json:"name"`
+	ID               string   `json:"id"`
+	Board            string   `json:"board"`
+	Serial           string   `json:"serial_number"`
+	FQBN             string   `json:"fqbn"`
+	Tags             []string `json:"tags,omitempty"`
+	Status           *string  `json:"status,omitempty"`
+	Type             string   `json:"type,omitempty"`
+	ConnectionType   *string  `json:"connection_type,omitempty"`
+	ThingID          *string  `json:"thing_id,omitempty"`
+	UniqueHardwareID *string  `json:"unique_hardware_id,omitempty"`
+	Locked           *bool    `json:"locked,omitempty"`
 }
 
 func getDeviceInfo(device *iotclient.ArduinoDevicev2) (*DeviceInfo, error) {
@@ -45,15 +47,17 @@ func getDeviceInfo(device *iotclient.ArduinoDevicev2) (*DeviceInfo, error) {
 	}
 
 	dev := &DeviceInfo{
-		Name:           device.Name,
-		ID:             device.Id,
-		Board:          device.Type,
-		Serial:         device.Serial,
-		FQBN:           dereferenceString(device.Fqbn),
-		Tags:           tags,
-		Status:         device.DeviceStatus,
-		Type:           device.Type,
-		ConnectionType: device.ConnectionType,
+		Name:             device.Name,
+		ID:               device.Id,
+		Board:            device.Type,
+		Serial:           device.Serial,
+		FQBN:             dereferenceString(device.Fqbn),
+		Tags:             tags,
+		Status:           device.DeviceStatus,
+		Type:             device.Type,
+		ConnectionType:   device.ConnectionType,
+		UniqueHardwareID: device.UniqueHardwareId,
+		Locked:           device.Locked,
 	}
 	if device.Thing != nil {
 		dev.ThingID = &device.Thing.Id
