@@ -330,33 +330,38 @@ func dashboardTemplateToClientDashboard(t DashboardTemplate) *iotclient.Dashboar
 		dashboard.Name = &t.Name
 	}
 
-	pages := make([]iotclient.Pagepayload, 0, len(t.Pages))
-	for _, p := range t.Pages {
-		pages = append(pages, iotclient.Pagepayload{
-			Id:       p.Id,
-			Name:     p.Name,
-			Position: int64(p.Position),
-			Icon:     p.Icon,
-		})
+	if len(t.Pages) > 0 {
+		pages := make([]iotclient.Pagepayload, 0, len(t.Pages))
+		for _, p := range t.Pages {
+			pages = append(pages, iotclient.Pagepayload{
+				Id:       p.Id,
+				Name:     p.Name,
+				Position: int64(p.Position),
+				Icon:     p.Icon,
+			})
+		}
+		dashboard.Pages = pages
 	}
-	dashboard.Pages = pages
-
 	widgets := make([]iotclient.Widgetv3, 0, len(t.Widgets))
 	for _, w := range t.Widgets {
-		variables := make([]string, 0, len(w.Variables))
-		for _, v := range w.Variables {
-			variables = append(variables, v.VariableID)
-		}
 
 		widget := iotclient.Widgetv3{
-			Id:        w.Id,
-			Type:      w.Type,
-			Width:     int64(w.Width),
-			Height:    int64(w.Height),
-			X:         int64(w.X),
-			Y:         int64(w.Y),
-			Options:   w.Options,
-			Variables: variables,
+			Id:                   w.Id,
+			Type:                 w.Type,
+			Width:                int64(w.Width),
+			Height:               int64(w.Height),
+			X:                    int64(w.X),
+			Y:                    int64(w.Y),
+			Options:              w.Options,
+			AdditionalProperties: map[string]any{},
+		}
+
+		if len(w.Variables) > 0 {
+			variables := make([]string, 0, len(w.Variables))
+			for _, v := range w.Variables {
+				variables = append(variables, v.VariableID)
+			}
+			widget.Variables = variables
 		}
 
 		if w.Name != "" {
