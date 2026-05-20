@@ -111,7 +111,7 @@ var (
 		Name: toStringPointer("dashboard-two-widgets"),
 		Widgets: []iotclient.Widgetv3{
 			{Name: toStringPointer("blink_speed"), Height: 7, Width: 8,
-				X: 7, Y: 5, Options: map[string]interface{}{"min": float64(0), "max": float64(5000)}, Type: "Slider",
+				X: 7, Y: 5, Options: map[string]interface{}{"min": int(0), "max": int(5000)}, Type: "Slider",
 				Variables: []string{blinkSpeedID}, AdditionalProperties: map[string]any{}, PageId: &pageID,
 			},
 			{Name: toStringPointer("relay_2"), Height: 5, Width: 5,
