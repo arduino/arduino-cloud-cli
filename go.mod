@@ -1,6 +1,6 @@
 module github.com/arduino/arduino-cloud-cli
 
-go 1.24.4
+go 1.25.0
 
 require (
 	github.com/arduino/arduino-cli v0.0.0-20260210083104-362ae30edc98
@@ -17,10 +17,10 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 	go.bug.st/cleanup v1.0.0
 	go.bug.st/serial v1.6.2
-	golang.org/x/crypto v0.46.0
+	golang.org/x/crypto v0.50.0
 	golang.org/x/oauth2 v0.34.0
 	google.golang.org/grpc v1.79.3
 	gopkg.in/yaml.v3 v3.0.1
@@ -37,14 +37,14 @@ require (
 	github.com/cmaglie/pb v1.0.27 // indirect
 	github.com/codeclysm/extract/v4 v4.0.0 // indirect
 	github.com/creack/goselect v0.1.2 // indirect
-	github.com/cyphar/filepath-securejoin v0.4.1 // indirect
+	github.com/cyphar/filepath-securejoin v0.6.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
-	github.com/go-git/go-billy/v5 v5.8.0 // indirect
-	github.com/go-git/go-git/v5 v5.18.0 // indirect
+	github.com/go-git/go-billy/v5 v5.9.0 // indirect
+	github.com/go-git/go-git/v5 v5.19.1 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
 	github.com/h2non/filetype v1.1.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -54,6 +54,7 @@ require (
 	github.com/juju/errors v0.0.0-20210818161939-5560c4c073ff // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/klauspost/compress v1.15.13 // indirect
+	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/leonelquinteros/gotext v1.4.0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
@@ -62,7 +63,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
-	github.com/pjbgf/sha1cd v0.3.2 // indirect
+	github.com/pjbgf/sha1cd v0.6.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/pmylund/sortutil v0.0.0-20120526081524-abeda66eb583 // indirect
@@ -80,9 +81,9 @@ require (
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	go.bug.st/downloader/v2 v2.1.1 // indirect
 	go.bug.st/relaxed-semver v0.10.1 // indirect
-	golang.org/x/net v0.48.0 // indirect
-	golang.org/x/sys v0.39.0 // indirect
-	golang.org/x/text v0.32.0 // indirect
+	golang.org/x/net v0.53.0 // indirect
+	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/text v0.36.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
