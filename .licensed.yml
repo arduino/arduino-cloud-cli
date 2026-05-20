@@ -17,6 +17,8 @@ reviewed:
     - github.com/klauspost/compress/internal/cpuinfo
     - github.com/klauspost/compress/internal/snapref
     - github.com/klauspost/compress/zstd
+    - github.com/cyphar/filepath-securejoin
+    - github.com/cyphar/filepath-securejoin/internal/consts
 
 # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/check-dependencies/AGPL-3.0/.licensed.yml
 allowed:
