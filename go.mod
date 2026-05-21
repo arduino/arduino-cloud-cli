@@ -3,7 +3,7 @@ module github.com/arduino/arduino-cloud-cli
 go 1.25.3
 
 require (
-	github.com/arduino/arduino-cli v0.0.0-20260521123531-0c07ccea6b18
+	github.com/arduino/arduino-cli v0.0.0-20260521134718-1ff87c29632c
 	github.com/arduino/go-paths-helper v1.12.1
 	github.com/arduino/go-win32-utils v1.0.0
 	github.com/arduino/iot-client-go/v3 v3.1.2
