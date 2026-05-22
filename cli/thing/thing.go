@@ -35,6 +35,7 @@ func NewCommand() *cobra.Command {
 	thingCommand.AddCommand(initDeleteCommand())
 	thingCommand.AddCommand(initExtractCommand())
 	thingCommand.AddCommand(initBindCommand())
+	thingCommand.AddCommand(initPublishCommand())
 	thingCommand.AddCommand(tag.InitCreateTagsCommand())
 	thingCommand.AddCommand(tag.InitDeleteTagsCommand())
 
