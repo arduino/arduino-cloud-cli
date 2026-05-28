@@ -39,6 +39,7 @@ type CreateParams struct {
 	Port           *string // Serial port - Optional - If omitted then each serial port is analyzed
 	FQBN           *string // Board FQBN - Optional - If omitted then the first device found gets selected
 	ConnectionType *string // Connection type - Optional - If omitted then the default connection type (depends on the board type) get selected
+	Locked         *bool   // Locked state - Optional - If omitted then the device gets created with the default locked state
 }
 
 // Create command is used to provision a new arduino device
@@ -117,6 +118,7 @@ func runProvisioningV2(ctx context.Context, params *CreateParams, comm *arduino.
 		name:                 params.Name,
 		connectionType:       *params.ConnectionType,
 		netConfig:            netConfig,
+		Locked:               params.Locked,
 	})
 	if err != nil {
 		return nil, err
@@ -138,6 +140,11 @@ func runProvisioningV2(ctx context.Context, params *CreateParams, comm *arduino.
 }
 
 func runProvisioningV1(ctx context.Context, params *CreateParams, comm *arduino.Commander, cred *config.Credentials, board *board) (*DeviceInfo, error) {
+	if params.Locked != nil {
+		logrus.Error("Locked flag is not supported for the device.")
+		return nil, errors.New("locked flag is not supported for the device.")
+	}
+
 	logrus.Info("Creating a new device on the cloud")
 	iotClient, err := iot.NewClient(cred)
 	if err != nil {

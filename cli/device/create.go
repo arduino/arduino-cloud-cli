@@ -32,10 +32,11 @@ import (
 )
 
 type createFlags struct {
-	port  string
-	name  string
-	fqbn  string
-	ctype string
+	port   string
+	name   string
+	fqbn   string
+	ctype  string
+	locked string
 }
 
 func initCreateCommand() *cobra.Command {
@@ -55,6 +56,7 @@ func initCreateCommand() *cobra.Command {
 	createCommand.Flags().StringVarP(&flags.name, "name", "n", "", "Device name")
 	createCommand.Flags().StringVarP(&flags.fqbn, "fqbn", "b", "", "Device fqbn")
 	createCommand.Flags().StringVarP(&flags.ctype, "connection", "c", "", "Device connection type")
+	createCommand.Flags().StringVarP(&flags.locked, "locked", "l", "", "Set device locked state (true|false)")
 	createCommand.MarkFlagRequired("name")
 	return createCommand
 }
@@ -78,6 +80,12 @@ func runCreateCommand(flags *createFlags) error {
 	}
 	if flags.fqbn != "" {
 		params.FQBN = &flags.fqbn
+	}
+
+	params.Locked, err = parseLockedFlag(flags.locked)
+	if err != nil {
+		logrus.Errorf("Parsing locked flag:%v", err)
+		return err
 	}
 
 	ctx, cancel := cleanup.InterruptableContext(context.Background())
@@ -111,4 +119,19 @@ func (r createResult) String() string {
 		r.device.Serial,
 		r.device.FQBN,
 	)
+}
+
+func parseLockedFlag(lockedStr string) (*bool, error) {
+	switch lockedStr {
+	case "":
+		return nil, nil
+	case "true":
+		val := true
+		return &val, nil
+	case "false":
+		val := false
+		return &val, nil
+	default:
+		return nil, fmt.Errorf("invalid value for locked flag: %s. Accepted values are 'true' or 'false'", lockedStr)
+	}
 }
