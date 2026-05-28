@@ -19,7 +19,6 @@ package template
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	iotclient "github.com/arduino/iot-client-go/v3"
@@ -60,16 +59,6 @@ type VariableTemplate struct {
 	ThingID    string `json:"thing_id" yaml:"thing_id"`
 	VariableID string `json:"variable_id" yaml:"variable_id"`
 	Name       string `json:"name" yaml:"name"`
-}
-
-// MarshalJSON satisfies the Marshaler interface from json package.
-// With this, when a variableTemplate is marshaled, it only marshals
-// its VariableID. In this way, a widgetTemplate can be
-// marshaled and then unmarshaled into a iot.Widget struct.
-// In the same way, a dashboardTemplate can now be converted
-// into a iot.DashboardV2 leveraging the JSON marshal/unmarshal.
-func (v *VariableTemplate) MarshalJSON() ([]byte, error) {
-	return json.Marshal(v.VariableID)
 }
 
 // ThingFetcher wraps the method to fetch a thing given its id.

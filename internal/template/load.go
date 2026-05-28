@@ -317,19 +317,79 @@ func LoadDashboard(ctx context.Context, file string, override map[string]string,
 		template.Widgets[i] = widget
 	}
 
-	// Convert template into dashboard structure exploiting json marshalling/unmarshalling
-	dashboard := &iotclient.Dashboardv3{}
+	return dashboardTemplateToClientDashboard(template), nil
+}
 
-	t, err := json.Marshal(template)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "extracting template", err)
-	}
-	err = json.Unmarshal(t, &dashboard)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "creating dashboard structure from template", err)
+// dashboardTemplateToClientDashboard converts a DashboardTemplate into an iotclient.Dashboardv3.
+func dashboardTemplateToClientDashboard(t DashboardTemplate) *iotclient.Dashboardv3 {
+	dashboard := &iotclient.Dashboardv3{
+		AdditionalProperties: map[string]any{},
 	}
 
-	dashboard.AdditionalProperties = map[string]any{}
+	if t.Name != "" {
+		dashboard.Name = &t.Name
+	}
 
-	return dashboard, nil
+	if len(t.Pages) > 0 {
+		pages := make([]iotclient.Pagepayload, 0, len(t.Pages))
+		for _, p := range t.Pages {
+			pages = append(pages, iotclient.Pagepayload{
+				Id:       p.Id,
+				Name:     p.Name,
+				Position: int64(p.Position),
+				Icon:     p.Icon,
+			})
+		}
+		dashboard.Pages = pages
+	}
+	widgets := make([]iotclient.Widgetv3, 0, len(t.Widgets))
+	for _, w := range t.Widgets {
+
+		widget := iotclient.Widgetv3{
+			Id:                   w.Id,
+			Type:                 w.Type,
+			Width:                int64(w.Width),
+			Height:               int64(w.Height),
+			X:                    int64(w.X),
+			Y:                    int64(w.Y),
+			Options:              w.Options,
+			AdditionalProperties: map[string]any{},
+		}
+
+		if len(w.Variables) > 0 {
+			variables := make([]string, 0, len(w.Variables))
+			for _, v := range w.Variables {
+				variables = append(variables, v.VariableID)
+			}
+			widget.Variables = variables
+		}
+
+		if w.Name != "" {
+			widget.Name = &w.Name
+		}
+		if w.PageID != "" {
+			widget.PageId = &w.PageID
+		}
+		if w.WidthMobile != nil {
+			v := int64(*w.WidthMobile)
+			widget.WidthMobile = &v
+		}
+		if w.HeightMobile != nil {
+			v := int64(*w.HeightMobile)
+			widget.HeightMobile = &v
+		}
+		if w.XMobile != nil {
+			v := int64(*w.XMobile)
+			widget.XMobile = &v
+		}
+		if w.YMobile != nil {
+			v := int64(*w.YMobile)
+			widget.YMobile = &v
+		}
+
+		widgets = append(widgets, widget)
+	}
+	dashboard.Widgets = widgets
+
+	return dashboard
 }
