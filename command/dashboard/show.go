@@ -18,21 +18,26 @@
 package dashboard
 
 import (
-	"github.com/spf13/cobra"
+	"context"
+
+	"github.com/arduino/arduino-cloud-cli/config"
+	v3 "github.com/arduino/iot-client-go/v3"
+
+	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
 
-func NewCommand() *cobra.Command {
-	dashboardCommand := &cobra.Command{
-		Use:   "dashboard",
-		Short: "Dashboard commands.",
-		Long:  "Dashboard commands.",
+// Show command is used to show
+// a dashboard on Arduino IoT Cloud.
+func Show(ctx context.Context, cred *config.Credentials, dashboardID string) (*v3.ArduinoDashboardv3, error) {
+	iotClient, err := iot.NewClient(cred)
+	if err != nil {
+		return nil, err
 	}
 
-	dashboardCommand.AddCommand(initCreateCommand())
-	dashboardCommand.AddCommand(initShowCommand())
-	dashboardCommand.AddCommand(initListCommand())
-	dashboardCommand.AddCommand(initDeleteCommand())
-	dashboardCommand.AddCommand(initExtractCommand())
+	dashboard, err := iotClient.DashboardShow(ctx, dashboardID)
+	if err != nil {
+		return nil, err
+	}
 
-	return dashboardCommand
+	return dashboard, nil
 }
