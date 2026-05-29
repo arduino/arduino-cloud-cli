@@ -18,26 +18,26 @@
 package thing
 
 import (
-	"github.com/arduino/arduino-cloud-cli/cli/thing/tag"
-	"github.com/spf13/cobra"
+	"context"
+
+	v3 "github.com/arduino/iot-client-go/v3"
+
+	"github.com/arduino/arduino-cloud-cli/config"
+	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
 
-func NewCommand() *cobra.Command {
-	thingCommand := &cobra.Command{
-		Use:   "thing",
-		Short: "Thing commands.",
-		Long:  "Thing commands.",
+// Show command is used to show
+// a thing on Arduino IoT Cloud.
+func Show(ctx context.Context, cred *config.Credentials, thingID string) (*v3.ArduinoThing, error) {
+	iotClient, err := iot.NewClient(cred)
+	if err != nil {
+		return nil, err
 	}
 
-	thingCommand.AddCommand(initCreateCommand())
-	thingCommand.AddCommand(initCloneCommand())
-	thingCommand.AddCommand(initShowCommand())
-	thingCommand.AddCommand(initListCommand())
-	thingCommand.AddCommand(initDeleteCommand())
-	thingCommand.AddCommand(initExtractCommand())
-	thingCommand.AddCommand(initBindCommand())
-	thingCommand.AddCommand(tag.InitCreateTagsCommand())
-	thingCommand.AddCommand(tag.InitDeleteTagsCommand())
+	thing, err := iotClient.ThingShow(ctx, thingID)
+	if err != nil {
+		return nil, err
+	}
 
-	return thingCommand
+	return thing, nil
 }

@@ -29,6 +29,7 @@ func NewCommand() *cobra.Command {
 	}
 
 	dashboardCommand.AddCommand(initCreateCommand())
+	dashboardCommand.AddCommand(initShowCommand())
 	dashboardCommand.AddCommand(initListCommand())
 	dashboardCommand.AddCommand(initDeleteCommand())
 	dashboardCommand.AddCommand(initExtractCommand())
