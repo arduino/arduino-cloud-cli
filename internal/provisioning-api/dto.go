@@ -30,6 +30,7 @@ type ClaimData struct {
 	BoardToken     string `json:"board_token"`
 	ConnectionType string `json:"connection_type"`
 	DeviceName     string `json:"device_name"`
+	Locked         *bool  `json:"locked,omitempty"`
 }
 
 type BadResponse struct {

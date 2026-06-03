@@ -71,6 +71,7 @@ type ProvisioningV2BoardParams struct {
 	name                 string
 	connectionType       string
 	netConfig            NetConfig
+	Locked               *bool
 }
 
 type ProvisionV2 struct {
@@ -165,7 +166,7 @@ func (p *ProvisionV2) Run(ctx context.Context, params ProvisioningV2BoardParams)
 		case WaitingSignature:
 			nextState, err = p.waitingSignature()
 		case ClaimDevice:
-			nextState, err = p.claimDevice(params.name, params.connectionType)
+			nextState, err = p.claimDevice(params.name, params.connectionType, params.Locked)
 		case RegisterDevice:
 			nextState, err = p.registerDevice(params.fqbn, params.serial)
 		case RequestReset:
@@ -436,7 +437,7 @@ func (p *ProvisionV2) waitingSignature() (ConfigStatus, error) {
 	return ErrorState, errors.New("provisioning V2: Signature was not received")
 }
 
-func (p *ProvisionV2) claimDevice(name, connectionType string) (ConfigStatus, error) {
+func (p *ProvisionV2) claimDevice(name, connectionType string, locked *bool) (ConfigStatus, error) {
 	logrus.Info("Provisioning V2: Claiming device...")
 
 	claimData := provisioningapi.ClaimData{
@@ -444,6 +445,7 @@ func (p *ProvisionV2) claimDevice(name, connectionType string) (ConfigStatus, er
 		BoardToken:     p.connectedBoardInfos.Signature,
 		ConnectionType: connectionType,
 		DeviceName:     name,
+		Locked:         locked,
 	}
 
 	provResp, provErr, err := p.provisioningClient.ClaimDevice(claimData)
