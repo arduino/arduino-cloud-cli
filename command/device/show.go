@@ -53,7 +53,7 @@ func Show(ctx context.Context, deviceId string, cred *config.Credentials) (*Devi
 
 	net := []netCredentials{}
 	if device.ConnectionType != nil {
-		netCredentialsArray, err := iotClient.DeviceNetworkCredentials(ctx, deviceId, *foundDevice.ConnectionType)
+		netCredentialsArray, err := iotClient.DeviceNetworkCredentials(ctx, device.Type, *foundDevice.ConnectionType)
 		if err != nil {
 			return nil, net, err
 		}

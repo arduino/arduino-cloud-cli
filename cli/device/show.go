@@ -86,7 +86,7 @@ func (r showResult) String() string {
 		return "No device found."
 	}
 	t := table.New()
-	t.SetHeader("Name", "ID", "Board", "FQBN", "SerialNumber", "Status", "Connection type", "Thing", "Tags")
+	t.SetHeader("Name", "ID", "Board", "FQBN", "SerialNumber", "Status", "Connection type", "Thing", "Tags", "Locked")
 	t.AddRow(
 		r.device.Name,
 		r.device.ID,
@@ -97,6 +97,14 @@ func (r showResult) String() string {
 		dereferenceString(r.device.ConnectionType),
 		dereferenceString(r.device.ThingID),
 		strings.Join(r.device.Tags, ","),
+		dereferenceBool(r.device.Locked),
 	)
 	return t.Render()
+}
+
+func dereferenceBool(b *bool) string {
+	if b == nil {
+		return ""
+	}
+	return fmt.Sprintf("%t", *b)
 }
