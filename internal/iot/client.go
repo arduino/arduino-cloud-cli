@@ -430,6 +430,21 @@ func (cl *Client) ThingList(ctx context.Context, ids []string, device *string, p
 	return things, nil
 }
 
+func (cl *Client) MultiplePropertyPublish(ctx context.Context, thingId string, properties []iotclient.PropertyDefinition) error {
+	ctx, err := ctxWithToken(ctx, cl.token)
+	if err != nil {
+		return err
+	}
+
+	req := cl.api.PropertiesV2API.PropertiesV2PublishMulti(ctx, thingId)
+	req = req.PropertyValues(iotclient.PropertyValues{Properties: properties})
+	_, err = cl.api.PropertiesV2API.PropertiesV2PublishMultiExecute(req)
+	if err != nil {
+		return fmt.Errorf("%s: %w", "publishing multiple property values", errorDetail(err))
+	}
+	return nil
+}
+
 // ThingTagsCreate allows to create or overwrite tags on a thing of Arduino IoT Cloud.
 func (cl *Client) ThingTagsCreate(ctx context.Context, id string, tags map[string]string) error {
 	ctx, err := ctxWithToken(ctx, cl.token)
