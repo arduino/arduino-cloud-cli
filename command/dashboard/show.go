@@ -15,29 +15,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package thing
+package dashboard
 
 import (
-	"github.com/arduino/arduino-cloud-cli/cli/thing/tag"
-	"github.com/spf13/cobra"
+	"context"
+
+	"github.com/arduino/arduino-cloud-cli/config"
+	v3 "github.com/arduino/iot-client-go/v3"
+
+	"github.com/arduino/arduino-cloud-cli/internal/iot"
 )
 
-func NewCommand() *cobra.Command {
-	thingCommand := &cobra.Command{
-		Use:   "thing",
-		Short: "Thing commands.",
-		Long:  "Thing commands.",
+// Show command is used to show
+// a dashboard on Arduino IoT Cloud.
+func Show(ctx context.Context, cred *config.Credentials, dashboardID string) (*v3.ArduinoDashboardv3, error) {
+	iotClient, err := iot.NewClient(cred)
+	if err != nil {
+		return nil, err
 	}
 
-	thingCommand.AddCommand(initCreateCommand())
-	thingCommand.AddCommand(initCloneCommand())
-	thingCommand.AddCommand(initShowCommand())
-	thingCommand.AddCommand(initListCommand())
-	thingCommand.AddCommand(initDeleteCommand())
-	thingCommand.AddCommand(initExtractCommand())
-	thingCommand.AddCommand(initBindCommand())
-	thingCommand.AddCommand(tag.InitCreateTagsCommand())
-	thingCommand.AddCommand(tag.InitDeleteTagsCommand())
+	dashboard, err := iotClient.DashboardShow(ctx, dashboardID)
+	if err != nil {
+		return nil, err
+	}
 
-	return thingCommand
+	return dashboard, nil
 }
