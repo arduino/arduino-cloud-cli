@@ -48,6 +48,7 @@ var (
 		0x23410266: "GIGA",
 		0x23410070: "NANO_ESP32",
 		0x23411002: "UNOR4WIFI",
+		0x23410068: "PORTENTA_C33",
 	}
 
 	arduinoPidToFQBN = map[string]string{
@@ -63,6 +64,7 @@ var (
 		"0266": "arduino:mbed_giga:giga",
 		"0070": "arduino:esp32:nano_nora",
 		"1002": "arduino:renesas_uno:unor4wifi",
+		"0068": "arduino:renesas_portenta:portenta_c33",
 	}
 )
 
