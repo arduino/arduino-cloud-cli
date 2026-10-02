@@ -116,6 +116,7 @@ Here are the FQBNs of the Arduino boards that can be provisioned with this comma
 * `arduino:mbed_giga:giga`
 * `arduino:esp32:nano_nora`
 * `arduino:renesas_uno:unor4wifi`
+* `arduino:renesas_portenta:portenta_c33`
 
 If the device supports more than one connectivity type (Eg: WiFi and Ethernet) the --connection flag can be used to set the desired connectivity
 

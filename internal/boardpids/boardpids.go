@@ -29,6 +29,7 @@ var (
 		0x23410266: "GIGA",
 		0x23410070: "NANO_ESP32",
 		0x23411002: "UNOR4WIFI",
+		0x23410068: "PORTENTA_C33",
 	}
 
 	ArduinoPidToFQBN = map[string]string{
