@@ -301,6 +301,28 @@ Bind a thing to an existing device:
 arduino-cloud-cli thing bind --id <thingID> --device-id <deviceID>
 ```
 
+### Add a variable to a thing
+
+Add a variable to an existing thing. The thing keeps its ID, so dashboards and the bound device are not affected. `--type` accepts the same values used in thing templates (e.g. `FLOAT`, `INT`, `STATUS` (boolean), `CHARSTRING`, `HOME_SWITCH`). `--permission` defaults to `READ_WRITE` and `--update-strategy` to `ON_CHANGE`; with `TIMED`, `--update-parameter` is the update period in seconds:
+
+```bash
+arduino-cloud-cli thing create-variable --id <thingID> --name <variableName> --type <TYPE> --permission <READ_ONLY|READ_WRITE> --update-strategy <ON_CHANGE|TIMED> --update-parameter <N>
+```
+
+### List thing variables
+
+```bash
+arduino-cloud-cli thing list-variables --id <thingID>
+```
+
+### Delete a thing variable
+
+The variable ID is printed by `thing list-variables`:
+
+```bash
+arduino-cloud-cli thing delete-variable --id <thingID> --variable-id <variableID>
+```
+
 #### Tag thing
 
 Add tags to a thing. Tags should be passed as a comma-separated list of `<key>=<value>` items:

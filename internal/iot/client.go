@@ -577,6 +577,52 @@ func (cl *Client) PropertyShow(ctx context.Context, thingId, variableId string) 
 	return property, nil
 }
 
+// PropertyCreate adds a new property to a thing of Arduino IoT Cloud.
+func (cl *Client) PropertyCreate(ctx context.Context, thingId string, property *iotclient.Property) (*iotclient.ArduinoProperty, error) {
+	ctx, err := ctxWithToken(ctx, cl.token)
+	if err != nil {
+		return nil, err
+	}
+
+	req := cl.api.PropertiesV2API.PropertiesV2Create(ctx, thingId)
+	req = req.Property(*property)
+	newProperty, _, err := cl.api.PropertiesV2API.PropertiesV2CreateExecute(req)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", "adding new property", errorDetail(err))
+	}
+	return newProperty, nil
+}
+
+// PropertyList returns the properties of a thing of Arduino IoT Cloud.
+func (cl *Client) PropertyList(ctx context.Context, thingId string) ([]iotclient.ArduinoProperty, error) {
+	ctx, err := ctxWithToken(ctx, cl.token)
+	if err != nil {
+		return nil, err
+	}
+
+	req := cl.api.PropertiesV2API.PropertiesV2List(ctx, thingId)
+	properties, _, err := cl.api.PropertiesV2API.PropertiesV2ListExecute(req)
+	if err != nil {
+		return nil, fmt.Errorf("retrieving properties, %w", errorDetail(err))
+	}
+	return properties, nil
+}
+
+// PropertyDelete deletes a property from a thing of Arduino IoT Cloud.
+func (cl *Client) PropertyDelete(ctx context.Context, thingId, propertyId string) error {
+	ctx, err := ctxWithToken(ctx, cl.token)
+	if err != nil {
+		return err
+	}
+
+	req := cl.api.PropertiesV2API.PropertiesV2Delete(ctx, thingId, propertyId)
+	_, err = cl.api.PropertiesV2API.PropertiesV2DeleteExecute(req)
+	if err != nil {
+		return fmt.Errorf("deleting property: %w", errorDetail(err))
+	}
+	return nil
+}
+
 // TemplateApply apply a given template, creating associated resources like things and dashboards.
 func (cl *Client) TemplateApply(ctx context.Context, id, thingId, prefix, deviceId string, credentials map[string]string) (*iotclient.ArduinoTemplate, error) {
 	ctx, err := ctxWithToken(ctx, cl.token)
