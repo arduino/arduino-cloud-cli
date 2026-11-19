@@ -61,6 +61,12 @@ var (
 		"arduino:renesas_uno:unor4wifi":         "1002",
 		"arduino:esp32:nano_nora":               "0070",
 		"arduino:renesas_portenta:portenta_c33": "0068",
+		"arduino:zephyr_main:portentah7":        "065B",
+		"arduino:zephyr_main:nano_connect":      "065E",
+		"arduino:zephyr_main:nicla_vision":      "035F",
+		"arduino:zephyr_main:opta":              "0664",
+		"arduino:zephyr_main:giga":              "0666",
+		"arduino:zephyr_main:portentac33":       "0668",
 	}
 
 	ArduinoVendorID = "2341"
