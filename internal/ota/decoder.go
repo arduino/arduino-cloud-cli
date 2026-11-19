@@ -63,6 +63,12 @@ var (
 		"0266": "arduino:mbed_giga:giga",
 		"0070": "arduino:esp32:nano_nora",
 		"1002": "arduino:renesas_uno:unor4wifi",
+		"065B": "arduino:zephyr_main:portentah7",
+		"065E": "arduino:zephyr_main:nano_connect",
+		"035F": "arduino:zephyr_main:nicla_vision",
+		"0664": "arduino:zephyr_main:opta",
+		"0666": "arduino:zephyr_main:giga",
+		"0668": "arduino:zephyr_main:portentac33",
 	}
 )
 
