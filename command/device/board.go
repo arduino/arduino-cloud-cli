@@ -37,6 +37,12 @@ var (
 		"arduino:mbed_giga:giga",
 		"arduino:renesas_uno:unor4wifi",
 		"arduino:renesas_portenta:portenta_c33",
+		"arduino:zephyr_main:portentah7",
+		"arduino:zephyr_main:nano_connect",
+		"arduino:zephyr_main:nicla_vision",
+		"arduino:zephyr_main:opta",
+		"arduino:zephyr_main:giga",
+		"arduino:zephyr_main:portentac33",
 	}
 	loraFQBN = []string{
 		"arduino:samd:mkrwan1310",
